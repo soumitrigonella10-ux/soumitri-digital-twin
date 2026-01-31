@@ -1,0 +1,209 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #ffffff;
+  --foreground: #111827;
+  --sidebar-width: 280px;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 
+    system-ui, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom scrollbar - minimal */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #e5e7eb;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #d1d5db;
+}
+
+/* LifeOS Animations */
+@keyframes slide-in-from-right {
+  from {
+    transform: translateX(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fade-scale-in {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes check-mark {
+  0% {
+    transform: scale(0) rotate(-45deg);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.2) rotate(-45deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+.animate-slide-in {
+  animation: slide-in-from-right 0.3s ease-out forwards;
+}
+
+.animate-fade-scale {
+  animation: fade-scale-in 0.2s ease-out forwards;
+}
+
+.animate-check {
+  animation: check-mark 0.3s ease-out forwards;
+}
+
+/* Completed task styling */
+.task-completed {
+  text-decoration: line-through;
+  opacity: 0.5;
+  transition: all 0.3s ease;
+}
+
+/* LifeOS Card Styles */
+.lifeos-card {
+  @apply bg-white rounded-2xl border border-gray-100 shadow-sm;
+  transition: all 0.2s ease;
+}
+
+.lifeos-card:hover {
+  @apply shadow-md;
+}
+
+.lifeos-card-interactive {
+  @apply lifeos-card cursor-pointer;
+}
+
+.lifeos-card-interactive:hover {
+  @apply shadow-md -translate-y-0.5;
+}
+
+/* Category color backgrounds with opacity */
+.bg-category-today { background-color: rgba(99, 102, 241, 0.1); }
+.bg-category-skin { background-color: rgba(236, 72, 153, 0.1); }
+.bg-category-body { background-color: rgba(59, 130, 246, 0.1); }
+.bg-category-bodySpecific { background-color: rgba(139, 92, 246, 0.15); }
+.bg-category-hair { background-color: rgba(234, 179, 8, 0.1); }
+.bg-category-wardrobe { background-color: rgba(249, 115, 22, 0.1); }
+.bg-category-jewellery { background-color: rgba(6, 182, 212, 0.1); }
+.bg-category-breakfast { background-color: rgba(245, 158, 11, 0.1); }
+.bg-category-lunch { background-color: rgba(16, 185, 129, 0.1); }
+.bg-category-dinner { background-color: rgba(67, 56, 202, 0.1); }
+.bg-category-grocery { background-color: rgba(100, 116, 139, 0.1); }
+.bg-category-wellness { background-color: rgba(20, 184, 166, 0.1); }
+.bg-category-fitness { background-color: rgba(239, 68, 68, 0.1); }
+
+/* Border colors for categories */
+.border-category-today { border-color: rgba(99, 102, 241, 0.3); }
+.border-category-skin { border-color: rgba(236, 72, 153, 0.3); }
+.border-category-body { border-color: rgba(59, 130, 246, 0.3); }
+.border-category-bodySpecific { border-color: rgba(139, 92, 246, 0.4); }
+.border-category-hair { border-color: rgba(234, 179, 8, 0.3); }
+.border-category-wardrobe { border-color: rgba(249, 115, 22, 0.3); }
+.border-category-jewellery { border-color: rgba(6, 182, 212, 0.3); }
+.border-category-breakfast { border-color: rgba(245, 158, 11, 0.3); }
+.border-category-lunch { border-color: rgba(16, 185, 129, 0.3); }
+.border-category-dinner { border-color: rgba(67, 56, 202, 0.3); }
+.border-category-grocery { border-color: rgba(100, 116, 139, 0.3); }
+.border-category-wellness { border-color: rgba(20, 184, 166, 0.3); }
+.border-category-fitness { border-color: rgba(239, 68, 68, 0.3); }
+
+/* Floating Action Button */
+.fab-menu {
+  @apply fixed bottom-6 right-6 z-50;
+}
+
+.fab-button {
+  @apply w-14 h-14 rounded-full shadow-lg flex items-center justify-center;
+  @apply bg-indigo-600 text-white;
+  @apply transition-all duration-200;
+}
+
+.fab-button:hover {
+  @apply shadow-xl scale-105;
+}
+
+.fab-button:active {
+  @apply scale-95;
+}
+
+/* Sidebar styles */
+.sidebar {
+  @apply fixed left-0 top-0 h-full bg-white border-r border-gray-100;
+  width: var(--sidebar-width);
+  z-index: 40;
+}
+
+.main-content {
+  @apply min-h-screen bg-gray-50/50;
+}
+
+@media (min-width: 1024px) {
+  .main-content {
+    margin-left: var(--sidebar-width);
+  }
+}
+
+/* Task tile styles */
+.task-tile {
+  @apply relative p-4 rounded-2xl border-2 transition-all duration-200;
+  @apply bg-white hover:shadow-md cursor-pointer;
+}
+
+.task-tile-checked {
+  @apply bg-green-50 border-green-200;
+}
+
+.task-tile-checked .task-text {
+  @apply line-through text-gray-400;
+}
+
+/* Priority warning style */
+.priority-warning {
+  @apply bg-category-bodySpecific border-category-bodySpecific;
+}
+
+/* Add button dashed style */
+.add-button-dashed {
+  @apply border-2 border-dashed border-gray-300 rounded-2xl p-4;
+  @apply flex items-center justify-center gap-2;
+  @apply text-gray-500 hover:text-gray-700 hover:border-gray-400;
+  @apply transition-all duration-200 cursor-pointer;
+}
