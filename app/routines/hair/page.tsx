@@ -1,31 +1,30 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Wind, Sun, Moon, Edit2, Check, X, Droplet } from "lucide-react";
+import { Wind, Sun, Moon, Edit2, Check, X, Droplet, Calendar } from "lucide-react";
 import { useAppStore } from "@/store/useAppStore";
 import { cn } from "@/lib/utils";
 import { Product, TimeOfDay, HairPhase } from "@/types";
+import { ProductCard, PRODUCT_CARD_THEMES } from "@/components/ProductCard";
+
+const DAYS_OF_WEEK = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 // Hair Phase configuration with abbreviations and colors
 const HAIR_PHASES = {
-  oiling: { name: "Oiling", fullName: "Pre-Wash Oiling", color: "bg-amber-100 text-amber-700", border: "border-amber-200" },
-  washing: { name: "Washing", fullName: "Wash Day", color: "bg-blue-100 text-blue-700", border: "border-blue-200" },
-  postWash: { name: "Post-Wash", fullName: "Post-Wash Care", color: "bg-green-100 text-green-700", border: "border-green-200" },
-  daily: { name: "Daily", fullName: "Daily Care & Styling", color: "bg-purple-100 text-purple-700", border: "border-purple-200" },
+  oiling: { name: "Oiling", fullName: "Pre-Wash Oiling", color: "bg-amber-100 text-amber-700", icon: Droplet },
+  washing: { name: "Washing", fullName: "Wash Day", color: "bg-blue-100 text-blue-700", icon: Wind },
+  postWash: { name: "Post-Wash", fullName: "Post-Wash Care", color: "bg-green-100 text-green-700", icon: Droplet },
+  daily: { name: "Daily", fullName: "Daily Care & Styling", color: "bg-purple-100 text-purple-700", icon: Sun },
 } as const;
 
-type PhaseFilterKey = keyof typeof HAIR_PHASES | "ALL";
+
 
 export default function HairPage() {
   const { data, upsertProduct } = useAppStore();
-  const [activeTimeFilter, setActiveTimeFilter] = useState<TimeOfDay | "ALL">("ALL");
-  const [activePhaseFilter, setActivePhaseFilter] = useState<PhaseFilterKey>("ALL");
+  const [activePhaseFilter, setActivePhaseFilter] = useState<HairPhase | "ALL">("ALL");
+  const [completedProducts, setCompletedProducts] = useState<Set<string>>(new Set());
   const [editingProduct, setEditingProduct] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<Partial<Product>>({});
-
-  // Get current day for wash day indicator
-  const today = new Date().getDay();
-  const isWashDay = today === 0 || today === 3; // Sunday or Wednesday
 
   // Filter hair products
   const hairProducts = useMemo(() => {
@@ -34,86 +33,65 @@ export default function HairPage() {
       .sort((a, b) => (a.displayOrder || 999) - (b.displayOrder || 999));
   }, [data.products]);
 
-  // Apply filters
-  const filteredProducts = useMemo(() => {
-    let filtered = hairProducts;
+  // Separate products by hair phase
+  const oilingProducts = useMemo(() => {
+    return hairProducts.filter(p => p.hairPhase === "oiling");
+  }, [hairProducts]);
 
-    // Phase filter
-    if (activePhaseFilter !== "ALL") {
-      filtered = filtered.filter((p) => p.hairPhase === activePhaseFilter);
-    }
+  const washingProducts = useMemo(() => {
+    return hairProducts.filter(p => p.hairPhase === "washing");
+  }, [hairProducts]);
 
-    // Time of day filter
-    if (activeTimeFilter !== "ALL") {
-      filtered = filtered.filter(
-        (p) => p.timeOfDay === activeTimeFilter || p.timeOfDay === "ANY"
-      );
-    }
+  const postWashProducts = useMemo(() => {
+    return hairProducts.filter(p => p.hairPhase === "postWash");
+  }, [hairProducts]);
 
-    return filtered;
-  }, [hairProducts, activeTimeFilter, activePhaseFilter]);
+  const dailyProducts = useMemo(() => {
+    return hairProducts.filter(p => p.hairPhase === "daily");
+  }, [hairProducts]);
 
-  // Group filtered products by phase for organized display
-  const groupedProducts = useMemo(() => {
-    const groups: Record<keyof typeof HAIR_PHASES, Product[]> = {
-      oiling: [],
-      washing: [],
-      postWash: [],
-      daily: [],
-    };
+  // Progress calculations
+  const oilingProgress = useMemo(() => {
+    const total = oilingProducts.length;
+    const completed = oilingProducts.filter(p => completedProducts.has(p.id)).length;
+    return { total, completed, percentage: total > 0 ? Math.round((completed / total) * 100) : 0 };
+  }, [oilingProducts, completedProducts]);
 
-    filteredProducts.forEach((product) => {
-      const phase = product.hairPhase || "daily";
-      if (groups[phase]) {
-        groups[phase].push(product);
+  const washingProgress = useMemo(() => {
+    const total = washingProducts.length;
+    const completed = washingProducts.filter(p => completedProducts.has(p.id)).length;
+    return { total, completed, percentage: total > 0 ? Math.round((completed / total) * 100) : 0 };
+  }, [washingProducts, completedProducts]);
+
+  const postWashProgress = useMemo(() => {
+    const total = postWashProducts.length;
+    const completed = postWashProducts.filter(p => completedProducts.has(p.id)).length;
+    return { total, completed, percentage: total > 0 ? Math.round((completed / total) * 100) : 0 };
+  }, [postWashProducts, completedProducts]);
+
+  const dailyProgress = useMemo(() => {
+    const total = dailyProducts.length;
+    const completed = dailyProducts.filter(p => completedProducts.has(p.id)).length;
+    return { total, completed, percentage: total > 0 ? Math.round((completed / total) * 100) : 0 };
+  }, [dailyProducts, completedProducts]);
+
+  const toggleProductCompletion = (productId: string) => {
+    setCompletedProducts(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(productId)) {
+        newSet.delete(productId);
+      } else {
+        newSet.add(productId);
       }
+      return newSet;
     });
-
-    // Sort each group by displayOrder
-    Object.keys(groups).forEach((key) => {
-      groups[key as keyof typeof HAIR_PHASES].sort(
-        (a, b) => (a.displayOrder || 999) - (b.displayOrder || 999)
-      );
-    });
-
-    return groups;
-  }, [filteredProducts]);
-
-  // Get phases that have products
-  const activePhases = useMemo(() => {
-    return (Object.keys(HAIR_PHASES) as (keyof typeof HAIR_PHASES)[]).filter(
-      (phase) => groupedProducts[phase].length > 0
-    );
-  }, [groupedProducts]);
-
-  // Calculate dynamic display order
-  const getDynamicOrder = useMemo(() => {
-    const orderMap = new Map<string, number>();
-    
-    if (activePhaseFilter === "ALL") {
-      // Number within each phase group
-      activePhases.forEach((phaseKey) => {
-        let phaseOrder = 1;
-        groupedProducts[phaseKey].forEach((product) => {
-          orderMap.set(product.id, phaseOrder++);
-        });
-      });
-    } else {
-      // Single phase selected - number sequentially
-      let globalOrder = 1;
-      filteredProducts.forEach((product) => {
-        orderMap.set(product.id, globalOrder++);
-      });
-    }
-    
-    return (productId: string) => orderMap.get(productId) || 0;
-  }, [filteredProducts, groupedProducts, activePhases, activePhaseFilter]);
+  };
 
   const handleEditStart = (product: Product) => {
     setEditingProduct(product.id);
     setEditForm({
       displayOrder: product.displayOrder,
-      timeOfDay: product.timeOfDay,
+      hairPhase: product.hairPhase,
     });
   };
 
@@ -121,7 +99,7 @@ export default function HairPage() {
     upsertProduct({
       ...product,
       displayOrder: editForm.displayOrder,
-      timeOfDay: editForm.timeOfDay as TimeOfDay,
+      hairPhase: editForm.hairPhase as HairPhase,
     });
     setEditingProduct(null);
     setEditForm({});
@@ -133,264 +111,406 @@ export default function HairPage() {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="w-full">
       {/* Header */}
-      <header className="animate-fade-scale">
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-2xl bg-category-hair flex items-center justify-center">
-            <Wind className="w-6 h-6 text-yellow-500" />
+      <div className="w-full px-3 py-8 md:px-4">
+        <header className="animate-fade-scale">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-2xl bg-category-hair flex items-center justify-center">
+              <Wind className="w-6 h-6 text-amber-500" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">Hair Care Products</h1>
+              <p className="text-gray-500">Manage your hair care routine by phase</p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Hair Care</h1>
-            <p className="text-gray-500">Your complete hair care routine</p>
-          </div>
-        </div>
-      </header>
-
-      {/* Wash Day Indicator */}
-      <div className={cn(
-        "border rounded-2xl p-4",
-        isWashDay ? "bg-blue-50 border-blue-200" : "bg-gray-50 border-gray-200"
-      )}>
-        <div className="flex items-center gap-3">
-          <Droplet className={cn("w-5 h-5", isWashDay ? "text-blue-600" : "text-gray-400")} />
-          <div>
-            <h3 className={cn("font-medium", isWashDay ? "text-blue-800" : "text-gray-600")}>
-              {isWashDay ? "Today is Wash Day!" : "Next Wash Day: " + (today < 3 ? "Wednesday" : "Sunday")}
-            </h3>
-            <p className={cn("text-sm", isWashDay ? "text-blue-700" : "text-gray-500")}>
-              Wash days: Sunday & Wednesday
-            </p>
-          </div>
-        </div>
+        </header>
       </div>
 
-      {/* Filters */}
-      <div className="space-y-4">
-        {/* Hair Phase Filter */}
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="text-sm font-medium text-gray-600 mr-2">Phase:</span>
-          <button
-            onClick={() => setActivePhaseFilter("ALL")}
-            className={cn(
-              "px-3 py-1.5 rounded-xl text-sm font-medium transition-all",
-              activePhaseFilter === "ALL"
-                ? "bg-yellow-100 text-yellow-700"
-                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-            )}
-          >
-            All Phases
-          </button>
-          {(Object.keys(HAIR_PHASES) as (keyof typeof HAIR_PHASES)[]).map((phaseKey) => {
-            const phase = HAIR_PHASES[phaseKey];
-            const count = hairProducts.filter((p) => p.hairPhase === phaseKey).length;
-            
-            if (count === 0) return null;
-            
-            return (
-              <button
-                key={phaseKey}
-                onClick={() => setActivePhaseFilter(phaseKey)}
-                className={cn(
-                  "px-3 py-1.5 rounded-xl text-sm font-medium transition-all flex items-center gap-1.5",
-                  activePhaseFilter === phaseKey
-                    ? phase.color
-                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                )}
-              >
-                <span>{phase.name}</span>
-                <span className="text-xs opacity-70">({count})</span>
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Time of Day Filter */}
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="text-sm font-medium text-gray-600 mr-2">Time:</span>
-          {(["ALL", "AM", "PM", "ANY"] as const).map((time) => (
-            <button
-              key={time}
-              onClick={() => setActiveTimeFilter(time as TimeOfDay | "ALL")}
-              className={cn(
-                "px-3 py-1.5 rounded-xl text-sm font-medium transition-all flex items-center gap-1.5",
-                activeTimeFilter === time
-                  ? "bg-yellow-100 text-yellow-700"
-                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-              )}
-            >
-              {time === "AM" && <Sun className="w-3.5 h-3.5" />}
-              {time === "PM" && <Moon className="w-3.5 h-3.5" />}
-              {time === "ALL" ? "All Times" : time}
-            </button>
-          ))}
-        </div>
-
-        
-      </div>
-
-      {/* Products List - Grouped by Phase */}
-      <div className="space-y-6">
-        {filteredProducts.length === 0 ? (
-          <div className="lifeos-card p-8 text-center border-2 border-yellow-100">
-            <Wind className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-            <p className="text-gray-500">No products match your filters</p>
-          </div>
-        ) : (
-          activePhases.map((phaseKey) => {
-            const phase = HAIR_PHASES[phaseKey];
-            const products = groupedProducts[phaseKey];
-            
-            if (products.length === 0) return null;
-            
-            return (
-              <div key={phaseKey} className="space-y-3">
-                {/* Phase Header */}
-                <div className={cn(
-                  "flex items-center gap-2 px-3 py-2 rounded-xl",
-                  phase.color
-                )}>
-                  <h2 className="font-semibold">{phase.name}</h2>
-                  <span className="text-xs opacity-70 ml-auto">{products.length} product{products.length !== 1 ? 's' : ''}</span>
-                </div>
-                
-                {/* Products in this phase */}
-                {products.map((product, index) => (
-                  <div
-                    key={product.id}
-                    className={cn(
-                      "lifeos-card border-2 p-4 animate-slide-in ml-4",
-                      phase.border
-                    )}
-                    style={{ animationDelay: `${index * 50}ms` }}
-                  >
-                    {editingProduct === product.id ? (
-                      // Edit Mode
-                      <div className="space-y-4">
-                        <div className="flex items-center justify-between">
-                          <h3 className="font-semibold text-gray-900">{product.name}</h3>
-                          <div className="flex items-center gap-2">
-                            <button
-                              onClick={() => handleEditSave(product)}
-                              className="p-2 rounded-lg bg-green-100 text-green-600 hover:bg-green-200"
-                            >
-                              <Check className="w-4 h-4" />
-                            </button>
-                            <button
-                              onClick={handleEditCancel}
-                              className="p-2 rounded-lg bg-red-100 text-red-600 hover:bg-red-200"
-                            >
-                              <X className="w-4 h-4" />
-                            </button>
-                          </div>
-                        </div>
-
-                        {/* Display Order */}
-                        <div className="flex items-center gap-3">
-                          <label className="text-sm text-gray-600 w-24">Order:</label>
-                          <input
-                            type="number"
-                            min="1"
-                            value={editForm.displayOrder || ""}
-                            onChange={(e) =>
-                              setEditForm({ ...editForm, displayOrder: parseInt(e.target.value) || 1 })
-                            }
-                            className="w-20 px-3 py-1.5 rounded-lg border border-gray-200 text-sm"
-                          />
-                        </div>
-
-                        {/* Time of Day */}
-                        <div className="flex items-center gap-3">
-                          <label className="text-sm text-gray-600 w-24">Time:</label>
-                          <div className="flex gap-2">
-                            {(["AM", "PM", "ANY"] as TimeOfDay[]).map((time) => (
-                              <button
-                                key={time}
-                                onClick={() => setEditForm({ ...editForm, timeOfDay: time })}
-                                className={cn(
-                                  "px-3 py-1.5 rounded-lg text-sm font-medium transition-all",
-                                  editForm.timeOfDay === time
-                                    ? "bg-yellow-500 text-white"
-                                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                                )}
-                              >
-                                {time}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-
-                        
-                      </div>
-                    ) : (
-                      // View Mode
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                          {/* Order Badge - Dynamic based on filters */}
-                          <div className={cn(
-                            "w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold",
-                            phase.color
-                          )}>
-                            {getDynamicOrder(product.id) || "-"}
-                          </div>
-
-                          <div>
-                            <h3 className="font-semibold text-gray-900">{product.name}</h3>
-                            <div className="flex flex-wrap items-center gap-2 mt-1">
-                              <span className="text-xs text-gray-500">{product.category}</span>
-                              {product.actives.length > 0 && (
-                                <span className="text-xs text-gray-400">
-                                  • {product.actives.join(", ")}
-                                </span>
-                              )}
-                              {product.cautionTags.length > 0 && (
-                                <span className="text-xs text-amber-600">
-                                  ⚠️ {product.cautionTags.join(", ")}
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="flex items-center gap-3">
-                          {/* Time Badge */}
-                          <span
-                            className={cn(
-                              "px-2 py-1 rounded-lg text-xs font-medium flex items-center gap-1",
-                              product.timeOfDay === "AM"
-                                ? "bg-amber-100 text-amber-700"
-                                : product.timeOfDay === "PM"
-                                ? "bg-indigo-100 text-indigo-700"
-                                : "bg-gray-100 text-gray-600"
-                            )}
-                          >
-                            {product.timeOfDay === "AM" && <Sun className="w-3 h-3" />}
-                            {product.timeOfDay === "PM" && <Moon className="w-3 h-3" />}
-                            {product.timeOfDay || "Any"}
-                          </span>
-
-                          {/* Edit Button */}
-                          <button
-                            onClick={() => handleEditStart(product)}
-                            className="p-2 rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-600"
-                          >
-                            <Edit2 className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                ))}
+      {/* Quad-Column Routine Board */}
+      <div className="w-full px-3 pb-12 md:px-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-4 gap-6">
+        {/* Oiling Column */}
+        <div className="space-y-3">
+          <div className="bg-white rounded-lg border border-gray-200 p-3 shadow-sm">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <Droplet className="w-4 h-4 text-amber-500" />
+                <h3 className="font-semibold text-gray-900">Oiling</h3>
               </div>
-            );
-          })
-        )}
+              <div className="text-xs text-gray-500">
+                {oilingProgress.completed}/{oilingProgress.total}
+              </div>
+            </div>
+            
+            {/* Progress Ring */}
+            <div className="flex items-center gap-2">
+              <div className="relative w-10 h-10">
+                <svg className="w-10 h-10 -rotate-90" viewBox="0 0 32 32">
+                  <circle
+                    cx="16"
+                    cy="16"
+                    r="14"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    fill="none"
+                    className="text-gray-200"
+                  />
+                  <circle
+                    cx="16"
+                    cy="16"
+                    r="14"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    fill="none"
+                    strokeDasharray={`${(oilingProgress.percentage / 100) * 87.96} 87.96`}
+                    className="text-amber-500"
+                    strokeLinecap="round"
+                  />
+                </svg>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className="text-xs font-bold text-gray-700">{oilingProgress.percentage}%</span>
+                </div>
+              </div>
+              <div className="flex-1">
+                <div className="w-full bg-gray-200 rounded-full h-1.5">
+                  <div 
+                    className="h-1.5 rounded-full bg-amber-500 transition-all duration-500"
+                    style={{ width: `${oilingProgress.percentage}%` }}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Oiling Product Cards */}
+          <div className="space-y-2">
+            {oilingProducts.map((product, index) => (
+              <ProductCard
+                key={product.id}
+                product={product}
+                isCompleted={completedProducts.has(product.id)}
+                onToggleComplete={() => toggleProductCompletion(product.id)}
+                onEdit={() => handleEditStart(product)}
+                index={index}
+                theme={PRODUCT_CARD_THEMES.hair}
+              />
+            ))}
+            
+            {oilingProducts.length === 0 && (
+              <div className="text-center py-6 text-gray-500">
+                <Droplet className="w-6 h-6 mx-auto mb-2 opacity-50" />
+                <p className="text-xs">No oiling products</p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Washing Column */}
+        <div className="space-y-3">
+          <div className="bg-white rounded-lg border border-gray-200 p-3 shadow-sm">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <Wind className="w-4 h-4 text-blue-500" />
+                <h3 className="font-semibold text-gray-900">Washing</h3>
+              </div>
+              <div className="text-xs text-gray-500">
+                {washingProgress.completed}/{washingProgress.total}
+              </div>
+            </div>
+            
+            {/* Progress Ring */}
+            <div className="flex items-center gap-2">
+              <div className="relative w-10 h-10">
+                <svg className="w-10 h-10 -rotate-90" viewBox="0 0 32 32">
+                  <circle
+                    cx="16"
+                    cy="16"
+                    r="14"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    fill="none"
+                    className="text-gray-200"
+                  />
+                  <circle
+                    cx="16"
+                    cy="16"
+                    r="14"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    fill="none"
+                    strokeDasharray={`${(washingProgress.percentage / 100) * 87.96} 87.96`}
+                    className="text-blue-500"
+                    strokeLinecap="round"
+                  />
+                </svg>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className="text-xs font-bold text-gray-700">{washingProgress.percentage}%</span>
+                </div>
+              </div>
+              <div className="flex-1">
+                <div className="w-full bg-gray-200 rounded-full h-1.5">
+                  <div 
+                    className="h-1.5 rounded-full bg-blue-500 transition-all duration-500"
+                    style={{ width: `${washingProgress.percentage}%` }}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Washing Product Cards */}
+          <div className="space-y-2">
+            {washingProducts.map((product, index) => (
+              <ProductCard
+                key={product.id}
+                product={product}
+                isCompleted={completedProducts.has(product.id)}
+                onToggleComplete={() => toggleProductCompletion(product.id)}
+                onEdit={() => handleEditStart(product)}
+                index={index}
+                theme={PRODUCT_CARD_THEMES.hair}
+              />
+            ))}
+            
+            {washingProducts.length === 0 && (
+              <div className="text-center py-6 text-gray-500">
+                <Wind className="w-6 h-6 mx-auto mb-2 opacity-50" />
+                <p className="text-xs">No washing products</p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Post-Wash Column */}
+        <div className="space-y-3">
+          <div className="bg-white rounded-lg border border-gray-200 p-3 shadow-sm">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <Droplet className="w-4 h-4 text-green-500" />
+                <h3 className="font-semibold text-gray-900">Post-Wash</h3>
+              </div>
+              <div className="text-xs text-gray-500">
+                {postWashProgress.completed}/{postWashProgress.total}
+              </div>
+            </div>
+            
+            {/* Progress Ring */}
+            <div className="flex items-center gap-2">
+              <div className="relative w-10 h-10">
+                <svg className="w-10 h-10 -rotate-90" viewBox="0 0 32 32">
+                  <circle
+                    cx="16"
+                    cy="16"
+                    r="14"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    fill="none"
+                    className="text-gray-200"
+                  />
+                  <circle
+                    cx="16"
+                    cy="16"
+                    r="14"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    fill="none"
+                    strokeDasharray={`${(postWashProgress.percentage / 100) * 87.96} 87.96`}
+                    className="text-green-500"
+                    strokeLinecap="round"
+                  />
+                </svg>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className="text-xs font-bold text-gray-700">{postWashProgress.percentage}%</span>
+                </div>
+              </div>
+              <div className="flex-1">
+                <div className="w-full bg-gray-200 rounded-full h-1.5">
+                  <div 
+                    className="h-1.5 rounded-full bg-green-500 transition-all duration-500"
+                    style={{ width: `${postWashProgress.percentage}%` }}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Post-Wash Product Cards */}
+          <div className="space-y-2">
+            {postWashProducts.map((product, index) => (
+              <ProductCard
+                key={product.id}
+                product={product}
+                isCompleted={completedProducts.has(product.id)}
+                onToggleComplete={() => toggleProductCompletion(product.id)}
+                onEdit={() => handleEditStart(product)}
+                index={index}
+                theme={PRODUCT_CARD_THEMES.hair}
+              />
+            ))}
+            
+            {postWashProducts.length === 0 && (
+              <div className="text-center py-6 text-gray-500">
+                <Droplet className="w-6 h-6 mx-auto mb-2 opacity-50" />
+                <p className="text-xs">No post-wash products</p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Daily Column */}
+        <div className="space-y-3">
+          <div className="bg-white rounded-lg border border-gray-200 p-3 shadow-sm">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <Sun className="w-4 h-4 text-purple-500" />
+                <h3 className="font-semibold text-gray-900">Daily</h3>
+              </div>
+              <div className="text-xs text-gray-500">
+                {dailyProgress.completed}/{dailyProgress.total}
+              </div>
+            </div>
+            
+            {/* Progress Ring */}
+            <div className="flex items-center gap-2">
+              <div className="relative w-10 h-10">
+                <svg className="w-10 h-10 -rotate-90" viewBox="0 0 32 32">
+                  <circle
+                    cx="16"
+                    cy="16"
+                    r="14"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    fill="none"
+                    className="text-gray-200"
+                  />
+                  <circle
+                    cx="16"
+                    cy="16"
+                    r="14"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    fill="none"
+                    strokeDasharray={`${(dailyProgress.percentage / 100) * 87.96} 87.96`}
+                    className="text-purple-500"
+                    strokeLinecap="round"
+                  />
+                </svg>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className="text-xs font-bold text-gray-700">{dailyProgress.percentage}%</span>
+                </div>
+              </div>
+              <div className="flex-1">
+                <div className="w-full bg-gray-200 rounded-full h-1.5">
+                  <div 
+                    className="h-1.5 rounded-full bg-purple-500 transition-all duration-500"
+                    style={{ width: `${dailyProgress.percentage}%` }}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Daily Product Cards */}
+          <div className="space-y-2">
+            {dailyProducts.map((product, index) => (
+              <ProductCard
+                key={product.id}
+                product={product}
+                isCompleted={completedProducts.has(product.id)}
+                onToggleComplete={() => toggleProductCompletion(product.id)}
+                onEdit={() => handleEditStart(product)}
+                index={index}
+                theme={PRODUCT_CARD_THEMES.hair}
+              />
+            ))}
+            
+            {dailyProducts.length === 0 && (
+              <div className="text-center py-6 text-gray-500">
+                <Sun className="w-6 h-6 mx-auto mb-2 opacity-50" />
+                <p className="text-xs">No daily products</p>
+              </div>
+            )}
+          </div>
+        </div>
+        </div>
       </div>
 
-      {/* Summary */}
-      <div className="text-center text-sm text-gray-400">
-        Showing {filteredProducts.length} of {hairProducts.length} hair products
-      </div>
+      {/* Edit Modal */}
+      {editingProduct && (() => {
+        const product = data.products.find(p => p.id === editingProduct);
+        if (!product) return null;
+
+        return (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-2xl p-6 max-w-lg w-full max-h-[90vh] overflow-y-auto">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-xl font-bold text-gray-900">Edit {product.name}</h3>
+                <button
+                  onClick={handleEditCancel}
+                  className="p-2 rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                {/* Display Order */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Display Order</label>
+                  <input
+                    type="number"
+                    min="1"
+                    value={editForm.displayOrder || ""}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, displayOrder: parseInt(e.target.value) || 1 })
+                    }
+                    className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+
+                {/* Hair Phase */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Hair Phase</label>
+                  <div className="flex gap-2 flex-wrap">
+                    {(Object.keys(HAIR_PHASES) as (keyof typeof HAIR_PHASES)[]).map((phase) => (
+                      <button
+                        key={phase}
+                        onClick={() => setEditForm({ ...editForm, hairPhase: phase })}
+                        className={cn(
+                          "px-4 py-2 rounded-lg text-sm font-medium transition-all",
+                          editForm.hairPhase === phase
+                            ? "bg-blue-500 text-white"
+                            : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                        )}
+                      >
+                        {HAIR_PHASES[phase].name}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div className="flex justify-end gap-3 pt-4">
+                  <button
+                    onClick={handleEditCancel}
+                    className="px-4 py-2 rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-200 transition-all"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={() => handleEditSave(product)}
+                    className="px-4 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600 transition-all"
+                  >
+                    Save Changes
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 }
+

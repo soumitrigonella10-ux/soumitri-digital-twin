@@ -128,7 +128,7 @@ export const skinProducts: Product[] = [
   {
     id: "p-eye-pads",
     name: "Under Eye Hydrogel Pads",
-    category: "Treatment",
+    category: "Face Treatment",
     actives: ["Soothing Agents"],
     cautionTags: [],
     routineType: "skin",

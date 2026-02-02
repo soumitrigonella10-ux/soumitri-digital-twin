@@ -18,11 +18,13 @@ import {
   ShoppingCart,
   Pill,
   Dumbbell,
+  Palette,
   Menu,
   X,
   ChevronRight,
   ChevronDown,
   CircleDot,
+  Heart,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -82,6 +84,16 @@ export const categories = [
     borderClass: "border-category-hair",
     group: "Routines",
   },
+  {
+    id: "makeup",
+    name: "Makeup",
+    icon: Palette,
+    href: "/routines/makeup",
+    color: "lifeos-makeup",
+    bgClass: "bg-category-makeup",
+    borderClass: "border-category-makeup",
+    group: "Routines",
+  },
   // Inventory
   {
     id: "wardrobe",
@@ -109,6 +121,16 @@ export const categories = [
     color: "lifeos-jewellery",
     bgClass: "bg-category-jewellery",
     borderClass: "border-category-jewellery",
+    group: "Inventory",
+  },
+  {
+    id: "wishlist",
+    name: "Wishlist",
+    icon: Heart,
+    href: "/inventory/wishlist",
+    color: "lifeos-wishlist",
+    bgClass: "bg-category-wishlist",
+    borderClass: "border-category-wishlist",
     group: "Inventory",
   },
   // Nutrition

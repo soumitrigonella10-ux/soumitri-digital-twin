@@ -25,6 +25,14 @@ export type WardrobeCategory =
   | "Accessories" 
   | "Outerwear";
 
+export type WishlistCategory = 
+  | "Tops" 
+  | "Bottoms" 
+  | "Dresses" 
+  | "Outerwear" 
+  | "Shoes" 
+  | "Jewellery";
+
 export type ModestyLevel = "Low" | "Medium" | "High";
 export type ComfortLevel = "Low" | "Medium" | "High";
 
@@ -37,6 +45,7 @@ export interface Product {
   category: string;
   actives: string[];
   cautionTags: string[]; // e.g., "strong-active", "drying"
+  imageUrl?: string; // Product image URL
   // Routine-specific fields
   routineType?: RoutineType; // skin, body, bodySpecific, hair, etc.
   bodyAreas?: BodyArea[]; // Which body areas this product is used on (UA, IT, BL, IA, B)
@@ -45,6 +54,7 @@ export interface Product {
   weekdays?: number[]; // 0=Sun, 1=Mon, ..., 6=Sat (which days to use this product)
   displayOrder?: number; // Order in which to display/use the product in routine
   notes?: string; // Additional notes about dosage, purpose, timing, etc.
+  isActive?: boolean; // Whether this product is currently active in routine
 }
 
 // ========================================
@@ -116,6 +126,24 @@ export interface WardrobeItem {
 }
 
 // ========================================
+// Wishlist Item
+// ========================================
+export interface WishlistItem {
+  id: string;
+  name: string;
+  category: WishlistCategory;
+  imageUrl?: string;
+  websiteUrl?: string;
+  price?: number;
+  currency?: string;
+  notes?: string;
+  dateAdded: string; // ISO date
+  priority?: "Low" | "Medium" | "High";
+  purchased?: boolean;
+  purchaseDate?: string; // ISO date
+}
+
+// ========================================
 // Outfit (saved combinations)
 // ========================================
 export interface Outfit {
@@ -161,6 +189,27 @@ export interface Dressing {
 }
 
 // ========================================
+// Workout Exercise
+// ========================================
+export interface Exercise {
+  name: string;
+  sets?: string; // e.g., "4×8–12", "3×10–15"
+  reps?: string;
+  notes?: string; // Additional info like "NEW:", "✅", etc.
+  isNew?: boolean;
+  isEssential?: boolean;
+}
+
+// ========================================
+// Workout Section (warm-up, main, finisher, etc.)
+// ========================================
+export interface WorkoutSection {
+  title: string; // "Warm-up", "Main Workout", "Optional Finisher", etc.
+  description?: string; // e.g., "6–8 min"
+  exercises: Exercise[];
+}
+
+// ========================================
 // Workout Plan
 // ========================================
 export interface WorkoutPlan {
@@ -168,6 +217,8 @@ export interface WorkoutPlan {
   name: string;
   weekday: number[]; // days scheduled
   durationMin: number;
+  goal?: string; // Goal of the workout
+  sections: WorkoutSection[]; // Warm-up, Main, Finisher, etc.
 }
 
 // ========================================

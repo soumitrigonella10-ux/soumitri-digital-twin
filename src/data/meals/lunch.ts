@@ -55,4 +55,43 @@ export const lunchBowlConfig: LunchBowlConfig = {
 // ========================================
 // LUNCH MEALS
 // ========================================
-export const lunchMeals: MealTemplate[] = [];
+export const lunchMeals: MealTemplate[] = [
+  {
+    id: "build-your-bowl",
+    name: "Build Your Bowl",
+    timeOfDay: "ANY",
+    mealType: "lunch",
+    items: ["Rice base", "Everyday salads", "Rotating proteins", "Quick topups"],
+    ingredients: [
+      {
+        name: "Rice (cooked)",
+        quantity: "3/4–1 cup",
+        category: "grains"
+      },
+      {
+        name: "Everyday Salads",
+        quantity: "1/2 cup",
+        category: "vegetables"
+      },
+      {
+        name: "Protein (rotating)",
+        quantity: "100-150g",
+        category: "protein",
+        notes: "Chickpeas, Rajma, or Paneer based on daily portions"
+      }
+    ],
+    instructions: [
+      "Start with rice base (3/4-1 cup cooked)",
+      "Add everyday salads (1/2 cup)",
+      "Choose protein based on daily rotation:",
+      "• Monday/Tuesday: 120-140g chickpeas/rajma/paneer",
+      "• Wednesday/Thursday: 120-140g chickpeas/rajma/paneer", 
+      "• Friday/Saturday: 100-120g chickpeas/rajma/paneer",
+      "• Sunday: 150g protein",
+      "Optional: Add quick protein topups like paneer + chilli flakes"
+    ],
+    prepTimeMin: 15,
+    servings: 1,
+    tags: ["daily", "lunch-bowl", "balanced", "protein-rich", "customizable"]
+  }
+];

@@ -26,7 +26,7 @@ export const bodySpecificProducts: Product[] = [
   {
     id: "p-even-tone-spray-ua-am",
     name: "Asaya Even Tone Body Spray",
-    category: "Treatment",
+    category: "Body Treatment",
     actives: ["Brightening actives"],
     cautionTags: ["photosensitizing"],
     routineType: "bodySpecific",
@@ -39,7 +39,7 @@ export const bodySpecificProducts: Product[] = [
   {
     id: "p-even-tone-spray-ua-pm",
     name: "Asaya Even Tone Body Spray",
-    category: "Treatment",
+    category: "Body Treatment",
     actives: ["Brightening actives"],
     cautionTags: ["photosensitizing"],
     routineType: "bodySpecific",
@@ -130,7 +130,7 @@ export const bodySpecificProducts: Product[] = [
   {
     id: "p-kozicare-itbl",
     name: "Kozicare Cream",
-    category: "Treatment",
+    category: "Body Treatment",
     actives: ["Kojic Acid", "Arbutin", "Glutathione"],
     cautionTags: ["brightening", "photosensitizing"],
     routineType: "bodySpecific",
@@ -142,7 +142,7 @@ export const bodySpecificProducts: Product[] = [
   {
     id: "p-kozicare-ia",
     name: "Kozicare Cream",
-    category: "Treatment",
+    category: "Body Treatment",
     actives: ["Kojic Acid", "Arbutin", "Glutathione"],
     cautionTags: ["brightening", "photosensitizing"],
     routineType: "bodySpecific",
@@ -221,7 +221,7 @@ export const bodySpecificProducts: Product[] = [
   {
     id: "p-chromalite-belly",
     name: "Chromalite Cream",
-    category: "Treatment",
+    category: "Body Treatment",
     actives: ["Brightening actives", "Kojic Acid", "Arbutin"],
     cautionTags: ["photosensitizing"],
     routineType: "bodySpecific",

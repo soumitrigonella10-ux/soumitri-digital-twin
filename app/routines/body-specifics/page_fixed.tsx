@@ -69,7 +69,6 @@ const BODY_AREAS = {
   },
 } as const;
 
-
 export default function BodySpecificsPage() {
   const { data, upsertProduct } = useAppStore();
   const [activeDayFilter, setActiveDayFilter] = useState<number | "ALL">("ALL");
@@ -78,7 +77,6 @@ export default function BodySpecificsPage() {
   const [editingProduct, setEditingProduct] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<Partial<Product>>({});
   const [highlightedAreas, setHighlightedAreas] = useState<(keyof typeof BODY_AREAS)[]>([]);
-
 
   // Helper to determine product's primary area for grouping
   const getProductArea = (product: Product): keyof typeof BODY_AREAS => {
@@ -338,210 +336,210 @@ export default function BodySpecificsPage() {
 
       {/* Routines Grid */}
       <div className="w-full px-3 pb-12 md:px-4">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Morning Column */}
-        <div className="space-y-3">
-          <div className="bg-white rounded-lg border border-gray-200 p-3 shadow-sm">
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-2">
-                <Sun className="w-4 h-4 text-amber-500" />
-                <h3 className="font-semibold text-gray-900">Morning</h3>
-              </div>
-              <div className="text-xs text-gray-500">
-                {morningProgress.completed}/{morningProgress.total}
-              </div>
-            </div>
-            
-            {/* Progress Ring */}
-            <div className="flex items-center gap-2">
-              <div className="relative w-10 h-10">
-                <svg className="w-10 h-10 -rotate-90" viewBox="0 0 32 32">
-                  <circle
-                    cx="16"
-                    cy="16"
-                    r="14"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    fill="none"
-                    className="text-gray-200"
-                  />
-                  <circle
-                    cx="16"
-                    cy="16"
-                    r="14"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    fill="none"
-                    strokeDasharray={`${(morningProgress.percentage / 100) * 87.96} 87.96`}
-                    className="text-amber-500"
-                    strokeLinecap="round"
-                  />
-                </svg>
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-xs font-bold text-gray-700">{morningProgress.percentage}%</span>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Morning Column */}
+          <div className="space-y-3">
+            <div className="bg-white rounded-lg border border-gray-200 p-3 shadow-sm">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <Sun className="w-4 h-4 text-amber-500" />
+                  <h3 className="font-semibold text-gray-900">Morning</h3>
+                </div>
+                <div className="text-xs text-gray-500">
+                  {morningProgress.completed}/{morningProgress.total}
                 </div>
               </div>
-              <div className="flex-1">
-                <div className="w-full bg-gray-200 rounded-full h-1.5">
-                  <div 
-                    className="h-1.5 rounded-full bg-amber-500 transition-all duration-500"
-                    style={{ width: `${morningProgress.percentage}%` }}
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Morning Product Cards */}
-          <div className="space-y-2">
-            {morningProducts.map((product, index) => {
-              const shouldHighlightImpact = activeAreaFilter !== "ALL" && (
-                product.bodyAreas?.includes(activeAreaFilter as BodyArea) ||
-                (activeAreaFilter === "LIPS" && product.category === "Lip Care")
-              );
               
-              return (
-                <ProductCard
-                  key={product.id}
-                  product={product}
-                  isCompleted={completedProducts.has(product.id)}
-                  onToggleComplete={() => toggleProductCompletion(product.id)}
-                  onEdit={() => handleEditStart(product)}
-                  index={index}
-                  theme={PRODUCT_CARD_THEMES.bodySpecifics}
-                  highlighted={shouldHighlightImpact}
-                  highlightRingColor={shouldHighlightImpact ? BODY_AREAS[getProductArea(product)]?.glowColor : undefined}
-                  additionalMetadata={product.bodyAreas && product.bodyAreas.length > 0 ? (
-                    <div className="flex gap-1">
-                      {product.bodyAreas.slice(0, 2).map((area, idx) => {
-                        const areaKey = area as keyof typeof BODY_AREAS;
-                        const config = BODY_AREAS[areaKey] || BODY_AREAS.OTHER;
-                        return (
-                          <span
-                            key={idx}
-                            className={`px-1 py-0.5 text-xs rounded border ${config.color} ${config.border}`}
-                          >
-                            {config.name}
-                          </span>
-                        );
-                      })}
-                    </div>
-                  ) : undefined}
-                />
-              );
-            })}
-            
-            {morningProducts.length === 0 && (
-              <div className="text-center py-6 text-gray-500">
-                <Target className="w-6 h-6 mx-auto mb-2 opacity-50" />
-                <p className="text-xs">No morning products</p>
-              </div>
-            )}
-          </div>
-        </div>
-        
-        {/* Evening Column */}
-        <div className="space-y-3">
-          <div className="bg-white rounded-lg border border-gray-200 p-3 shadow-sm">
-            <div className="flex items-center justify-between mb-2">
+              {/* Progress Ring */}
               <div className="flex items-center gap-2">
-                <Moon className="w-4 h-4 text-indigo-500" />
-                <h3 className="font-semibold text-gray-900">Evening</h3>
-              </div>
-              <div className="text-xs text-gray-500">
-                {eveningProgress.completed}/{eveningProgress.total}
+                <div className="relative w-10 h-10">
+                  <svg className="w-10 h-10 -rotate-90" viewBox="0 0 32 32">
+                    <circle
+                      cx="16"
+                      cy="16"
+                      r="14"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      fill="none"
+                      className="text-gray-200"
+                    />
+                    <circle
+                      cx="16"
+                      cy="16"
+                      r="14"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      fill="none"
+                      strokeDasharray={`${(morningProgress.percentage / 100) * 87.96} 87.96`}
+                      className="text-amber-500"
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <span className="text-xs font-bold text-gray-700">{morningProgress.percentage}%</span>
+                  </div>
+                </div>
+                <div className="flex-1">
+                  <div className="w-full bg-gray-200 rounded-full h-1.5">
+                    <div 
+                      className="h-1.5 rounded-full bg-amber-500 transition-all duration-500"
+                      style={{ width: `${morningProgress.percentage}%` }}
+                    />
+                  </div>
+                </div>
               </div>
             </div>
-            
-            {/* Progress Ring */}
-            <div className="flex items-center gap-2">
-              <div className="relative w-10 h-10">
-                <svg className="w-10 h-10 -rotate-90" viewBox="0 0 32 32">
-                  <circle
-                    cx="16"
-                    cy="16"
-                    r="14"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    fill="none"
-                    className="text-gray-200"
+
+            {/* Morning Product Cards */}
+            <div className="space-y-2">
+              {morningProducts.map((product, index) => {
+                const shouldHighlightImpact = activeAreaFilter !== "ALL" && (
+                  product.bodyAreas?.includes(activeAreaFilter as BodyArea) ||
+                  (activeAreaFilter === "LIPS" && product.category === "Lip Care")
+                );
+                
+                return (
+                  <ProductCard
+                    key={product.id}
+                    product={product}
+                    isCompleted={completedProducts.has(product.id)}
+                    onToggleComplete={() => toggleProductCompletion(product.id)}
+                    onEdit={() => handleEditStart(product)}
+                    index={index}
+                    theme={PRODUCT_CARD_THEMES.bodySpecifics}
+                    highlighted={shouldHighlightImpact}
+                    highlightRingColor={shouldHighlightImpact ? BODY_AREAS[getProductArea(product)]?.glowColor : undefined}
+                    additionalMetadata={product.bodyAreas && product.bodyAreas.length > 0 ? (
+                      <div className="flex gap-1">
+                        {product.bodyAreas.slice(0, 2).map((area, idx) => {
+                          const areaKey = area as keyof typeof BODY_AREAS;
+                          const config = BODY_AREAS[areaKey] || BODY_AREAS.OTHER;
+                          return (
+                            <span
+                              key={idx}
+                              className={`px-1 py-0.5 text-xs rounded border ${config.color} ${config.border}`}
+                            >
+                              {config.name}
+                            </span>
+                          );
+                        })}
+                      </div>
+                    ) : undefined}
                   />
-                  <circle
-                    cx="16"
-                    cy="16"
-                    r="14"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    fill="none"
-                    strokeDasharray={`${(eveningProgress.percentage / 100) * 87.96} 87.96`}
-                    className="text-indigo-500"
-                    strokeLinecap="round"
-                  />
-                </svg>
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-xs font-bold text-gray-700">{eveningProgress.percentage}%</span>
+                );
+              })}
+              
+              {morningProducts.length === 0 && (
+                <div className="text-center py-6 text-gray-500">
+                  <Target className="w-6 h-6 mx-auto mb-2 opacity-50" />
+                  <p className="text-xs">No morning products</p>
                 </div>
-              </div>
-              <div className="flex-1">
-                <div className="w-full bg-gray-200 rounded-full h-1.5">
-                  <div 
-                    className="h-1.5 rounded-full bg-indigo-500 transition-all duration-500"
-                    style={{ width: `${eveningProgress.percentage}%` }}
-                  />
-                </div>
-              </div>
+              )}
             </div>
           </div>
-
-          {/* Evening Product Cards */}
-          <div className="space-y-2">
-            {eveningProducts.map((product, index) => {
-              const shouldHighlightImpact = activeAreaFilter !== "ALL" && (
-                product.bodyAreas?.includes(activeAreaFilter as BodyArea) ||
-                (activeAreaFilter === "LIPS" && product.category === "Lip Care")
-              );
-              
-              return (
-                <ProductCard
-                  key={product.id}
-                  product={product}
-                  isCompleted={completedProducts.has(product.id)}
-                  onToggleComplete={() => toggleProductCompletion(product.id)}
-                  onEdit={() => handleEditStart(product)}
-                  index={index}
-                  theme={PRODUCT_CARD_THEMES.bodySpecifics}
-                  highlighted={shouldHighlightImpact}
-                  highlightRingColor={shouldHighlightImpact ? BODY_AREAS[getProductArea(product)]?.glowColor : undefined}
-                  additionalMetadata={product.bodyAreas && product.bodyAreas.length > 0 ? (
-                    <div className="flex gap-1">
-                      {product.bodyAreas.slice(0, 2).map((area, idx) => {
-                        const areaKey = area as keyof typeof BODY_AREAS;
-                        const config = BODY_AREAS[areaKey] || BODY_AREAS.OTHER;
-                        return (
-                          <span
-                            key={idx}
-                            className={`px-1 py-0.5 text-xs rounded border ${config.color} ${config.border}`}
-                          >
-                            {config.name}
-                          </span>
-                        );
-                      })}
-                    </div>
-                  ) : undefined}
-                />
-              );
-            })}
-            
-            {eveningProducts.length === 0 && (
-              <div className="text-center py-6 text-gray-500">
-                <Target className="w-6 h-6 mx-auto mb-2 opacity-50" />
-                <p className="text-xs">No evening products</p>
+          
+          {/* Evening Column */}
+          <div className="space-y-3">
+            <div className="bg-white rounded-lg border border-gray-200 p-3 shadow-sm">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <Moon className="w-4 h-4 text-indigo-500" />
+                  <h3 className="font-semibold text-gray-900">Evening</h3>
+                </div>
+                <div className="text-xs text-gray-500">
+                  {eveningProgress.completed}/{eveningProgress.total}
+                </div>
               </div>
-            )}
+              
+              {/* Progress Ring */}
+              <div className="flex items-center gap-2">
+                <div className="relative w-10 h-10">
+                  <svg className="w-10 h-10 -rotate-90" viewBox="0 0 32 32">
+                    <circle
+                      cx="16"
+                      cy="16"
+                      r="14"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      fill="none"
+                      className="text-gray-200"
+                    />
+                    <circle
+                      cx="16"
+                      cy="16"
+                      r="14"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      fill="none"
+                      strokeDasharray={`${(eveningProgress.percentage / 100) * 87.96} 87.96`}
+                      className="text-indigo-500"
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <span className="text-xs font-bold text-gray-700">{eveningProgress.percentage}%</span>
+                  </div>
+                </div>
+                <div className="flex-1">
+                  <div className="w-full bg-gray-200 rounded-full h-1.5">
+                    <div 
+                      className="h-1.5 rounded-full bg-indigo-500 transition-all duration-500"
+                      style={{ width: `${eveningProgress.percentage}%` }}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Evening Product Cards */}
+            <div className="space-y-2">
+              {eveningProducts.map((product, index) => {
+                const shouldHighlightImpact = activeAreaFilter !== "ALL" && (
+                  product.bodyAreas?.includes(activeAreaFilter as BodyArea) ||
+                  (activeAreaFilter === "LIPS" && product.category === "Lip Care")
+                );
+                
+                return (
+                  <ProductCard
+                    key={product.id}
+                    product={product}
+                    isCompleted={completedProducts.has(product.id)}
+                    onToggleComplete={() => toggleProductCompletion(product.id)}
+                    onEdit={() => handleEditStart(product)}
+                    index={index}
+                    theme={PRODUCT_CARD_THEMES.bodySpecifics}
+                    highlighted={shouldHighlightImpact}
+                    highlightRingColor={shouldHighlightImpact ? BODY_AREAS[getProductArea(product)]?.glowColor : undefined}
+                    additionalMetadata={product.bodyAreas && product.bodyAreas.length > 0 ? (
+                      <div className="flex gap-1">
+                        {product.bodyAreas.slice(0, 2).map((area, idx) => {
+                          const areaKey = area as keyof typeof BODY_AREAS;
+                          const config = BODY_AREAS[areaKey] || BODY_AREAS.OTHER;
+                          return (
+                            <span
+                              key={idx}
+                              className={`px-1 py-0.5 text-xs rounded border ${config.color} ${config.border}`}
+                            >
+                              {config.name}
+                            </span>
+                          );
+                        })}
+                      </div>
+                    ) : undefined}
+                  />
+                );
+              })}
+              
+              {eveningProducts.length === 0 && (
+                <div className="text-center py-6 text-gray-500">
+                  <Target className="w-6 h-6 mx-auto mb-2 opacity-50" />
+                  <p className="text-xs">No evening products</p>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
       {/* Edit Modal */}
       {editingProduct && (() => {

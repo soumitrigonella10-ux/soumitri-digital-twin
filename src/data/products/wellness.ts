@@ -108,7 +108,7 @@ export const wellnessProducts: Product[] = [
   {
     id: "p-metabolism-tea",
     name: "Fast Metabolism Tea",
-    category: "Beverage",
+    category: "Supplement",
     actives: ["Green Tea", "Ginger", "Cinnamon"],
     cautionTags: [],
     routineType: "wellness",
@@ -120,7 +120,7 @@ export const wellnessProducts: Product[] = [
   {
     id: "p-vitamin-e-foods",
     name: "Vitamin E Foods",
-    category: "Food",
+    category: "Supplement",
     actives: ["Vitamin E"],
     cautionTags: [],
     routineType: "wellness",

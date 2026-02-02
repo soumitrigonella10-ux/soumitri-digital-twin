@@ -129,6 +129,7 @@ body {
 .bg-category-grocery { background-color: rgba(100, 116, 139, 0.1); }
 .bg-category-wellness { background-color: rgba(20, 184, 166, 0.1); }
 .bg-category-fitness { background-color: rgba(239, 68, 68, 0.1); }
+.bg-category-wishlist { background-color: rgba(219, 39, 119, 0.1); }
 
 /* Border colors for categories */
 .border-category-today { border-color: rgba(99, 102, 241, 0.3); }
@@ -144,6 +145,7 @@ body {
 .border-category-grocery { border-color: rgba(100, 116, 139, 0.3); }
 .border-category-wellness { border-color: rgba(20, 184, 166, 0.3); }
 .border-category-fitness { border-color: rgba(239, 68, 68, 0.3); }
+.border-category-wishlist { border-color: rgba(219, 39, 119, 0.3); }
 
 /* Floating Action Button */
 .fab-menu {

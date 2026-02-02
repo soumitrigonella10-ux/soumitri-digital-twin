@@ -29,7 +29,7 @@ export const dinnerMeals: MealTemplate[] = [
       "Finish with lemon",
       "Optional: Add butter/ghee for richness",
     ],
-    weekdays: [0, 1, 2, 3, 4, 5, 6],
+    weekdays: [1, 2, 3, 4], // Monday, Tuesday, Wednesday, Thursday (4 days)
     prepTimeMin: 5,
     cookTimeMin: 20,
     servings: 2,
@@ -61,7 +61,7 @@ export const dinnerMeals: MealTemplate[] = [
       "Pour tadka on top of dal",
       "Finish with lemon + pepper",
     ],
-    weekdays: [0, 1, 2, 3, 4, 5, 6],
+    weekdays: [5, 6, 0], // Friday, Saturday, Sunday (3 days)
     prepTimeMin: 5,
     cookTimeMin: 20,
     servings: 1,
