@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Droplets, Sun, Moon } from "lucide-react";
+import { Droplets, Sun, Moon, X } from "lucide-react";
 import { useAppStore } from "@/store/useAppStore";
 import { cn } from "@/lib/utils";
 import { Product, TimeOfDay } from "@/types";

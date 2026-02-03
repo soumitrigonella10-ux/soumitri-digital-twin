@@ -111,18 +111,10 @@ export interface WardrobeItem {
   id: string;
   name: string;
   category: WardrobeCategory;
-  styleType?: "Basics" | "Elevated" | "Seasonals"; // For categorizing items
-  subType?: string; // For sub-categorization (e.g., Tanks, Tees, Full fitted, Sheer for tops)
+  subcategory?: string; // e.g., "Basics", "Elevated", "Seasonals" for tops
+  occasion?: string; // e.g., "Business Casual", "Formal", "Casual"
   imageUrl: string;
   colors: string[];
-  occasions: string[];
-  weatherTags: string[];
-  vibeTags: string[];
-  modesty: ModestyLevel;
-  comfort: ComfortLevel;
-  notes?: string;
-  lastWorn?: string; // ISO date
-  favorite?: boolean;
 }
 
 // ========================================
@@ -161,6 +153,7 @@ export interface Ingredient {
   name: string;
   quantity: string;
   unit?: string;
+  category?: string; // e.g., "grains", "vegetables", "protein"
 }
 
 export interface MealTemplate {

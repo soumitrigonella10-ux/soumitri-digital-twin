@@ -8,36 +8,53 @@ import { cn } from "@/lib/utils";
 
 export default function TopsPage() {
   const { data } = useAppStore();
-  const [selectedType, setSelectedType] = useState<string>("All");
-  const [selectedSubType, setSelectedSubType] = useState<string>("All");
   const [selectedItem, setSelectedItem] = useState<WardrobeItem | null>(null);
-
-  // Type filter options
-  const typeOptions = ["All", "Basics", "Elevated", "Seasonals"];
-  
-  // Sub-type options for each category
-  const basicsSubTypes = ["All", "Tanks", "Tees", "Full fitted", "Sheer"];
-  const elevatedSubTypes = ["All", "Core Formals", "Semi-fancy", "Fancy", "Casuals", "Ethnic Casuals"];
-  const seasonalsSubTypes = ["All", "Summer", "Winter"];
+  const [activeTab, setActiveTab] = useState<string>("Basics");
 
   // Filter for tops only
   const topsItems = useMemo(() => {
     return data.wardrobe.filter((item) => item.category === "Top");
   }, [data.wardrobe]);
 
-  // Filter items
+  // Get unique subcategories
+  const tabs = useMemo(() => {
+    const subcategories = new Set(
+      topsItems.map((item) => item.subcategory || "Other")
+    );
+    return Array.from(subcategories).sort();
+  }, [topsItems]);
+
+  // Filter items by active tab
   const filteredItems = useMemo(() => {
-    let items = [...topsItems];
+    return topsItems.filter(
+      (item) => (item.subcategory || "Other") === activeTab
+    );
+  }, [topsItems, activeTab]);
 
-    if (selectedType !== "All") {
-      items = items.filter((i) => i.styleType === selectedType || i.vibeTags?.includes(selectedType));
-    }
-    if (selectedSubType !== "All") {
-      items = items.filter((i) => i.subType === selectedSubType);
-    }
+  // Group filtered items by occasion
+  const groupedByOccasion = useMemo(() => {
+    const groups: { [key: string]: WardrobeItem[] } = {};
+    filteredItems.forEach((item) => {
+      const occasion = item.occasion || "Uncategorized";
+      if (!groups[occasion]) {
+        groups[occasion] = [];
+      }
+      groups[occasion].push(item);
+    });
+    return groups;
+  }, [filteredItems]);
 
-    return items;
-  }, [topsItems, selectedType, selectedSubType]);
+  // Get sorted occasion keys
+  const occasions = useMemo(() => {
+    return Object.keys(groupedByOccasion).sort();
+  }, [groupedByOccasion]);
+
+  // Set active tab to first available tab on load
+  useMemo(() => {
+    if (tabs.length > 0 && !tabs.includes(activeTab)) {
+      setActiveTab(tabs[0]);
+    }
+  }, [tabs, activeTab]);
 
   return (
     <div className="space-y-8">
@@ -56,137 +73,70 @@ export default function TopsPage() {
         </div>
       </header>
 
-      {/* Filters */}
-      <div className="space-y-3">
-        {/* Type Filter Dropdown */}
-        <div className="flex flex-wrap gap-3">
-          <select
-            value={selectedType}
-            onChange={(e) => {
-              setSelectedType(e.target.value);
-              setSelectedSubType("All"); // Reset sub-type when type changes
-            }}
-            className="px-3 py-1.5 rounded-xl text-sm bg-gray-100 border-0 text-gray-600"
-          >
-            {typeOptions.map((type) => (
-              <option key={type} value={type}>
-                {type === "All" ? "All Types" : type}
-              </option>
-            ))}
-          </select>
+      {/* Tabs */}
+      {tabs.length > 0 && (
+        <div className="flex gap-2 border-b border-gray-200 overflow-x-auto pb-0">
+          {tabs.map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={cn(
+                "px-4 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition-colors",
+                activeTab === tab
+                  ? "border-orange-500 text-orange-600"
+                  : "border-transparent text-gray-600 hover:text-gray-900"
+              )}
+            >
+              {tab}
+            </button>
+          ))}
         </div>
+      )}
 
-        {/* Sub-type Chips for Basics */}
-        {selectedType === "Basics" && (
-          <div className="flex flex-wrap gap-2">
-            {basicsSubTypes.map((subType) => (
-              <button
-                key={subType}
-                onClick={() => setSelectedSubType(subType)}
-                className={cn(
-                  "px-3 py-1.5 rounded-xl text-sm font-medium transition-all",
-                  selectedSubType === subType
-                    ? "bg-orange-100 text-orange-700"
-                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                )}
-              >
-                {subType}
-              </button>
-            ))}
-          </div>
-        )}
-
-        {/* Sub-type Chips for Elevated */}
-        {selectedType === "Elevated" && (
-          <div className="flex flex-wrap gap-2">
-            {elevatedSubTypes.map((subType) => (
-              <button
-                key={subType}
-                onClick={() => setSelectedSubType(subType)}
-                className={cn(
-                  "px-3 py-1.5 rounded-xl text-sm font-medium transition-all",
-                  selectedSubType === subType
-                    ? "bg-orange-100 text-orange-700"
-                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                )}
-              >
-                {subType}
-              </button>
-            ))}
-          </div>
-        )}
-
-        {/* Sub-type Chips for Seasonals */}
-        {selectedType === "Seasonals" && (
-          <div className="flex flex-wrap gap-2">
-            {seasonalsSubTypes.map((subType) => (
-              <button
-                key={subType}
-                onClick={() => setSelectedSubType(subType)}
-                className={cn(
-                  "px-3 py-1.5 rounded-xl text-sm font-medium transition-all",
-                  selectedSubType === subType
-                    ? "bg-orange-100 text-orange-700"
-                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                )}
-              >
-                {subType}
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Items Grid */}
+      {/* Items Grid with Section Headings */}
       <div className="space-y-8">
-        <section className="animate-slide-in">
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-            {filteredItems.map((item) => (
-              <div
-                key={item.id}
-                onClick={() => setSelectedItem(item)}
-                className="lifeos-card-interactive overflow-hidden group"
-              >
-                {/* Image */}
-                <div className="aspect-square bg-gray-100 relative">
-                  {item.imageUrl ? (
-                    <img
-                      src={item.imageUrl}
-                      alt={item.name}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <Shirt className="w-12 h-12 text-gray-300" />
+        {occasions.length > 0 ? (
+          occasions.map((occasion) => (
+            <section key={occasion} className="animate-slide-in space-y-4">
+              <h2 className="text-lg font-semibold text-gray-900 capitalize">
+                {occasion}
+              </h2>
+              {groupedByOccasion[occasion].length > 0 ? (
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                  {groupedByOccasion[occasion].map((item) => (
+                    <div
+                      key={item.id}
+                      onClick={() => setSelectedItem(item)}
+                      className="lifeos-card-interactive overflow-hidden group cursor-pointer"
+                    >
+                      {/* Image - Full Height */}
+                      <div className="aspect-square bg-gray-100 relative flex items-center justify-center">
+                        {item.imageUrl ? (
+                          <img
+                            src={item.imageUrl}
+                            alt={item.name}
+                            className="w-full h-full object-contain"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <Shirt className="w-12 h-12 text-gray-300" />
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  )}
+                  ))}
                 </div>
-
-                {/* Info */}
-                <div className="p-3">
-                  <p className="font-medium text-gray-900 text-sm truncate">
-                    {item.name}
-                  </p>
-                  <div className="flex flex-wrap gap-1 mt-1.5">
-                    {item.colors.slice(0, 2).map((color) => (
-                      <span
-                        key={color}
-                        className="px-1.5 py-0.5 bg-gray-100 rounded text-xs text-gray-500"
-                      >
-                        {color}
-                      </span>
-                    ))}
-                  </div>
+              ) : (
+                <div className="text-center py-8 text-gray-500">
+                  <p>No items in this category</p>
                 </div>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {filteredItems.length === 0 && (
+              )}
+            </section>
+          ))
+        ) : (
           <div className="text-center py-12 text-gray-500">
             <Shirt className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-            <p>No tops match your filters</p>
+            <p>No tops in this category</p>
           </div>
         )}
       </div>
@@ -237,28 +187,6 @@ export default function TopsPage() {
               </div>
 
               <div className="space-y-4">
-                {selectedItem.styleType && (
-                  <div>
-                    <p className="text-xs font-medium text-gray-500 uppercase mb-1">
-                      Type
-                    </p>
-                    <span className="px-2 py-0.5 bg-orange-100 text-orange-700 rounded-full text-sm">
-                      {selectedItem.styleType}
-                    </span>
-                  </div>
-                )}
-
-                {selectedItem.subType && (
-                  <div>
-                    <p className="text-xs font-medium text-gray-500 uppercase mb-1">
-                      Sub Type
-                    </p>
-                    <span className="px-2 py-0.5 bg-gray-100 rounded-full text-sm">
-                      {selectedItem.subType}
-                    </span>
-                  </div>
-                )}
-
                 <div>
                   <p className="text-xs font-medium text-gray-500 uppercase mb-1">
                     Colors
@@ -274,15 +202,6 @@ export default function TopsPage() {
                     ))}
                   </div>
                 </div>
-
-                {selectedItem.notes && (
-                  <div>
-                    <p className="text-xs font-medium text-gray-500 uppercase mb-1">
-                      Notes
-                    </p>
-                    <p className="text-gray-600 text-sm">{selectedItem.notes}</p>
-                  </div>
-                )}
               </div>
             </div>
           </div>

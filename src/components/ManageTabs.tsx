@@ -198,13 +198,6 @@ const wardrobeSchema = z.object({
   category: z.enum(["Top", "Bottom", "Dress", "Shoes", "Accessories", "Outerwear"]),
   imageUrl: z.string().url("Must be a valid URL"),
   colors: z.string(),
-  occasions: z.string(),
-  weatherTags: z.string(),
-  vibeTags: z.string(),
-  modesty: z.enum(["Low", "Medium", "High"]),
-  comfort: z.enum(["Low", "Medium", "High"]),
-  notes: z.string().optional(),
-  favorite: z.boolean().optional(),
 });
 
 type WardrobeForm = z.infer<typeof wardrobeSchema>;
@@ -223,9 +216,6 @@ function WardrobeTab() {
     resolver: zodResolver(wardrobeSchema),
     defaultValues: {
       category: "Top",
-      modesty: "Medium",
-      comfort: "Medium",
-      favorite: false,
     },
   });
 
@@ -236,13 +226,6 @@ function WardrobeTab() {
       category: values.category,
       imageUrl: values.imageUrl,
       colors: values.colors.split(",").map((s) => s.trim()).filter(Boolean),
-      occasions: values.occasions.split(",").map((s) => s.trim()).filter(Boolean),
-      weatherTags: values.weatherTags.split(",").map((s) => s.trim()).filter(Boolean),
-      vibeTags: values.vibeTags.split(",").map((s) => s.trim()).filter(Boolean),
-      modesty: values.modesty,
-      comfort: values.comfort,
-      notes: values.notes,
-      favorite: values.favorite,
     };
     upsertWardrobe(item);
     toast({ title: "Wardrobe item saved", variant: "success" });
@@ -272,39 +255,19 @@ function WardrobeTab() {
               {errors.name && <span className="text-xs text-red-500">{errors.name.message}</span>}
             </div>
           </div>
-          <div className="grid grid-cols-3 gap-3">
-            <Select {...register("category")}>
-              <option value="Top">Top</option>
-              <option value="Bottom">Bottom</option>
-              <option value="Dress">Dress</option>
-              <option value="Shoes">Shoes</option>
-              <option value="Accessories">Accessories</option>
-              <option value="Outerwear">Outerwear</option>
-            </Select>
-            <Select {...register("modesty")}>
-              <option value="Low">Modesty: Low</option>
-              <option value="Medium">Modesty: Medium</option>
-              <option value="High">Modesty: High</option>
-            </Select>
-            <Select {...register("comfort")}>
-              <option value="Low">Comfort: Low</option>
-              <option value="Medium">Comfort: Medium</option>
-              <option value="High">Comfort: High</option>
-            </Select>
-          </div>
+          <Select {...register("category")}>
+            <option value="Top">Top</option>
+            <option value="Bottom">Bottom</option>
+            <option value="Dress">Dress</option>
+            <option value="Shoes">Shoes</option>
+            <option value="Accessories">Accessories</option>
+            <option value="Outerwear">Outerwear</option>
+          </Select>
           <div>
             <Input placeholder="Image URL" {...register("imageUrl")} />
             {errors.imageUrl && <span className="text-xs text-red-500">{errors.imageUrl.message}</span>}
           </div>
           <Input placeholder="Colors (comma-separated)" {...register("colors")} />
-          <Input placeholder="Occasions (comma-separated)" {...register("occasions")} />
-          <Input placeholder="Weather Tags (comma-separated)" {...register("weatherTags")} />
-          <Input placeholder="Vibe Tags (comma-separated)" {...register("vibeTags")} />
-          <Textarea placeholder="Notes (optional)" {...register("notes")} />
-          <label className="flex items-center gap-2">
-            <input type="checkbox" {...register("favorite")} />
-            <span className="text-sm">Favorite</span>
-          </label>
           <div className="flex gap-2">
             <Button type="submit">Save</Button>
             <Button type="button" variant="outline" onClick={() => setShowForm(false)}>
@@ -333,11 +296,6 @@ function WardrobeTab() {
                   <Badge variant="secondary" className="text-xs">
                     {item.category}
                   </Badge>
-                  {item.favorite && (
-                    <Badge variant="warning" className="text-xs">
-                      ★
-                    </Badge>
-                  )}
                 </div>
               </div>
             </div>
@@ -386,6 +344,7 @@ function MealsTab() {
       id: values.id,
       name: values.name,
       timeOfDay: values.timeOfDay,
+      mealType: "lunch",
       items: values.items.split(",").map((s) => s.trim()).filter(Boolean),
     };
     upsertMeal(meal);
@@ -572,6 +531,7 @@ function WorkoutsTab() {
         .map((s) => parseInt(s.trim()))
         .filter((n) => !isNaN(n)),
       durationMin: values.durationMin,
+      sections: [],
     };
     upsertWorkout(workout);
     toast({ title: "Workout saved", variant: "success" });

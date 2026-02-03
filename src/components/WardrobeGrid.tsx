@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Heart, Calendar, Tag, Star } from "lucide-react";
+import { Tag, Star } from "lucide-react";
 import { Card, CardContent } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { WardrobeItem } from "@/types";
@@ -80,13 +80,6 @@ function WardrobeCard({ item, isSelected, onSelect, selectable }: WardrobeCardPr
           </div>
         )}
 
-        {/* Favorite badge */}
-        {item.favorite && (
-          <div className="absolute top-2 right-2">
-            <Heart className="h-5 w-5 fill-red-500 text-red-500" />
-          </div>
-        )}
-
         {/* Selection indicator */}
         {selectable && isSelected && (
           <div className="absolute inset-0 bg-blue-500/20 flex items-center justify-center">
@@ -120,14 +113,6 @@ function WardrobeCard({ item, isSelected, onSelect, selectable }: WardrobeCardPr
             </span>
           ))}
         </div>
-
-        {/* Last worn */}
-        {item.lastWorn && (
-          <div className="flex items-center gap-1 mt-1 text-xs text-gray-400">
-            <Calendar className="h-3 w-3" />
-            <span>Last: {item.lastWorn}</span>
-          </div>
-        )}
       </CardContent>
     </Card>
   );

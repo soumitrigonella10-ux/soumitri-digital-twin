@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import Image from "next/image";
 import { Heart, Plus, Filter, X, ShoppingBag, ExternalLink, Trash2, Check } from "lucide-react";
 import { useAppStore } from "@/store/useAppStore";
 import { WishlistItem, WishlistCategory } from "@/types";
@@ -180,11 +181,14 @@ export default function WishlistPage() {
                 >
                   <CardContent className="p-4">
                     {item.imageUrl && (
-                      <div className="aspect-square mb-3 rounded-md overflow-hidden bg-gray-100">
-                        <img
+                      <div className="aspect-square mb-3 rounded-md overflow-hidden bg-gray-100 relative">
+                        <Image
                           src={item.imageUrl}
                           alt={item.name}
-                          className="w-full h-full object-cover"
+                          fill
+                          sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                          className="object-cover"
+                          quality={90}
                         />
                       </div>
                     )}
@@ -261,11 +265,14 @@ export default function WishlistPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               {selectedItem.imageUrl && (
-                <div className="aspect-square rounded-md overflow-hidden bg-gray-100">
-                  <img
+                <div className="aspect-square rounded-md overflow-hidden bg-gray-100 relative">
+                  <Image
                     src={selectedItem.imageUrl}
                     alt={selectedItem.name}
-                    className="w-full h-full object-cover"
+                    fill
+                    className="object-cover"
+                    quality={95}
+                    priority
                   />
                 </div>
               )}

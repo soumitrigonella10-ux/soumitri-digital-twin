@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
 import { Select } from "./ui/select";
 import { Badge } from "./ui/badge";
-import { Filter, Heart, RotateCcw } from "lucide-react";
+import { Filter, RotateCcw } from "lucide-react";
 
 interface WardrobeFiltersProps {
   filters: WardrobeFilterState;
@@ -13,25 +13,13 @@ interface WardrobeFiltersProps {
 }
 
 export interface WardrobeFilterState {
-  occasion: string;
   color: string;
-  weather: string;
   category: string;
-  vibe: string;
-  modesty: string;
-  comfort: string;
-  favoritesOnly: boolean;
-  leastRecentlyWorn: boolean;
 }
 
 const FILTER_OPTIONS = {
-  occasion: ["Any", "Casual", "Office", "Party", "Date", "Gym", "Travel"],
   color: ["Any", "Black", "White", "Blue", "Green", "Red", "Neutral"],
-  weather: ["Any", "Hot", "Humid", "Cold", "Rainy"],
   category: ["Any", "Top", "Bottom", "Dress", "Shoes", "Accessories", "Outerwear"],
-  vibe: ["Any", "Minimal", "Bold", "Cozy", "Sporty", "Elegant"],
-  modesty: ["Any", "Low", "Medium", "High"],
-  comfort: ["Any", "Low", "Medium", "High"],
 };
 
 export function WardrobeFilters({ filters, onChange, onReset }: WardrobeFiltersProps) {
@@ -43,7 +31,6 @@ export function WardrobeFilters({ filters, onChange, onReset }: WardrobeFiltersP
   };
 
   const activeFilterCount = Object.entries(filters).filter(([key, value]) => {
-    if (key === "favoritesOnly" || key === "leastRecentlyWorn") return value;
     return value !== "Any";
   }).length;
 
@@ -89,33 +76,7 @@ export function WardrobeFilters({ filters, onChange, onReset }: WardrobeFiltersP
           )
         )}
 
-        {/* Toggle Filters */}
-        <div className="pt-2 border-t border-gray-200 space-y-2">
-          <label className="flex items-center gap-2 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={filters.favoritesOnly}
-              onChange={(e) => updateFilter("favoritesOnly", e.target.checked)}
-              className="rounded"
-            />
-            <Heart
-              className={`h-4 w-4 ${
-                filters.favoritesOnly ? "fill-red-500 text-red-500" : "text-gray-400"
-              }`}
-            />
-            <span className="text-sm">Favorites only</span>
-          </label>
 
-          <label className="flex items-center gap-2 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={filters.leastRecentlyWorn}
-              onChange={(e) => updateFilter("leastRecentlyWorn", e.target.checked)}
-              className="rounded"
-            />
-            <span className="text-sm">Sort: Least recently worn</span>
-          </label>
-        </div>
       </CardContent>
     </Card>
   );
@@ -123,13 +84,6 @@ export function WardrobeFilters({ filters, onChange, onReset }: WardrobeFiltersP
 
 // Default filter state
 export const defaultWardrobeFilters: WardrobeFilterState = {
-  occasion: "Any",
   color: "Any",
-  weather: "Any",
   category: "Any",
-  vibe: "Any",
-  modesty: "Any",
-  comfort: "Any",
-  favoritesOnly: false,
-  leastRecentlyWorn: false,
 };

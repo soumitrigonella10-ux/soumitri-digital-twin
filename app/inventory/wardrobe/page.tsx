@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Shirt, Plus, Heart, Filter, X } from "lucide-react";
+import { Shirt, Plus, X } from "lucide-react";
 import { useAppStore } from "@/store/useAppStore";
 import { WardrobeItem } from "@/types";
 import { cn } from "@/lib/utils";
@@ -9,19 +9,12 @@ import { cn } from "@/lib/utils";
 export default function WardrobePage() {
   const { data } = useAppStore();
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
-  const [selectedOccasion, setSelectedOccasion] = useState<string>("All");
-  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
   const [selectedItem, setSelectedItem] = useState<WardrobeItem | null>(null);
 
   // Get unique categories and occasions
   const categories = useMemo(() => {
     const cats = new Set(data.wardrobe.map((w) => w.category));
     return ["All", ...Array.from(cats)];
-  }, [data.wardrobe]);
-
-  const occasions = useMemo(() => {
-    const occs = new Set(data.wardrobe.flatMap((w) => w.occasions));
-    return ["All", ...Array.from(occs)];
   }, [data.wardrobe]);
 
   // Filter items
@@ -31,15 +24,9 @@ export default function WardrobePage() {
     if (selectedCategory !== "All") {
       items = items.filter((i) => i.category === selectedCategory);
     }
-    if (selectedOccasion !== "All") {
-      items = items.filter((i) => i.occasions.includes(selectedOccasion));
-    }
-    if (showFavoritesOnly) {
-      items = items.filter((i) => i.favorite);
-    }
 
     return items;
-  }, [data.wardrobe, selectedCategory, selectedOccasion, showFavoritesOnly]);
+  }, [data.wardrobe, selectedCategory]);
 
   // Group by category for display
   const groupedItems = useMemo(() => {
@@ -92,34 +79,7 @@ export default function WardrobePage() {
           ))}
         </div>
 
-        <div className="flex-1" />
 
-        {/* Occasion Filter */}
-        <select
-          value={selectedOccasion}
-          onChange={(e) => setSelectedOccasion(e.target.value)}
-          className="px-3 py-1.5 rounded-xl text-sm bg-gray-100 border-0 text-gray-600"
-        >
-          {occasions.map((occ) => (
-            <option key={occ} value={occ}>
-              {occ === "All" ? "All Occasions" : occ}
-            </option>
-          ))}
-        </select>
-
-        {/* Favorites Toggle */}
-        <button
-          onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
-          className={cn(
-            "px-3 py-1.5 rounded-xl text-sm font-medium transition-all flex items-center gap-1.5",
-            showFavoritesOnly
-              ? "bg-red-100 text-red-600"
-              : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-          )}
-        >
-          <Heart className={cn("w-4 h-4", showFavoritesOnly && "fill-current")} />
-          Favorites
-        </button>
       </div>
 
       {/* Items Grid */}
@@ -147,13 +107,6 @@ export default function WardrobePage() {
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
                         <Shirt className="w-12 h-12 text-gray-300" />
-                      </div>
-                    )}
-
-                    {/* Favorite Badge */}
-                    {item.favorite && (
-                      <div className="absolute top-2 right-2 w-6 h-6 rounded-full bg-white/90 flex items-center justify-center">
-                        <Heart className="w-3.5 h-3.5 text-red-500 fill-current" />
                       </div>
                     )}
                   </div>
@@ -231,9 +184,6 @@ export default function WardrobePage() {
                 <h2 className="text-xl font-semibold text-gray-900">
                   {selectedItem.name}
                 </h2>
-                {selectedItem.favorite && (
-                  <Heart className="w-5 h-5 text-red-500 fill-current" />
-                )}
               </div>
 
               <div className="space-y-4">
@@ -259,47 +209,6 @@ export default function WardrobePage() {
                     ))}
                   </div>
                 </div>
-
-                <div>
-                  <p className="text-xs font-medium text-gray-500 uppercase mb-1">
-                    Occasions
-                  </p>
-                  <div className="flex flex-wrap gap-1">
-                    {selectedItem.occasions.map((occ) => (
-                      <span
-                        key={occ}
-                        className="px-2 py-0.5 bg-orange-100 text-orange-700 rounded-full text-sm"
-                      >
-                        {occ}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <p className="text-xs font-medium text-gray-500 uppercase mb-1">
-                    Vibe
-                  </p>
-                  <div className="flex flex-wrap gap-1">
-                    {selectedItem.vibeTags.map((vibe) => (
-                      <span
-                        key={vibe}
-                        className="px-2 py-0.5 bg-gray-100 rounded-full text-sm"
-                      >
-                        {vibe}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-
-                {selectedItem.notes && (
-                  <div>
-                    <p className="text-xs font-medium text-gray-500 uppercase mb-1">
-                      Notes
-                    </p>
-                    <p className="text-gray-600 text-sm">{selectedItem.notes}</p>
-                  </div>
-                )}
               </div>
             </div>
           </div>

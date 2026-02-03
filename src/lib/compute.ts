@@ -150,7 +150,7 @@ function checkConflicts(
   const pmProductIds = new Set<string>();
 
   pmRoutines.forEach((routine) => {
-    routine.steps.forEach((step) => {
+    routine.steps?.forEach((step) => {
       (step.productIds || []).forEach((pid) => {
         pmProductIds.add(pid);
         const product = products.find((p) => p.id === pid);
@@ -255,7 +255,7 @@ export function computeDayPlan(params: ComputeDayPlanParams): DayPlan {
   };
 
   matchingRoutines.forEach((routine) => {
-    let steps = [...routine.steps];
+    let steps = [...(routine.steps || [])];
 
     // Apply travel filter
     if (flags.travel) {

@@ -76,8 +76,7 @@ export const lunchMeals: MealTemplate[] = [
       {
         name: "Protein (rotating)",
         quantity: "100-150g",
-        category: "protein",
-        notes: "Chickpeas, Rajma, or Paneer based on daily portions"
+        category: "protein"
       }
     ],
     instructions: [

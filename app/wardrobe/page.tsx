@@ -29,38 +29,11 @@ export default function WardrobePage() {
     let items = [...data.wardrobe];
 
     // Apply filters
-    if (filters.occasion !== "Any") {
-      items = items.filter((item) => item.occasions.includes(filters.occasion));
-    }
     if (filters.color !== "Any") {
       items = items.filter((item) => item.colors.includes(filters.color));
     }
-    if (filters.weather !== "Any") {
-      items = items.filter((item) => item.weatherTags.includes(filters.weather));
-    }
     if (filters.category !== "Any") {
       items = items.filter((item) => item.category === filters.category);
-    }
-    if (filters.vibe !== "Any") {
-      items = items.filter((item) => item.vibeTags.includes(filters.vibe));
-    }
-    if (filters.modesty !== "Any") {
-      items = items.filter((item) => item.modesty === filters.modesty);
-    }
-    if (filters.comfort !== "Any") {
-      items = items.filter((item) => item.comfort === filters.comfort);
-    }
-    if (filters.favoritesOnly) {
-      items = items.filter((item) => item.favorite);
-    }
-
-    // Sort by least recently worn if enabled
-    if (filters.leastRecentlyWorn) {
-      items.sort((a, b) => {
-        const dateA = a.lastWorn ? new Date(a.lastWorn).getTime() : 0;
-        const dateB = b.lastWorn ? new Date(b.lastWorn).getTime() : 0;
-        return dateA - dateB;
-      });
     }
 
     return items;
@@ -74,7 +47,6 @@ export default function WardrobePage() {
     });
     return {
       total: data.wardrobe.length,
-      favorites: data.wardrobe.filter((i) => i.favorite).length,
       byCategory,
     };
   }, [data.wardrobe]);
@@ -106,7 +78,6 @@ export default function WardrobePage() {
         </div>
         <div className="flex items-center gap-2">
           <Badge variant="secondary">{stats.total} items</Badge>
-          <Badge variant="warning">{stats.favorites} favorites</Badge>
         </div>
       </div>
 

@@ -8,36 +8,15 @@ import { cn } from "@/lib/utils";
 
 export default function OuterwearPage() {
   const { data } = useAppStore();
-  const [selectedType, setSelectedType] = useState<string>("All");
-  const [selectedSubType, setSelectedSubType] = useState<string>("All");
   const [selectedItem, setSelectedItem] = useState<WardrobeItem | null>(null);
-
-  // Type filter options
-  const typeOptions = ["All", "Basics", "Elevated", "Seasonals"];
-  
-  // Sub-type options for each category
-  const basicsSubTypes = ["All", "Tanks", "Tees", "Full fitted", "Sheer"];
-  const elevatedSubTypes = ["All", "Core Formals", "Semi-fancy", "Fancy", "Casuals", "Ethnic Casuals"];
-  const seasonalsSubTypes = ["All", "Summer", "Winter"];
 
   // Filter for outerwear only
   const outerwearItems = useMemo(() => {
     return data.wardrobe.filter((item) => item.category === "Outerwear");
   }, [data.wardrobe]);
 
-  // Filter items
-  const filteredItems = useMemo(() => {
-    let items = [...outerwearItems];
-
-    if (selectedType !== "All") {
-      items = items.filter((i) => i.styleType === selectedType || i.vibeTags?.includes(selectedType));
-    }
-    if (selectedSubType !== "All") {
-      items = items.filter((i) => i.subType === selectedSubType);
-    }
-
-    return items;
-  }, [outerwearItems, selectedType, selectedSubType]);
+  // No additional filtering needed since properties don't exist
+  const filteredItems = outerwearItems;
 
   return (
     <div className="space-y-8">
@@ -56,82 +35,7 @@ export default function OuterwearPage() {
         </div>
       </header>
 
-      {/* Filters */}
-      <div className="space-y-3">
-        <div className="flex flex-wrap gap-3">
-          <select
-            value={selectedType}
-            onChange={(e) => {
-              setSelectedType(e.target.value);
-              setSelectedSubType("All");
-            }}
-            className="px-3 py-1.5 rounded-xl text-sm bg-gray-100 border-0 text-gray-600"
-          >
-            {typeOptions.map((type) => (
-              <option key={type} value={type}>
-                {type === "All" ? "All Types" : type}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {selectedType === "Basics" && (
-          <div className="flex flex-wrap gap-2">
-            {basicsSubTypes.map((subType) => (
-              <button
-                key={subType}
-                onClick={() => setSelectedSubType(subType)}
-                className={cn(
-                  "px-3 py-1.5 rounded-xl text-sm font-medium transition-all",
-                  selectedSubType === subType
-                    ? "bg-orange-100 text-orange-700"
-                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                )}
-              >
-                {subType}
-              </button>
-            ))}
-          </div>
-        )}
-
-        {selectedType === "Elevated" && (
-          <div className="flex flex-wrap gap-2">
-            {elevatedSubTypes.map((subType) => (
-              <button
-                key={subType}
-                onClick={() => setSelectedSubType(subType)}
-                className={cn(
-                  "px-3 py-1.5 rounded-xl text-sm font-medium transition-all",
-                  selectedSubType === subType
-                    ? "bg-orange-100 text-orange-700"
-                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                )}
-              >
-                {subType}
-              </button>
-            ))}
-          </div>
-        )}
-
-        {selectedType === "Seasonals" && (
-          <div className="flex flex-wrap gap-2">
-            {seasonalsSubTypes.map((subType) => (
-              <button
-                key={subType}
-                onClick={() => setSelectedSubType(subType)}
-                className={cn(
-                  "px-3 py-1.5 rounded-xl text-sm font-medium transition-all",
-                  selectedSubType === subType
-                    ? "bg-orange-100 text-orange-700"
-                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                )}
-              >
-                {subType}
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
+      {/* No filters needed - simplified wardrobe items */}
 
       {/* Items Grid */}
       <div className="space-y-8">
@@ -211,14 +115,6 @@ export default function OuterwearPage() {
             <div className="p-6">
               <h2 className="text-xl font-semibold text-gray-900 mb-4">{selectedItem.name}</h2>
               <div className="space-y-4">
-                {selectedItem.styleType && (
-                  <div>
-                    <p className="text-xs font-medium text-gray-500 uppercase mb-1">Type</p>
-                    <span className="px-2 py-0.5 bg-orange-100 text-orange-700 rounded-full text-sm">
-                      {selectedItem.styleType}
-                    </span>
-                  </div>
-                )}
                 <div>
                   <p className="text-xs font-medium text-gray-500 uppercase mb-1">Colors</p>
                   <div className="flex flex-wrap gap-1">
@@ -227,12 +123,6 @@ export default function OuterwearPage() {
                     ))}
                   </div>
                 </div>
-                {selectedItem.notes && (
-                  <div>
-                    <p className="text-xs font-medium text-gray-500 uppercase mb-1">Notes</p>
-                    <p className="text-gray-600 text-sm">{selectedItem.notes}</p>
-                  </div>
-                )}
               </div>
             </div>
           </div>
