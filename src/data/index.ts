@@ -12,3 +12,4 @@ export { dressings } from "./dressings";
 export { meals } from "./meals";
 export { workouts } from "./workouts";
 export { wardrobe } from "./wardrobe";
+export { wishlist } from "./wishlist";

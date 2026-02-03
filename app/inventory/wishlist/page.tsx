@@ -23,7 +23,7 @@ export default function WishlistPage() {
     imageUrl: "",
     websiteUrl: "",
     price: undefined,
-    currency: "USD",
+    currency: "INR",
     notes: "",
     priority: "Medium",
   });
@@ -78,7 +78,7 @@ export default function WishlistPage() {
       imageUrl: newItem.imageUrl || undefined,
       websiteUrl: newItem.websiteUrl || undefined,
       price: newItem.price || undefined,
-      currency: newItem.currency || "USD",
+      currency: newItem.currency || "INR",
       notes: newItem.notes || undefined,
       priority: newItem.priority || "Medium",
       dateAdded: new Date().toISOString(),
@@ -92,7 +92,7 @@ export default function WishlistPage() {
       imageUrl: "",
       websiteUrl: "",
       price: undefined,
-      currency: "USD",
+      currency: "INR",
       notes: "",
       priority: "Medium",
     });
@@ -201,7 +201,7 @@ export default function WishlistPage() {
                         </Badge>
                         {item.price && (
                           <Badge variant="outline">
-                            ${item.price} {item.currency}
+                            ₹{item.price}
                           </Badge>
                         )}
                       </div>
@@ -273,7 +273,7 @@ export default function WishlistPage() {
               <div className="space-y-2">
                 <div><strong>Category:</strong> {selectedItem.category}</div>
                 {selectedItem.price && (
-                  <div><strong>Price:</strong> ${selectedItem.price} {selectedItem.currency}</div>
+                  <div><strong>Price:</strong> ₹{selectedItem.price}</div>
                 )}
                 <div><strong>Priority:</strong> {selectedItem.priority}</div>
                 <div><strong>Added:</strong> {new Date(selectedItem.dateAdded).toLocaleDateString()}</div>
