@@ -115,6 +115,11 @@ export interface WardrobeItem {
   occasion?: string; // e.g., "Business Casual", "Formal", "Casual"
   imageUrl: string;
   colors: string[];
+  // Additional fields for bottoms
+  styleType?: string; // e.g., "Basics", "Elevated", "Seasonals" for bottoms
+  subType?: string; // e.g., "Straight", "Skinny", "Bootcut" for bottoms
+  vibeTags?: string[]; // e.g., ["Casual", "Professional"]
+  notes?: string;
 }
 
 // ========================================

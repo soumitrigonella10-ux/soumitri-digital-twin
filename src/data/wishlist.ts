@@ -216,4 +216,48 @@ export const wishlist: WishlistItem[] = [
     dateAdded: new Date().toISOString(),
     priority: "High",
   },
+
+  // ========================================
+  // WISHLIST ITEMS - Bottoms
+  // ========================================
+  {
+    id: "wl-bootcut-formal",
+    name: "Bootcut Formal",
+    category: "Bottoms",
+    imageUrl: "/images/products/bottonwear/wl_bootcut-formal.png",
+    price: 2490,
+    currency: "INR",
+    dateAdded: new Date().toISOString(),
+    priority: "Medium",
+  },
+  {
+    id: "wl-bottom1",
+    name: "Bottom 1",
+    category: "Bottoms",
+    imageUrl: "/images/products/bottonwear/wl_bottom1.png",
+    price: 1890,
+    currency: "INR",
+    dateAdded: new Date().toISOString(),
+    priority: "Medium",
+  },
+  {
+    id: "wl-leather-bootcut",
+    name: "Leather Bootcut",
+    category: "Bottoms",
+    imageUrl: "/images/products/bottonwear/wl_leather_bootcut.png",
+    price: 3990,
+    currency: "INR",
+    dateAdded: new Date().toISOString(),
+    priority: "High",
+  },
+  {
+    id: "wl-woolen-bottom",
+    name: "Woolen Bottom",
+    category: "Bottoms",
+    imageUrl: "/images/products/bottonwear/wl_woolen-bottom.png",
+    price: 2190,
+    currency: "INR",
+    dateAdded: new Date().toISOString(),
+    priority: "Medium",
+  },
 ];

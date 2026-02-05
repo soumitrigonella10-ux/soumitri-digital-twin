@@ -22,7 +22,7 @@ export default function BottomsPage() {
 
   // Filter for bottoms only
   const bottomsItems = useMemo(() => {
-    return data.wardrobe.filter((item) => item.category === "Bottoms");
+    return data.wardrobe.filter((item) => item.category === "Bottom");
   }, [data.wardrobe]);
 
   // Filter items
