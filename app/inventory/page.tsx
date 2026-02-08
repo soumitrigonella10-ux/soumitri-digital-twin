@@ -2,9 +2,13 @@
 
 import Link from "next/link";
 import { Shirt, Gem, Heart } from "lucide-react";
+import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useAppStore } from "@/store/useAppStore";
+
+function InventoryPageContent() {
+  const { data: appData } = useAppStore();
 
 const inventoryItems = [
   {
@@ -33,9 +37,6 @@ const inventoryItems = [
   },
 ];
 
-export default function InventoryPage() {
-  const { data } = useAppStore();
-
   return (
     <div className="container mx-auto py-8 space-y-6">
       {/* Header */}
@@ -50,19 +51,19 @@ export default function InventoryPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card>
           <CardContent className="p-4">
-            <div className="text-2xl font-bold">{data.wardrobe.length}</div>
+            <div className="text-2xl font-bold">{appData.wardrobe.length}</div>
             <div className="text-sm text-muted-foreground">Wardrobe Items</div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4">
-            <div className="text-2xl font-bold">{data.outfits.length}</div>
+            <div className="text-2xl font-bold">{appData.outfits.length}</div>
             <div className="text-sm text-muted-foreground">Saved Outfits</div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4">
-            <div className="text-2xl font-bold">{data.wishlist.length}</div>
+            <div className="text-2xl font-bold">{appData.wishlist.length}</div>
             <div className="text-sm text-muted-foreground">Wishlist Items</div>
           </CardContent>
         </Card>
@@ -125,5 +126,15 @@ export default function InventoryPage() {
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+export default function InventoryPage() {
+  return (
+    <AuthenticatedLayout>
+      <div className="p-8">
+        <InventoryPageContent />
+      </div>
+    </AuthenticatedLayout>
   );
 }

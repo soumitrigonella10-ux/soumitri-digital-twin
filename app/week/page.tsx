@@ -4,24 +4,25 @@ import { format } from "date-fns";
 import { ChevronLeft, ChevronRight, Calendar, Home } from "lucide-react";
 import { useWeekNavigation } from "@/hooks/useWeekNavigation";
 import { useWeekPlans } from "@/hooks/useWeekPlans";
+import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
 import { WeekPlanner } from "@/components/WeekPlanner";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { LoadingPage, LoadingGrid } from "@/components/LoadingStates";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-export default function WeekPage() {
+function WeekPageContent() {
   return (
     <ErrorBoundary 
       fallbackTitle="Week View Error"
       fallbackMessage="There was a problem loading the week view. Please try refreshing the page."
     >
-      <WeekPageContent />
+      <WeekView />
     </ErrorBoundary>
   );
 }
 
-function WeekPageContent() {
+function WeekView() {
   const navigation = useWeekNavigation();
   const { weekPlans, isValidData, error } = useWeekPlans({ 
     weekStart: navigation.weekStart 
@@ -180,5 +181,15 @@ function WeekLegend() {
         <p>• Warnings indicate potential conflicts for that day</p>
       </CardContent>
     </Card>
+  );
+}
+
+export default function WeekPage() {
+  return (
+    <AuthenticatedLayout>
+      <div className="p-8">
+        <WeekPageContent />
+      </div>
+    </AuthenticatedLayout>
   );
 }

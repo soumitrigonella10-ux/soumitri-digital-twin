@@ -13,8 +13,10 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
 
-export default function WardrobePage() {
+// Wardrobe Page Content
+function WardrobePageContent() {
   const { data } = useAppStore();
   const [isLoading, setIsLoading] = useState(true);
   const [filters, setFilters] = useState<WardrobeFilterState>(defaultWardrobeFilters);
@@ -130,5 +132,13 @@ export default function WardrobePage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function WardrobePage() {
+  return (
+    <AuthenticatedLayout>
+      <WardrobePageContent />
+    </AuthenticatedLayout>
   );
 }

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { ShoppingCart, Package, RefreshCw } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
 
 // =====================
 // MASTER SETUP (Long-term pantry staples)
@@ -167,7 +168,7 @@ const categoryColors: Record<string, { bg: string; border: string }> = {
   "Aromatics / Add-ons": { bg: "bg-lime-50", border: "border-lime-200" },
 };
 
-export default function GroceryPage() {
+function GroceryPageContent() {
   const [activeTab, setActiveTab] = useState<"master" | "weekly">("weekly");
 
   const categories = activeTab === "master" ? masterSetupCategories : weeklyCategories;
@@ -299,5 +300,15 @@ export default function GroceryPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function GroceryPage() {
+  return (
+    <AuthenticatedLayout>
+      <div className="p-8">
+        <GroceryPageContent />
+      </div>
+    </AuthenticatedLayout>
   );
 }

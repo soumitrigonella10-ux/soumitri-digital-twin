@@ -5,8 +5,9 @@ import { Shirt, Plus, X } from "lucide-react";
 import { useAppStore } from "@/store/useAppStore";
 import { WardrobeItem } from "@/types";
 import { cn } from "@/lib/utils";
+import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
 
-export default function BottomsPage() {
+function BottomsPageContent() {
   const { data } = useAppStore();
   const [selectedType, setSelectedType] = useState<string>("All");
   const [selectedSubType, setSelectedSubType] = useState<string>("All");
@@ -239,5 +240,15 @@ export default function BottomsPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function BottomsPage() {
+  return (
+    <AuthenticatedLayout>
+      <div className="p-8">
+        <BottomsPageContent />
+      </div>
+    </AuthenticatedLayout>
   );
 }

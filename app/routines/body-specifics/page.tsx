@@ -6,6 +6,7 @@ import { useAppStore } from "@/store/useAppStore";
 import { cn } from "@/lib/utils";
 import { Product, TimeOfDay, BodyArea } from "@/types";
 import { ProductCard, PRODUCT_CARD_THEMES } from "@/components/ProductCard";
+import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
 
 const DAYS_OF_WEEK = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
@@ -70,7 +71,7 @@ const BODY_AREAS = {
 } as const;
 
 
-export default function BodySpecificsPage() {
+function BodySpecificsPageContent() {
   const { data, upsertProduct } = useAppStore();
   const [activeDayFilter, setActiveDayFilter] = useState<number | "ALL">("ALL");
   const [activeAreaFilter, setActiveAreaFilter] = useState<keyof typeof BODY_AREAS | "ALL">("ALL");
@@ -639,5 +640,13 @@ export default function BodySpecificsPage() {
         );
       })()}
     </div>
+  );
+}
+
+export default function BodySpecificsPage() {
+  return (
+    <AuthenticatedLayout>
+      <BodySpecificsPageContent />
+    </AuthenticatedLayout>
   );
 }

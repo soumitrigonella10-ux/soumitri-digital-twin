@@ -6,6 +6,7 @@ import { useAppStore } from "@/store/useAppStore";
 import { cn } from "@/lib/utils";
 import { Product, TimeOfDay } from "@/types";
 import { ProductCard, PRODUCT_CARD_THEMES } from "@/components/ProductCard";
+import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
 
 const DAYS_OF_WEEK = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
@@ -88,7 +89,8 @@ function WeekView({ products, completionState, onToggleComplete }: {
 }
 
 // Main Makeup Page Component
-export default function MakeupPage() {
+// Makeup Page Content Component
+function MakeupPageContent() {
   const { data } = useAppStore();
   const [view, setView] = useState<"routine" | "week">("routine");
   const [timeOfDay, setTimeOfDay] = useState<TimeOfDay>("AM");
@@ -354,5 +356,13 @@ export default function MakeupPage() {
         }
       `}</style>
     </div>
+  );
+}
+
+export default function MakeupPage() {
+  return (
+    <AuthenticatedLayout>
+      <MakeupPageContent />
+    </AuthenticatedLayout>
   );
 }

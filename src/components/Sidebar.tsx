@@ -11,22 +11,22 @@ import {
   Target,
   Wind,
   Shirt,
-  Gem,
   Coffee,
   UtensilsCrossed,
   Moon,
   ShoppingCart,
-  Pill,
   Dumbbell,
-  Palette,
   Menu,
   X,
   ChevronRight,
-  ChevronDown,
-  CircleDot,
   Heart,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { clsx } from "clsx";
+import { twMerge } from "tailwind-merge";
+
+function cn(...inputs: any[]) {
+  return twMerge(clsx(inputs));
+}
 
 // ========================================
 // Category Configuration
@@ -87,7 +87,7 @@ export const categories = [
   {
     id: "makeup",
     name: "Makeup",
-    icon: Palette,
+    icon: Sparkles,
     href: "/routines/makeup",
     color: "lifeos-makeup",
     bgClass: "bg-category-makeup",
@@ -116,7 +116,7 @@ export const categories = [
   {
     id: "jewellery",
     name: "Jewellery",
-    icon: Gem,
+    icon: Shirt,
     href: "/inventory/jewellery",
     color: "lifeos-jewellery",
     bgClass: "bg-category-jewellery",
@@ -177,7 +177,7 @@ export const categories = [
   {
     id: "wellness",
     name: "Wellness",
-    icon: Pill,
+    icon: Sun,
     href: "/nutrition/wellness",
     color: "lifeos-wellness",
     bgClass: "bg-category-wellness",
@@ -296,7 +296,7 @@ export function Sidebar() {
                             className="ml-auto p-1 hover:bg-gray-200 rounded-lg transition-colors"
                           >
                             {isExpanded ? (
-                              <ChevronDown className="w-4 h-4 text-gray-400" />
+                              <ChevronRight className="w-4 h-4 text-gray-400" />
                             ) : (
                               <ChevronRight className="w-4 h-4 text-gray-400" />
                             )}
@@ -323,7 +323,7 @@ export function Sidebar() {
                                     : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
                                 )}
                               >
-                                <CircleDot className={cn(
+                                <Sun className={cn(
                                   "w-3 h-3",
                                   isSubItemActive ? "text-orange-500" : "text-gray-300"
                                 )} />
@@ -418,7 +418,7 @@ export function MobileMenu() {
                           className="p-2 hover:bg-gray-100 rounded-lg"
                         >
                           {isExpanded ? (
-                            <ChevronDown className="w-4 h-4 text-gray-400" />
+                            <ChevronRight className="w-4 h-4 text-gray-400" />
                           ) : (
                             <ChevronRight className="w-4 h-4 text-gray-400" />
                           )}
@@ -443,7 +443,7 @@ export function MobileMenu() {
                                   : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
                               )}
                             >
-                              <CircleDot className={cn(
+                              <Sun className={cn(
                                 "w-3 h-3",
                                 isSubItemActive ? "text-orange-500" : "text-gray-300"
                               )} />

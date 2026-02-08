@@ -3,10 +3,11 @@
 import { useState, useMemo } from "react";
 import { Shirt, Plus, X } from "lucide-react";
 import { useAppStore } from "@/store/useAppStore";
+import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
 import { WardrobeItem } from "@/types";
 import { cn } from "@/lib/utils";
 
-export default function WardrobePage() {
+function WardrobePageContent() {
   const { data } = useAppStore();
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
   const [selectedItem, setSelectedItem] = useState<WardrobeItem | null>(null);
@@ -215,5 +216,15 @@ export default function WardrobePage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function WardrobePage() {
+  return (
+    <AuthenticatedLayout>
+      <div className="p-8">
+        <WardrobePageContent />
+      </div>
+    </AuthenticatedLayout>
   );
 }

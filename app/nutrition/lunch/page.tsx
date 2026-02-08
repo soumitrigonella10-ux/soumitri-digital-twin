@@ -5,10 +5,11 @@ import { UtensilsCrossed, Plus, Clock, Leaf, Droplets, ChefHat, Info } from "luc
 import { cn } from "@/lib/utils";
 import { lunchBowlConfig } from "@/data/meals/lunch";
 import { lunchDressings, DressingRecipe } from "@/data/meals/dressings";
+import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
 
 type TabType = "bowl" | "dressings";
 
-export default function LunchPage() {
+function LunchPageContent() {
   const [activeTab, setActiveTab] = useState<TabType>("bowl");
   const [expandedDressing, setExpandedDressing] = useState<string | null>(null);
 
@@ -309,5 +310,15 @@ export default function LunchPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function LunchPage() {
+  return (
+    <AuthenticatedLayout>
+      <div className="p-8">
+        <LunchPageContent />
+      </div>
+    </AuthenticatedLayout>
   );
 }

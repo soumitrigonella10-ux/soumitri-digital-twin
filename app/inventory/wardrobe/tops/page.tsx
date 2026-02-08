@@ -5,8 +5,9 @@ import { Shirt, Plus, X } from "lucide-react";
 import { useAppStore } from "@/store/useAppStore";
 import { WardrobeItem } from "@/types";
 import { cn } from "@/lib/utils";
+import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
 
-export default function TopsPage() {
+function TopsPageContent() {
   const { data } = useAppStore();
   const [selectedItem, setSelectedItem] = useState<WardrobeItem | null>(null);
   const [activeTab, setActiveTab] = useState<string>("Basics");
@@ -208,5 +209,15 @@ export default function TopsPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function TopsPage() {
+  return (
+    <AuthenticatedLayout>
+      <div className="p-8">
+        <TopsPageContent />
+      </div>
+    </AuthenticatedLayout>
   );
 }

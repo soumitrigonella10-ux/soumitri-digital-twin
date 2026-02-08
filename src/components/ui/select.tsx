@@ -28,7 +28,7 @@ const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
       </div>
     );
   }
-);
+) as React.ForwardRefExoticComponent<SelectProps & React.RefAttributes<HTMLSelectElement>>;
 Select.displayName = "Select";
 
 export { Select };

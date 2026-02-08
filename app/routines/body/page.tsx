@@ -6,12 +6,12 @@ import { useAppStore } from "@/store/useAppStore";
 import { cn } from "@/lib/utils";
 import { Product, TimeOfDay } from "@/types";
 import { ProductCard, PRODUCT_CARD_THEMES } from "@/components/ProductCard";
+import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
 
 const DAYS_OF_WEEK = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
-
-
-export default function BodyPage() {
+// Body Page Content Component
+function BodyPageContent() {
   const { data, upsertProduct } = useAppStore();
   const [activeDayFilter, setActiveDayFilter] = useState<number | "ALL">("ALL");
   const [completedProducts, setCompletedProducts] = useState<Set<string>>(new Set());
@@ -407,5 +407,13 @@ export default function BodyPage() {
         );
       })()}
     </div>
+  );
+}
+
+export default function BodyPage() {
+  return (
+    <AuthenticatedLayout>
+      <BodyPageContent />
+    </AuthenticatedLayout>
   );
 }

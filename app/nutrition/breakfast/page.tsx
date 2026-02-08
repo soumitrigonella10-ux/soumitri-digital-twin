@@ -3,11 +3,12 @@
 import { useState, useMemo } from "react";
 import { Coffee, Plus, Clock, Calendar } from "lucide-react";
 import { useAppStore } from "@/store/useAppStore";
+import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
 import { cn } from "@/lib/utils";
 
 const DAYS_OF_WEEK = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
-export default function BreakfastPage() {
+function BreakfastPageContent() {
   const { data } = useAppStore();
   const [activeDayFilter, setActiveDayFilter] = useState<number | "ALL">("ALL");
 
@@ -222,5 +223,15 @@ export default function BreakfastPage() {
         </ul>
       </div>
     </div>
+  );
+}
+
+export default function BreakfastPage() {
+  return (
+    <AuthenticatedLayout>
+      <div className="p-8">
+        <BreakfastPageContent />
+      </div>
+    </AuthenticatedLayout>
   );
 }

@@ -6,12 +6,11 @@ import { useAppStore } from "@/store/useAppStore";
 import { cn } from "@/lib/utils";
 import type { Product } from "@/types";
 import { ProductCard, PRODUCT_CARD_THEMES } from "@/components/ProductCard";
+import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
 
 const DAYS_OF_WEEK = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
-
-
-export default function WellnessPage() {
+function WellnessPageContent() {
   const { data } = useAppStore();
   const [activeDayFilter, setActiveDayFilter] = useState<number | "ALL">("ALL");
   const [completedProducts, setCompletedProducts] = useState<Set<string>>(new Set());
@@ -367,5 +366,15 @@ export default function WellnessPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function WellnessPage() {
+  return (
+    <AuthenticatedLayout>
+      <div className="p-8">
+        <WellnessPageContent />
+      </div>
+    </AuthenticatedLayout>
   );
 }

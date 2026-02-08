@@ -5,8 +5,9 @@ import { Shirt, Plus, X } from "lucide-react";
 import { useAppStore } from "@/store/useAppStore";
 import { WardrobeItem } from "@/types";
 import { cn } from "@/lib/utils";
+import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
 
-export default function OuterwearPage() {
+function OuterwearPageContent() {
   const { data } = useAppStore();
   const [selectedItem, setSelectedItem] = useState<WardrobeItem | null>(null);
 
@@ -129,5 +130,15 @@ export default function OuterwearPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function OuterwearPage() {
+  return (
+    <AuthenticatedLayout>
+      <div className="p-8">
+        <OuterwearPageContent />
+      </div>
+    </AuthenticatedLayout>
   );
 }

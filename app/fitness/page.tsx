@@ -5,11 +5,13 @@ import { format, getDay } from "date-fns";
 import { Dumbbell, Plus, Clock, Play, Target, Flame, Calendar, Zap } from "lucide-react";
 import { useAppStore } from "@/store/useAppStore";
 import { cn } from "@/lib/utils";
+import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
 
 const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const dayNamesFull = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
-export default function FitnessPage() {
+// Fitness Page Content
+function FitnessPageContent() {
   const { data, refreshWorkoutData } = useAppStore();
   const [activeWorkout, setActiveWorkout] = useState<string | null>(null);
   const [selectedDay, setSelectedDay] = useState<number>(getDay(new Date()));
@@ -318,5 +320,13 @@ export default function FitnessPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function FitnessPage() {
+  return (
+    <AuthenticatedLayout>
+      <FitnessPageContent />
+    </AuthenticatedLayout>
   );
 }

@@ -4,8 +4,9 @@ import { useState, useMemo } from "react";import Image from "next/image";import 
 import { useAppStore } from "@/store/useAppStore";
 import { WardrobeItem } from "@/types";
 import { cn } from "@/lib/utils";
+import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
 
-export default function ShoesPage() {
+function ShoesPageContent() {
   const { data } = useAppStore();
   const [selectedItem, setSelectedItem] = useState<WardrobeItem | null>(null);
 
@@ -128,5 +129,15 @@ export default function ShoesPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function ShoesPage() {
+  return (
+    <AuthenticatedLayout>
+      <div className="p-8">
+        <ShoesPageContent />
+      </div>
+    </AuthenticatedLayout>
   );
 }

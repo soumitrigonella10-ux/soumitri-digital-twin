@@ -6,6 +6,7 @@ import { useAppStore } from "@/store/useAppStore";
 import { cn } from "@/lib/utils";
 import { Product, TimeOfDay, HairPhase } from "@/types";
 import { ProductCard, PRODUCT_CARD_THEMES } from "@/components/ProductCard";
+import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
 
 const DAYS_OF_WEEK = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
@@ -17,9 +18,8 @@ const HAIR_PHASES = {
   daily: { name: "Daily", fullName: "Daily Care & Styling", color: "bg-purple-100 text-purple-700", icon: Sun },
 } as const;
 
-
-
-export default function HairPage() {
+// Hair Page Content Component
+function HairPageContent() {
   const { data, upsertProduct } = useAppStore();
   const [activePhaseFilter, setActivePhaseFilter] = useState<HairPhase | "ALL">("ALL");
   const [completedProducts, setCompletedProducts] = useState<Set<string>>(new Set());
@@ -514,3 +514,10 @@ export default function HairPage() {
   );
 }
 
+export default function HairPage() {
+  return (
+    <AuthenticatedLayout>
+      <HairPageContent />
+    </AuthenticatedLayout>
+  );
+}

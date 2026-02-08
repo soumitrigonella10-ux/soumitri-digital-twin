@@ -3,8 +3,9 @@
 import { useMemo } from "react";
 import { Moon, Clock, Sparkles } from "lucide-react";
 import { useAppStore } from "@/store/useAppStore";
+import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
 
-export default function DinnerPage() {
+function DinnerPageContent() {
   const { data } = useAppStore();
 
   // Filter dinner meals
@@ -158,5 +159,15 @@ export default function DinnerPage() {
         </ul>
       </div>
     </div>
+  );
+}
+
+export default function DinnerPage() {
+  return (
+    <AuthenticatedLayout>
+      <div className="p-8">
+        <DinnerPageContent />
+      </div>
+    </AuthenticatedLayout>
   );
 }

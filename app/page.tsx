@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useSession } from "next-auth/react";
 import { format, getDay } from "date-fns";
 import {
   Sun,
@@ -24,6 +25,7 @@ import {
 } from "lucide-react";
 import { useAppStore } from "@/store/useAppStore";
 import { SmartSection } from "@/components/TaskTile";
+import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
 import { cn } from "@/lib/utils";
 import { Product, TimeOfDay, BodyArea } from "@/types";
 
@@ -141,7 +143,7 @@ function ProductCard({
   );
 }
 
-export default function TodayPage() {
+function TodayContent() {
   const { 
     data, 
     toggleProductCompletion, 
@@ -971,3 +973,12 @@ export default function TodayPage() {
   );
 }
 
+export default function HomePage() {
+  return (
+    <AuthenticatedLayout>
+      <div className="p-8">
+        <TodayContent />
+      </div>
+    </AuthenticatedLayout>
+  );
+}

@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Settings, Database, Download, Upload, Trash2 } from "lucide-react";
 import { useAppStore } from "@/store/useAppStore";
+import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
 import { ManageTabs } from "@/components/ManageTabs";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ToastProvider";
 
-export default function ManagePage() {
+function ManagePageContent() {
   const { data, deletePreset, loadPresetNames } = useAppStore();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(true);
@@ -197,5 +198,15 @@ export default function ManagePage() {
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+export default function ManagePage() {
+  return (
+    <AuthenticatedLayout>
+      <div className="p-8">
+        <ManagePageContent />
+      </div>
+    </AuthenticatedLayout>
   );
 }

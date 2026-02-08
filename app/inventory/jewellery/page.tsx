@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Gem, Plus, Heart, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
 
 // Jewellery type (to be added to types.ts later)
 interface JewelleryItem {
@@ -56,7 +57,8 @@ const sampleJewellery: JewelleryItem[] = [
   },
 ];
 
-export default function JewelleryPage() {
+// Jewellery Page Content
+function JewelleryPageContent() {
   const [items] = useState<JewelleryItem[]>(sampleJewellery);
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
   const [selectedItem, setSelectedItem] = useState<JewelleryItem | null>(null);
@@ -235,5 +237,13 @@ export default function JewelleryPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function JewelleryPage() {
+  return (
+    <AuthenticatedLayout>
+      <JewelleryPageContent />
+    </AuthenticatedLayout>
   );
 }
