@@ -8,8 +8,12 @@ export const pool = new Pool({
   connectionTimeoutMillis: 2000,
 })
 
+let tablesSetup = false;
+
 // Helper to run the database setup if needed
 export async function setupAuthTables() {
+  if (tablesSetup) return;
+  
   try {
     const client = await pool.connect()
     
@@ -73,9 +77,19 @@ export async function setupAuthTables() {
       console.log('✅ NextAuth database tables created successfully')
     }
     
+    tablesSetup = true;
     client.release()
   } catch (error) {
     console.error('Failed to setup auth tables:', error)
-    throw error
+    // Don't throw in production - let the adapter handle missing tables gracefully
   }
 }
+
+// Auto-setup tables on first pool connection
+pool.on('connect', () => {
+  if (!tablesSetup) {
+    setupAuthTables().catch(() => {
+      // Silent fail during development
+    });
+  }
+});

@@ -1,6 +1,6 @@
 import NextAuth, { NextAuthOptions } from "next-auth"
 import EmailProvider from "next-auth/providers/email"
-import { PostgresAdapter } from "@auth/pg-adapter"
+import PostgresAdapter from "@auth/pg-adapter"
 import { pool, setupAuthTables } from "@/lib/db"
 
 function getAdminEmails(): string[] {
@@ -13,9 +13,6 @@ function isAdmin(email: string): boolean {
   const adminEmails = getAdminEmails()
   return adminEmails.includes(email.toLowerCase())
 }
-
-// Initialize database tables on first run
-setupAuthTables().catch(console.error)
 
 const authOptions: NextAuthOptions = {
   adapter: PostgresAdapter(pool),
