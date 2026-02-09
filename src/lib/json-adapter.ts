@@ -3,7 +3,11 @@ import { join } from "path";
 import crypto from "crypto";
 import type { Adapter, AdapterUser, AdapterAccount, AdapterSession, VerificationToken } from "next-auth/adapters";
 
-const DB_PATH = join(process.cwd(), "auth-db.json");
+// On Vercel/serverless, process.cwd() is read-only. Use /tmp as fallback.
+const isServerless = !!process.env.VERCEL || !!process.env.AWS_LAMBDA_FUNCTION_NAME;
+const DB_PATH = isServerless
+  ? join("/tmp", "auth-db.json")
+  : join(process.cwd(), "auth-db.json");
 
 interface AuthDB {
   users: AdapterUser[];
@@ -12,35 +16,34 @@ interface AuthDB {
   verificationTokens: VerificationToken[];
 }
 
+const emptyDB: AuthDB = {
+  users: [],
+  accounts: [],
+  sessions: [],
+  verificationTokens: [],
+};
+
 function readDB(): AuthDB {
-  if (!existsSync(DB_PATH)) {
-    const initialDB: AuthDB = {
-      users: [],
-      accounts: [],
-      sessions: [],
-      verificationTokens: []
-    };
-    writeDB(initialDB);
-    return initialDB;
-  }
-  
   try {
+    if (!existsSync(DB_PATH)) {
+      writeDB(emptyDB);
+      return { ...emptyDB };
+    }
     const content = readFileSync(DB_PATH, "utf8");
     return JSON.parse(content);
-  } catch {
-    const initialDB: AuthDB = {
-      users: [],
-      accounts: [],
-      sessions: [],
-      verificationTokens: []
-    };
-    writeDB(initialDB);
-    return initialDB;
+  } catch (err) {
+    console.warn("[JSONAdapter] readDB failed, returning empty DB:", err);
+    return { ...emptyDB };
   }
 }
 
 function writeDB(db: AuthDB): void {
-  writeFileSync(DB_PATH, JSON.stringify(db, null, 2));
+  try {
+    writeFileSync(DB_PATH, JSON.stringify(db, null, 2));
+  } catch (err) {
+    console.warn("[JSONAdapter] writeDB failed (read-only filesystem?):", err);
+    // Swallow write errors on serverless so the adapter doesn't crash the route
+  }
 }
 
 export function JSONAdapter(): Adapter {

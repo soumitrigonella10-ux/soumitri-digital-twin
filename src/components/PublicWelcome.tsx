@@ -44,12 +44,17 @@ export function PublicWelcome() {
             </p>
             
             <form
-              onSubmit={(e) => {
+              onSubmit={async (e) => {
                 e.preventDefault()
                 const formData = new FormData(e.currentTarget)
                 const email = formData.get('email') as string
                 if (email) {
-                  signIn('email', { email, callbackUrl: '/inventory/wishlist' })
+                  try {
+                    await signIn('email', { email, callbackUrl: '/inventory/wishlist', redirect: false })
+                  } catch {
+                    // Silently handle auth errors — user can retry
+                    console.warn('Sign-in request failed')
+                  }
                 }
               }}
               className="space-y-4"

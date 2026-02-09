@@ -21,6 +21,27 @@ export default function WishlistPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
   const [selectedItem, setSelectedItem] = useState<WishlistItem | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [signInError, setSignInError] = useState<string | null>(null);
+  const [isSigningIn, setIsSigningIn] = useState(false);
+
+  const handleSignIn = async (email: string) => {
+    setSignInError(null);
+    setIsSigningIn(true);
+    try {
+      const result = await signIn('email', { email, callbackUrl: '/', redirect: false });
+      if (result?.error) {
+        setSignInError('Sign-in failed. Please try again later.');
+      } else if (result?.ok) {
+        setSignInError(null);
+        // Show success message — user should check email/console for magic link
+        setSignInError('Check your email (or server console in demo mode) for the magic link!');
+      }
+    } catch {
+      setSignInError('Sign-in is currently unavailable. Please try again later.');
+    } finally {
+      setIsSigningIn(false);
+    }
+  };
   const [newItem, setNewItem] = useState<Partial<WishlistItem>>({
     name: "",
     category: "Tops",
@@ -155,7 +176,7 @@ export default function WishlistPage() {
                   const formData = new FormData(e.currentTarget)
                   const email = formData.get('email') as string
                   if (email) {
-                    signIn('email', { email, callbackUrl: '/' })
+                    handleSignIn(email)
                   }
                 }}
                 className="flex gap-2 max-w-md mx-auto"
@@ -169,11 +190,17 @@ export default function WishlistPage() {
                 />
                 <button
                   type="submit"
-                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                  disabled={isSigningIn}
+                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
                 >
-                  Sign In
+                  {isSigningIn ? 'Signing in...' : 'Sign In'}
                 </button>
               </form>
+              {signInError && (
+                <p className={`mt-2 text-sm ${signInError.includes('Check your') ? 'text-green-600' : 'text-red-600'}`}>
+                  {signInError}
+                </p>
+              )}
             </div>
           </div>
 
@@ -352,7 +379,11 @@ export default function WishlistPage() {
                     <Button
                       variant="default"
                       className="flex-1"
-                      onClick={() => signIn('email', { callbackUrl: '/' })}
+                      disabled={isSigningIn}
+                      onClick={() => {
+                        const email = prompt('Enter your email to sign in:');
+                        if (email) handleSignIn(email);
+                      }}
                     >
                       Sign In to Manage
                     </Button>

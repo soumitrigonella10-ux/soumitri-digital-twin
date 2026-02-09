@@ -13,8 +13,27 @@ function isAdmin(email: string): boolean {
   return adminEmails.includes(email.toLowerCase())
 }
 
+// Wrap adapter methods with error handling for serverless environments
+function safeAdapter() {
+  const adapter = JSONAdapter();
+  const wrapped: Record<string, unknown> = {};
+  for (const [key, fn] of Object.entries(adapter)) {
+    if (typeof fn === 'function') {
+      wrapped[key] = async (...args: unknown[]) => {
+        try {
+          return await (fn as (...a: unknown[]) => Promise<unknown>)(...args);
+        } catch (err) {
+          console.error(`[NextAuth] Adapter.${key} failed:`, err);
+          return null;
+        }
+      };
+    }
+  }
+  return wrapped as ReturnType<typeof JSONAdapter>;
+}
+
 const authOptions: NextAuthOptions = {
-  adapter: JSONAdapter(),
+  adapter: safeAdapter(),
   providers: [
     EmailProvider({
       server: process.env.DEMO_MODE === "true" ? undefined : {
