@@ -1,6 +1,7 @@
 import NextAuth, { NextAuthOptions } from "next-auth"
 import EmailProvider from "next-auth/providers/email"
-import { JSONAdapter } from "@/lib/json-adapter"
+import { PostgresAdapter } from "@auth/pg-adapter"
+import { pool, setupAuthTables } from "@/lib/db"
 
 function getAdminEmails(): string[] {
   const adminEmailsEnv = process.env.ADMIN_EMAILS
@@ -13,27 +14,11 @@ function isAdmin(email: string): boolean {
   return adminEmails.includes(email.toLowerCase())
 }
 
-// Wrap adapter methods with error handling for serverless environments
-function safeAdapter() {
-  const adapter = JSONAdapter();
-  const wrapped: Record<string, unknown> = {};
-  for (const [key, fn] of Object.entries(adapter)) {
-    if (typeof fn === 'function') {
-      wrapped[key] = async (...args: unknown[]) => {
-        try {
-          return await (fn as (...a: unknown[]) => Promise<unknown>)(...args);
-        } catch (err) {
-          console.error(`[NextAuth] Adapter.${key} failed:`, err);
-          return null;
-        }
-      };
-    }
-  }
-  return wrapped as ReturnType<typeof JSONAdapter>;
-}
+// Initialize database tables on first run
+setupAuthTables().catch(console.error)
 
 const authOptions: NextAuthOptions = {
-  adapter: safeAdapter(),
+  adapter: PostgresAdapter(pool),
   providers: [
     EmailProvider({
       server: process.env.DEMO_MODE === "true" ? undefined : {
