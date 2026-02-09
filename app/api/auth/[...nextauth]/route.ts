@@ -1,7 +1,7 @@
 import NextAuth, { NextAuthOptions } from "next-auth"
 import EmailProvider from "next-auth/providers/email"
-import PostgresAdapter from "@auth/pg-adapter"
-import { pool, setupAuthTables } from "@/lib/db"
+import CustomPgAdapter from "@/lib/pg-adapter"
+import { pool } from "@/lib/db"
 
 function getAdminEmails(): string[] {
   const adminEmailsEnv = process.env.ADMIN_EMAILS
@@ -15,7 +15,7 @@ function isAdmin(email: string): boolean {
 }
 
 const authOptions: NextAuthOptions = {
-  adapter: PostgresAdapter(pool),
+  adapter: CustomPgAdapter(pool),
   providers: [
     EmailProvider({
       server: process.env.DEMO_MODE === "true" ? undefined : {

@@ -1,8 +1,9 @@
 import { Pool } from 'pg'
 
-// Create a connection pool for PostgreSQL
+// Create a connection pool for PostgreSQL (Neon requires SSL)
 export const pool = new Pool({
   connectionString: process.env.POSTGRES_URL,
+  ssl: { rejectUnauthorized: false },
   max: 20,
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 2000,
