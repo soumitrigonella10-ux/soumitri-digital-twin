@@ -753,7 +753,7 @@ export default function WishlistPage() {
                   </div>
                 </div>
               ))
-          )}}
+          )}
           
           {filteredItems.length === 0 && (
             <Card>
