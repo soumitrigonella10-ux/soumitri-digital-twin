@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { format } from "date-fns";
@@ -20,9 +20,22 @@ import {
   X,
   ChevronRight,
   Heart,
+  PenTool,
+  Compass,
+  FileText,
+  GraduationCap,
+  Tv,
+  Lightbulb,
+  Monitor,
+  BookOpen,
+  Utensils,
+  MapPin,
+  Palette,
+  type LucideIcon,
 } from "lucide-react";
 import { clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { topics } from "@/data/topics";
 
 function cn(...inputs: any[]) {
   return twMerge(clsx(inputs));
@@ -123,16 +136,7 @@ export const categories = [
     borderClass: "border-category-jewellery",
     group: "Inventory",
   },
-  {
-    id: "wishlist",
-    name: "Wishlist",
-    icon: Heart,
-    href: "/inventory/wishlist",
-    color: "lifeos-wishlist",
-    bgClass: "bg-category-wishlist",
-    borderClass: "border-category-wishlist",
-    group: "Inventory",
-  },
+
   // Nutrition
   {
     id: "breakfast",
@@ -197,16 +201,50 @@ export const categories = [
   },
 ];
 
+// Icon map for public curation topics
+const TOPIC_ICON_MAP: Record<string, LucideIcon> = {
+  heart: Heart,
+  "pen-tool": PenTool,
+  compass: Compass,
+  "file-text": FileText,
+  "graduation-cap": GraduationCap,
+  tv: Tv,
+  lightbulb: Lightbulb,
+  monitor: Monitor,
+  "book-open": BookOpen,
+  utensils: Utensils,
+  "map-pin": MapPin,
+  palette: Palette,
+};
+
+// Generate Public Curation categories from topics data
+const publicCurationCategories = topics.map((topic) => ({
+  id: topic.slug,
+  name: topic.title,
+  icon: TOPIC_ICON_MAP[topic.icon] || Heart,
+  href: topic.slug === "wishlist" ? "/inventory/wishlist" : `/${topic.slug}`,
+  color: "lifeos-today",
+  bgClass: topic.iconBg,
+  borderClass: "border-stone-300",
+  group: "Public Curation" as const,
+}));
+
+// Combine all categories
+const allCategories = [...categories, ...publicCurationCategories];
+
 // Group categories by their group
-const groupedCategories = categories.reduce((acc, cat) => {
+const groupedCategories = allCategories.reduce((acc, cat) => {
   if (!acc[cat.group]) {
     acc[cat.group] = [];
   }
   acc[cat.group].push(cat);
   return acc;
-}, {} as Record<string, typeof categories>);
+}, {} as Record<string, typeof allCategories>);
 
-const groupOrder = ["Daily Logic", "Routines", "Inventory", "Nutrition", "Physicality"];
+const groupOrder = ["Daily Logic", "Routines", "Inventory", "Public Curation", "Nutrition", "Physicality"];
+
+// Persist sidebar scroll position across navigations (survives remounts)
+let _sidebarScrollTop = 0;
 
 // ========================================
 // Sidebar Component
@@ -215,6 +253,25 @@ export function Sidebar() {
   const pathname = usePathname();
   const today = new Date();
   const [expandedItems, setExpandedItems] = useState<string[]>(["wardrobe"]);
+  const navRef = useRef<HTMLElement>(null);
+
+  // Save scroll position before navigation causes re-render
+  const saveScrollPosition = useCallback(() => {
+    if (navRef.current) {
+      _sidebarScrollTop = navRef.current.scrollTop;
+    }
+  }, []);
+
+  // Restore scroll position after mount / route change
+  useEffect(() => {
+    const nav = navRef.current;
+    if (nav && _sidebarScrollTop > 0) {
+      // Use requestAnimationFrame to ensure DOM has settled
+      requestAnimationFrame(() => {
+        nav.scrollTop = _sidebarScrollTop;
+      });
+    }
+  }, [pathname]);
 
   const toggleExpand = (id: string) => {
     setExpandedItems((prev) =>
@@ -238,7 +295,7 @@ export function Sidebar() {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 overflow-y-auto p-4 space-y-6">
+      <nav ref={navRef} className="flex-1 overflow-y-auto p-4 space-y-6">
         {groupOrder.map((group) => (
           <div key={group}>
             <p className="text-xs font-medium text-gray-400 uppercase tracking-wider px-3 mb-2">
@@ -257,6 +314,7 @@ export function Sidebar() {
                     <div className="flex items-center">
                       <Link
                         href={cat.href}
+                        onClick={saveScrollPosition}
                         className={cn(
                           "flex-1 flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200",
                           isActive || isSubActive
@@ -316,6 +374,7 @@ export function Sidebar() {
                             <li key={sub.id}>
                               <Link
                                 href={sub.href}
+                                onClick={saveScrollPosition}
                                 className={cn(
                                   "flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-all duration-200",
                                   isSubItemActive

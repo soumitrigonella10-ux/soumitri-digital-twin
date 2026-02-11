@@ -22,6 +22,23 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Serif font utility for editorial headings */
+.font-serif {
+  font-family: 'Playfair Display', Georgia, 'Times New Roman', serif;
+}
+
+/* Warm watercolor curation background */
+.curation-bg {
+  background:
+    radial-gradient(ellipse at 20% 50%, rgba(255, 228, 196, 0.5) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(255, 218, 185, 0.4) 0%, transparent 40%),
+    radial-gradient(ellipse at 60% 80%, rgba(255, 240, 230, 0.6) 0%, transparent 50%),
+    radial-gradient(ellipse at 10% 90%, rgba(245, 222, 179, 0.3) 0%, transparent 40%),
+    radial-gradient(ellipse at 90% 70%, rgba(255, 228, 225, 0.35) 0%, transparent 45%),
+    linear-gradient(135deg, #fdf6ee 0%, #fef5e7 25%, #fdf0e0 50%, #fceee0 75%, #fdf6ee 100%);
+  min-height: 100vh;
+}
+
 /* Custom scrollbar - minimal */
 ::-webkit-scrollbar {
   width: 6px;

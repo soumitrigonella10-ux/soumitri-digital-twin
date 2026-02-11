@@ -28,6 +28,9 @@ const config: Config = {
           light: "#374151",
         },
       },
+      fontFamily: {
+        serif: ["'Playfair Display'", "Georgia", "'Times New Roman'", "serif"],
+      },
       borderRadius: {
         "2xl": "1rem",
         "3xl": "1.5rem",
