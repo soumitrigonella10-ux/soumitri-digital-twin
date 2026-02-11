@@ -1,6 +1,7 @@
 import NextAuth, { NextAuthOptions } from "next-auth"
 import EmailProvider from "next-auth/providers/email"
 import CustomPgAdapter from "@/lib/pg-adapter"
+import { JsonAdapter } from "@/lib/json-adapter"
 import { pool } from "@/lib/db"
 
 function getAdminEmails(): string[] {
@@ -14,8 +15,17 @@ function isAdmin(email: string): boolean {
   return adminEmails.includes(email.toLowerCase())
 }
 
+// Use PostgreSQL adapter in production (when POSTGRES_URL is set), otherwise fall back to JSON adapter
+function getAdapter() {
+  if (process.env.POSTGRES_URL) {
+    return CustomPgAdapter(pool)
+  }
+  console.log("⚠️ No POSTGRES_URL set — using local JSON adapter for auth")
+  return JsonAdapter()
+}
+
 const authOptions: NextAuthOptions = {
-  adapter: CustomPgAdapter(pool),
+  adapter: getAdapter(),
   providers: [
     EmailProvider({
       server: process.env.DEMO_MODE === "true" ? undefined : {

@@ -1,19 +1,24 @@
 import { Pool } from 'pg'
 
 // Create a connection pool for PostgreSQL (Neon requires SSL)
-export const pool = new Pool({
-  connectionString: process.env.POSTGRES_URL,
-  ssl: { rejectUnauthorized: false },
-  max: 20,
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 2000,
-})
+// - Neon free tier databases suspend after inactivity; cold starts need up to 10s
+// - Serverless environments (Vercel) should use a small pool
+// - Only create pool when POSTGRES_URL is available
+export const pool: Pool = process.env.POSTGRES_URL
+  ? new Pool({
+      connectionString: process.env.POSTGRES_URL,
+      ssl: { rejectUnauthorized: false },
+      max: 3,
+      idleTimeoutMillis: 30000,
+      connectionTimeoutMillis: 10000,
+    })
+  : (null as unknown as Pool)
 
 let tablesSetup = false;
 
 // Helper to run the database setup if needed
 export async function setupAuthTables() {
-  if (tablesSetup) return;
+  if (tablesSetup || !pool) return;
   
   try {
     const client = await pool.connect()
@@ -87,10 +92,12 @@ export async function setupAuthTables() {
 }
 
 // Auto-setup tables on first pool connection
-pool.on('connect', () => {
-  if (!tablesSetup) {
-    setupAuthTables().catch(() => {
-      // Silent fail during development
-    });
-  }
-});
+if (pool) {
+  pool.on('connect', () => {
+    if (!tablesSetup) {
+      setupAuthTables().catch(() => {
+        // Silent fail during development
+      });
+    }
+  });
+}
