@@ -52,7 +52,7 @@ function WeekView() {
   }
 
   return (
-    <div className="min-h-screen bg-background p-4">
+    <div className="min-h-screen bg-background">
       <div className="mx-auto max-w-7xl space-y-6">
         <WeekHeader navigation={navigation} />
         <WeekStats weekPlans={weekPlans} />
@@ -187,7 +187,7 @@ function WeekLegend() {
 export default function WeekPage() {
   return (
     <AuthenticatedLayout>
-      <div className="p-8">
+      <div className="p-4 sm:p-6 lg:p-8">
         <WeekPageContent />
       </div>
     </AuthenticatedLayout>

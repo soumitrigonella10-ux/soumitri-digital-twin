@@ -316,7 +316,7 @@ function LunchPageContent() {
 export default function LunchPage() {
   return (
     <AuthenticatedLayout>
-      <div className="p-8">
+      <div className="p-4 sm:p-6 lg:p-8">
         <LunchPageContent />
       </div>
     </AuthenticatedLayout>

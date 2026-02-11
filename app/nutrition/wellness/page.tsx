@@ -85,9 +85,9 @@ function WellnessPageContent() {
   };
 
   return (
-    <div className="w-full">
+    <div className="w-full space-y-6">
       {/* Header */}
-      <div className="w-full px-3 py-8 md:px-4">
+      <div>
         <header className="animate-fade-scale">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 rounded-2xl bg-category-wellness flex items-center justify-center">
@@ -102,7 +102,7 @@ function WellnessPageContent() {
       </div>
 
       {/* Day of Week Filter */}
-      <div className="w-full px-3 py-4 md:px-4">
+      <div>
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-sm font-medium text-gray-600 mr-2">Day:</span>
           <button
@@ -134,7 +134,7 @@ function WellnessPageContent() {
       </div>
 
       {/* Triple-Column Routine Board */}
-      <div className="w-full px-3 pb-12 md:px-4">
+      <div className="pb-6">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Morning Column */}
         <div className="space-y-3">
@@ -372,7 +372,7 @@ function WellnessPageContent() {
 export default function WellnessPage() {
   return (
     <AuthenticatedLayout>
-      <div className="p-8">
+      <div className="p-4 sm:p-6 lg:p-8">
         <WellnessPageContent />
       </div>
     </AuthenticatedLayout>

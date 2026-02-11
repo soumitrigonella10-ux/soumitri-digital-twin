@@ -136,7 +136,7 @@ function OuterwearPageContent() {
 export default function OuterwearPage() {
   return (
     <AuthenticatedLayout>
-      <div className="p-8">
+      <div className="p-4 sm:p-6 lg:p-8">
         <OuterwearPageContent />
       </div>
     </AuthenticatedLayout>

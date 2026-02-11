@@ -21,7 +21,7 @@ function WeekView({ products, completionState, onToggleComplete }: {
   const currentDay = new Date().getDay();
   
   return (
-    <div className="grid grid-cols-7 gap-2">
+    <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2">
       {DAYS_OF_WEEK.map((day, dayIndex) => {
         const dayProducts = products.filter(product => 
           product.weekdays?.includes(dayIndex)
@@ -222,8 +222,8 @@ function MakeupPageContent() {
     : 0;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-50 to-purple-50 p-4">
-      <div className="max-w-4xl mx-auto">
+    <div className="space-y-6">
+      <div>
         {/* Header */}
         <div className="flex items-center gap-3 mb-6">
           <div className="w-10 h-10 rounded-full bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center">
@@ -332,29 +332,6 @@ function MakeupPageContent() {
           />
         )}
       </div>
-
-      {/* Custom styles */}
-      <style jsx>{`
-        @keyframes slide-in {
-          from {
-            opacity: 0;
-            transform: translateY(20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        .animate-slide-in {
-          animation: slide-in 0.3s ease-out forwards;
-        }
-        .line-clamp-1 {
-          overflow: hidden;
-          display: -webkit-box;
-          -webkit-line-clamp: 1;
-          -webkit-box-orient: vertical;
-        }
-      `}</style>
     </div>
   );
 }
@@ -362,7 +339,9 @@ function MakeupPageContent() {
 export default function MakeupPage() {
   return (
     <AuthenticatedLayout>
-      <MakeupPageContent />
+      <div className="p-4 sm:p-6 lg:p-8">
+        <MakeupPageContent />
+      </div>
     </AuthenticatedLayout>
   );
 }

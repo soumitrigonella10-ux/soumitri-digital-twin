@@ -326,7 +326,9 @@ function FitnessPageContent() {
 export default function FitnessPage() {
   return (
     <AuthenticatedLayout>
-      <FitnessPageContent />
+      <div className="p-4 sm:p-6 lg:p-8">
+        <FitnessPageContent />
+      </div>
     </AuthenticatedLayout>
   );
 }

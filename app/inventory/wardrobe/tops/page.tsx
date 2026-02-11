@@ -215,7 +215,7 @@ function TopsPageContent() {
 export default function TopsPage() {
   return (
     <AuthenticatedLayout>
-      <div className="p-8">
+      <div className="p-4 sm:p-6 lg:p-8">
         <TopsPageContent />
       </div>
     </AuthenticatedLayout>

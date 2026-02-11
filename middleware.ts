@@ -4,6 +4,7 @@ import { getToken } from "next-auth/jwt"
 
 // Define public paths that don't require authentication
 const PUBLIC_PATHS = [
+  "/",
   "/inventory/wishlist",
   "/api/auth",
   "/_next",
@@ -12,7 +13,10 @@ const PUBLIC_PATHS = [
 
 // Check if a path is public
 function isPublicPath(pathname: string): boolean {
-  return PUBLIC_PATHS.some(path => pathname.startsWith(path))
+  // Exact match for root
+  if (pathname === "/") return true
+  // Prefix match for other public paths
+  return PUBLIC_PATHS.filter(p => p !== "/").some(path => pathname.startsWith(path))
 }
 
 export async function middleware(request: NextRequest) {

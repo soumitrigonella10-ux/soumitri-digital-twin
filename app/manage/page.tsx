@@ -204,7 +204,7 @@ function ManagePageContent() {
 export default function ManagePage() {
   return (
     <AuthenticatedLayout>
-      <div className="p-8">
+      <div className="p-4 sm:p-6 lg:p-8">
         <ManagePageContent />
       </div>
     </AuthenticatedLayout>

@@ -106,9 +106,9 @@ function SkinPageContent() {
   };
 
   return (
-    <div className="w-full">
+    <div className="w-full space-y-6">
       {/* Header */}
-      <div className="w-full px-3 py-8 md:px-4">
+      <div>
         <header className="animate-fade-scale">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 rounded-2xl bg-category-skin flex items-center justify-center">
@@ -123,7 +123,7 @@ function SkinPageContent() {
       </div>
 
       {/* Day of Week Filter */}
-      <div className="w-full px-3 py-4 md:px-4">
+      <div>
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-sm font-medium text-gray-600 mr-2">Day:</span>
           <button
@@ -155,7 +155,7 @@ function SkinPageContent() {
       </div>
 
       {/* Dual-Column Routine Board */}
-      <div className="w-full px-3 pb-12 md:px-4">
+      <div className="pb-6">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Morning Column */}
         <div className="space-y-3">
@@ -413,7 +413,9 @@ function SkinPageContent() {
 export default function SkinPage() {
   return (
     <AuthenticatedLayout>
-      <SkinPageContent />
+      <div className="p-4 sm:p-6 lg:p-8">
+        <SkinPageContent />
+      </div>
     </AuthenticatedLayout>
   );
 }

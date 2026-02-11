@@ -243,7 +243,9 @@ function JewelleryPageContent() {
 export default function JewelleryPage() {
   return (
     <AuthenticatedLayout>
-      <JewelleryPageContent />
+      <div className="p-4 sm:p-6 lg:p-8">
+        <JewelleryPageContent />
+      </div>
     </AuthenticatedLayout>
   );
 }

@@ -38,7 +38,7 @@ const inventoryItems = [
 ];
 
   return (
-    <div className="container mx-auto py-8 space-y-6">
+    <div className="space-y-6">
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold">Inventory</h1>
@@ -132,7 +132,7 @@ const inventoryItems = [
 export default function InventoryPage() {
   return (
     <AuthenticatedLayout>
-      <div className="p-8">
+      <div className="p-4 sm:p-6 lg:p-8">
         <InventoryPageContent />
       </div>
     </AuthenticatedLayout>

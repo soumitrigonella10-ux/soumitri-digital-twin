@@ -383,7 +383,7 @@ export function MobileMenu() {
           isOpen ? "scale-100 opacity-100" : "scale-0 opacity-0 pointer-events-none"
         )}
       >
-        <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-2 max-h-[70vh] overflow-y-auto">
+        <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-2 max-h-[70vh] overflow-y-auto w-64 sm:w-72">
           {groupOrder.map((group) => (
             <div key={group} className="py-2">
               <p className="text-xs font-medium text-gray-400 uppercase tracking-wider px-3 mb-1">
@@ -464,7 +464,7 @@ export function MobileMenu() {
       {/* FAB Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="fab-button"
+        className="fab-button fixed bottom-6 right-6 z-50"
         aria-label="Open navigation menu"
       >
         {isOpen ? (

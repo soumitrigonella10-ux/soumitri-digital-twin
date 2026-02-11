@@ -262,13 +262,13 @@ function TodayContent() {
     const tabs = getTabsForTime(timeOfDay);
 
     return (
-      <div className="flex gap-2 overflow-x-auto pb-2">
+      <div className="flex gap-2 overflow-x-auto pb-2 -mx-1 px-1 scrollbar-hide">
         {tabs.map((tab) => (
           <button
             key={tab.id}
             onClick={() => onTabChange(tab.id)}
             className={cn(
-              "flex-shrink-0 px-4 py-2 rounded-xl text-sm font-medium transition-all border-2 flex items-center gap-2",
+              "flex-shrink-0 px-3 sm:px-4 py-2 rounded-xl text-sm font-medium transition-all border-2 flex items-center gap-1.5 sm:gap-2",
               activeTab === tab.id
                 ? "bg-indigo-500 text-white border-indigo-500"
                 : "bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100"
@@ -317,18 +317,18 @@ function TodayContent() {
 
                 {/* Ingredients */}
                 {meal.ingredients && meal.ingredients.length > 0 && (
-                  <div className="px-4 pb-4 border-t border-gray-100 pt-4">
+                  <div className="px-3 sm:px-4 pb-4 border-t border-gray-100 pt-4">
                     <p className="text-xs font-medium text-gray-500 uppercase mb-3">
                       Ingredients
                     </p>
-                    <div className="grid grid-cols-2 gap-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                       {meal.ingredients.map((ing, i) => (
                         <div
                           key={i}
                           className="flex items-center justify-between p-2 bg-gray-50 rounded-lg"
                         >
-                          <span className="text-sm text-gray-700">{ing.name}</span>
-                          <span className="text-xs text-amber-600 font-medium">
+                          <span className="text-sm text-gray-700 truncate">{ing.name}</span>
+                          <span className="text-xs text-amber-600 font-medium whitespace-nowrap ml-2">
                             {ing.quantity} {ing.unit}
                           </span>
                         </div>
@@ -339,13 +339,13 @@ function TodayContent() {
 
                 {/* Instructions */}
                 {meal.instructions && meal.instructions.length > 0 && (
-                  <div className="px-4 pb-4 border-t border-gray-100 pt-4">
+                  <div className="px-3 sm:px-4 pb-4 border-t border-gray-100 pt-4">
                     <p className="text-xs font-medium text-gray-500 uppercase mb-3">
                       Instructions
                     </p>
                     <ol className="space-y-2">
                       {meal.instructions.map((step, i) => (
-                        <li key={i} className="flex gap-3">
+                        <li key={i} className="flex gap-2 sm:gap-3">
                           <span className="w-6 h-6 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center text-xs font-medium flex-shrink-0">
                             {i + 1}
                           </span>
@@ -358,7 +358,7 @@ function TodayContent() {
 
                 {/* Simple items fallback */}
                 {(!meal.ingredients || meal.ingredients.length === 0) && (
-                  <div className="px-4 pb-4 border-t border-gray-100 pt-4">
+                  <div className="px-3 sm:px-4 pb-4 border-t border-gray-100 pt-4">
                     <p className="text-xs font-medium text-gray-500 uppercase mb-2">
                       Components
                     </p>
@@ -413,18 +413,18 @@ function TodayContent() {
 
                 {/* Ingredients */}
                 {meal.ingredients && meal.ingredients.length > 0 && (
-                  <div className="px-4 pb-4 border-t border-gray-100 pt-4">
+                  <div className="px-3 sm:px-4 pb-4 border-t border-gray-100 pt-4">
                     <p className="text-xs font-medium text-gray-500 uppercase mb-3">
                       Ingredients
                     </p>
-                    <div className="grid grid-cols-2 gap-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                       {meal.ingredients.map((ing, i) => (
                         <div
                           key={i}
                           className="flex items-center justify-between p-2 bg-gray-50 rounded-lg"
                         >
-                          <span className="text-sm text-gray-700">{ing.name}</span>
-                          <span className="text-xs text-orange-600 font-medium">
+                          <span className="text-sm text-gray-700 truncate">{ing.name}</span>
+                          <span className="text-xs text-orange-600 font-medium whitespace-nowrap ml-2">
                             {ing.quantity} {ing.unit}
                           </span>
                         </div>
@@ -435,13 +435,13 @@ function TodayContent() {
 
                 {/* Instructions */}
                 {meal.instructions && meal.instructions.length > 0 && (
-                  <div className="px-4 pb-4 border-t border-gray-100 pt-4">
+                  <div className="px-3 sm:px-4 pb-4 border-t border-gray-100 pt-4">
                     <p className="text-xs font-medium text-gray-500 uppercase mb-3">
                       Instructions
                     </p>
                     <ol className="space-y-2">
                       {meal.instructions.map((step, i) => (
-                        <li key={i} className="flex gap-3">
+                        <li key={i} className="flex gap-2 sm:gap-3">
                           <span className="w-6 h-6 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center text-xs font-medium flex-shrink-0">
                             {i + 1}
                           </span>
@@ -454,7 +454,7 @@ function TodayContent() {
 
                 {/* Simple items fallback */}
                 {(!meal.ingredients || meal.ingredients.length === 0) && (
-                  <div className="px-4 pb-4 border-t border-gray-100 pt-4">
+                  <div className="px-3 sm:px-4 pb-4 border-t border-gray-100 pt-4">
                     <p className="text-xs font-medium text-gray-500 uppercase mb-2">
                       Components
                     </p>
@@ -509,18 +509,18 @@ function TodayContent() {
 
                 {/* Ingredients */}
                 {meal.ingredients && meal.ingredients.length > 0 && (
-                  <div className="px-4 pb-4 border-t border-gray-100 pt-4">
+                  <div className="px-3 sm:px-4 pb-4 border-t border-gray-100 pt-4">
                     <p className="text-xs font-medium text-gray-500 uppercase mb-3">
                       Ingredients
                     </p>
-                    <div className="grid grid-cols-2 gap-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                       {meal.ingredients.map((ing, i) => (
                         <div
                           key={i}
                           className="flex items-center justify-between p-2 bg-gray-50 rounded-lg"
                         >
-                          <span className="text-sm text-gray-700">{ing.name}</span>
-                          <span className="text-xs text-indigo-600 font-medium">
+                          <span className="text-sm text-gray-700 truncate">{ing.name}</span>
+                          <span className="text-xs text-indigo-600 font-medium whitespace-nowrap ml-2">
                             {ing.quantity} {ing.unit}
                           </span>
                         </div>
@@ -531,13 +531,13 @@ function TodayContent() {
 
                 {/* Instructions */}
                 {meal.instructions && meal.instructions.length > 0 && (
-                  <div className="px-4 pb-4 border-t border-gray-100 pt-4">
+                  <div className="px-3 sm:px-4 pb-4 border-t border-gray-100 pt-4">
                     <p className="text-xs font-medium text-gray-500 uppercase mb-3">
                       Instructions
                     </p>
                     <ol className="space-y-2">
                       {meal.instructions.map((step, i) => (
-                        <li key={i} className="flex gap-3">
+                        <li key={i} className="flex gap-2 sm:gap-3">
                           <span className="w-6 h-6 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center text-xs font-medium flex-shrink-0">
                             {i + 1}
                           </span>
@@ -550,7 +550,7 @@ function TodayContent() {
 
                 {/* Simple items fallback */}
                 {(!meal.ingredients || meal.ingredients.length === 0) && (
-                  <div className="px-4 pb-4 border-t border-gray-100 pt-4">
+                  <div className="px-3 sm:px-4 pb-4 border-t border-gray-100 pt-4">
                     <p className="text-xs font-medium text-gray-500 uppercase mb-2">
                       Components
                     </p>
@@ -607,9 +607,9 @@ function TodayContent() {
         const bodySpecificProducts = getProductsForTime("bodySpecific", timeOfDay);
         
         return (
-          <div className="space-y-6">
-            {/* 3-Column Layout */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="space-y-4 sm:space-y-6">
+            {/* Responsive Column Layout */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
               {/* Skin Column */}
               <div className="space-y-3">
                 <div className="flex items-center gap-2 mb-3">
@@ -840,33 +840,33 @@ function TodayContent() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 sm:space-y-8">
       {/* Header */}
       <header className="animate-fade-scale">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="w-12 h-12 rounded-2xl bg-category-today flex items-center justify-center">
-            <Sun className="w-6 h-6 text-indigo-600" />
+        <div className="flex items-center gap-3 mb-4 sm:mb-6">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-category-today flex items-center justify-center flex-shrink-0">
+            <Sun className="w-5 h-5 sm:w-6 sm:h-6 text-indigo-600" />
           </div>
-          <div className="flex-1">
-            <h1 className="text-2xl font-bold text-gray-900">Today</h1>
-            <p className="text-gray-500">
+          <div className="flex-1 min-w-0">
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Today</h1>
+            <p className="text-sm sm:text-base text-gray-500 truncate">
               {format(today, "EEEE, MMMM d")} • {format(currentTime, "h:mm a")}
             </p>
           </div>
-          <div className="text-right">
+          <div className="text-right hidden sm:block">
             <p className="text-sm font-medium text-gray-900">Current Time</p>
             <p className="text-xs text-gray-500 capitalize">{currentTimePeriod.toLowerCase()} Period</p>
           </div>
         </div>
 
         {/* Time Period Toggle */}
-        <div className="flex gap-2">
+        <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-hide">
           {(["AM", "MIDDAY", "PM"] as TimeOfDay[]).map((time) => (
             <button
               key={time}
               onClick={() => setActiveTimeSection(time)}
               className={cn(
-                "px-4 py-2 rounded-xl text-sm font-medium transition-all flex items-center gap-1.5 border-2",
+                "flex-shrink-0 px-3 sm:px-4 py-2 rounded-xl text-sm font-medium transition-all flex items-center gap-1.5 border-2",
                 activeTimeSection === time
                   ? "bg-indigo-500 text-white border-indigo-500"
                   : time === currentTimePeriod
@@ -884,7 +884,7 @@ function TodayContent() {
           <button
             onClick={() => setActiveTimeSection("ALL")}
             className={cn(
-              "px-4 py-2 rounded-xl text-sm font-medium transition-all flex items-center gap-1.5 border-2",
+              "flex-shrink-0 px-3 sm:px-4 py-2 rounded-xl text-sm font-medium transition-all flex items-center gap-1.5 border-2",
               activeTimeSection === "ALL"
                 ? "bg-gray-800 text-white border-gray-800"
                 : "bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100"
@@ -897,14 +897,14 @@ function TodayContent() {
 
       {/* AM Section */}
       {(activeTimeSection === "AM" || activeTimeSection === "ALL") && (
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl bg-amber-100 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-xl bg-amber-100 flex items-center justify-center flex-shrink-0">
               <Sunrise className="w-5 h-5 text-amber-600" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-gray-900">Morning (5AM - 12PM)</h2>
-              <p className="text-sm text-gray-500">Start your day right</p>
+              <h2 className="text-lg sm:text-xl font-bold text-gray-900">Morning (5AM - 12PM)</h2>
+              <p className="text-xs sm:text-sm text-gray-500">Start your day right</p>
             </div>
           </div>
 
@@ -914,7 +914,7 @@ function TodayContent() {
             onTabChange={(tab) => setActiveTab("AM", tab)}
           />
 
-          <div className="min-h-[200px]">
+          <div className="min-h-[150px] sm:min-h-[200px]">
             {renderTabContent("AM", activeTabs.AM)}
           </div>
         </div>
@@ -922,14 +922,14 @@ function TodayContent() {
 
       {/* MIDDAY Section */}
       {(activeTimeSection === "MIDDAY" || activeTimeSection === "ALL") && (
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl bg-yellow-100 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-xl bg-yellow-100 flex items-center justify-center flex-shrink-0">
               <Sun className="w-5 h-5 text-yellow-600" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-gray-900">Midday (12PM - 5PM)</h2>
-              <p className="text-sm text-gray-500">Recharge and refuel</p>
+              <h2 className="text-lg sm:text-xl font-bold text-gray-900">Midday (12PM - 5PM)</h2>
+              <p className="text-xs sm:text-sm text-gray-500">Recharge and refuel</p>
             </div>
           </div>
 
@@ -939,7 +939,7 @@ function TodayContent() {
             onTabChange={(tab) => setActiveTab("MIDDAY", tab)}
           />
 
-          <div className="min-h-[200px]">
+          <div className="min-h-[150px] sm:min-h-[200px]">
             {renderTabContent("MIDDAY", activeTabs.MIDDAY)}
           </div>
         </div>
@@ -947,14 +947,14 @@ function TodayContent() {
 
       {/* PM Section */}
       {(activeTimeSection === "PM" || activeTimeSection === "ALL") && (
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl bg-indigo-100 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-xl bg-indigo-100 flex items-center justify-center flex-shrink-0">
               <Moon className="w-5 h-5 text-indigo-600" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-gray-900">Evening (5PM onwards)</h2>
-              <p className="text-sm text-gray-500">Wind down and care</p>
+              <h2 className="text-lg sm:text-xl font-bold text-gray-900">Evening (5PM onwards)</h2>
+              <p className="text-xs sm:text-sm text-gray-500">Wind down and care</p>
             </div>
           </div>
 
@@ -964,7 +964,7 @@ function TodayContent() {
             onTabChange={(tab) => setActiveTab("PM", tab)}
           />
 
-          <div className="min-h-[200px]">
+          <div className="min-h-[150px] sm:min-h-[200px]">
             {renderTabContent("PM", activeTabs.PM)}
           </div>
         </div>
@@ -976,7 +976,7 @@ function TodayContent() {
 export default function HomePage() {
   return (
     <AuthenticatedLayout>
-      <div className="p-8">
+      <div className="p-4 sm:p-6 lg:p-8 max-w-6xl mx-auto">
         <TodayContent />
       </div>
     </AuthenticatedLayout>

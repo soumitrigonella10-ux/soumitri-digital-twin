@@ -111,9 +111,9 @@ function HairPageContent() {
   };
 
   return (
-    <div className="w-full">
+    <div className="w-full space-y-6">
       {/* Header */}
-      <div className="w-full px-3 py-8 md:px-4">
+      <div>
         <header className="animate-fade-scale">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 rounded-2xl bg-category-hair flex items-center justify-center">
@@ -128,7 +128,7 @@ function HairPageContent() {
       </div>
 
       {/* Quad-Column Routine Board */}
-      <div className="w-full px-3 pb-12 md:px-4">
+      <div className="pb-6">
         <div className="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-4 gap-6">
         {/* Oiling Column */}
         <div className="space-y-3">
@@ -517,7 +517,9 @@ function HairPageContent() {
 export default function HairPage() {
   return (
     <AuthenticatedLayout>
-      <HairPageContent />
+      <div className="p-4 sm:p-6 lg:p-8">
+        <HairPageContent />
+      </div>
     </AuthenticatedLayout>
   );
 }
