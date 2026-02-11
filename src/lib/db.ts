@@ -14,6 +14,13 @@ export const pool: Pool = process.env.POSTGRES_URL
     })
   : (null as unknown as Pool)
 
+// Prevent unhandled pool errors from crashing the process
+if (pool) {
+  pool.on('error', (err) => {
+    console.error('Unexpected PG pool error:', err.message)
+  })
+}
+
 let tablesSetup = false;
 
 // Helper to run the database setup if needed
@@ -34,14 +41,25 @@ export async function setupAuthTables() {
     if (!result.rows[0].exists) {
       console.log('Setting up NextAuth database tables...')
       
-      // Create tables (this is a simplified version - in production you'd use proper migrations)
+      // Column names MUST match the pg-adapter queries (camelCase, quoted)
+      // and the setup-neon-tables.js schema
       await client.query(`
+        CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+        CREATE TABLE IF NOT EXISTS users (
+          id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+          name TEXT,
+          email TEXT UNIQUE,
+          "emailVerified" TIMESTAMPTZ,
+          image TEXT
+        );
+
         CREATE TABLE IF NOT EXISTS accounts (
-          id SERIAL PRIMARY KEY,
-          user_id TEXT NOT NULL,
+          id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+          "userId" UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
           type TEXT NOT NULL,
           provider TEXT NOT NULL,
-          provider_account_id TEXT NOT NULL,
+          "providerAccountId" TEXT NOT NULL,
           refresh_token TEXT,
           access_token TEXT,
           expires_at INTEGER,
@@ -49,35 +67,22 @@ export async function setupAuthTables() {
           scope TEXT,
           id_token TEXT,
           session_state TEXT,
-          UNIQUE(provider, provider_account_id)
+          UNIQUE(provider, "providerAccountId")
         );
 
         CREATE TABLE IF NOT EXISTS sessions (
-          id SERIAL PRIMARY KEY,
-          session_token TEXT NOT NULL UNIQUE,
-          user_id TEXT NOT NULL,
+          id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+          "sessionToken" TEXT NOT NULL UNIQUE,
+          "userId" UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
           expires TIMESTAMPTZ NOT NULL
         );
 
-        CREATE TABLE IF NOT EXISTS users (
-          id SERIAL PRIMARY KEY,
-          name TEXT,
-          email TEXT UNIQUE,
-          email_verified TIMESTAMPTZ,
-          image TEXT
-        );
-
-        CREATE TABLE IF NOT EXISTS verification_tokens (
+        CREATE TABLE IF NOT EXISTS verification_token (
           identifier TEXT NOT NULL,
-          token TEXT NOT NULL,
+          token TEXT NOT NULL UNIQUE,
           expires TIMESTAMPTZ NOT NULL,
           PRIMARY KEY (identifier, token)
         );
-
-        CREATE INDEX IF NOT EXISTS accounts_user_id_idx ON accounts(user_id);
-        CREATE INDEX IF NOT EXISTS sessions_user_id_idx ON sessions(user_id);
-        CREATE INDEX IF NOT EXISTS sessions_session_token_idx ON sessions(session_token);
-        CREATE INDEX IF NOT EXISTS verification_token_expires_idx ON verification_tokens(expires);
       `)
       
       console.log('✅ NextAuth database tables created successfully')
@@ -87,7 +92,6 @@ export async function setupAuthTables() {
     client.release()
   } catch (error) {
     console.error('Failed to setup auth tables:', error)
-    // Don't throw in production - let the adapter handle missing tables gracefully
   }
 }
 

@@ -17,10 +17,11 @@ function isAdmin(email: string): boolean {
 
 // Use PostgreSQL adapter in production (when POSTGRES_URL is set), otherwise fall back to JSON adapter
 function getAdapter() {
-  if (process.env.POSTGRES_URL) {
+  if (process.env.POSTGRES_URL && pool) {
+    console.log("[auth] Using PostgreSQL adapter")
     return CustomPgAdapter(pool)
   }
-  console.log("⚠️ No POSTGRES_URL set — using local JSON adapter for auth")
+  console.log("[auth] ⚠️ No POSTGRES_URL or pool — using local JSON adapter")
   return JsonAdapter()
 }
 
@@ -54,6 +55,19 @@ const authOptions: NextAuthOptions = {
   session: {
     strategy: "jwt",
     maxAge: 7 * 24 * 60 * 60, // 7 days
+  },
+  pages: {
+    signIn: "/auth/signin",
+    error: "/auth/signin",  // Redirect errors to sign-in page instead of raw 500
+  },
+  debug: process.env.NODE_ENV === "development",
+  logger: {
+    error(code, metadata) {
+      console.error("[next-auth][error]", code, JSON.stringify(metadata, null, 2))
+    },
+    warn(code) {
+      console.warn("[next-auth][warn]", code)
+    },
   },
   callbacks: {
     async jwt({ token, user }) {
