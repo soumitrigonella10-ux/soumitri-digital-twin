@@ -227,6 +227,7 @@ const publicCurationCategories = topics.map((topic) => ({
   bgClass: topic.iconBg,
   borderClass: "border-stone-300",
   group: "Public Curation" as const,
+  subCategories: undefined,
 }));
 
 // Combine all categories
