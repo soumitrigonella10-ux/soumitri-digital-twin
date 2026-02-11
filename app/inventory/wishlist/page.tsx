@@ -3,7 +3,7 @@
 import { useState, useMemo } from "react";
 import { useSession, signIn } from "next-auth/react";
 import Image from "next/image";
-import { Heart, Plus, Filter, X, ShoppingBag, ExternalLink, Trash2, Check } from "lucide-react";
+import { Heart, Plus, Filter, X, ShoppingBag, ExternalLink, Trash2, Check, Tag } from "lucide-react";
 import { useAppStore } from "@/store/useAppStore";
 import { WishlistItem, WishlistCategory } from "@/types";
 import { cn } from "@/lib/utils";
@@ -44,7 +44,9 @@ export default function WishlistPage() {
   };
   const [newItem, setNewItem] = useState<Partial<WishlistItem>>({
     name: "",
+    brand: "",
     category: "Tops",
+    tags: [],
     imageUrl: "",
     websiteUrl: "",
     price: undefined,
@@ -99,7 +101,9 @@ export default function WishlistPage() {
     const item: WishlistItem = {
       id: Date.now().toString(),
       name: newItem.name,
+      brand: newItem.brand || undefined,
       category: newItem.category as WishlistCategory,
+      tags: newItem.tags || [newItem.category as string, "Apparel"],
       imageUrl: newItem.imageUrl || undefined,
       websiteUrl: newItem.websiteUrl || undefined,
       price: newItem.price || undefined,
@@ -113,7 +117,9 @@ export default function WishlistPage() {
     addWishlistItem(item);
     setNewItem({
       name: "",
+      brand: "",
       category: "Tops",
+      tags: [],
       imageUrl: "",
       websiteUrl: "",
       price: undefined,
@@ -244,63 +250,186 @@ export default function WishlistPage() {
 
           {/* Wishlist Items */}
           <div className="space-y-6">
-            {Object.entries(groupedItems).map(([category, items]) => (
-              <div key={category} className="space-y-4">
-                <h2 className="text-xl font-semibold">{category}</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {items.map((item) => (
-                    <Card
-                      key={item.id}
-                      className={cn(
-                        "cursor-pointer transition-all hover:shadow-lg",
-                        item.purchased && "opacity-75 bg-green-50",
-                        selectedItem?.id === item.id && "ring-2 ring-blue-500"
+            {selectedCategory === "All" ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredItems.map((item) => (
+                  <div
+                    key={item.id}
+                    className={cn(
+                      "cursor-pointer transition-all hover:shadow-xl rounded-2xl overflow-hidden bg-white shadow-md",
+                      item.purchased && "opacity-75",
+                      selectedItem?.id === item.id && "ring-2 ring-blue-500"
+                    )}
+                    onClick={() => setSelectedItem(item)}
+                  >
+                    {/* Image area with priority badge */}
+                    <div className="relative bg-gray-200">
+                      {item.priority && (
+                        <div className="absolute top-4 left-4 z-10">
+                          <span className={cn(
+                            "px-3 py-1.5 rounded-full text-[11px] font-bold tracking-wide uppercase backdrop-blur-sm border",
+                            item.priority === "High" && "bg-rose-50/90 text-rose-700 border-rose-200",
+                            item.priority === "Medium" && "bg-amber-50/90 text-amber-700 border-amber-200",
+                            item.priority === "Low" && "bg-slate-50/90 text-slate-600 border-slate-200"
+                          )}>
+                            {item.priority} Priority
+                          </span>
+                        </div>
                       )}
-                      onClick={() => setSelectedItem(item)}
-                    >
-                      <CardContent className="p-4">
-                        {item.imageUrl && (
-                          <div className="aspect-square mb-3 rounded-md overflow-hidden bg-gray-100 relative">
-                            <Image
-                              src={item.imageUrl}
-                              alt={item.name}
-                              fill
-                              sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                              className="object-cover"
-                              quality={90}
-                            />
-                          </div>
+
+                      {item.imageUrl ? (
+                        <div className="aspect-[4/5] relative">
+                          <Image
+                            src={item.imageUrl}
+                            alt={item.name}
+                            fill
+                            sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                            className="object-contain"
+                            quality={90}
+                          />
+                        </div>
+                      ) : (
+                        <div className="aspect-[4/5] flex items-center justify-center">
+                          <Heart className="h-12 w-12 text-gray-400" />
+                        </div>
+                      )}
+
+                      {item.purchased && (
+                        <div className="absolute top-4 right-4 z-10">
+                          <Check className="h-6 w-6 text-green-600 bg-white rounded-full p-0.5 shadow" />
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Details area */}
+                    <div className="px-4 pt-4 pb-3 space-y-3">
+                      {/* Brand + Name/Price row */}
+                      <div>
+                        {item.brand && (
+                          <p className="text-[11px] font-medium text-gray-400 uppercase tracking-wider mb-0.5">{item.brand}</p>
                         )}
-                        <div className="space-y-2">
-                          <div className="flex items-start justify-between">
-                            <h3 className="font-medium text-sm line-clamp-2">{item.name}</h3>
-                            {item.purchased && (
-                              <Check className="h-4 w-4 text-green-600 flex-shrink-0" />
-                            )}
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Badge className={getPriorityColor(item.priority)}>
-                              {item.priority || "Medium"}
-                            </Badge>
-                            {item.price && (
-                              <Badge variant="outline">
-                                ₹{item.price}
-                              </Badge>
-                            )}
-                          </div>
-                          {item.websiteUrl && (
-                            <div className="flex items-center gap-2 text-xs text-blue-600">
-                              <ExternalLink className="h-3 w-3" />
-                              <span className="truncate">Visit Site</span>
+                        <div className="flex items-baseline justify-between gap-3">
+                          <h3 className="font-bold text-base text-gray-900 leading-tight">{item.name}</h3>
+                          {item.price != null && (
+                            <span className="text-base font-bold text-gray-900 whitespace-nowrap">₹{item.price.toLocaleString()}</span>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Tags + external link */}
+                      <div className="flex items-center justify-between pt-1">
+                        <div className="flex items-center gap-2">
+                          {item.tags && item.tags[0] && (
+                            <span className="px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700 border border-blue-200">
+                              {item.tags[0]}
+                            </span>
+                          )}
+                          {item.tags && item.tags[1] && (
+                            <span className="px-3 py-1 rounded-full text-xs font-medium bg-white text-gray-600 border border-gray-300 inline-flex items-center gap-1">
+                              <Tag className="h-3 w-3" />
+                              {item.tags[1]}
+                            </span>
+                          )}
+                        </div>
+                        <ExternalLink className="h-4 w-4 text-gray-400 flex-shrink-0" />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              Object.entries(groupedItems).map(([category, items]) => (
+                <div key={category} className="space-y-4">
+                  <h2 className="text-xl font-semibold">{category}</h2>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {items.map((item) => (
+                      <div
+                        key={item.id}
+                        className={cn(
+                          "cursor-pointer transition-all hover:shadow-xl rounded-2xl overflow-hidden bg-white shadow-md",
+                          item.purchased && "opacity-75",
+                          selectedItem?.id === item.id && "ring-2 ring-blue-500"
+                        )}
+                        onClick={() => setSelectedItem(item)}
+                      >
+                        {/* Image area with priority badge */}
+                        <div className="relative bg-gray-200">
+                          {item.priority && (
+                            <div className="absolute top-4 left-4 z-10">
+                              <span className={cn(
+                                "px-3 py-1.5 rounded-full text-[11px] font-bold tracking-wide uppercase backdrop-blur-sm border",
+                                item.priority === "High" && "bg-rose-50/90 text-rose-700 border-rose-200",
+                                item.priority === "Medium" && "bg-amber-50/90 text-amber-700 border-amber-200",
+                                item.priority === "Low" && "bg-slate-50/90 text-slate-600 border-slate-200"
+                              )}>
+                                {item.priority} Priority
+                              </span>
+                            </div>
+                          )}
+
+                          {item.imageUrl ? (
+                            <div className="aspect-[4/5] relative">
+                              <Image
+                                src={item.imageUrl}
+                                alt={item.name}
+                                fill
+                                sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                                className="object-contain"
+                                quality={90}
+                              />
+                            </div>
+                          ) : (
+                            <div className="aspect-[4/5] flex items-center justify-center">
+                              <Heart className="h-12 w-12 text-gray-400" />
+                            </div>
+                          )}
+
+                          {item.purchased && (
+                            <div className="absolute top-4 right-4 z-10">
+                              <Check className="h-6 w-6 text-green-600 bg-white rounded-full p-0.5 shadow" />
                             </div>
                           )}
                         </div>
-                      </CardContent>
-                    </Card>
-                  ))}
+
+                        {/* Details area */}
+                        <div className="px-4 pt-4 pb-3 space-y-3">
+                          {/* Brand + Name/Price row */}
+                          <div>
+                            {item.brand && (
+                              <p className="text-[11px] font-medium text-gray-400 uppercase tracking-wider mb-0.5">{item.brand}</p>
+                            )}
+                            <div className="flex items-baseline justify-between gap-3">
+                              <h3 className="font-bold text-base text-gray-900 leading-tight">{item.name}</h3>
+                              {item.price != null && (
+                                <span className="text-base font-bold text-gray-900 whitespace-nowrap">₹{item.price.toLocaleString()}</span>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Tags + external link */}
+                          <div className="flex items-center justify-between pt-1">
+                            <div className="flex items-center gap-2">
+                              {item.tags && item.tags[0] && (
+                                <span className="px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700 border border-blue-200">
+                                  {item.tags[0]}
+                                </span>
+                              )}
+                              {item.tags && item.tags[1] && (
+                                <span className="px-3 py-1 rounded-full text-xs font-medium bg-white text-gray-600 border border-gray-300 inline-flex items-center gap-1">
+                                  <Tag className="h-3 w-3" />
+                                  {item.tags[1]}
+                                </span>
+                              )}
+                            </div>
+                            <ExternalLink className="h-4 w-4 text-gray-400 flex-shrink-0" />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))
+            )}
             
             {filteredItems.length === 0 && (
               <Card>
@@ -445,74 +574,186 @@ export default function WishlistPage() {
 
         {/* Wishlist Items */}
         <div className="space-y-6">
-          {Object.entries(groupedItems).map(([category, items]) => (
-            <div key={category} className="space-y-4">
-              <h2 className="text-xl font-semibold">{category}</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {items.map((item) => (
-                  <Card
-                    key={item.id}
-                    className={cn(
-                      "cursor-pointer transition-all hover:shadow-lg",
-                      item.purchased && "opacity-75 bg-green-50",
-                      selectedItem?.id === item.id && "ring-2 ring-blue-500"
+          {selectedCategory === "All" ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredItems.map((item) => (
+                <div
+                  key={item.id}
+                  className={cn(
+                    "cursor-pointer transition-all hover:shadow-xl rounded-2xl overflow-hidden bg-white shadow-md",
+                    item.purchased && "opacity-75",
+                    selectedItem?.id === item.id && "ring-2 ring-blue-500"
+                  )}
+                  onClick={() => setSelectedItem(item)}
+                >
+                  {/* Image area with priority badge */}
+                  <div className="relative bg-gray-200">
+                    {item.priority && (
+                      <div className="absolute top-4 left-4 z-10">
+                        <span className={cn(
+                          "px-3 py-1.5 rounded-full text-[11px] font-bold tracking-wide uppercase backdrop-blur-sm border",
+                          item.priority === "High" && "bg-rose-50/90 text-rose-700 border-rose-200",
+                          item.priority === "Medium" && "bg-amber-50/90 text-amber-700 border-amber-200",
+                          item.priority === "Low" && "bg-slate-50/90 text-slate-600 border-slate-200"
+                        )}>
+                          {item.priority} Priority
+                        </span>
+                      </div>
                     )}
-                    onClick={() => setSelectedItem(item)}
-                  >
-                    <CardContent className="p-4">
-                      {item.imageUrl && (
-                        <div className="aspect-square mb-3 rounded-md overflow-hidden bg-gray-100 relative">
-                          <Image
-                            src={item.imageUrl}
-                            alt={item.name}
-                            fill
-                            sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                            className="object-cover"
-                            quality={90}
-                          />
-                        </div>
+
+                    {item.imageUrl ? (
+                      <div className="aspect-[4/5] relative">
+                        <Image
+                          src={item.imageUrl}
+                          alt={item.name}
+                          fill
+                          sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                          className="object-contain"
+                          quality={90}
+                        />
+                      </div>
+                    ) : (
+                      <div className="aspect-[4/5] flex items-center justify-center">
+                        <Heart className="h-12 w-12 text-gray-400" />
+                      </div>
+                    )}
+
+                    {item.purchased && (
+                      <div className="absolute top-4 right-4 z-10">
+                        <Check className="h-6 w-6 text-green-600 bg-white rounded-full p-0.5 shadow" />
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Details area */}
+                  <div className="px-4 pt-4 pb-3 space-y-3">
+                    {/* Brand + Name/Price row */}
+                    <div>
+                      {item.brand && (
+                        <p className="text-[11px] font-medium text-gray-400 uppercase tracking-wider mb-0.5">{item.brand}</p>
                       )}
-                      <div className="space-y-2">
-                        <div className="flex items-start justify-between">
-                          <h3 className="font-medium text-sm line-clamp-2">{item.name}</h3>
-                          {item.purchased && (
-                            <Check className="h-4 w-4 text-green-600 flex-shrink-0" />
-                          )}
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Badge className={getPriorityColor(item.priority)}>
-                            {item.priority || "Medium"}
-                          </Badge>
-                          {item.price && (
-                            <Badge variant="outline">
-                              ₹{item.price}
-                            </Badge>
-                          )}
-                        </div>
-                        {item.websiteUrl && (
-                          <div className="flex items-center gap-2 text-xs text-blue-600">
-                            <ExternalLink className="h-3 w-3" />
-                            <span className="truncate">
-                              {item.websiteUrl.includes('levi.com') ? 'Levi\'s' :
-                               item.websiteUrl.includes('everlane.com') ? 'Everlane' :
-                               item.websiteUrl.includes('stories.com') ? '& Other Stories' :
-                               item.websiteUrl.includes('bluer.com') ? 'Bluer' :
-                               item.websiteUrl.includes('zara.com') ? 'Zara' :
-                               item.websiteUrl.includes('hm.com') ? 'H&M' :
-                               item.websiteUrl.includes('uniqlo.com') ? 'Uniqlo' :
-                               item.websiteUrl.includes('nike.com') ? 'Nike' :
-                               item.websiteUrl.includes('adidas.com') ? 'Adidas' :
-                               'Brand'}
-                            </span>
-                          </div>
+                      <div className="flex items-baseline justify-between gap-3">
+                        <h3 className="font-bold text-base text-gray-900 leading-tight">{item.name}</h3>
+                        {item.price != null && (
+                          <span className="text-base font-bold text-gray-900 whitespace-nowrap">₹{item.price.toLocaleString()}</span>
                         )}
                       </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
+                    </div>
+
+                    {/* Tags + external link */}
+                    <div className="flex items-center justify-between pt-1">
+                      <div className="flex items-center gap-2">
+                        {item.tags && item.tags[0] && (
+                          <span className="px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700 border border-blue-200">
+                            {item.tags[0]}
+                          </span>
+                        )}
+                        {item.tags && item.tags[1] && (
+                          <span className="px-3 py-1 rounded-full text-xs font-medium bg-white text-gray-600 border border-gray-300 inline-flex items-center gap-1">
+                            <Tag className="h-3 w-3" />
+                            {item.tags[1]}
+                          </span>
+                        )}
+                      </div>
+                      <ExternalLink className="h-4 w-4 text-gray-400 flex-shrink-0" />
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
-          ))}
+          ) : (
+            Object.entries(groupedItems).map(([category, items]) => (
+              <div key={category} className="space-y-4">
+                <h2 className="text-xl font-semibold">{category}</h2>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {items.map((item) => (
+                      <div
+                        key={item.id}
+                        className={cn(
+                          "cursor-pointer transition-all hover:shadow-xl rounded-2xl overflow-hidden bg-white shadow-md",
+                          item.purchased && "opacity-75",
+                          selectedItem?.id === item.id && "ring-2 ring-blue-500"
+                        )}
+                        onClick={() => setSelectedItem(item)}
+                      >
+                        {/* Image area with priority badge */}
+                        <div className="relative bg-gray-200">
+                          {item.priority && (
+                            <div className="absolute top-4 left-4 z-10">
+                              <span className={cn(
+                                "px-3 py-1.5 rounded-full text-[11px] font-bold tracking-wide uppercase backdrop-blur-sm border",
+                                item.priority === "High" && "bg-rose-50/90 text-rose-700 border-rose-200",
+                                item.priority === "Medium" && "bg-amber-50/90 text-amber-700 border-amber-200",
+                                item.priority === "Low" && "bg-slate-50/90 text-slate-600 border-slate-200"
+                              )}>
+                                {item.priority} Priority
+                              </span>
+                            </div>
+                          )}
+
+                          {item.imageUrl ? (
+                            <div className="aspect-[4/5] relative">
+                              <Image
+                                src={item.imageUrl}
+                                alt={item.name}
+                                fill
+                                sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                                className="object-contain"
+                                quality={90}
+                              />
+                            </div>
+                          ) : (
+                            <div className="aspect-[4/5] flex items-center justify-center">
+                              <Heart className="h-12 w-12 text-gray-400" />
+                            </div>
+                          )}
+
+                          {item.purchased && (
+                            <div className="absolute top-4 right-4 z-10">
+                              <Check className="h-6 w-6 text-green-600 bg-white rounded-full p-0.5 shadow" />
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Details area */}
+                        <div className="px-4 pt-4 pb-3 space-y-3">
+                          {/* Brand + Name/Price row */}
+                          <div>
+                            {item.brand && (
+                              <p className="text-[11px] font-medium text-gray-400 uppercase tracking-wider mb-0.5">{item.brand}</p>
+                            )}
+                            <div className="flex items-baseline justify-between gap-3">
+                              <h3 className="font-bold text-base text-gray-900 leading-tight">{item.name}</h3>
+                              {item.price != null && (
+                                <span className="text-base font-bold text-gray-900 whitespace-nowrap">₹{item.price.toLocaleString()}</span>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Tags + external link */}
+                          <div className="flex items-center justify-between pt-1">
+                            <div className="flex items-center gap-2">
+                              {item.tags && item.tags[0] && (
+                                <span className="px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700 border border-blue-200">
+                                  {item.tags[0]}
+                                </span>
+                              )}
+                              {item.tags && item.tags[1] && (
+                                <span className="px-3 py-1 rounded-full text-xs font-medium bg-white text-gray-600 border border-gray-300 inline-flex items-center gap-1">
+                                  <Tag className="h-3 w-3" />
+                                  {item.tags[1]}
+                                </span>
+                              )}
+                            </div>
+                            <ExternalLink className="h-4 w-4 text-gray-400 flex-shrink-0" />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))
+          )}}
           
           {filteredItems.length === 0 && (
             <Card>
@@ -640,6 +881,15 @@ export default function WishlistPage() {
                 </div>
 
                 <div className="space-y-2">
+                  <label className="text-sm font-medium">Brand</label>
+                  <Input
+                    value={newItem.brand}
+                    onChange={(e) => setNewItem({ ...newItem, brand: e.target.value })}
+                    placeholder="e.g., Ti.Dehi, Zara"
+                  />
+                </div>
+
+                <div className="space-y-2">
                   <label className="text-sm font-medium">Category *</label>
                   <Select
                     value={newItem.category}
@@ -652,6 +902,19 @@ export default function WishlistPage() {
                     <option value="Shoes">Shoes</option>
                     <option value="Jewellery">Jewellery</option>
                   </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Tags (comma-separated)</label>
+                  <Input
+                    value={(newItem.tags || []).join(", ")}
+                    onChange={(e) => setNewItem({ 
+                      ...newItem, 
+                      tags: e.target.value.split(",").map(t => t.trim()).filter(t => t) 
+                    })}
+                    placeholder="e.g., Tops, Apparel"
+                  />
+                  <p className="text-xs text-gray-500">Default: Category + Apparel</p>
                 </div>
 
                 <div className="space-y-2">

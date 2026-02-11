@@ -153,7 +153,9 @@ export interface WardrobeItem {
 export interface WishlistItem {
   id: string;
   name: string;
+  brand?: string; // Brand name displayed above product name (e.g., "TI.DEHI")
   category: WishlistCategory;
+  tags?: string[]; // Display tags like ["Tops", "Apparel"]
   imageUrl?: string;
   websiteUrl?: string;
   price?: number;
