@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense, useEffect, useState } from "react";
-import { useParams, useSearchParams, useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useSession, signIn } from "next-auth/react";
 import {
   ArrowLeft,
@@ -16,11 +16,9 @@ import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
 
 function TopicPageContent() {
   const params = useParams();
-  const searchParams = useSearchParams();
   const router = useRouter();
   const { data: session, status } = useSession();
   const slug = params.slug as string;
-  const isPreview = searchParams.get("preview") === "1";
 
   const topic = getTopicBySlug(slug);
   const [activeTab, setActiveTab] = useState<string | null>(null);
@@ -28,7 +26,8 @@ function TopicPageContent() {
   // Set initial active tab
   useEffect(() => {
     if (topic?.subTabs && topic.subTabs.length > 0 && !activeTab) {
-      setActiveTab(topic.subTabs[0].id);
+      const firstTab = topic.subTabs[0];
+      if (firstTab) setActiveTab(firstTab.id);
     }
   }, [topic, activeTab]);
 

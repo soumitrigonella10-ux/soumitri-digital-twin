@@ -29,7 +29,7 @@ const config: Config = {
         },
       },
       fontFamily: {
-        serif: ["'Playfair Display'", "Georgia", "'Times New Roman'", "serif"],
+        serif: ["var(--font-playfair)", "Georgia", "'Times New Roman'", "serif"],
       },
       borderRadius: {
         "2xl": "1rem",

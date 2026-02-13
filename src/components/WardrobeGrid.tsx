@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { Tag, Star } from "lucide-react";
 import { Card, CardContent } from "./ui/card";
 import { Badge } from "./ui/badge";
@@ -35,7 +36,7 @@ export function WardrobeGrid({
           key={item.id}
           item={item}
           isSelected={selectedIds.includes(item.id)}
-          onSelect={onSelect}
+          {...(onSelect ? { onSelect } : {})}
           selectable={selectable}
         />
       ))}
@@ -68,10 +69,12 @@ function WardrobeCard({ item, isSelected, onSelect, selectable }: WardrobeCardPr
       {/* Image */}
       <div className="relative aspect-[3/4] bg-gray-100">
         {!imageError ? (
-          <img
+          <Image
             src={item.imageUrl}
             alt={item.name}
-            className="w-full h-full object-cover"
+            fill
+            className="object-cover"
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
             onError={() => setImageError(true)}
           />
         ) : (

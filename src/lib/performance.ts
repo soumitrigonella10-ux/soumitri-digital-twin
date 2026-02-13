@@ -3,7 +3,7 @@
 // Centralized performance optimizations
 // ========================================
 
-import { useCallback, useMemo, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 
 // ========================================
 // Debounce Hook
@@ -14,6 +14,15 @@ export function useDebounce<T extends (...args: any[]) => void>(
 ): T {
   const timeoutRef = useRef<NodeJS.Timeout>();
   
+  // Clear pending timeout on unmount to prevent memory leaks
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
+
   const debouncedCallback = useCallback((...args: Parameters<T>) => {
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
@@ -112,12 +121,34 @@ export function useStableCallback<T extends (...args: any[]) => any>(callback: T
   }, []) as T;
 }
 
+function deepEqual(a: unknown, b: unknown): boolean {
+  if (Object.is(a, b)) return true;
+  if (typeof a !== typeof b || a === null || b === null) return false;
+  if (typeof a !== 'object') return false;
+
+  if (Array.isArray(a)) {
+    if (!Array.isArray(b) || a.length !== b.length) return false;
+    return a.every((item, i) => deepEqual(item, (b as unknown[])[i]));
+  }
+
+  const keysA = Object.keys(a as Record<string, unknown>);
+  const keysB = Object.keys(b as Record<string, unknown>);
+  if (keysA.length !== keysB.length) return false;
+  return keysA.every(
+    (key) => deepEqual(
+      (a as Record<string, unknown>)[key],
+      (b as Record<string, unknown>)[key]
+    )
+  );
+}
+
 export function useDeepMemo<T>(factory: () => T, deps: React.DependencyList): T {
   const prevDeps = useRef<React.DependencyList>();
   const value = useRef<T>();
 
-  const depsChanged = !prevDeps.current || 
-    deps.some((dep, index) => dep !== prevDeps.current![index]);
+  const depsChanged = !prevDeps.current ||
+    prevDeps.current.length !== deps.length ||
+    deps.some((dep, index) => !deepEqual(dep, prevDeps.current![index]));
 
   if (depsChanged) {
     value.current = factory();

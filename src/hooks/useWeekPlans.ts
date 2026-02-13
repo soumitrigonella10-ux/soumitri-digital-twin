@@ -3,7 +3,7 @@
 // Handles computing and caching week plans with error handling
 // ========================================
 
-import { useMemo, useCallback } from "react";
+import { useMemo } from "react";
 import { addDays } from "date-fns";
 import { computeDayPlan } from "@/lib/compute";
 import { useAppStore } from "@/store/useAppStore";

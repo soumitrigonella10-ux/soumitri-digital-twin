@@ -53,7 +53,8 @@ function TopsPageContent() {
   // Set active tab to first available tab on load
   useMemo(() => {
     if (tabs.length > 0 && !tabs.includes(activeTab)) {
-      setActiveTab(tabs[0]);
+      const firstTab = tabs[0];
+      if (firstTab) setActiveTab(firstTab);
     }
   }, [tabs, activeTab]);
 
@@ -102,9 +103,9 @@ function TopsPageContent() {
               <h2 className="text-lg font-semibold text-gray-900 capitalize">
                 {occasion}
               </h2>
-              {groupedByOccasion[occasion].length > 0 ? (
+              {groupedByOccasion[occasion]!.length > 0 ? (
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                  {groupedByOccasion[occasion].map((item) => (
+                  {groupedByOccasion[occasion]!.map((item) => (
                     <div
                       key={item.id}
                       onClick={() => setSelectedItem(item)}

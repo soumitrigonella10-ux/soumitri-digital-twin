@@ -30,13 +30,13 @@ export interface ProductCardProps {
   index: number;
   theme: ProductCardTheme;
   /** Optional highlight effect for special cases */
-  highlighted?: boolean;
+  highlighted?: boolean | undefined;
   /** Custom highlight ring color for specific features (body-specifics) */
-  highlightRingColor?: string;
+  highlightRingColor?: string | undefined;
   /** Custom layout variant */
-  variant?: 'default' | 'compact' | 'makeup';
+  variant?: 'default' | 'compact' | 'makeup' | undefined;
   /** Additional metadata to display */
-  additionalMetadata?: React.ReactNode;
+  additionalMetadata?: React.ReactNode | undefined;
 }
 
 export function ProductCard({ 
@@ -240,7 +240,7 @@ export function ProductCard({
                 <span>
                   {!product.weekdays || product.weekdays.length === 7
                     ? "Daily"
-                    : product.weekdays.map((d) => DAYS_OF_WEEK[d].charAt(0)).join("")}
+                    : product.weekdays.map((d) => (DAYS_OF_WEEK[d] ?? "").charAt(0)).join("")}
                 </span>
               </div>
 
@@ -279,7 +279,7 @@ export function ProductCard({
 }
 
 // Predefined themes for different routine types
-export const PRODUCT_CARD_THEMES: Record<string, ProductCardTheme> = {
+export const PRODUCT_CARD_THEMES = {
   skin: {
     primary: "pink",
     defaultBadge: "bg-pink-50 text-pink-600 border-pink-100",

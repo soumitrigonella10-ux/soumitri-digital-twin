@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { format, addDays, startOfWeek } from "date-fns";
-import { ChevronRight, Check, Clock } from "lucide-react";
+import { format, addDays } from "date-fns";
+import { ChevronRight, Check } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { Modal } from "./Modal";
@@ -26,7 +26,7 @@ export function WeekPlanner({ weekStart, plans }: WeekPlannerProps) {
       {/* Week Grid */}
       <div className="grid grid-cols-1 md:grid-cols-7 gap-2">
         {days.map((day, index) => {
-          const plan = plans[index];
+          const plan = plans[index]!;
           const isToday = format(day, "yyyy-MM-dd") === format(new Date(), "yyyy-MM-dd");
           const isSelected = format(day, "yyyy-MM-dd") === format(filters.date, "yyyy-MM-dd");
 
@@ -103,17 +103,17 @@ export function WeekPlanner({ weekStart, plans }: WeekPlannerProps) {
       </div>
 
       {/* Day Detail Modal */}
-      {selectedDay !== null && (
+      {selectedDay !== null && plans[selectedDay] && (
         <Modal
           isOpen={true}
           onClose={() => setSelectedDay(null)}
-          title={format(days[selectedDay], "EEEE, MMMM d")}
+          title={format(days[selectedDay]!, "EEEE, MMMM d")}
           className="max-w-2xl"
         >
           <DayDetail
-            plan={plans[selectedDay]}
+            plan={plans[selectedDay]!}
             onNavigate={() => {
-              setFilters({ date: days[selectedDay] });
+              setFilters({ date: days[selectedDay]! });
               setSelectedDay(null);
             }}
           />

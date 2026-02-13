@@ -44,7 +44,19 @@ function cn(...inputs: any[]) {
 // ========================================
 // Category Configuration
 // ========================================
-export const categories = [
+export interface SidebarCategory {
+  id: string;
+  name: string;
+  icon: LucideIcon;
+  href: string;
+  color: string;
+  bgClass: string;
+  borderClass: string;
+  group: string;
+  subCategories?: { id: string; name: string; href: string }[];
+}
+
+export const categories: SidebarCategory[] = [
   // Daily Logic
   {
     id: "today",
@@ -218,7 +230,7 @@ const TOPIC_ICON_MAP: Record<string, LucideIcon> = {
 };
 
 // Generate Public Curation categories from topics data
-const publicCurationCategories = topics.map((topic) => ({
+const publicCurationCategories: SidebarCategory[] = topics.map((topic) => ({
   id: topic.slug,
   name: topic.title,
   icon: TOPIC_ICON_MAP[topic.icon] || Heart,
@@ -226,8 +238,7 @@ const publicCurationCategories = topics.map((topic) => ({
   color: "lifeos-today",
   bgClass: topic.iconBg,
   borderClass: "border-stone-300",
-  group: "Public Curation" as const,
-  subCategories: undefined,
+  group: "Public Curation",
 }));
 
 // Combine all categories
@@ -238,7 +249,7 @@ const groupedCategories = allCategories.reduce((acc, cat) => {
   if (!acc[cat.group]) {
     acc[cat.group] = [];
   }
-  acc[cat.group].push(cat);
+  acc[cat.group]!.push(cat);
   return acc;
 }, {} as Record<string, typeof allCategories>);
 
@@ -280,7 +291,7 @@ export function Sidebar() {
     );
   };
 
-  const isSubCategoryActive = (cat: typeof categories[0]) => {
+  const isSubCategoryActive = (cat: SidebarCategory) => {
     if (!cat.subCategories) return false;
     return cat.subCategories.some((sub) => pathname === sub.href);
   };
@@ -334,7 +345,7 @@ export function Sidebar() {
                               "w-4 h-4",
                               isActive || isSubActive ? `text-${cat.color}` : "text-gray-500"
                             )}
-                            style={isActive || isSubActive ? { color: `var(--tw-colors-${cat.color})` } : {}}
+                            {...(isActive || isSubActive ? { style: { color: `var(--tw-colors-${cat.color})` } } : {})}
                           />
                         </div>
                         <span

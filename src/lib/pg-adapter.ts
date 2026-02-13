@@ -1,6 +1,5 @@
 import type { Adapter, AdapterUser, AdapterSession, VerificationToken, AdapterAccount } from "next-auth/adapters"
 import type { Pool } from "pg"
-import type { Awaitable } from "next-auth"
 import crypto from "crypto"
 
 /**
@@ -92,7 +91,7 @@ export default function CustomPgAdapter(pool: Pool): Adapter {
       return account as AdapterAccount
     },
 
-    async unlinkAccount({ provider, providerAccountId }) {
+    async unlinkAccount({ provider, providerAccountId }: { provider: string; providerAccountId: string }) {
       await pool.query(
         `DELETE FROM accounts WHERE provider = $1 AND "providerAccountId" = $2`,
         [provider, providerAccountId]

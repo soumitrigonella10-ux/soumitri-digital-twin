@@ -157,6 +157,11 @@ export function getPublicTopicSlugs(): string[] {
   return topics.filter((t) => t.isPublic).map((t) => t.slug);
 }
 
+// Helper: get all private topic slugs
+export function getPrivateTopicSlugs(): string[] {
+  return topics.filter((t) => !t.isPublic).map((t) => t.slug);
+}
+
 // Helper: find topic by slug
 export function getTopicBySlug(slug: string): Topic | undefined {
   return topics.find((t) => t.slug === slug);

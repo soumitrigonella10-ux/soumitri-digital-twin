@@ -1,4 +1,4 @@
-import { MealTemplate, Ingredient } from "@/types";
+import { MealTemplate } from "@/types";
 
 // ========================================
 // LUNCH BOWL CONFIGURATION

@@ -1,13 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Settings, Database, Download, Upload, Trash2 } from "lucide-react";
+import { Settings, Database, Download, Trash2 } from "lucide-react";
 import { useAppStore } from "@/store/useAppStore";
 import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
-import { ManageTabs } from "@/components/ManageTabs";
+import { ManageTabs } from "@/components/manage/ManageTabs";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ToastProvider";
 

@@ -4,7 +4,6 @@
 // ========================================
 
 import { z } from "zod";
-import type { Product, WardrobeItem, MealTemplate, Dressing, WorkoutPlan } from "@/types";
 
 // ========================================
 // Base validation schemas
@@ -41,11 +40,24 @@ export const wardrobeItemSchema = z.object({
   id: stringRequired,
   name: stringRequired,
   category: z.enum(["Top", "Bottom", "Dress", "Shoes", "Accessories", "Outerwear"]),
+  subcategory: stringOptional,
+  occasion: stringOptional,
+  imageUrl: stringRequired,
   colors: z.array(z.string()).default([]),
-  occasions: z.array(z.string()).default([]),
-  imageUrl: stringOptional,
+  styleType: stringOptional,
+  subType: stringOptional,
+  vibeTags: z.array(z.string()).optional(),
   notes: stringOptional,
-  isActive: booleanOptional.default(true),
+});
+
+// ========================================
+// Ingredient validation schema
+// ========================================
+const ingredientSchema = z.object({
+  name: stringRequired,
+  quantity: stringRequired,
+  unit: stringOptional,
+  category: stringOptional,
 });
 
 // ========================================
@@ -54,13 +66,16 @@ export const wardrobeItemSchema = z.object({
 export const mealTemplateSchema = z.object({
   id: stringRequired,
   name: stringRequired,
-  type: z.enum(["breakfast", "lunch", "dinner", "snack"]),
-  ingredients: z.array(z.string()).default([]),
-  instructions: stringOptional,
-  nutritionNotes: stringOptional,
-  prepTime: numberOptional,
+  timeOfDay: z.enum(["AM", "MIDDAY", "PM", "ANY"]),
+  mealType: z.enum(["breakfast", "lunch", "dinner"]),
+  items: z.array(z.string()).default([]),
+  ingredients: z.array(ingredientSchema).optional(),
+  instructions: z.array(z.string()).optional(),
+  weekdays: z.array(z.number().min(0).max(6)).optional(),
+  prepTimeMin: numberOptional,
+  cookTimeMin: numberOptional,
   servings: numberOptional,
-  isActive: booleanOptional.default(true),
+  tags: z.array(z.string()).optional(),
 });
 
 // ========================================
@@ -69,10 +84,29 @@ export const mealTemplateSchema = z.object({
 export const dressingSchema = z.object({
   id: stringRequired,
   name: stringRequired,
+  shelfLifeDays: z.number(),
   ingredients: z.array(z.string()).default([]),
-  instructions: stringOptional,
-  storageTips: stringOptional,
-  isActive: booleanOptional.default(true),
+});
+
+// ========================================
+// Exercise validation schema
+// ========================================
+const exerciseSchema = z.object({
+  name: stringRequired,
+  sets: stringOptional,
+  reps: stringOptional,
+  notes: stringOptional,
+  isNew: booleanOptional,
+  isEssential: booleanOptional,
+});
+
+// ========================================
+// Workout section validation schema
+// ========================================
+const workoutSectionSchema = z.object({
+  title: stringRequired,
+  description: stringOptional,
+  exercises: z.array(exerciseSchema).default([]),
 });
 
 // ========================================
@@ -81,13 +115,10 @@ export const dressingSchema = z.object({
 export const workoutPlanSchema = z.object({
   id: stringRequired,
   name: stringRequired,
-  type: z.enum(["cardio", "strength", "flexibility", "mixed"]),
-  duration: numberOptional,
-  exercises: z.array(z.string()).default([]),
-  equipment: z.array(z.string()).default([]),
-  notes: stringOptional,
-  difficulty: z.enum(["beginner", "intermediate", "advanced"]).optional(),
-  isActive: booleanOptional.default(true),
+  weekday: z.array(z.number().min(0).max(6)).default([]),
+  durationMin: z.number(),
+  goal: stringOptional,
+  sections: z.array(workoutSectionSchema).default([]),
 });
 
 // ========================================

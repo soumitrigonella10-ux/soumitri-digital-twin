@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Palette, Sun, Moon, Calendar, Edit2, Check, X, Sparkles, CheckCircle2 } from "lucide-react";
+import { Palette, Sun, Moon, Calendar, Check, Sparkles, CheckCircle2 } from "lucide-react";
 import { useAppStore } from "@/store/useAppStore";
 import { cn } from "@/lib/utils";
 import { Product, TimeOfDay } from "@/types";
@@ -91,11 +91,11 @@ function WeekView({ products, completionState, onToggleComplete }: {
 // Main Makeup Page Component
 // Makeup Page Content Component
 function MakeupPageContent() {
-  const { data } = useAppStore();
+  const { data: _data } = useAppStore();
   const [view, setView] = useState<"routine" | "week">("routine");
   const [timeOfDay, setTimeOfDay] = useState<TimeOfDay>("AM");
   const [completionState, setCompletionState] = useState<Record<string, boolean>>({});
-  const [editingProduct, setEditingProduct] = useState<string | null>(null);
+  const [_editingProduct, setEditingProduct] = useState<string | null>(null);
 
   // Filter makeup products (for now, we'll create some sample data since makeup isn't in the current products)
   const makeupProducts = useMemo(() => {

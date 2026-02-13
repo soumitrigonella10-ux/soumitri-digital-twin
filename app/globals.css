@@ -24,7 +24,7 @@ body {
 
 /* Serif font utility for editorial headings */
 .font-serif {
-  font-family: 'Playfair Display', Georgia, 'Times New Roman', serif;
+  font-family: var(--font-playfair), Georgia, 'Times New Roman', serif;
 }
 
 /* Warm watercolor curation background */

@@ -4,13 +4,14 @@ import { useSession } from "next-auth/react";
 import { ReactNode } from "react";
 import { Sidebar, MobileMenu } from "@/components/Sidebar";
 import { PublicWelcome } from "@/components/PublicWelcome";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 interface AuthenticatedLayoutProps {
   children: ReactNode;
   redirectToWishlist?: boolean;
 }
 
-export function AuthenticatedLayout({ children, redirectToWishlist = false }: AuthenticatedLayoutProps) {
+export function AuthenticatedLayout({ children, redirectToWishlist: _redirectToWishlist = false }: AuthenticatedLayoutProps) {
   const { data: session, status } = useSession();
 
   // Show loading state
@@ -32,7 +33,14 @@ export function AuthenticatedLayout({ children, redirectToWishlist = false }: Au
     <div className="flex min-h-screen bg-gray-50">
       <Sidebar />
       <div className="flex-1 lg:ml-[280px] transition-[margin] duration-200">
-        {children}
+        <ErrorBoundary
+          boundary="AuthenticatedLayout"
+          fallbackTitle="Page Error"
+          fallbackMessage="Something went wrong loading this page. Your data is safe — try refreshing."
+          maxAutoRetries={1}
+        >
+          {children}
+        </ErrorBoundary>
       </div>
       <MobileMenu />
     </div>

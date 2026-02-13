@@ -4,7 +4,7 @@ import { Pool } from 'pg'
 // - Neon free tier databases suspend after inactivity; cold starts need up to 10s
 // - Serverless environments (Vercel) should use a small pool
 // - Only create pool when POSTGRES_URL is available
-export const pool: Pool = process.env.POSTGRES_URL
+export const pool: Pool | null = process.env.POSTGRES_URL
   ? new Pool({
       connectionString: process.env.POSTGRES_URL,
       ssl: { rejectUnauthorized: false },
@@ -12,7 +12,7 @@ export const pool: Pool = process.env.POSTGRES_URL
       idleTimeoutMillis: 30000,
       connectionTimeoutMillis: 10000,
     })
-  : (null as unknown as Pool)
+  : null
 
 // Prevent unhandled pool errors from crashing the process
 if (pool) {

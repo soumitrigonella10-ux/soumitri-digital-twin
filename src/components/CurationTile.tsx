@@ -17,11 +17,12 @@ import {
   Palette,
   Lock,
 } from "lucide-react";
+import { type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Topic } from "@/data/topics";
 
 // Map icon string names to Lucide components
-const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
+const ICON_MAP: Record<string, LucideIcon> = {
   heart: Heart,
   "pen-tool": PenTool,
   compass: Compass,

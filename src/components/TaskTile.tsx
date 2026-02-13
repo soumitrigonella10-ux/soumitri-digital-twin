@@ -19,7 +19,7 @@ export function TaskTile({
   step,
   isCompleted,
   onToggle,
-  categoryColor = "gray",
+  categoryColor: _categoryColor = "gray",
   isPriority = false,
   showWarning = false,
   warningText,
@@ -136,10 +136,10 @@ export function TaskTile({
 // ========================================
 interface SectionHeaderProps {
   title: string;
-  subtitle?: string;
+  subtitle?: string | undefined;
   icon: React.ReactNode;
   color: string;
-  progress?: number;
+  progress?: number | undefined;
 }
 
 export function SectionHeader({

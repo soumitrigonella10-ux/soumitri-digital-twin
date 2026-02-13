@@ -1,6 +1,6 @@
 // ========================================
 // Custom Hook: useWeekNavigation
-// Handles week navigation logic with error boundaries
+// Handles week navigation logic with error state
 // ========================================
 
 import { useState, useCallback } from "react";
@@ -10,6 +10,7 @@ import { useAppStore } from "@/store/useAppStore";
 export function useWeekNavigation() {
   const { filters, setFilters } = useAppStore();
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
 
   // Calculate week boundaries
   const weekStart = startOfWeek(filters.date, { weekStartsOn: 1 });
@@ -18,13 +19,15 @@ export function useWeekNavigation() {
   // Navigate to previous week with loading state
   const goToPreviousWeek = useCallback(async () => {
     setIsLoading(true);
+    setError(null);
     try {
       const newDate = addDays(weekStart, -7);
       setFilters({ date: newDate });
-    } catch (error) {
-      console.error('Error navigating to previous week:', error);
+    } catch (e) {
+      const err = e instanceof Error ? e : new Error("Failed to navigate to previous week");
+      setError(err);
+      console.error("[WeekNavigation]", err);
     } finally {
-      // Add small delay for better UX
       setTimeout(() => setIsLoading(false), 200);
     }
   }, [weekStart, setFilters]);
@@ -32,11 +35,14 @@ export function useWeekNavigation() {
   // Navigate to next week with loading state
   const goToNextWeek = useCallback(async () => {
     setIsLoading(true);
+    setError(null);
     try {
       const newDate = addDays(weekStart, 7);
       setFilters({ date: newDate });
-    } catch (error) {
-      console.error('Error navigating to next week:', error);
+    } catch (e) {
+      const err = e instanceof Error ? e : new Error("Failed to navigate to next week");
+      setError(err);
+      console.error("[WeekNavigation]", err);
     } finally {
       setTimeout(() => setIsLoading(false), 200);
     }
@@ -45,10 +51,13 @@ export function useWeekNavigation() {
   // Jump to today
   const goToToday = useCallback(async () => {
     setIsLoading(true);
+    setError(null);
     try {
       setFilters({ date: new Date() });
-    } catch (error) {
-      console.error('Error navigating to today:', error);
+    } catch (e) {
+      const err = e instanceof Error ? e : new Error("Failed to navigate to today");
+      setError(err);
+      console.error("[WeekNavigation]", err);
     } finally {
       setTimeout(() => setIsLoading(false), 200);
     }
@@ -58,6 +67,8 @@ export function useWeekNavigation() {
     weekStart,
     weekEnd,
     isLoading,
+    error,
+    clearError: () => setError(null),
     goToPreviousWeek,
     goToNextWeek,
     goToToday,

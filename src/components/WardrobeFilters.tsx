@@ -30,7 +30,7 @@ export function WardrobeFilters({ filters, onChange, onReset }: WardrobeFiltersP
     onChange({ ...filters, [key]: value });
   };
 
-  const activeFilterCount = Object.entries(filters).filter(([key, value]) => {
+  const activeFilterCount = Object.entries(filters).filter(([_key, value]) => {
     return value !== "Any";
   }).length;
 

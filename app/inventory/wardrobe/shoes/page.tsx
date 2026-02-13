@@ -3,7 +3,6 @@
 import { useState, useMemo } from "react";import Image from "next/image";import { Footprints, Plus, X } from "lucide-react";
 import { useAppStore } from "@/store/useAppStore";
 import { WardrobeItem } from "@/types";
-import { cn } from "@/lib/utils";
 import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
 
 function ShoesPageContent() {

@@ -11,7 +11,7 @@ export function CurationGrid() {
   // Split into 3 columns for masonry layout
   const columns: (typeof sortedTopics)[] = [[], [], []];
   sortedTopics.forEach((topic, i) => {
-    columns[i % 3].push(topic);
+    columns[i % 3]!.push(topic);
   });
 
   return (

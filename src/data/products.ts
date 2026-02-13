@@ -12,7 +12,7 @@ export const products: Product[] = [
     name: "Acmed Cleanser",
     category: "Cleanser",
     actives: ["Vitamin E"],
-    cautionTags: [""],
+    cautionTags: [],
     routineType: "skin",
     timeOfDay: "AM",
     weekdays: [0, 1, 2, 3, 4, 5, 6],

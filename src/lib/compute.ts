@@ -283,7 +283,7 @@ export function computeDayPlan(params: ComputeDayPlanParams): DayPlan {
   });
 
   // Add placeholder for Wardrobe section
-  sectionMap.Wardrobe.routines.push({
+  sectionMap.Wardrobe!.routines.push({
     routineId: "wardrobe-placeholder",
     name: "Check /wardrobe for outfit suggestions",
     steps: [],

@@ -29,7 +29,7 @@ const authOptions: NextAuthOptions = {
   adapter: getAdapter(),
   providers: [
     EmailProvider({
-      server: process.env.DEMO_MODE === "true" ? undefined : {
+      server: process.env.DEMO_MODE === "true" ? "" : {
         host: process.env.EMAIL_SERVER_HOST,
         port: parseInt(process.env.EMAIL_SERVER_PORT || "587"),
         auth: {
@@ -90,7 +90,7 @@ const authOptions: NextAuthOptions = {
       }
       return session
     },
-    async redirect({ url, baseUrl }) {
+    async redirect({ url: _url, baseUrl }) {
       // Always redirect to today page (/) after sign-in
       return `${baseUrl}/`
     },

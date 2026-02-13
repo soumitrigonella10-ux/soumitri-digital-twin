@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { format, getDay } from "date-fns";
-import { Dumbbell, Plus, Clock, Play, Target, Flame, Calendar, Zap } from "lucide-react";
+import { getDay } from "date-fns";
+import { Dumbbell, Plus, Clock, Play, Flame, Zap } from "lucide-react";
 import { useAppStore } from "@/store/useAppStore";
 import { cn } from "@/lib/utils";
 import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
@@ -105,18 +105,18 @@ function FitnessPageContent() {
                 <Flame className="w-5 h-5 text-red-500" />
                 <span className="text-sm font-medium text-red-600">Today&apos;s Workout</span>
               </div>
-              <h2 className="text-xl font-bold text-gray-900">{filteredWorkouts[0].name}</h2>
-              {filteredWorkouts[0].goal && (
-                <p className="text-sm text-gray-600 mt-2">{filteredWorkouts[0].goal}</p>
+              <h2 className="text-xl font-bold text-gray-900">{filteredWorkouts[0]!.name}</h2>
+              {filteredWorkouts[0]!.goal && (
+                <p className="text-sm text-gray-600 mt-2">{filteredWorkouts[0]!.goal}</p>
               )}
               <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
                 <div className="flex items-center gap-1">
                   <Clock className="w-4 h-4" />
-                  <span>{filteredWorkouts[0].durationMin} minutes</span>
+                  <span>{filteredWorkouts[0]!.durationMin} minutes</span>
                 </div>
               </div>
               <button
-                onClick={() => setActiveWorkout(filteredWorkouts[0].id)}
+                onClick={() => setActiveWorkout(filteredWorkouts[0]!.id)}
                 className="mt-4 w-full py-3 bg-red-500 text-white rounded-xl font-medium flex items-center justify-center gap-2 hover:bg-red-600 transition-colors"
               >
                 <Play className="w-5 h-5" />

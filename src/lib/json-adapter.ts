@@ -113,19 +113,19 @@ export function JsonAdapter(): Adapter {
       const idx = db.users.findIndex((u) => u.id === user.id)
       if (idx === -1) throw new Error("User not found")
       db.users[idx] = {
-        ...db.users[idx],
+        ...db.users[idx]!,
         ...user,
         emailVerified: user.emailVerified
           ? user.emailVerified instanceof Date
             ? user.emailVerified.toISOString()
             : user.emailVerified
-          : db.users[idx].emailVerified,
+          : db.users[idx]!.emailVerified,
       } as DbSchema["users"][0]
       writeDb(db)
       return {
-        ...db.users[idx],
-        emailVerified: db.users[idx].emailVerified
-          ? new Date(db.users[idx].emailVerified!)
+        ...db.users[idx]!,
+        emailVerified: db.users[idx]!.emailVerified
+          ? new Date(db.users[idx]!.emailVerified!)
           : null,
       } as AdapterUser
     },
@@ -158,7 +158,7 @@ export function JsonAdapter(): Adapter {
       return account
     },
 
-    async unlinkAccount({ provider, providerAccountId }) {
+    async unlinkAccount({ provider, providerAccountId }: { provider: string; providerAccountId: string }) {
       const db = readDb()
       db.accounts = db.accounts.filter(
         (a) => !(a.provider === provider && a.providerAccountId === providerAccountId)
@@ -202,12 +202,12 @@ export function JsonAdapter(): Adapter {
       const idx = db.sessions.findIndex((s) => s.sessionToken === session.sessionToken)
       if (idx === -1) return null
       if (session.expires) {
-        db.sessions[idx].expires = session.expires.toISOString()
+        db.sessions[idx]!.expires = session.expires.toISOString()
       }
       writeDb(db)
       return {
-        ...db.sessions[idx],
-        expires: new Date(db.sessions[idx].expires),
+        ...db.sessions[idx]!,
+        expires: new Date(db.sessions[idx]!.expires),
       } as AdapterSession
     },
 
@@ -241,8 +241,8 @@ export function JsonAdapter(): Adapter {
       const [removed] = db.verificationTokens.splice(idx, 1)
       writeDb(db)
       return {
-        ...removed,
-        expires: new Date(removed.expires),
+        ...removed!,
+        expires: new Date(removed!.expires),
       } as VerificationToken
     },
   }
