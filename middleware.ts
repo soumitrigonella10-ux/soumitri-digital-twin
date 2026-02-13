@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 import { getToken } from "next-auth/jwt"
-import { getPublicTopicSlugs, getPrivateTopicSlugs } from "@/data/topics"
+import { getPublicTopicSlugs } from "@/data/topics"
 
 // Static public paths (always accessible)
 const STATIC_PUBLIC_PATHS = [
@@ -14,7 +14,6 @@ const STATIC_PUBLIC_PATHS = [
 
 // Derived from the single source of truth in src/data/topics.ts
 const PUBLIC_TOPIC_SLUGS = getPublicTopicSlugs()
-const PRIVATE_TOPIC_SLUGS = getPrivateTopicSlugs()
 
 // Check if a path is public
 function isPublicPath(pathname: string): boolean {
@@ -32,10 +31,8 @@ function isPublicPath(pathname: string): boolean {
     return true
   }
 
-  // Private topic pages — allow access (page handles preview mode)
-  if (topLevelSlug && PRIVATE_TOPIC_SLUGS.includes(topLevelSlug)) {
-    return true
-  }
+  // Private topic pages require authentication — do NOT bypass.
+  // These will fall through to the JWT check below.
 
   return false
 }
@@ -50,9 +47,18 @@ export async function middleware(request: NextRequest) {
     }
     
     // Get the JWT token from the request
+    // Fail loudly if NEXTAUTH_SECRET is missing — empty string silently degrades auth
+    const secret = process.env.NEXTAUTH_SECRET
+    if (!secret) {
+      console.error("[Middleware] NEXTAUTH_SECRET is not set — cannot verify JWT")
+      const loginUrl = new URL("/auth/signin", request.url)
+      loginUrl.searchParams.set("next", pathname)
+      return NextResponse.redirect(loginUrl)
+    }
+
     const token = await getToken({
       req: request,
-      secret: process.env.NEXTAUTH_SECRET ?? "",
+      secret,
     })
     
     // If no token (not authenticated), redirect to login with next param

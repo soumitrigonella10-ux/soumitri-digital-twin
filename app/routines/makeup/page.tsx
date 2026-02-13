@@ -1,95 +1,15 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Palette, Sun, Moon, Calendar, Check, Sparkles, CheckCircle2 } from "lucide-react";
+import { Palette, Sun, Moon, Calendar, Sparkles, CheckCircle2 } from "lucide-react";
 import { useAppStore } from "@/store/useAppStore";
 import { cn } from "@/lib/utils";
-import { Product, TimeOfDay } from "@/types";
+import { TimeOfDay } from "@/types";
 import { ProductCard, PRODUCT_CARD_THEMES } from "@/components/ProductCard";
 import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
+import { MakeupWeekView } from "@/components/routines";
+import { SAMPLE_MAKEUP_PRODUCTS } from "@/data/makeupProducts";
 
-const DAYS_OF_WEEK = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-
-
-
-// Week View Component
-function WeekView({ products, completionState, onToggleComplete }: {
-  products: Product[];
-  completionState: Record<string, boolean>;
-  onToggleComplete: (productId: string) => void;
-}) {
-  const currentDay = new Date().getDay();
-  
-  return (
-    <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2">
-      {DAYS_OF_WEEK.map((day, dayIndex) => {
-        const dayProducts = products.filter(product => 
-          product.weekdays?.includes(dayIndex)
-        );
-        
-        const isToday = dayIndex === currentDay;
-        const completedCount = dayProducts.filter(p => completionState[p.id]).length;
-        
-        return (
-          <div key={day} className={cn(
-            "p-3 rounded-lg border",
-            isToday ? "bg-blue-50 border-blue-200" : "bg-gray-50 border-gray-200"
-          )}>
-            <div className="flex items-center justify-between mb-2">
-              <h3 className={cn(
-                "font-medium text-sm",
-                isToday ? "text-blue-900" : "text-gray-700"
-              )}>
-                {day}
-              </h3>
-              {dayProducts.length > 0 && (
-                <div className={cn(
-                  "w-5 h-5 rounded-full text-xs font-bold flex items-center justify-center",
-                  completedCount === dayProducts.length
-                    ? "bg-green-500 text-white"
-                    : "bg-gray-300 text-gray-600"
-                )}>
-                  {completedCount}
-                </div>
-              )}
-            </div>
-            
-            <div className="space-y-1">
-              {dayProducts.map(product => (
-                <div key={product.id} className="flex items-center gap-1">
-                  <button
-                    onClick={() => onToggleComplete(product.id)}
-                    className={cn(
-                      "w-3 h-3 rounded border flex items-center justify-center flex-shrink-0",
-                      completionState[product.id]
-                        ? "bg-green-500 border-green-500 text-white"
-                        : "border-gray-300"
-                    )}
-                  >
-                    {completionState[product.id] && <Check className="w-2 h-2" />}
-                  </button>
-                  <span className={cn(
-                    "text-xs truncate",
-                    completionState[product.id] ? "text-gray-500 line-through" : "text-gray-700"
-                  )}>
-                    {product.name}
-                  </span>
-                </div>
-              ))}
-            </div>
-            
-            {dayProducts.length === 0 && (
-              <p className="text-xs text-gray-400 text-center py-2">No makeup</p>
-            )}
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
-// Main Makeup Page Component
-// Makeup Page Content Component
 function MakeupPageContent() {
   const { data: _data } = useAppStore();
   const [view, setView] = useState<"routine" | "week">("routine");
@@ -97,109 +17,8 @@ function MakeupPageContent() {
   const [completionState, setCompletionState] = useState<Record<string, boolean>>({});
   const [_editingProduct, setEditingProduct] = useState<string | null>(null);
 
-  // Filter makeup products (for now, we'll create some sample data since makeup isn't in the current products)
   const makeupProducts = useMemo(() => {
-    // Sample makeup products - in the future these should come from the data store
-    const sampleMakeupProducts: Product[] = [
-      {
-        id: "makeup-primer",
-        name: "Makeup Primer",
-        category: "Base",
-        actives: ["Silicones"],
-        cautionTags: [],
-        routineType: "skin", // Using skin as closest match until makeup is added to types
-        timeOfDay: "AM",
-        weekdays: [0, 1, 2, 3, 4, 5, 6],
-        displayOrder: 1,
-        notes: "Create smooth base for makeup application"
-      },
-      {
-        id: "foundation",
-        name: "Liquid Foundation",
-        category: "Foundation",
-        actives: [],
-        cautionTags: [],
-        routineType: "skin",
-        timeOfDay: "AM",
-        weekdays: [1, 2, 3, 4, 5], // Weekdays only
-        displayOrder: 2,
-        notes: "Even skin tone and coverage"
-      },
-      {
-        id: "concealer",
-        name: "Under Eye Concealer",
-        category: "Concealer",
-        actives: [],
-        cautionTags: [],
-        routineType: "skin",
-        timeOfDay: "AM",
-        weekdays: [0, 1, 2, 3, 4, 5, 6],
-        displayOrder: 3,
-        notes: "Hide dark circles and blemishes"
-      },
-      {
-        id: "powder",
-        name: "Setting Powder",
-        category: "Powder",
-        actives: [],
-        cautionTags: [],
-        routineType: "skin",
-        timeOfDay: "AM",
-        weekdays: [1, 2, 3, 4, 5],
-        displayOrder: 4,
-        notes: "Set foundation and prevent shine"
-      },
-      {
-        id: "eyebrow-gel",
-        name: "Eyebrow Gel",
-        category: "Eyebrow",
-        actives: [],
-        cautionTags: [],
-        routineType: "skin",
-        timeOfDay: "AM",
-        weekdays: [0, 1, 2, 3, 4, 5, 6],
-        displayOrder: 5,
-        notes: "Shape and define eyebrows"
-      },
-      {
-        id: "mascara",
-        name: "Waterproof Mascara",
-        category: "Mascara",
-        actives: [],
-        cautionTags: [],
-        routineType: "skin",
-        timeOfDay: "AM",
-        weekdays: [0, 1, 2, 3, 4, 5, 6],
-        displayOrder: 6,
-        notes: "Define and volumize lashes"
-      },
-      {
-        id: "lip-tint",
-        name: "Natural Lip Tint",
-        category: "Lips",
-        actives: [],
-        cautionTags: [],
-        routineType: "skin",
-        timeOfDay: "AM",
-        weekdays: [0, 1, 2, 3, 4, 5, 6],
-        displayOrder: 7,
-        notes: "Natural lip color and moisture"
-      },
-      {
-        id: "blush",
-        name: "Cream Blush",
-        category: "Blush",
-        actives: [],
-        cautionTags: [],
-        routineType: "skin",
-        timeOfDay: "AM",
-        weekdays: [0, 2, 4, 6], // Every other day
-        displayOrder: 8,
-        notes: "Add natural flush to cheeks"
-      }
-    ];
-
-    return sampleMakeupProducts.filter(product => 
+    return SAMPLE_MAKEUP_PRODUCTS.filter(product => 
       product.timeOfDay === timeOfDay || product.timeOfDay === "ANY"
     ).sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
   }, [timeOfDay]);
@@ -213,7 +32,6 @@ function MakeupPageContent() {
 
   const handleEdit = (productId: string) => {
     setEditingProduct(productId);
-    // TODO: Implement edit modal
   };
 
   const completedCount = Object.values(completionState).filter(Boolean).length;
@@ -325,7 +143,7 @@ function MakeupPageContent() {
             )}
           </div>
         ) : (
-          <WeekView
+          <MakeupWeekView
             products={makeupProducts}
             completionState={completionState}
             onToggleComplete={handleToggleComplete}

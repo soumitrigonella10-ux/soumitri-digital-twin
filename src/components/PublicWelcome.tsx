@@ -1,11 +1,16 @@
 "use client"
 
+import { useState } from "react"
 import { signIn } from "next-auth/react"
-import { Eye, Brain, Lock, Key } from "lucide-react"
+import { Eye, Brain, Lock, Key, Mail, Loader2 } from "lucide-react"
 import { CurationGrid } from "@/components/CurationGrid"
 
 export function PublicWelcome() {
   const isDemoMode = process.env.NODE_ENV === 'development'
+  const [submitted, setSubmitted] = useState(false)
+  const [submittedEmail, setSubmittedEmail] = useState("")
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   return (
     <div className="min-h-screen curation-bg">
@@ -99,18 +104,51 @@ export function PublicWelcome() {
                   Have access?
                 </h2>
                 
+                {submitted ? (
+                  <div className="text-center space-y-4 py-4">
+                    <Mail className="w-10 h-10 text-gray-600 mx-auto" />
+                    <div className="space-y-2">
+                      <p className="text-base font-medium text-gray-900">Check your email</p>
+                      <p className="text-sm text-gray-500">
+                        A sign-in link has been sent to <span className="font-medium text-gray-700">{submittedEmail}</span>
+                      </p>
+                      {isDemoMode && (
+                        <p className="text-xs text-amber-600 mt-3 bg-amber-50 p-2 rounded-lg">
+                          Demo mode: check your server console for the magic link.
+                        </p>
+                      )}
+                    </div>
+                    <button
+                      onClick={() => { setSubmitted(false); setError(null); }}
+                      className="text-sm text-gray-500 hover:text-gray-700 underline mt-2"
+                    >
+                      Try a different email
+                    </button>
+                  </div>
+                ) : (
                 <form
                   onSubmit={async (e) => {
                     e.preventDefault()
+                    setError(null)
+                    setLoading(true)
                     const formData = new FormData(e.currentTarget)
                     const email = formData.get('email') as string
                     if (email) {
                       try {
-                        await signIn('email', { email, callbackUrl: '/inventory/wishlist', redirect: false })
+                        const result = await signIn('email', { email, callbackUrl: '/inventory/wishlist', redirect: false })
+                        if (result?.error) {
+                          setError("Sign-in failed. Please try again.")
+                        } else {
+                          setSubmittedEmail(email)
+                          setSubmitted(true)
+                        }
                       } catch {
-                        // Silently handle auth errors — user can retry
-                        console.warn('Sign-in request failed')
+                        setError("Sign-in is currently unavailable. Please try again.")
+                      } finally {
+                        setLoading(false)
                       }
+                    } else {
+                      setLoading(false)
                     }
                   }}
                   className="space-y-6"
@@ -121,16 +159,29 @@ export function PublicWelcome() {
                       name="email"
                       placeholder="Enter your email address"
                       required
-                      className="w-full px-4 py-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-900 focus:border-transparent text-gray-900 placeholder-gray-500"
+                      disabled={loading}
+                      className="w-full px-4 py-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-900 focus:border-transparent text-gray-900 placeholder-gray-500 disabled:opacity-50"
                     />
                   </div>
                   <button
                     type="submit"
-                    className="w-full bg-gray-900 text-white py-4 px-6 rounded-xl hover:bg-gray-800 transition-colors font-semibold text-lg"
+                    disabled={loading}
+                    className="w-full bg-gray-900 text-white py-4 px-6 rounded-xl hover:bg-gray-800 transition-colors font-semibold text-lg disabled:opacity-50 flex items-center justify-center gap-2"
                   >
-                    Sign In with Email
+                    {loading ? (
+                      <>
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                        Sending link...
+                      </>
+                    ) : (
+                      "Sign In with Email"
+                    )}
                   </button>
+                  {error && (
+                    <p className="text-sm text-red-600 text-center">{error}</p>
+                  )}
                 </form>
+                )}
                 
                 <div className="mt-8 pt-6 border-t border-gray-200 text-center">
                   <p className="text-sm text-gray-500 tracking-wide font-medium">

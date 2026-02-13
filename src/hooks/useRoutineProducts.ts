@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useRef, useEffect } from "react";
 import { useAppStore } from "@/store/useAppStore";
 import { Product, TimeOfDay, RoutineType } from "@/types";
 import type { EditFormState } from "@/components/routines/EditProductModal";
@@ -28,7 +28,12 @@ export function useRoutineProducts({ routineType }: UseRoutineProductsOptions) {
   const [error, setError] = useState<Error | null>(null);
 
   // Filter products by routine type, sorted by display order
+  // NOTE: No setState inside useMemo — that's a React anti-pattern.
+  // Errors are caught and stored in a ref, then surfaced via useEffect.
+  const filterErrorRef = useRef<Error | null>(null);
+
   const filteredProducts = useMemo(() => {
+    filterErrorRef.current = null;
     try {
       if (!data?.products || !Array.isArray(data.products)) {
         return [];
@@ -37,11 +42,17 @@ export function useRoutineProducts({ routineType }: UseRoutineProductsOptions) {
         .filter((p) => p.routineType === routineType)
         .sort((a, b) => (a.displayOrder || 999) - (b.displayOrder || 999));
     } catch (e) {
-      const err = e instanceof Error ? e : new Error("Failed to filter products");
-      setError(err);
+      filterErrorRef.current = e instanceof Error ? e : new Error("Failed to filter products");
       return [];
     }
   }, [data?.products, routineType]);
+
+  // Surface filter errors into state outside of the render phase
+  useEffect(() => {
+    if (filterErrorRef.current) {
+      setError(filterErrorRef.current);
+    }
+  }, [filteredProducts]);
 
   // Time-of-day + day filtering helpers
   const filterByTimeAndDay = useCallback(

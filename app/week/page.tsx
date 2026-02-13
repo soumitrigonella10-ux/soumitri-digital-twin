@@ -7,7 +7,7 @@ import { useWeekPlans } from "@/hooks/useWeekPlans";
 import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
 import { WeekPlanner } from "@/components/WeekPlanner";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
-import { LoadingPage, LoadingGrid } from "@/components/LoadingStates";
+import { LoadingGrid } from "@/components/LoadingStates";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -44,11 +44,6 @@ function WeekView() {
         </div>
       </div>
     );
-  }
-
-  // Show loading state
-  if (navigation.isLoading) {
-    return <LoadingPage title="Loading week..." />;
   }
 
   return (

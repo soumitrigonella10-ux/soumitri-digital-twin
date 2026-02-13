@@ -9,3 +9,5 @@ export type { EditProductModalProps, EditFormState } from "./EditProductModal";
 
 export { RoutineColumn } from "./RoutineColumn";
 export type { RoutineColumnProps, ColumnProgress } from "./RoutineColumn";
+
+export { MakeupWeekView } from "./MakeupWeekView";
