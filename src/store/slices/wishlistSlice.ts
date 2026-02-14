@@ -18,22 +18,22 @@ export const createWishlistSlice: StateCreator<WishlistSlice & Record<string, un
     wishlist: seedWishlist,
   },
   addWishlistItem: (item) =>
-    set((state: any) => ({
+    set((state) => ({
       data: { ...state.data, wishlist: [...state.data.wishlist, item] },
     })),
   updateWishlistItem: (item) =>
-    set((state: any) => ({
+    set((state) => ({
       data: { ...state.data, wishlist: mergeById(state.data.wishlist, [item]) },
     })),
   removeWishlistItem: (id) =>
-    set((state: any) => ({
-      data: { ...state.data, wishlist: state.data.wishlist.filter((i: WishlistItem) => i.id !== id) },
+    set((state) => ({
+      data: { ...state.data, wishlist: state.data.wishlist.filter((i) => i.id !== id) },
     })),
   markWishlistItemPurchased: (id) =>
-    set((state: any) => ({
+    set((state) => ({
       data: {
         ...state.data,
-        wishlist: state.data.wishlist.map((item: WishlistItem) =>
+        wishlist: state.data.wishlist.map((item) =>
           item.id === id
             ? { ...item, purchased: true, purchaseDate: new Date().toISOString() }
             : item

@@ -1,14 +1,28 @@
 'use client';
 
 import { useState, useMemo } from 'react';
+import { useSession } from 'next-auth/react';
 import { inspirations, InspirationFragment } from '@/data/artifacts';
 import { EditorialNav } from '@/components/EditorialNav';
+import { AuthenticatedLayout } from '@/components/AuthenticatedLayout';
 import { Play } from 'lucide-react';
 
-export default function InspirationPage() {
-  return (
+function InspirationPageContent() {
+  const { data: session, status } = useSession();
+  const isAuthenticated = !!session;
+
+  // Loading state
+  if (status === "loading") {
+    return (
+      <div className="inspiration-page min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#802626]" />
+      </div>
+    );
+  }
+
+  const pageContent = (
     <div className="inspiration-page">
-      <EditorialNav />
+      {!isAuthenticated && <EditorialNav currentSlug="inspiration" />}
       
       {/* Inspiration Board Section */}
       <section className="inspiration-section">
@@ -28,6 +42,16 @@ export default function InspirationPage() {
       </section>
     </div>
   );
+
+  if (isAuthenticated) {
+    return <AuthenticatedLayout>{pageContent}</AuthenticatedLayout>;
+  }
+
+  return pageContent;
+}
+
+export default function InspirationPage() {
+  return <InspirationPageContent />;
 }
 
 // ============================================

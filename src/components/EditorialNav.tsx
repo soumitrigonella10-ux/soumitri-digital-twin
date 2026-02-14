@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { Feather, Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { topics } from "@/data/topics";
+import { topics, getTopicHref } from "@/data/topics";
 
 const publicTopics = topics
   .filter((t) => t.isPublic)
@@ -45,16 +45,7 @@ export function EditorialNav({ currentSlug }: EditorialNavProps) {
           
           {/* Public topic links */}
           {publicTopics.map((topic) => {
-            let href = `/${topic.slug}`;
-            if (topic.slug === "essays") href = "/essays";
-            if (topic.slug === "wishlist") href = "/inventory/wishlist";
-            if (topic.slug === "sidequests") href = "/archive";
-            if (topic.slug === "content-consumption") href = "/consumption";
-            if (topic.slug === "travel-log") href = "/travel-log";
-            if (topic.slug === "skilling") href = "/skills";
-            if (topic.slug === "art") href = "/artifacts";
-            if (topic.slug === "design-thoughts") href = "/design-theology";
-            if (topic.slug === "inspiration") href = "/inspiration";
+            const href = getTopicHref(topic.slug);
             const isActive = topic.slug === currentSlug;
             return (
               <Link
@@ -102,16 +93,7 @@ export function EditorialNav({ currentSlug }: EditorialNavProps) {
           
           {/* Public topic links */}
           {publicTopics.map((topic) => {
-            let href = `/${topic.slug}`;
-            if (topic.slug === "essays") href = "/essays";
-            if (topic.slug === "wishlist") href = "/inventory/wishlist";
-            if (topic.slug === "sidequests") href = "/archive";
-            if (topic.slug === "content-consumption") href = "/consumption";
-            if (topic.slug === "travel-log") href = "/travel-log";
-            if (topic.slug === "skilling") href = "/skills";
-            if (topic.slug === "art") href = "/artifacts";
-            if (topic.slug === "design-thoughts") href = "/design-theology";
-            if (topic.slug === "inspiration") href = "/inspiration";
+            const href = getTopicHref(topic.slug);
             const isActive = topic.slug === currentSlug;
             return (
               <Link

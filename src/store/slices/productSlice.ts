@@ -32,11 +32,11 @@ export const createProductSlice: StateCreator<ProductSlice & Record<string, unkn
     routines: seedRoutines,
   },
   upsertProduct: (p) =>
-    set((state: any) => ({
+    set((state) => ({
       data: { ...state.data, products: mergeById(state.data.products, [p]) },
     })),
   upsertRoutine: (r) =>
-    set((state: any) => ({
+    set((state) => ({
       data: { ...state.data, routines: mergeById(state.data.routines, [r]) },
     })),
 });

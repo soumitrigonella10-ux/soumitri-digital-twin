@@ -125,6 +125,59 @@ export const topics: Topic[] = [
     iconBg: "bg-amber-50",
     displayOrder: 9,
   },
+  // ========================================
+  // Private Topics (Require Authentication)
+  // ========================================
+  {
+    slug: "routines",
+    title: "Routines",
+    description: "Personal care routines and beauty rituals.",
+    isPublic: false,
+    icon: "calendar",
+    iconColor: "text-purple-600",
+    iconBg: "bg-purple-50",
+    displayOrder: 100,
+  },
+  {
+    slug: "manage",
+    title: "Manage",
+    description: "Content management and administration interface.",
+    isPublic: false,
+    icon: "settings",
+    iconColor: "text-slate-600",
+    iconBg: "bg-slate-50",
+    displayOrder: 101,
+  },
+  {
+    slug: "fitness",
+    title: "Fitness",
+    description: "Workout tracking and fitness planning.",
+    isPublic: false,
+    icon: "activity",
+    iconColor: "text-red-600",
+    iconBg: "bg-red-50",
+    displayOrder: 102,
+  },
+  {
+    slug: "nutrition",
+    title: "Nutrition",
+    description: "Meal planning and nutritional tracking.",
+    isPublic: false,
+    icon: "utensils",
+    iconColor: "text-green-600",
+    iconBg: "bg-green-50",
+    displayOrder: 103,
+  },
+  {
+    slug: "week",
+    title: "Week",
+    description: "Weekly planning and schedule management.",
+    isPublic: false,
+    icon: "calendar-days",
+    iconColor: "text-blue-600",
+    iconBg: "bg-blue-50",
+    displayOrder: 104,
+  },
 ];
 
 // Helper: get all public topic slugs
@@ -140,4 +193,22 @@ export function getPrivateTopicSlugs(): string[] {
 // Helper: find topic by slug
 export function getTopicBySlug(slug: string): Topic | undefined {
   return topics.find((t) => t.slug === slug);
+}
+
+// Helper: get the route href for a topic slug
+// Maps editorial slugs to their actual page routes
+export function getTopicHref(slug: string): string {
+  const routeMap: Record<string, string> = {
+    essays: "/essays",
+    wishlist: "/inventory/wishlist",
+    sidequests: "/sidequests",
+    "content-consumption": "/consumption",
+    "travel-log": "/travel-log",
+    skilling: "/skills",
+    art: "/artifacts",
+    "design-thoughts": "/design-theology",
+    inspiration: "/inspiration",
+  };
+  
+  return routeMap[slug] ?? `/${slug}`;
 }

@@ -54,7 +54,7 @@ export const BENTO_TILES: BentoTileConfig[] = [
     icon: "Compass",
     iconColor: ICON_COLORS.emerald,
     gridArea: "1 / 2 / 2 / 3", // row 1, col 2
-    href: "/archive",
+    href: "/sidequests",
   },
   {
     id: "consumption",

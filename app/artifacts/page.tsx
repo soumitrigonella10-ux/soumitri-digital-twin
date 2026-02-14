@@ -1,13 +1,27 @@
 'use client';
 
 import { useState } from 'react';
+import { useSession } from 'next-auth/react';
 import { artifacts, Artifact } from '@/data/artifacts';
 import { EditorialNav } from '@/components/EditorialNav';
+import { AuthenticatedLayout } from '@/components/AuthenticatedLayout';
 
-export default function ArtifactsPage() {
-  return (
+function ArtifactsPageContent() {
+  const { data: session, status } = useSession();
+  const isAuthenticated = !!session;
+
+  // Loading state
+  if (status === "loading") {
+    return (
+      <div className="artifacts-page min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#802626]" />
+      </div>
+    );
+  }
+
+  const pageContent = (
     <div className="artifacts-page">
-      <EditorialNav />
+      {!isAuthenticated && <EditorialNav currentSlug="art" />}
       
       {/* Hero Section */}
       <section className="artifacts-hero">
@@ -32,6 +46,16 @@ export default function ArtifactsPage() {
       </section>
     </div>
   );
+
+  if (isAuthenticated) {
+    return <AuthenticatedLayout>{pageContent}</AuthenticatedLayout>;
+  }
+
+  return pageContent;
+}
+
+export default function ArtifactsPage() {
+  return <ArtifactsPageContent />;
 }
 
 interface ArtifactCardProps {

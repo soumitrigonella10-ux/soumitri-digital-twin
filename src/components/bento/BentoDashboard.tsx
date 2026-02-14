@@ -137,7 +137,7 @@ export function BentoDashboard() {
           title="Sidequests"
           subtitle="Curiosity trails"
           description="Short detours into things that caught my attention."
-          href="/archive"
+          href="/sidequests"
         />
 
         {/* Row 1, Col 3 */}

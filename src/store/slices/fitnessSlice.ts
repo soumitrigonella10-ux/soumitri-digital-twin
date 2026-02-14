@@ -16,11 +16,11 @@ export const createFitnessSlice: StateCreator<FitnessSlice & Record<string, unkn
     workoutPlans: seedWorkouts,
   },
   upsertWorkout: (w) =>
-    set((state: any) => ({
+    set((state) => ({
       data: { ...state.data, workoutPlans: mergeById(state.data.workoutPlans, [w]) },
     })),
   refreshWorkoutData: () =>
-    set((state: any) => ({
+    set((state) => ({
       data: { ...state.data, workoutPlans: seedWorkouts },
     })),
 });

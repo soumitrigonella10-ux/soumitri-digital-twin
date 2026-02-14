@@ -43,19 +43,21 @@ function ArchivePageContent() {
   const pageContent = (
     <div className="muggu-bg min-h-screen relative">
       {/* Fixed Navigation for public users */}
-      {!isAuthenticated && <EditorialNav currentSlug="archive" />}
+      {!isAuthenticated && <EditorialNav currentSlug="sidequests" />}
       
-      {/* Fixed Watermark */}
-      <div 
-        className="fixed bottom-8 left-4 text-[#4A2C2A] text-sm font-light tracking-[0.3em] opacity-40 z-10"
-        style={{ 
-          writingMode: 'vertical-rl', 
-          transform: 'rotate(-180deg)',
-          textOrientation: 'mixed'
-        }}
-      >
-        DIGITAL TWIN // 2026
-      </div>
+      {/* Fixed Watermark - positioned to account for sidebar when authenticated */}
+      {!isAuthenticated && (
+        <div 
+          className="fixed bottom-8 left-4 text-[#4A2C2A] text-sm font-light tracking-[0.3em] opacity-40 z-10"
+          style={{ 
+            writingMode: 'vertical-rl', 
+            transform: 'rotate(-180deg)',
+            textOrientation: 'mixed'
+          }}
+        >
+          DIGITAL TWIN // 2026
+        </div>
+      )}
 
       {/* Main Content */}
       <div className="relative z-[1] max-w-7xl mx-auto px-6 lg:px-12 py-16 lg:py-24">

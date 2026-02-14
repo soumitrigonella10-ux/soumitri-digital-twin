@@ -15,6 +15,7 @@ const STATIC_PUBLIC_PATHS = [
   "/inspiration",
   "/inventory/wishlist",
   "/api/auth",
+  "/auth/signin",
   "/_next",
   "/favicon.ico",
 ]

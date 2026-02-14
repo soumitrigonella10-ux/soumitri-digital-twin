@@ -19,15 +19,15 @@ export const createWardrobeSlice: StateCreator<WardrobeSlice & Record<string, un
     outfits: [],
   },
   upsertWardrobe: (w) =>
-    set((state: any) => ({
+    set((state) => ({
       data: { ...state.data, wardrobe: mergeById(state.data.wardrobe, [w]) },
     })),
   addOutfit: (outfit) =>
-    set((state: any) => ({
+    set((state) => ({
       data: { ...state.data, outfits: [...state.data.outfits, outfit] },
     })),
   removeOutfit: (id) =>
-    set((state: any) => ({
-      data: { ...state.data, outfits: state.data.outfits.filter((o: Outfit) => o.id !== id) },
+    set((state) => ({
+      data: { ...state.data, outfits: state.data.outfits.filter((o) => o.id !== id) },
     })),
 });

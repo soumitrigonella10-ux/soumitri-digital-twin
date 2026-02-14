@@ -24,7 +24,7 @@ import {
   Palette,
   type LucideIcon,
 } from "lucide-react";
-import { topics } from "@/data/topics";
+import { topics, getTopicHref } from "@/data/topics";
 
 // ========================================
 // Category Configuration
@@ -213,17 +213,19 @@ const TOPIC_ICON_MAP: Record<string, LucideIcon> = {
   palette: Palette,
 };
 
-// Generate Public Curation categories from topics data
-const publicCurationCategories: SidebarCategory[] = topics.map((topic) => ({
-  id: topic.slug,
-  name: topic.title,
-  icon: TOPIC_ICON_MAP[topic.icon] || Heart,
-  href: topic.slug === "wishlist" ? "/inventory/wishlist" : topic.slug === "essays" ? "/essays" : `/${topic.slug}`,
-  color: "lifeos-today",
-  bgClass: topic.iconBg,
-  borderClass: "border-stone-300",
-  group: "Public Curation",
-}));
+// Generate Public Curation categories from topics data (only public topics)
+const publicCurationCategories: SidebarCategory[] = topics
+  .filter((topic) => topic.isPublic)
+  .map((topic) => ({
+    id: topic.slug,
+    name: topic.title,
+    icon: TOPIC_ICON_MAP[topic.icon] || Heart,
+    href: getTopicHref(topic.slug),
+    color: "lifeos-today",
+    bgClass: topic.iconBg,
+    borderClass: "border-stone-300",
+    group: "Public Curation",
+  }));
 
 // Combine all categories
 export const allCategories = [...categories, ...publicCurationCategories];
@@ -237,7 +239,7 @@ export const groupedCategories = allCategories.reduce((acc, cat) => {
   return acc;
 }, {} as Record<string, typeof allCategories>);
 
-export const groupOrder = ["Daily Logic", "Routines", "Inventory", "Public Curation", "Nutrition", "Physicality"];
+export const groupOrder = ["Daily Logic", "Routines", "Inventory", "Nutrition", "Physicality", "Public Curation"];
 
 // Persist sidebar scroll position across navigations (survives remounts)
 export let _sidebarScrollTop = 0;

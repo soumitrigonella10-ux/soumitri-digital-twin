@@ -1,13 +1,26 @@
 'use client';
 
+import { useSession } from 'next-auth/react';
 import { designThoughts, DesignThought } from '@/data/designThoughts';
 import { EditorialNav } from '@/components/EditorialNav';
+import { AuthenticatedLayout } from '@/components/AuthenticatedLayout';
 
-export default function DesignTheologyPage() {
+function DesignTheologyPageContent() {
+  const { data: session, status } = useSession();
+  const isAuthenticated = !!session;
 
-  return (
+  // Loading state
+  if (status === "loading") {
+    return (
+      <div className="design-theology-page min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#802626]" />
+      </div>
+    );
+  }
+
+  const pageContent = (
     <div className="design-theology-page">
-      <EditorialNav />
+      {!isAuthenticated && <EditorialNav currentSlug="design-thoughts" />}
       
       {/* Grid Paper Background */}
       <div className="grid-paper-overlay" />
@@ -41,6 +54,16 @@ export default function DesignTheologyPage() {
       </section>
     </div>
   );
+
+  if (isAuthenticated) {
+    return <AuthenticatedLayout>{pageContent}</AuthenticatedLayout>;
+  }
+
+  return pageContent;
+}
+
+export default function DesignTheologyPage() {
+  return <DesignTheologyPageContent />;
 }
 
 // ============================================

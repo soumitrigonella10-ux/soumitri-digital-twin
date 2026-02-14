@@ -18,11 +18,11 @@ export const createNutritionSlice: StateCreator<NutritionSlice & Record<string, 
     dressings: seedDressings,
   },
   upsertMeal: (m) =>
-    set((state: any) => ({
+    set((state) => ({
       data: { ...state.data, mealTemplates: mergeById(state.data.mealTemplates, [m]) },
     })),
   upsertDressing: (d) =>
-    set((state: any) => ({
+    set((state) => ({
       data: { ...state.data, dressings: mergeById(state.data.dressings, [d]) },
     })),
 });
