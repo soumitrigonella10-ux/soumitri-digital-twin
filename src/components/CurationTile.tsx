@@ -52,6 +52,11 @@ export function CurationTile({ topic }: CurationTileProps) {
       return;
     }
 
+    if (topic.slug === "essays") {
+      router.push("/essays");
+      return;
+    }
+
     if (topic.isPublic) {
       router.push(`/${topic.slug}`);
     } else if (session) {
@@ -66,11 +71,11 @@ export function CurationTile({ topic }: CurationTileProps) {
       onClick={handleClick}
       className={cn(
         "group relative w-full text-left",
-        "bg-white/90 backdrop-blur-sm rounded-2xl",
-        "border border-white/60 shadow-sm",
+        "bg-white/95 backdrop-blur-sm rounded-2xl",
+        "border-2 border-telugu-marigold shadow-sm",
         "p-6 transition-all duration-300 ease-out",
         "hover:shadow-lg hover:bg-white hover:-translate-y-1",
-        "focus:outline-none focus:ring-2 focus:ring-stone-300 focus:ring-offset-2"
+        "focus:outline-none focus:ring-2 focus:ring-telugu-turmeric focus:ring-offset-2"
       )}
     >
       {/* Top row: Icon + Lock */}

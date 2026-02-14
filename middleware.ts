@@ -6,6 +6,7 @@ import { getPublicTopicSlugs } from "@/data/topics"
 // Static public paths (always accessible)
 const STATIC_PUBLIC_PATHS = [
   "/",
+  "/archive",
   "/inventory/wishlist",
   "/api/auth",
   "/_next",

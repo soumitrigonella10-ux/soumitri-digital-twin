@@ -19,19 +19,19 @@ export function CurationGrid() {
       {/* Editorial Header */}
       <div className="flex items-end justify-between">
         <div>
-          <h1 className="font-serif text-5xl md:text-6xl font-bold text-stone-900 leading-[1.1] tracking-tight">
+          <h1 className="font-serif text-5xl md:text-6xl font-bold text-telugu-kavi leading-[1.1] tracking-tight">
             Public
           </h1>
-          <h1 className="font-serif text-5xl md:text-6xl italic text-stone-900 leading-[1.1] tracking-tight">
+          <h1 className="font-serif text-5xl md:text-6xl italic text-telugu-kavi leading-[1.1] tracking-tight">
             Curation
           </h1>
-          <p className="text-sm text-stone-500 mt-4 max-w-md leading-relaxed">
+          <p className="text-sm text-gray-600 mt-4 max-w-md leading-relaxed">
             Some pages are public gardens.
             <br />
             The rest are private greenhouses requiring access.
           </p>
         </div>
-        <p className="text-xs text-stone-400 uppercase tracking-[0.2em] font-medium hidden sm:block">
+        <p className="text-xs text-telugu-marigold uppercase tracking-[0.2em] font-medium hidden sm:block">
           {sortedTopics.length} Collections &bull; {new Date().getFullYear()}
         </p>
       </div>
@@ -48,7 +48,7 @@ export function CurationGrid() {
       </div>
 
       {/* Footer */}
-      <p className="text-center text-sm italic text-stone-400 pt-6 pb-4 tracking-wide">
+      <p className="text-center text-sm italic text-gray-500 pt-6 pb-4 tracking-wide">
         Designed with intention.
       </p>
     </section>

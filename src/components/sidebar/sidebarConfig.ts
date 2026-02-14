@@ -218,7 +218,7 @@ const publicCurationCategories: SidebarCategory[] = topics.map((topic) => ({
   id: topic.slug,
   name: topic.title,
   icon: TOPIC_ICON_MAP[topic.icon] || Heart,
-  href: topic.slug === "wishlist" ? "/inventory/wishlist" : `/${topic.slug}`,
+  href: topic.slug === "wishlist" ? "/inventory/wishlist" : topic.slug === "essays" ? "/essays" : `/${topic.slug}`,
   color: "lifeos-today",
   bgClass: topic.iconBg,
   borderClass: "border-stone-300",

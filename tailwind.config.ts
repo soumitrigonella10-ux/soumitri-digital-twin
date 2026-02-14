@@ -8,6 +8,15 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        // Telugu Cultural Aesthetic Colors
+        telugu: {
+          kavi: "#8B2323",         // Red Oxide (Kavi) - Header
+          marigold: "#FFB300",     // Marigold Yellow - Accents
+          turmeric: "#FDB813",     // Turmeric Gold - Borders
+          sandstone: "#FDF5E6",    // Warm Sandstone - Background
+          cream: "#FFF8DC",        // Cream - Text backgrounds
+          chalk: "#F5F5DC",        // Chalk white - Patterns
+        },
         // LifeOS Category Colors
         lifeos: {
           today: "#6366f1",      // Indigo
@@ -30,6 +39,7 @@ const config: Config = {
       },
       fontFamily: {
         serif: ["var(--font-playfair)", "Georgia", "'Times New Roman'", "serif"],
+        editorial: ["var(--font-inter)", "Inter", "system-ui", "sans-serif"],
       },
       borderRadius: {
         "2xl": "1rem",

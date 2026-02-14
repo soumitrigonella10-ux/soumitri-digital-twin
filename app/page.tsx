@@ -114,9 +114,9 @@ function TodayContent() {
               className={cn(
                 "flex-shrink-0 px-3 sm:px-4 py-2 rounded-xl text-sm font-medium transition-all flex items-center gap-1.5 border-2",
                 activeTimeSection === time
-                  ? "bg-indigo-500 text-white border-indigo-500"
+                  ? "bg-yellow-500 text-white border-yellow-500"
                   : time === currentTimePeriod
-                  ? "bg-indigo-50 text-indigo-700 border-indigo-200"
+                  ? "bg-yellow-50 text-yellow-700 border-yellow-200"
                   : "bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100"
               )}
             >

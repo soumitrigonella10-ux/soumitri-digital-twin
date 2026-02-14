@@ -7,6 +7,7 @@ import { useAppStore } from "@/store/useAppStore";
 import { WishlistItem } from "@/types";
 import { Button } from "@/components/ui/button";
 import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
+import { EditorialNav } from "@/components/EditorialNav";
 import {
   CategoryFilter,
   WishlistGrid,
@@ -149,60 +150,14 @@ export default function WishlistPage() {
   // Public (unauthenticated) view
   if (!session) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen muggu-bg">
+        <EditorialNav currentSlug="wishlist" />
         <div className="container mx-auto py-8 space-y-6">
-          {/* Welcome header */}
-          <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">
-              Welcome to Soumitri Digital Twin
-            </h1>
-            <p className="text-lg text-gray-600 mb-6">
-              Your personal digital twin for daily routines, fitness, and wardrobe management.
-            </p>
-
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 max-w-2xl mx-auto">
-              <p className="text-blue-800 mb-3">
-                Sign in to add items to your wishlist and access all features
-              </p>
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  const formData = new FormData(e.currentTarget);
-                  const email = formData.get("email") as string;
-                  if (email) handleSignIn(email);
-                }}
-                className="flex gap-2 max-w-md mx-auto"
-              >
-                <input
-                  type="email"
-                  name="email"
-                  placeholder="Enter your email address"
-                  required
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-                <button
-                  type="submit"
-                  disabled={isSigningIn}
-                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
-                >
-                  {isSigningIn ? "Signing in..." : "Sign In"}
-                </button>
-              </form>
-              {signInError && (
-                <p
-                  className={`mt-2 text-sm ${signInError.includes("Check your") ? "text-green-600" : "text-red-600"}`}
-                >
-                  {signInError}
-                </p>
-              )}
-            </div>
-          </div>
-
           {/* Header */}
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-3xl font-bold">Public Wishlist</h2>
-              <p className="text-muted-foreground">Browse items - sign in to add your own</p>
+              <h2 className="text-3xl font-bold">Wishlist</h2>
+              <p className="text-muted-foreground">A running list of objects I'm considering</p>
             </div>
           </div>
 

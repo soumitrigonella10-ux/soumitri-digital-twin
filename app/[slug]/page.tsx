@@ -4,7 +4,6 @@ import { Suspense, useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useSession, signIn } from "next-auth/react";
 import {
-  ArrowLeft,
   Lock,
   Globe,
   ExternalLink,
@@ -13,6 +12,7 @@ import { getTopicBySlug } from "@/data/topics";
 import { getItemsByTopic, getPublicItemsByTopic, CurationItem } from "@/data/items";
 import { cn } from "@/lib/utils";
 import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
+import { EditorialNav } from "@/components/EditorialNav";
 
 function TopicPageContent() {
   const params = useParams();
@@ -75,21 +75,12 @@ function TopicPageContent() {
   const currentItems = getVisibleItems(activeTab || undefined);
 
   const pageContent = (
-    <div className={cn(isAuthenticated ? "bg-gray-50" : "min-h-screen bg-gray-50")}>
-      <div className="container mx-auto px-4 py-8 max-w-5xl">
-        {/* Back nav — only show for unauthenticated users (authenticated have sidebar) */}
-        {!isAuthenticated && (
-          <button
-            onClick={() => router.push("/")}
-            className="flex items-center gap-2 text-sm text-gray-500 hover:text-gray-900 mb-8 transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Back
-          </button>
-        )}
-
-        {/* Header */}
-        <div className="mb-8 space-y-2">
+    <>
+      {!isAuthenticated && <EditorialNav currentSlug={slug} />}
+      <div className={cn(isAuthenticated ? "bg-gray-50" : "min-h-screen muggu-bg")}>
+        <div className="container mx-auto px-4 py-8 max-w-5xl">
+          {/* Header */}
+          <div className="mb-8 space-y-2">
           <div className="flex items-center gap-3">
             <h1 className="text-2xl font-semibold text-gray-900 tracking-tight">
               {topic.title}
@@ -221,6 +212,7 @@ function TopicPageContent() {
         )}
       </div>
     </div>
+    </>
   );
 
   // Wrap in AuthenticatedLayout when logged in (provides sidebar),

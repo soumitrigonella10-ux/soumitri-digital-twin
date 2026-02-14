@@ -35,7 +35,7 @@ export function Navigation() {
           {/* Logo */}
           <Link href="/inventory/wishlist" className="flex items-center gap-2">
             <Sparkles className="h-6 w-6 text-purple-600" />
-            <span className="font-semibold text-gray-900 hidden sm:inline">
+            <span className="font-semibold text-white hidden sm:inline">
               Soumitri Digital Twin
             </span>
           </Link>

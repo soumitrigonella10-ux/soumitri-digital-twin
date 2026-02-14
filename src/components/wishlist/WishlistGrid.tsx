@@ -36,7 +36,7 @@ export function WishlistGrid({
 
   if (selectedCategory === "All") {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
         {filteredItems.map((item) => (
           <WishlistItemCard
             key={item.id}
@@ -54,7 +54,7 @@ export function WishlistGrid({
       {Object.entries(groupedItems).map(([category, items]) => (
         <div key={category} className="space-y-4">
           <h2 className="text-xl font-semibold">{category}</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
             {items.map((item) => (
               <WishlistItemCard
                 key={item.id}

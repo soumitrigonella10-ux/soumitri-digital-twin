@@ -20,10 +20,10 @@ export const items: CurationItem[] = [
   // Wishlist items are managed separately in data/wishlist.ts
   // These are placeholder entries for other topics
 
-  // Art I Made
+  // Art
   {
     id: "aim-1",
-    topicSlug: "art-i-made",
+    topicSlug: "art",
     subTabId: "gallery",
     title: "Untitled Series I",
     description: "Mixed media explorations, early 2025.",
@@ -31,20 +31,22 @@ export const items: CurationItem[] = [
     displayOrder: 1,
   },
 
-  // Pop Culture Lore
+  // Content Consumption — Culture
   {
     id: "pcl-1",
-    topicSlug: "pop-culture-lore",
+    topicSlug: "content-consumption",
+    subTabId: "culture",
     title: "The Succession Effect",
     description: "How prestige TV rewired corporate aesthetics.",
     isPublic: true,
     displayOrder: 1,
   },
 
-  // Watchlist
+  // Content Consumption — Watching
   {
     id: "wl-1",
-    topicSlug: "watchlist",
+    topicSlug: "content-consumption",
+    subTabId: "watching",
     title: "Past Lives",
     description: "Celine Song. Memory, longing, migration.",
     isPublic: true,
@@ -52,17 +54,19 @@ export const items: CurationItem[] = [
   },
   {
     id: "wl-2",
-    topicSlug: "watchlist",
+    topicSlug: "content-consumption",
+    subTabId: "watching",
     title: "The Brutalist",
     description: "Brady Corbet. Architecture as autobiography.",
     isPublic: true,
     displayOrder: 2,
   },
 
-  // Reading List
+  // Content Consumption — Reading
   {
     id: "rl-1",
-    topicSlug: "reading-list",
+    topicSlug: "content-consumption",
+    subTabId: "reading",
     title: "Thinking in Systems",
     description: "Donella Meadows. Systems thinking primer.",
     isPublic: true,
@@ -70,27 +74,18 @@ export const items: CurationItem[] = [
   },
   {
     id: "rl-2",
-    topicSlug: "reading-list",
+    topicSlug: "content-consumption",
+    subTabId: "reading",
     title: "The Creative Act",
     description: "Rick Rubin. A way of being.",
     isPublic: true,
     displayOrder: 2,
   },
 
-  // Food
-  {
-    id: "fd-1",
-    topicSlug: "food",
-    title: "Fermentation Notes",
-    description: "Experiments with koji, miso, kombucha.",
-    isPublic: true,
-    displayOrder: 1,
-  },
-
-  // Art I Want to Inhale
+  // Inspiration
   {
     id: "aiwti-1",
-    topicSlug: "art-i-want-to-inhale",
+    topicSlug: "inspiration",
     subTabId: "gallery",
     title: "James Turrell — Light Installations",
     description: "Perception as medium. Light as material.",
@@ -99,7 +94,7 @@ export const items: CurationItem[] = [
   },
   {
     id: "aiwti-2",
-    topicSlug: "art-i-want-to-inhale",
+    topicSlug: "inspiration",
     subTabId: "links",
     title: "Olafur Eliasson Studio",
     description: "Nature, geometry, and participatory art.",
@@ -114,7 +109,7 @@ export const items: CurationItem[] = [
     topicSlug: "sidequests",
     title: "Build a weather station",
     description: "Raspberry Pi + sensors. Data logging to local dashboard.",
-    isPublic: false,
+    isPublic: true,
     displayOrder: 1,
   },
   {
@@ -122,31 +117,23 @@ export const items: CurationItem[] = [
     topicSlug: "essays",
     title: "On Taste",
     description: "What it means to have taste vs. having preferences.",
-    isPublic: false,
+    isPublic: true,
     displayOrder: 1,
   },
   {
     id: "sk-1",
-    topicSlug: "skills-i-want-to-learn",
+    topicSlug: "skilling",
     title: "Carpentry fundamentals",
     description: "Joinery, hand tools, wood selection.",
     isPublic: false,
     displayOrder: 1,
   },
   {
-    id: "sp-1",
-    topicSlug: "sam-philosophy",
-    title: "Systems over goals",
-    description: "Why I optimize for repeatable processes, not outcomes.",
-    isPublic: false,
-    displayOrder: 1,
-  },
-  {
     id: "ct-1",
-    topicSlug: "cities-im-curious-about",
+    topicSlug: "travel-log",
     title: "Lisbon",
     description: "Light, tiling, port wine, slow pace.",
-    isPublic: false,
+    isPublic: true,
     displayOrder: 1,
   },
 ];

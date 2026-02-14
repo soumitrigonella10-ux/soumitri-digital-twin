@@ -1,5 +1,6 @@
 export { MealSection } from "./MealSection";
 export { DashboardProductCard } from "./DashboardProductCard";
+export { DashboardRoutineColumn } from "./DashboardRoutineColumn";
 export { RoutinesSection } from "./RoutinesSection";
 export { FitnessSection } from "./FitnessSection";
 export { WellnessSection } from "./WellnessSection";
