@@ -30,7 +30,7 @@ export function AuthenticatedLayout({ children, redirectToWishlist: _redirectToW
 
   // Show authenticated content with sidebar + mobile FAB menu
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="flex min-h-screen bg-[#FDF5E6]">
       <Sidebar />
       <div className="flex-1 lg:ml-[280px] transition-[margin] duration-200">
         <ErrorBoundary

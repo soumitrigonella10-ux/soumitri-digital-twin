@@ -1,185 +1,134 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
-import { format, getDay } from "date-fns";
-import {
-  Sun,
-  Moon,
-  Sunrise,
-  Activity,
-} from "lucide-react";
-import { useAppStore } from "@/store/useAppStore";
-import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
-import { TimeSection } from "@/components/dashboard";
-import { cn } from "@/lib/utils";
-import { TimeOfDay } from "@/types";
+import { useSession, signIn } from "next-auth/react";
+import { HeroSection } from "@/components/HeroSection";
+import { BentoDashboard } from "@/components/bento";
+import { EditorialNav } from "@/components/EditorialNav";
 
-function TodayContent() {
-  const {
-    data,
-    toggleProductCompletion,
-    getProductCompletion,
-  } = useAppStore();
+export default function HomePage() {
+  const { data: session, status } = useSession();
+  const isDemoMode = process.env.NODE_ENV === 'development';
 
-  const [mounted, setMounted] = useState(false);
-  const [currentTime, setCurrentTime] = useState(new Date());
-  const [activeTimeSection, setActiveTimeSection] = useState<TimeOfDay | "ALL">("ALL");
-  const [activeTabs, setActiveTabs] = useState<{ AM: string; MIDDAY: string; PM: string }>({
-    AM: "breakfast",
-    MIDDAY: "lunch",
-    PM: "dinner",
-  });
-
-  useEffect(() => {
-    setMounted(true);
-    const timer = setInterval(() => setCurrentTime(new Date()), 60000);
-    return () => clearInterval(timer);
-  }, []);
-
-  const today = new Date();
-  const dayOfWeek = getDay(today);
-  const dateKey = format(today, "yyyy-MM-dd");
-  const currentHour = currentTime.getHours();
-
-  const getCurrentTimePeriod = (): TimeOfDay => {
-    if (currentHour >= 5 && currentHour < 12) return "AM";
-    if (currentHour >= 12 && currentHour < 17) return "MIDDAY";
-    return "PM";
-  };
-  const currentTimePeriod = getCurrentTimePeriod();
-
-  const setActiveTab = useCallback((timePeriod: TimeOfDay, tab: string) => {
-    setActiveTabs((prev) => ({ ...prev, [timePeriod]: tab }));
-  }, []);
-
-  const getTodayMeals = useCallback(
-    (mealType: "breakfast" | "lunch" | "dinner") =>
-      data.mealTemplates.filter((m) => {
-        if (m.mealType !== mealType) return false;
-        if (m.weekdays && m.weekdays.length > 0 && !m.weekdays.includes(dayOfWeek)) return false;
-        return true;
-      }),
-    [data.mealTemplates, dayOfWeek]
-  );
-
-  const todayWorkout = data.workoutPlans.find((w) => w.weekday.includes(dayOfWeek));
-
-  // Shared props passed to every TimeSection
-  const sharedProps = {
-    getTodayMeals,
-    todayWorkout,
-    products: data.products,
-    dayOfWeek,
-    dateKey,
-    getProductCompletion,
-    toggleProductCompletion,
-  };
-
-  if (!mounted) {
+  // Auto-redirect authenticated users to Today dashboard
+  if (session && typeof window !== 'undefined') {
+    window.location.href = '/today';
     return (
-      <div className="space-y-8">
-        <div className="h-24 bg-gray-100 rounded-2xl animate-pulse" />
-        <div className="h-64 bg-gray-100 rounded-2xl animate-pulse" />
-        <div className="h-48 bg-gray-100 rounded-2xl animate-pulse" />
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto mb-4"></div>
+          <p className="text-gray-600">Redirecting to your dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (status === "loading") {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6 sm:space-y-8">
-      {/* Header */}
-      <header className="animate-fade-scale">
-        <div className="flex items-center gap-3 mb-4 sm:mb-6">
-          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-category-today flex items-center justify-center flex-shrink-0">
-            <Sun className="w-5 h-5 sm:w-6 sm:h-6 text-indigo-600" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Today</h1>
-            <p className="text-sm sm:text-base text-gray-500 truncate">
-              {format(today, "EEEE, MMMM d")} • {format(currentTime, "h:mm a")}
+    <div className="min-h-screen bg-white">
+      {/* Navigation Header */}
+      <EditorialNav />
+      
+      {/* 1. Hero Section */}
+      <HeroSection />
+
+      {/* 2. Archive Section */}
+      <section id="archive" className="min-h-screen py-16 px-4 sm:px-6 lg:px-8" style={{ backgroundColor: '#fdfaf3' }}>
+        <div className="max-w-7xl mx-auto mb-12">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl sm:text-5xl font-extralight text-gray-900 mb-4 tracking-tight">
+              The Archive
+            </h2>
+            <p className="text-gray-600 font-light text-lg">
+              Curated collection of projects, writings, and explorations
             </p>
           </div>
-          <div className="text-right hidden sm:block">
-            <p className="text-sm font-medium text-gray-900">Current Time</p>
-            <p className="text-xs text-gray-500 capitalize">{currentTimePeriod.toLowerCase()} Period</p>
+          <BentoDashboard />
+        </div>
+      </section>
+
+      {/* 3. Sign In Section */}
+      <section id="signin" className="min-h-screen flex items-center justify-center py-16 px-4 sm:px-6 lg:px-8 bg-white">
+        <div className="max-w-7xl w-full">
+          <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+            {/* Left: Feature tiles */}
+            <div className="grid sm:grid-cols-2 gap-6">
+              <div className="bg-gray-50 rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
+                <h3 className="text-lg font-semibold text-gray-900 mb-3">Daily Routines</h3>
+                <p className="text-sm text-gray-600 leading-relaxed">
+                  Manage your skin care, hair care, body care, and wellness routines with personalized schedules.
+                </p>
+              </div>
+              <div className="bg-gray-50 rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
+                <h3 className="text-lg font-semibold text-gray-900 mb-3">Fitness & Nutrition</h3>
+                <p className="text-sm text-gray-600 leading-relaxed">
+                  Track workouts, meal planning, and nutrition goals to maintain a healthy lifestyle.
+                </p>
+              </div>
+              <div className="bg-gray-50 rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
+                <h3 className="text-lg font-semibold text-gray-900 mb-3">Wardrobe Management</h3>
+                <p className="text-sm text-gray-600 leading-relaxed">
+                  Organize your clothing, plan outfits, and manage your wardrobe inventory efficiently.
+                </p>
+              </div>
+              <div className="bg-gray-50 rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
+                <h3 className="text-lg font-semibold text-gray-900 mb-3">Personal Archive</h3>
+                <p className="text-sm text-gray-600 leading-relaxed">
+                  Curate essays, projects, and reflections in your personal digital archive.
+                </p>
+              </div>
+            </div>
+
+            {/* Right: Sign in */}
+            <div className="text-center lg:text-left">
+              <h2 className="text-4xl sm:text-5xl font-extralight text-gray-900 mb-6 tracking-tight">
+                Sign In
+              </h2>
+              <p className="text-gray-600 font-light text-lg mb-12">
+                Access your personal digital space
+              </p>
+              
+              {isDemoMode && (
+                <div className="bg-gray-50 border border-gray-200 text-gray-700 p-6 mb-8 text-left max-w-md lg:mx-0 mx-auto rounded-lg">
+                  <div className="flex gap-4">
+                    <div className="flex-shrink-0">
+                      <svg className="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-sm font-medium text-gray-900 mb-2">Demo Mode</h3>
+                      <div className="text-sm text-gray-600 space-y-1">
+                        <p>Magic links will be printed to the server console.</p>
+                        <p>Try: <code className="bg-white px-2 py-0.5 rounded text-xs border border-gray-200">soumitri.gonella10@gmail.com</code></p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+              
+              <div className="max-w-md lg:mx-0 mx-auto">
+                <button
+                  onClick={() => signIn("email")}
+                  className="w-full bg-gray-900 hover:bg-gray-800 text-white font-light py-4 px-8 rounded-lg transition-all tracking-wide uppercase text-sm"
+                >
+                  Sign In with Email
+                </button>
+                
+                <p className="mt-6 text-sm text-gray-500 font-light">
+                  We&apos;ll send you a secure magic link to sign in.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
-
-        {/* Time Period Toggle */}
-        <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-hide">
-          {(["AM", "MIDDAY", "PM"] as TimeOfDay[]).map((time) => (
-            <button
-              key={time}
-              onClick={() => setActiveTimeSection(time)}
-              className={cn(
-                "flex-shrink-0 px-3 sm:px-4 py-2 rounded-xl text-sm font-medium transition-all flex items-center gap-1.5 border-2",
-                activeTimeSection === time
-                  ? "bg-yellow-500 text-white border-yellow-500"
-                  : time === currentTimePeriod
-                  ? "bg-yellow-50 text-yellow-700 border-yellow-200"
-                  : "bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100"
-              )}
-            >
-              {time === "AM" && <Sunrise className="w-4 h-4" />}
-              {time === "MIDDAY" && <Sun className="w-4 h-4" />}
-              {time === "PM" && <Moon className="w-4 h-4" />}
-              {time === "MIDDAY" ? "Midday" : time}
-              {time === currentTimePeriod && <Activity className="w-3 h-3" />}
-            </button>
-          ))}
-          <button
-            onClick={() => setActiveTimeSection("ALL")}
-            className={cn(
-              "flex-shrink-0 px-3 sm:px-4 py-2 rounded-xl text-sm font-medium transition-all flex items-center gap-1.5 border-2",
-              activeTimeSection === "ALL"
-                ? "bg-gray-800 text-white border-gray-800"
-                : "bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100"
-            )}
-          >
-            All
-          </button>
-        </div>
-      </header>
-
-      {/* AM Section */}
-      {(activeTimeSection === "AM" || activeTimeSection === "ALL") && (
-        <TimeSection
-          timeOfDay="AM"
-          activeTab={activeTabs.AM}
-          onTabChange={(tab) => setActiveTab("AM", tab)}
-          {...sharedProps}
-        />
-      )}
-
-      {/* MIDDAY Section */}
-      {(activeTimeSection === "MIDDAY" || activeTimeSection === "ALL") && (
-        <TimeSection
-          timeOfDay="MIDDAY"
-          activeTab={activeTabs.MIDDAY}
-          onTabChange={(tab) => setActiveTab("MIDDAY", tab)}
-          {...sharedProps}
-        />
-      )}
-
-      {/* PM Section */}
-      {(activeTimeSection === "PM" || activeTimeSection === "ALL") && (
-        <TimeSection
-          timeOfDay="PM"
-          activeTab={activeTabs.PM}
-          onTabChange={(tab) => setActiveTab("PM", tab)}
-          {...sharedProps}
-        />
-      )}
+      </section>
     </div>
-  );
-}
-
-export default function HomePage() {
-  return (
-    <AuthenticatedLayout>
-      <div className="p-4 sm:p-6 lg:p-8 max-w-6xl mx-auto">
-        <TodayContent />
-      </div>
-    </AuthenticatedLayout>
   );
 }

@@ -182,8 +182,10 @@ function WeekLegend() {
 export default function WeekPage() {
   return (
     <AuthenticatedLayout>
-      <div className="p-4 sm:p-6 lg:p-8">
-        <WeekPageContent />
+      <div className="min-h-screen py-8 px-6 md:px-8 lg:px-12">
+        <div className="max-w-7xl mx-auto">
+          <WeekPageContent />
+        </div>
       </div>
     </AuthenticatedLayout>
   );

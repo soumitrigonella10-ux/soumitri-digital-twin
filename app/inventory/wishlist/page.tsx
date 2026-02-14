@@ -58,23 +58,12 @@ export default function WishlistPage() {
 
   const [selectedItem, setSelectedItem] = useState<WishlistItem | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
-  const [signInError, setSignInError] = useState<string | null>(null);
-  const [isSigningIn, setIsSigningIn] = useState(false);
 
   const handleSignIn = async (email: string) => {
-    setSignInError(null);
-    setIsSigningIn(true);
     try {
-      const result = await signIn("email", { email, callbackUrl: "/", redirect: false });
-      if (result?.error) {
-        setSignInError("Sign-in failed. Please try again later.");
-      } else if (result?.ok) {
-        setSignInError("Check your email (or server console in demo mode) for the magic link!");
-      }
+      await signIn("email", { email, callbackUrl: "/", redirect: false });
     } catch {
-      setSignInError("Sign-in is currently unavailable. Please try again later.");
-    } finally {
-      setIsSigningIn(false);
+      // Sign-in error handling can be added here if needed
     }
   };
 
@@ -170,21 +159,23 @@ export default function WishlistPage() {
   // Authenticated view
   return (
     <AuthenticatedLayout>
-      <div className="container mx-auto py-8 space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold">Wishlist</h1>
-            <p className="text-muted-foreground">Keep track of items you want to buy</p>
+      <div className="min-h-screen py-8 px-6 md:px-8 lg:px-12">
+        <div className="max-w-7xl mx-auto space-y-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold">Wishlist</h1>
+              <p className="text-muted-foreground">Keep track of items you want to buy</p>
+            </div>
+            <Button onClick={() => setShowAddModal(true)} className="flex items-center gap-2">
+              <Plus className="h-4 w-4" />
+              Add Item
+            </Button>
           </div>
-          <Button onClick={() => setShowAddModal(true)} className="flex items-center gap-2">
-            <Plus className="h-4 w-4" />
-            Add Item
-          </Button>
+
+          {sharedContent}
+
+          {showAddModal && <AddItemModal onAdd={handleAddItem} onClose={() => setShowAddModal(false)} />}
         </div>
-
-        {sharedContent}
-
-        {showAddModal && <AddItemModal onAdd={handleAddItem} onClose={() => setShowAddModal(false)} />}
       </div>
     </AuthenticatedLayout>
   );

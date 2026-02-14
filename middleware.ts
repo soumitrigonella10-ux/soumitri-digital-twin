@@ -7,6 +7,12 @@ import { getPublicTopicSlugs } from "@/data/topics"
 const STATIC_PUBLIC_PATHS = [
   "/",
   "/archive",
+  "/consumption",
+  "/travel-log",
+  "/skills",
+  "/artifacts",
+  "/design-theology",
+  "/inspiration",
   "/inventory/wishlist",
   "/api/auth",
   "/_next",

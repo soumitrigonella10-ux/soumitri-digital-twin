@@ -135,8 +135,10 @@ function OuterwearPageContent() {
 export default function OuterwearPage() {
   return (
     <AuthenticatedLayout>
-      <div className="p-4 sm:p-6 lg:p-8">
-        <OuterwearPageContent />
+      <div className="min-h-screen py-8 px-6 md:px-8 lg:px-12">
+        <div className="max-w-7xl mx-auto">
+          <OuterwearPageContent />
+        </div>
       </div>
     </AuthenticatedLayout>
   );

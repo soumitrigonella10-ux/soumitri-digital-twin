@@ -137,6 +137,7 @@ export function BentoDashboard() {
           title="Sidequests"
           subtitle="Curiosity trails"
           description="Short detours into things that caught my attention."
+          href="/archive"
         />
 
         {/* Row 1, Col 3 */}
@@ -147,6 +148,7 @@ export function BentoDashboard() {
           title="Consumption"
           subtitle="What I'm absorbing"
           description="Books, films, podcasts, and articles currently in rotation."
+          href="/consumption"
         />
 
         {/* Row 2, Col 2 */}
@@ -157,6 +159,7 @@ export function BentoDashboard() {
           title="Skill Up"
           subtitle="Active learning"
           description="Courses, topics, and deliberate practice logs."
+          href="/skills"
         />
 
         {/* Row 2, Col 3 */}
@@ -167,6 +170,7 @@ export function BentoDashboard() {
           title="Travel Log"
           subtitle="Places & memories"
           description="A visual journal of places visited and planned."
+          href="/travel-log"
         />
 
         {/* Row 3, Col 1-2  — HORIZONTAL ANCHOR */}
@@ -178,6 +182,7 @@ export function BentoDashboard() {
           title="The Studio"
           subtitle="Creative workspace"
           description="Design experiments, mood boards, and visual research."
+          href="/artifacts"
         />
 
         {/* Row 3, Col 3 */}
@@ -188,6 +193,7 @@ export function BentoDashboard() {
           title="Inspiration"
           subtitle="Collected beauty"
           description="A curated feed of aesthetic references and visual sparks."
+          href="/inspiration"
         />
 
         {/* Row 4, Col 1 */}
@@ -210,6 +216,7 @@ export function BentoDashboard() {
           subtitle="Systems thinking"
           description="How I approach design — from product interfaces to personal systems. A working philosophy built on clarity, restraint, and purpose."
           badge="Design Perspective"
+          href="/design-theology"
         />
       </div>
 

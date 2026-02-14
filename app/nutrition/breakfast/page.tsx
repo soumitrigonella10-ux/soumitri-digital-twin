@@ -229,8 +229,10 @@ function BreakfastPageContent() {
 export default function BreakfastPage() {
   return (
     <AuthenticatedLayout>
-      <div className="p-4 sm:p-6 lg:p-8">
-        <BreakfastPageContent />
+      <div className="min-h-screen py-8 px-6 md:px-8 lg:px-12">
+        <div className="max-w-7xl mx-auto">
+          <BreakfastPageContent />
+        </div>
       </div>
     </AuthenticatedLayout>
   );

@@ -88,8 +88,10 @@ function WellnessPageContent() {
 export default function WellnessPage() {
   return (
     <AuthenticatedLayout>
-      <div className="p-4 sm:p-6 lg:p-8">
-        <WellnessPageContent />
+      <div className="min-h-screen py-8 px-6 md:px-8 lg:px-12">
+        <div className="max-w-7xl mx-auto">
+          <WellnessPageContent />
+        </div>
       </div>
     </AuthenticatedLayout>
   );

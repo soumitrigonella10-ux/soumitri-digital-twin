@@ -48,6 +48,13 @@ export function EditorialNav({ currentSlug }: EditorialNavProps) {
             let href = `/${topic.slug}`;
             if (topic.slug === "essays") href = "/essays";
             if (topic.slug === "wishlist") href = "/inventory/wishlist";
+            if (topic.slug === "sidequests") href = "/archive";
+            if (topic.slug === "content-consumption") href = "/consumption";
+            if (topic.slug === "travel-log") href = "/travel-log";
+            if (topic.slug === "skilling") href = "/skills";
+            if (topic.slug === "art") href = "/artifacts";
+            if (topic.slug === "design-thoughts") href = "/design-theology";
+            if (topic.slug === "inspiration") href = "/inspiration";
             const isActive = topic.slug === currentSlug;
             return (
               <Link
@@ -98,6 +105,13 @@ export function EditorialNav({ currentSlug }: EditorialNavProps) {
             let href = `/${topic.slug}`;
             if (topic.slug === "essays") href = "/essays";
             if (topic.slug === "wishlist") href = "/inventory/wishlist";
+            if (topic.slug === "sidequests") href = "/archive";
+            if (topic.slug === "content-consumption") href = "/consumption";
+            if (topic.slug === "travel-log") href = "/travel-log";
+            if (topic.slug === "skilling") href = "/skills";
+            if (topic.slug === "art") href = "/artifacts";
+            if (topic.slug === "design-thoughts") href = "/design-theology";
+            if (topic.slug === "inspiration") href = "/inspiration";
             const isActive = topic.slug === currentSlug;
             return (
               <Link
