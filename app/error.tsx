@@ -7,6 +7,7 @@
 // ========================================
 
 import { useEffect } from "react";
+import Link from "next/link";
 import { AlertTriangle, RefreshCw, Home } from "lucide-react";
 import { reportError } from "@/components/ErrorBoundary";
 
@@ -64,13 +65,13 @@ export default function Error({
             <RefreshCw className="h-4 w-4" />
             Try Again
           </button>
-          <a
+          <Link
             href="/"
             className="inline-flex items-center gap-2 px-4 py-2.5 bg-gray-100 text-gray-700 text-sm font-medium rounded-xl hover:bg-gray-200 transition-colors"
           >
             <Home className="h-4 w-4" />
             Go Home
-          </a>
+          </Link>
         </div>
       </div>
     </div>
