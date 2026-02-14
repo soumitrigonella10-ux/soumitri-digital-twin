@@ -224,7 +224,7 @@ export default function WardrobePage() {
     <AuthenticatedLayout>
       <div className="min-h-screen py-8 px-6 md:px-8 lg:px-12">
         <div className="max-w-7xl mx-auto">
-          <WardrobeInventoryPageContent />
+          <WardrobePageContent />
         </div>
       </div>
     </AuthenticatedLayout>
