@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { Droplets, Sun, Moon } from "lucide-react";
 import { useRoutineProducts } from "@/hooks/useRoutineProducts";
 import { PRODUCT_CARD_THEMES } from "@/components/ProductCard";
@@ -8,6 +9,22 @@ import { DayOfWeekFilter, RoutineColumn, EditProductModal } from "@/components/r
 
 function BodyPageContent() {
   const routine = useRoutineProducts({ routineType: "body" });
+
+  // Calculate shaving products progress
+  const shavingProgress = useMemo(() => {
+    const shavingProducts = routine.morningProducts.filter((p) => 
+      ['Shave', 'Post Shave', 'Healing'].includes(p.category)
+    );
+    const completed = shavingProducts.filter((p) => 
+      routine.completedProducts.has(p.id)
+    ).length;
+    const total = shavingProducts.length;
+    return {
+      total,
+      completed,
+      percentage: total > 0 ? Math.round((completed / total) * 100) : 0
+    };
+  }, [routine.morningProducts, routine.completedProducts]);
 
   return (
     <div className="w-full space-y-6">
@@ -74,22 +91,7 @@ function BodyPageContent() {
             iconColorClass="text-blue-500"
             progressRingColorClass="text-blue-500"
             progressBarColorClass="bg-blue-500"
-            progress={
-              routine.morningProducts.filter((p) => 
-                ['Shave', 'Post Shave', 'Healing'].includes(p.category)
-              ).length > 0
-                ? Math.round(
-                    (routine.morningProducts.filter((p) => 
-                      ['Shave', 'Post Shave', 'Healing'].includes(p.category) &&
-                      routine.completedProducts.has(p.id)
-                    ).length /
-                      routine.morningProducts.filter((p) => 
-                        ['Shave', 'Post Shave', 'Healing'].includes(p.category)
-                      ).length) *
-                      100
-                  )
-                : 0
-            }
+            progress={shavingProgress}
             products={routine.morningProducts.filter((p) => 
               ['Shave', 'Post Shave', 'Healing'].includes(p.category)
             )}

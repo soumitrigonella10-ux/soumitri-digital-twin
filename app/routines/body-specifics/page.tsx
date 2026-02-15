@@ -19,10 +19,6 @@ function BodySpecificsPageContent() {
     (products: Product[]) => {
       if (activeAreaFilter === "ALL") return products;
       return products.filter((p) => {
-        if (activeAreaFilter === "LIPS") return p.category === "Lip Care";
-        if (activeAreaFilter === "OTHER") {
-          return (!p.bodyAreas || p.bodyAreas.length === 0) && p.category !== "Lip Care";
-        }
         return p.bodyAreas?.includes(activeAreaFilter as BodyArea);
       });
     },
@@ -88,8 +84,7 @@ function BodySpecificsPageContent() {
     (product: Product) => {
       const shouldHighlight =
         activeAreaFilter !== "ALL" &&
-        (product.bodyAreas?.includes(activeAreaFilter as BodyArea) ||
-          (activeAreaFilter === "LIPS" && product.category === "Lip Care"));
+        product.bodyAreas?.includes(activeAreaFilter as BodyArea);
 
       return {
         highlighted: shouldHighlight || undefined,
@@ -101,7 +96,7 @@ function BodySpecificsPageContent() {
             <div className="flex gap-1 flex-wrap">
               {product.bodyAreas.map((area, idx) => {
                 const areaKey = area as keyof typeof BODY_AREAS;
-                const config = BODY_AREAS[areaKey] || BODY_AREAS.OTHER;
+                const config = BODY_AREAS[areaKey] || BODY_AREAS.UA;
                 return (
                   <span
                     key={idx}
@@ -150,10 +145,6 @@ function BodySpecificsPageContent() {
         {(Object.keys(BODY_AREAS) as (keyof typeof BODY_AREAS)[]).map((areaKey) => {
           const area = BODY_AREAS[areaKey];
           const count = routine.filteredProducts.filter((p) => {
-            if (areaKey === "LIPS") return p.category === "Lip Care";
-            if (areaKey === "OTHER") {
-              return (!p.bodyAreas || p.bodyAreas.length === 0) && p.category !== "Lip Care";
-            }
             return p.bodyAreas?.includes(areaKey as BodyArea);
           }).length;
 

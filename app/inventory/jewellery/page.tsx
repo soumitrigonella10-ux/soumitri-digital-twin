@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { Gem, Plus, Heart, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
@@ -115,10 +116,12 @@ function JewelleryPageContent() {
             {/* Image */}
             <div className="aspect-square bg-gradient-to-br from-cyan-50 to-gray-100 relative flex items-center justify-center">
               {item.imageUrl ? (
-                <img
+                <Image
                   src={item.imageUrl}
                   alt={item.name}
-                  className="w-full h-full object-cover"
+                  fill
+                  sizes="(max-width: 768px) 50vw, 25vw"
+                  className="object-cover"
                 />
               ) : (
                 <Gem className="w-12 h-12 text-cyan-300" />
@@ -169,10 +172,12 @@ function JewelleryPageContent() {
             {/* Image */}
             <div className="aspect-square bg-gradient-to-br from-cyan-50 to-gray-100 rounded-t-2xl relative flex items-center justify-center">
               {selectedItem.imageUrl ? (
-                <img
+                <Image
                   src={selectedItem.imageUrl}
                   alt={selectedItem.name}
-                  className="w-full h-full object-cover rounded-t-2xl"
+                  fill
+                  sizes="(max-width: 768px) 100vw, 384px"
+                  className="object-cover rounded-t-2xl"
                 />
               ) : (
                 <Gem className="w-24 h-24 text-cyan-300" />

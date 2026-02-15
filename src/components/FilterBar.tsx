@@ -10,7 +10,7 @@ import { Badge } from "./ui/badge";
 import { BodyArea, TimeOfDay } from "@/types";
 
 const OCCASIONS = ["Casual", "Office", "Party", "Date", "Gym", "Travel"];
-const BODY_AREAS: BodyArea[] = ["UA", "IT", "BL", "IA", "B"];
+const BODY_AREAS: BodyArea[] = ["UA", "IT", "BL", "IA", "B&S"];
 
 export function FilterBar() {
   const { filters, setFilters } = useAppStore();

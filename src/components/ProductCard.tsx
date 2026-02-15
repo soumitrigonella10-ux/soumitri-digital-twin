@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { Calendar, CheckCircle2, Edit2, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Product } from "@/types";
@@ -151,14 +152,16 @@ export function ProductCard({
         {/* Product Image Viewport */}
         {product.imageUrl && (
           <div className={cn(
-            "w-14 h-14 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0 border border-gray-200 overflow-hidden",
+            "w-14 h-14 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0 border border-gray-200 overflow-hidden relative",
             isCompleted && "grayscale opacity-60"
           )}>
-            <img 
+            <Image 
               src={product.imageUrl} 
               alt={product.name}
+              fill
+              sizes="56px"
               className={cn(
-                "w-full h-full object-cover transition-all duration-300",
+                "object-cover transition-all duration-300",
                 isCompleted && "grayscale opacity-60"
               )}
             />

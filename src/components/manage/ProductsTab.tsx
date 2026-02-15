@@ -90,7 +90,7 @@ export function ProductsTab() {
               <span className="text-sm font-medium">{product.name}</span>
               <span className="text-xs text-gray-500 ml-2">({product.category})</span>
               <div className="flex gap-1 mt-1">
-                {product.actives.slice(0, 3).map((a) => (
+                {product.actives?.slice(0, 3).map((a) => (
                   <Badge key={a} variant="secondary" className="text-xs">{a}</Badge>
                 ))}
               </div>

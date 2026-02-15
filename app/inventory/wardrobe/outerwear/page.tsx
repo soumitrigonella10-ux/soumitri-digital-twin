@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import Image from "next/image";
 import { Shirt, Plus, X } from "lucide-react";
 import { useAppStore } from "@/store/useAppStore";
 import { WardrobeItem } from "@/types";
@@ -49,10 +50,12 @@ function OuterwearPageContent() {
               >
                 <div className="aspect-square bg-gray-100 relative">
                   {item.imageUrl ? (
-                    <img
+                    <Image
                       src={item.imageUrl}
                       alt={item.name}
-                      className="w-full h-full object-cover"
+                      fill
+                      sizes="(max-width: 768px) 50vw, 20vw"
+                      className="object-cover"
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">
@@ -99,7 +102,7 @@ function OuterwearPageContent() {
           >
             <div className="aspect-square bg-gray-100 relative">
               {selectedItem.imageUrl ? (
-                <img src={selectedItem.imageUrl} alt={selectedItem.name} className="w-full h-full object-cover" />
+                <Image src={selectedItem.imageUrl} alt={selectedItem.name} fill sizes="(max-width: 768px) 100vw, 448px" className="object-cover" />
               ) : (
                 <div className="w-full h-full flex items-center justify-center">
                   <Shirt className="w-24 h-24 text-gray-300" />

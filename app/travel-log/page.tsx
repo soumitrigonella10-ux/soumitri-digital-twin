@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { useSession } from "next-auth/react";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -27,10 +28,12 @@ function LocationCard({ location, onOpen }: LocationCardProps) {
   return (
     <div className={tileClass} onClick={() => onOpen(location)}>
       {/* Background Image */}
-      <img
+      <Image
         src={location.imageUrl}
         alt={location.name}
-        className="travel-card-image"
+        fill
+        sizes="(max-width: 768px) 100vw, 50vw"
+        className="travel-card-image object-cover"
       />
 
       {/* Overlay Content */}

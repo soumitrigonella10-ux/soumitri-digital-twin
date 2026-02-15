@@ -155,7 +155,7 @@ function checkConflicts(
         pmProductIds.add(pid);
         const product = products.find((p) => p.id === pid);
         if (product) {
-          product.actives.forEach((a) => pmActives.add(a));
+          product.actives?.forEach((a) => pmActives.add(a));
         }
       });
     });
@@ -178,7 +178,7 @@ function checkConflicts(
   if (flags.goingOut) {
     const hasStrongActive = Array.from(pmProductIds).some((pid) => {
       const product = products.find((p) => p.id === pid);
-      return product?.cautionTags.includes("strong-active");
+      return product?.cautionTags?.includes("strong-active");
     });
 
     if (hasStrongActive) {

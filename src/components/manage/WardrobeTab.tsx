@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -98,7 +99,9 @@ export function WardrobeTab() {
         {data.wardrobe.map((item) => (
           <div key={item.id} className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
             <div className="flex items-center gap-3">
-              <img src={item.imageUrl} alt={item.name} className="w-10 h-10 rounded object-cover" onError={(e) => (e.currentTarget.src = "")} />
+              <div className="w-10 h-10 rounded overflow-hidden relative">
+                <Image src={item.imageUrl} alt={item.name} fill sizes="40px" className="object-cover" />
+              </div>
               <div>
                 <span className="text-sm font-medium">{item.name}</span>
                 <div className="flex gap-1 mt-0.5">

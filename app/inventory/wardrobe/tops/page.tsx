@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import Image from "next/image";
 import { Shirt, Plus, X } from "lucide-react";
 import { useAppStore } from "@/store/useAppStore";
 import { WardrobeItem } from "@/types";
@@ -114,10 +115,12 @@ function TopsPageContent() {
                       {/* Image - Full Height */}
                       <div className="aspect-square bg-gray-100 relative flex items-center justify-center">
                         {item.imageUrl ? (
-                          <img
+                          <Image
                             src={item.imageUrl}
                             alt={item.name}
-                            className="w-full h-full object-contain"
+                            fill
+                            sizes="(max-width: 768px) 50vw, 20vw"
+                            className="object-contain"
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center">
@@ -162,10 +165,12 @@ function TopsPageContent() {
             {/* Image */}
             <div className="aspect-square bg-gray-100 relative">
               {selectedItem.imageUrl ? (
-                <img
+                <Image
                   src={selectedItem.imageUrl}
                   alt={selectedItem.name}
-                  className="w-full h-full object-cover"
+                  fill
+                  sizes="(max-width: 768px) 100vw, 448px"
+                  className="object-cover"
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center">
