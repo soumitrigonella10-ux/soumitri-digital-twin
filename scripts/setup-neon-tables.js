@@ -1,7 +1,12 @@
 const { Pool } = require('pg');
 
+if (!process.env.POSTGRES_URL) {
+  console.error('❌ POSTGRES_URL environment variable is required');
+  process.exit(1);
+}
+
 const pool = new Pool({
-  connectionString: process.env.POSTGRES_URL || 'postgresql://neondb_owner:npg_KkoUF2de8LMS@ep-ancient-firefly-a1wqi6qh-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require',
+  connectionString: process.env.POSTGRES_URL,
   ssl: { rejectUnauthorized: false }
 });
 

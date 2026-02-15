@@ -9,29 +9,44 @@ import crypto from "crypto"
 export default function CustomPgAdapter(pool: Pool): Adapter {
   return {
     async createUser(user: Omit<AdapterUser, "id">) {
-      const { rows } = await pool.query(
-        `INSERT INTO users (id, name, email, "emailVerified", image)
-         VALUES ($1, $2, $3, $4, $5)
-         RETURNING id, name, email, "emailVerified", image`,
-        [crypto.randomUUID(), user.name ?? null, user.email, user.emailVerified ?? null, user.image ?? null]
-      )
-      return mapUser(rows[0])
+      try {
+        const { rows } = await pool.query(
+          `INSERT INTO users (id, name, email, "emailVerified", image)
+           VALUES ($1, $2, $3, $4, $5)
+           RETURNING id, name, email, "emailVerified", image`,
+          [crypto.randomUUID(), user.name ?? null, user.email, user.emailVerified ?? null, user.image ?? null]
+        )
+        return mapUser(rows[0])
+      } catch (error) {
+        console.error('[pg-adapter] createUser failed:', error)
+        throw error
+      }
     },
 
     async getUser(id) {
-      const { rows } = await pool.query(
-        `SELECT id, name, email, "emailVerified", image FROM users WHERE id = $1`,
-        [id]
-      )
-      return rows.length ? mapUser(rows[0]) : null
+      try {
+        const { rows } = await pool.query(
+          `SELECT id, name, email, "emailVerified", image FROM users WHERE id = $1`,
+          [id]
+        )
+        return rows.length ? mapUser(rows[0]) : null
+      } catch (error) {
+        console.error('[pg-adapter] getUser failed:', error)
+        throw error
+      }
     },
 
     async getUserByEmail(email) {
-      const { rows } = await pool.query(
-        `SELECT id, name, email, "emailVerified", image FROM users WHERE email = $1`,
-        [email]
-      )
-      return rows.length ? mapUser(rows[0]) : null
+      try {
+        const { rows } = await pool.query(
+          `SELECT id, name, email, "emailVerified", image FROM users WHERE email = $1`,
+          [email]
+        )
+        return rows.length ? mapUser(rows[0]) : null
+      } catch (error) {
+        console.error('[pg-adapter] getUserByEmail failed:', error)
+        throw error
+      }
     },
 
     async getUserByAccount({ provider, providerAccountId }) {
@@ -99,33 +114,43 @@ export default function CustomPgAdapter(pool: Pool): Adapter {
     },
 
     async createSession(session) {
-      const { rows } = await pool.query(
-        `INSERT INTO sessions (id, "sessionToken", "userId", expires)
-         VALUES ($1, $2, $3, $4)
-         RETURNING id, "sessionToken", "userId", expires`,
-        [crypto.randomUUID(), session.sessionToken, session.userId, session.expires]
-      )
-      return mapSession(rows[0])
+      try {
+        const { rows } = await pool.query(
+          `INSERT INTO sessions (id, "sessionToken", "userId", expires)
+           VALUES ($1, $2, $3, $4)
+           RETURNING id, "sessionToken", "userId", expires`,
+          [crypto.randomUUID(), session.sessionToken, session.userId, session.expires]
+        )
+        return mapSession(rows[0])
+      } catch (error) {
+        console.error('[pg-adapter] createSession failed:', error)
+        throw error
+      }
     },
 
     async getSessionAndUser(sessionToken) {
-      const { rows } = await pool.query(
-        `SELECT s.id as sid, s."sessionToken", s."userId", s.expires,
-                u.id, u.name, u.email, u."emailVerified", u.image
-         FROM sessions s
-         JOIN users u ON s."userId" = u.id
-         WHERE s."sessionToken" = $1`,
-        [sessionToken]
-      )
-      if (!rows.length) return null
-      const row = rows[0]
-      return {
-        session: {
-          sessionToken: row.sessionToken,
-          userId: row.userId,
-          expires: new Date(row.expires),
-        } as AdapterSession,
-        user: mapUser(row),
+      try {
+        const { rows } = await pool.query(
+          `SELECT s.id as sid, s."sessionToken", s."userId", s.expires,
+                  u.id, u.name, u.email, u."emailVerified", u.image
+           FROM sessions s
+           JOIN users u ON s."userId" = u.id
+           WHERE s."sessionToken" = $1`,
+          [sessionToken]
+        )
+        if (!rows.length) return null
+        const row = rows[0]
+        return {
+          session: {
+            sessionToken: row.sessionToken,
+            userId: row.userId,
+            expires: new Date(row.expires),
+          } as AdapterSession,
+          user: mapUser(row),
+        }
+      } catch (error) {
+        console.error('[pg-adapter] getSessionAndUser failed:', error)
+        throw error
       }
     },
 
@@ -147,23 +172,33 @@ export default function CustomPgAdapter(pool: Pool): Adapter {
     },
 
     async createVerificationToken(verificationToken) {
-      const { rows } = await pool.query(
-        `INSERT INTO verification_token (identifier, token, expires)
-         VALUES ($1, $2, $3)
-         RETURNING identifier, token, expires`,
-        [verificationToken.identifier, verificationToken.token, verificationToken.expires]
-      )
-      return mapVerificationToken(rows[0])
+      try {
+        const { rows } = await pool.query(
+          `INSERT INTO verification_token (identifier, token, expires)
+           VALUES ($1, $2, $3)
+           RETURNING identifier, token, expires`,
+          [verificationToken.identifier, verificationToken.token, verificationToken.expires]
+        )
+        return mapVerificationToken(rows[0])
+      } catch (error) {
+        console.error('[pg-adapter] createVerificationToken failed:', error)
+        throw error
+      }
     },
 
     async useVerificationToken({ identifier, token }) {
-      const { rows } = await pool.query(
-        `DELETE FROM verification_token
-         WHERE identifier = $1 AND token = $2
-         RETURNING identifier, token, expires`,
-        [identifier, token]
-      )
-      return rows.length ? mapVerificationToken(rows[0]) : null
+      try {
+        const { rows } = await pool.query(
+          `DELETE FROM verification_token
+           WHERE identifier = $1 AND token = $2
+           RETURNING identifier, token, expires`,
+          [identifier, token]
+        )
+        return rows.length ? mapVerificationToken(rows[0]) : null
+      } catch (error) {
+        console.error('[pg-adapter] useVerificationToken failed:', error)
+        throw error
+      }
     },
   }
 }

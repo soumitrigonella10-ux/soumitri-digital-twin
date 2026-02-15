@@ -15,13 +15,50 @@ function isAdmin(email: string): boolean {
   return adminEmails.includes(email.toLowerCase())
 }
 
+// Validate critical environment variables
+function validateEnvironment() {
+  const issues: string[] = []
+  
+  if (!process.env.NEXTAUTH_SECRET) {
+    issues.push("NEXTAUTH_SECRET is not set")
+  }
+  
+  if (!process.env.NEXTAUTH_URL) {
+    issues.push("NEXTAUTH_URL is not set")
+  }
+  
+  if (process.env.DEMO_MODE !== "true") {
+    if (!process.env.EMAIL_SERVER_HOST) issues.push("EMAIL_SERVER_HOST is not set")
+    if (!process.env.EMAIL_SERVER_USER) issues.push("EMAIL_SERVER_USER is not set")
+    if (!process.env.EMAIL_SERVER_PASSWORD) issues.push("EMAIL_SERVER_PASSWORD is not set")
+  }
+  
+  if (issues.length > 0) {
+    console.error("[auth] ⚠️ Environment validation failed:")
+    issues.forEach(issue => console.error(`  - ${issue}`))
+  }
+  
+  return issues.length === 0
+}
+
+// Validate on startup
+const envValid = validateEnvironment()
+if (!envValid) {
+  console.warn("[auth] ⚠️ Sign-in may fail due to missing environment variables")
+}
+
 // Use PostgreSQL adapter in production (when POSTGRES_URL is set), otherwise fall back to JSON adapter
 function getAdapter() {
-  if (process.env.POSTGRES_URL && pool) {
+  if (process.env.POSTGRES_URL) {
+    if (!pool) {
+      console.error("[auth] ⚠️ POSTGRES_URL is set but pool failed to initialize")
+      console.log("[auth] Falling back to JSON adapter due to pool initialization failure")
+      return JsonAdapter()
+    }
     console.log("[auth] Using PostgreSQL adapter")
     return CustomPgAdapter(pool)
   }
-  console.log("[auth] ⚠️ No POSTGRES_URL or pool — using local JSON adapter")
+  console.log("[auth] ⚠️ No POSTGRES_URL — using local JSON adapter")
   return JsonAdapter()
 }
 
@@ -48,6 +85,30 @@ const authOptions: NextAuthOptions = {
           console.log("🔗 Magic Link:", url);
           console.log("👆 Copy this URL and paste it in your browser to sign in\n");
           return Promise.resolve();
+        },
+      }),
+      ...(process.env.DEMO_MODE !== "true" && {
+        // In production, wrap email sending with error handling
+        sendVerificationRequest: async (params) => {
+          try {
+            // Use default email provider behavior
+            const { identifier, url, provider } = params
+            console.log(`[auth] Sending magic link to ${identifier}`)
+            // Import nodemailer dynamically to send email
+            const nodemailer = await import('nodemailer')
+            const transport = nodemailer.createTransport(provider.server)
+            await transport.sendMail({
+              to: identifier,
+              from: provider.from,
+              subject: "Sign in to your account",
+              text: `Sign in to your account: ${url}`,
+              html: `<p>Click <a href="${url}">here</a> to sign in</p>`,
+            })
+            console.log(`[auth] ✅ Magic link sent to ${identifier}`)
+          } catch (error) {
+            console.error("[auth] ❌ Failed to send magic link email:", error)
+            throw error
+          }
         },
       }),
     }),
