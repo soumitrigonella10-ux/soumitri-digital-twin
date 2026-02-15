@@ -29,7 +29,7 @@ function WardrobePageContent() {
     const subcats = new Set(data.wardrobe
       .filter(item => item.category === "Top")
       .map(item => item.subcategory)
-      .filter(Boolean)
+      .filter((s): s is string => Boolean(s))
     );
     
     return Array.from(subcats);
