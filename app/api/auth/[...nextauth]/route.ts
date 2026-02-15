@@ -62,6 +62,13 @@ function getAdapter() {
   return JsonAdapter()
 }
 
+// SECURITY: Allowed email for sign-in
+const ALLOWED_EMAIL = "soumitri.gonella10@gmail.com"
+
+function isAllowedEmail(email: string): boolean {
+  return email.toLowerCase() === ALLOWED_EMAIL.toLowerCase()
+}
+
 const authOptions: NextAuthOptions = {
   adapter: getAdapter(),
   providers: [
@@ -79,6 +86,11 @@ const authOptions: NextAuthOptions = {
       maxAge: 10 * 60, // 10 minutes
       sendVerificationRequest: process.env.DEMO_MODE === "true"
         ? ({ identifier, url }) => {
+            // SECURITY: Block unauthorized emails even in demo mode
+            if (!isAllowedEmail(identifier)) {
+              console.warn(`[auth] ⛔ Blocked magic link request from unauthorized email: ${identifier}`)
+              throw new Error("This email is not authorized to sign in")
+            }
             // Demo mode: log magic links to console
             console.log("\n🚀 DEMO MODE - Magic Link Generated:");
             console.log("📧 Email:", identifier);
@@ -88,8 +100,15 @@ const authOptions: NextAuthOptions = {
           }
         : async (params) => {
             // Production: send email via nodemailer
+            const { identifier, url, provider } = params
+            
+            // SECURITY: Block unauthorized emails before sending
+            if (!isAllowedEmail(identifier)) {
+              console.warn(`[auth] ⛔ Blocked magic link email to unauthorized address: ${identifier}`)
+              throw new Error("This email is not authorized to sign in")
+            }
+            
             try {
-              const { identifier, url, provider } = params
               console.log(`[auth] Sending magic link to ${identifier}`)
               const nodemailer = await import('nodemailer')
               const transport = nodemailer.createTransport(provider.server)
@@ -126,6 +145,14 @@ const authOptions: NextAuthOptions = {
     },
   },
   callbacks: {
+    async signIn({ user }) {
+      // SECURITY: Only allow the owner email to sign in
+      if (!user?.email || !isAllowedEmail(user.email)) {
+        console.warn(`[auth] ⛔ Blocked sign-in attempt from: ${user?.email || "unknown"}`)
+        return false // Reject sign-in
+      }
+      return true
+    },
     async jwt({ token, user }) {
       // When user signs in, add role to token
       if (user?.email) {

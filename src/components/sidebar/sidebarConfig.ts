@@ -104,6 +104,66 @@ export const categories: SidebarCategory[] = [
     borderClass: "border-category-makeup",
     group: "Routines",
   },
+  {
+    id: "wellness",
+    name: "Wellness",
+    icon: Sun,
+    href: "/nutrition/wellness",
+    color: "lifeos-wellness",
+    bgClass: "bg-category-wellness",
+    borderClass: "border-category-wellness",
+    group: "Routines",
+  },
+  {
+    id: "breakfast",
+    name: "Breakfast",
+    icon: Coffee,
+    href: "/nutrition/breakfast",
+    color: "lifeos-breakfast",
+    bgClass: "bg-category-breakfast",
+    borderClass: "border-category-breakfast",
+    group: "Routines",
+  },
+  {
+    id: "lunch",
+    name: "Lunch",
+    icon: UtensilsCrossed,
+    href: "/nutrition/lunch",
+    color: "lifeos-lunch",
+    bgClass: "bg-category-lunch",
+    borderClass: "border-category-lunch",
+    group: "Routines",
+  },
+  {
+    id: "dinner",
+    name: "Dinner",
+    icon: Moon,
+    href: "/nutrition/dinner",
+    color: "lifeos-dinner",
+    bgClass: "bg-category-dinner",
+    borderClass: "border-category-dinner",
+    group: "Routines",
+  },
+  {
+    id: "grocery",
+    name: "Grocery List",
+    icon: ShoppingCart,
+    href: "/nutrition/grocery",
+    color: "lifeos-grocery",
+    bgClass: "bg-category-grocery",
+    borderClass: "border-category-grocery",
+    group: "Routines",
+  },
+  {
+    id: "fitness",
+    name: "Fitness",
+    icon: Dumbbell,
+    href: "/fitness",
+    color: "lifeos-fitness",
+    bgClass: "bg-category-fitness",
+    borderClass: "border-category-fitness",
+    group: "Routines",
+  },
   // Inventory
   {
     id: "wardrobe",
@@ -133,68 +193,7 @@ export const categories: SidebarCategory[] = [
     borderClass: "border-category-jewellery",
     group: "Inventory",
   },
-  // Nutrition
-  {
-    id: "breakfast",
-    name: "Breakfast",
-    icon: Coffee,
-    href: "/nutrition/breakfast",
-    color: "lifeos-breakfast",
-    bgClass: "bg-category-breakfast",
-    borderClass: "border-category-breakfast",
-    group: "Nutrition",
-  },
-  {
-    id: "lunch",
-    name: "Lunch",
-    icon: UtensilsCrossed,
-    href: "/nutrition/lunch",
-    color: "lifeos-lunch",
-    bgClass: "bg-category-lunch",
-    borderClass: "border-category-lunch",
-    group: "Nutrition",
-  },
-  {
-    id: "dinner",
-    name: "Dinner",
-    icon: Moon,
-    href: "/nutrition/dinner",
-    color: "lifeos-dinner",
-    bgClass: "bg-category-dinner",
-    borderClass: "border-category-dinner",
-    group: "Nutrition",
-  },
-  {
-    id: "grocery",
-    name: "Grocery List",
-    icon: ShoppingCart,
-    href: "/nutrition/grocery",
-    color: "lifeos-grocery",
-    bgClass: "bg-category-grocery",
-    borderClass: "border-category-grocery",
-    group: "Nutrition",
-  },
-  {
-    id: "wellness",
-    name: "Wellness",
-    icon: Sun,
-    href: "/nutrition/wellness",
-    color: "lifeos-wellness",
-    bgClass: "bg-category-wellness",
-    borderClass: "border-category-wellness",
-    group: "Nutrition",
-  },
-  // Physicality
-  {
-    id: "fitness",
-    name: "Fitness",
-    icon: Dumbbell,
-    href: "/fitness",
-    color: "lifeos-fitness",
-    bgClass: "bg-category-fitness",
-    borderClass: "border-category-fitness",
-    group: "Physicality",
-  },
+
 ];
 
 // Icon map for public curation topics
@@ -239,7 +238,7 @@ export const groupedCategories = allCategories.reduce((acc, cat) => {
   return acc;
 }, {} as Record<string, typeof allCategories>);
 
-export const groupOrder = ["Daily Logic", "Routines", "Inventory", "Nutrition", "Physicality", "Public Curation"];
+export const groupOrder = ["Daily Logic", "Routines", "Inventory", "Public Curation"];
 
 // Persist sidebar scroll position across navigations (survives remounts)
 export let _sidebarScrollTop = 0;

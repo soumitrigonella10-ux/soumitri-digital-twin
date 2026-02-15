@@ -204,6 +204,17 @@ export const products: Product[] = [
     displayOrder: 5,
   },
   {
+    id: "p-cerave-lotion-pm",
+    name: "CeraVe Moisturizing Lotion",
+    category: "Moisturizer",
+    actives: ["Ceramides", "Hyaluronic Acid"],
+    cautionTags: [],
+    routineType: "body",
+    timeOfDay: "PM",
+    weekdays: [1, 3],
+    displayOrder: 5.5,
+  },
+  {
     id: "p-body-sunscreen",
     name: "Nivea Protect & Moisture SPF 50",
     category: "Sunscreen",
@@ -300,7 +311,7 @@ export const products: Product[] = [
     cautionTags: [],
     routineType: "body",
     timeOfDay: "AM",
-    weekdays: [0,1,2,3,4,5,6],
+    weekdays: [0],
     displayOrder: 12,
   },
   

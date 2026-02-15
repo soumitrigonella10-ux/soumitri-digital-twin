@@ -38,7 +38,7 @@ export type RoutineType =
   | "workout" 
   | "food";
 
-export type BodyArea = "UA" | "IT" | "BL" | "IA" | "B";
+export type BodyArea = "UA" | "IT" | "BL" | "IA" | "B&S";
 
 export type HairPhase = "oiling" | "washing" | "postWash" | "daily";
 
@@ -68,8 +68,10 @@ export interface Product {
   id: string;
   name: string;
   category: string;
-  actives: string[];
-  cautionTags: string[]; // e.g., "strong-active", "drying"
+  brand?: string; // Brand name
+  shade?: string; // Shade or variant name
+  actives?: string[];
+  cautionTags?: string[]; // e.g., "strong-active", "drying"
   imageUrl?: string; // Product image URL
   // Routine-specific fields
   routineType?: RoutineType; // skin, body, bodySpecific, hair, etc.
@@ -221,6 +223,7 @@ export interface Exercise {
   sets?: string; // e.g., "4×8–12", "3×10–15"
   reps?: string;
   notes?: string; // Additional info like "NEW:", "✅", etc.
+  benefit?: string; // How this exercise helps the body
   isNew?: boolean;
   isEssential?: boolean;
 }

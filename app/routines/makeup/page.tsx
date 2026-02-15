@@ -1,49 +1,63 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import { Palette, Sun, Moon, Calendar, Sparkles, CheckCircle2 } from "lucide-react";
-import { useAppStore } from "@/store/useAppStore";
-import { cn } from "@/lib/utils";
-import { TimeOfDay } from "@/types";
-import { ProductCard, PRODUCT_CARD_THEMES } from "@/components/ProductCard";
+import { useMemo } from "react";
+import { Palette, Sparkles } from "lucide-react";
 import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
-import { MakeupWeekView } from "@/components/routines";
 import { SAMPLE_MAKEUP_PRODUCTS } from "@/data/makeupProducts";
 
+// Categorize products into 4 main groups
+const categorizeMakeupProduct = (category: string): "Eyes" | "Skin" | "Lips" | "Body" => {
+  const lowerCategory = category.toLowerCase();
+  
+  // Eyes category
+  if (lowerCategory.includes("eye") || lowerCategory.includes("mascara") || 
+      lowerCategory.includes("liner") || lowerCategory.includes("shadow") ||
+      lowerCategory.includes("brow")) {
+    return "Eyes";
+  }
+  
+  // Lips category
+  if (lowerCategory.includes("lip")) {
+    return "Lips";
+  }
+  
+  // Body category
+  if (lowerCategory.includes("body") || lowerCategory.includes("hand") || 
+      lowerCategory.includes("nail") || lowerCategory.includes("perfume")) {
+    return "Body";
+  }
+  
+  // Default to Skin (includes foundation, primer, concealer, powder, blush, etc.)
+  return "Skin";
+};
+
 function MakeupPageContent() {
-  const { data: _data } = useAppStore();
-  const [view, setView] = useState<"routine" | "week">("routine");
-  const [timeOfDay, setTimeOfDay] = useState<TimeOfDay>("AM");
-  const [completionState, setCompletionState] = useState<Record<string, boolean>>({});
-  const [_editingProduct, setEditingProduct] = useState<string | null>(null);
-
   const makeupProducts = useMemo(() => {
-    return SAMPLE_MAKEUP_PRODUCTS.filter(product => 
-      product.timeOfDay === timeOfDay || product.timeOfDay === "ANY"
-    ).sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
-  }, [timeOfDay]);
+    return SAMPLE_MAKEUP_PRODUCTS.sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
+  }, []);
 
-  const handleToggleComplete = (productId: string) => {
-    setCompletionState(prev => ({
-      ...prev,
-      [productId]: !prev[productId]
-    }));
-  };
+  // Group products by category
+  const productsByCategory = useMemo(() => {
+    const grouped: Record<"Eyes" | "Skin" | "Lips" | "Body", typeof SAMPLE_MAKEUP_PRODUCTS> = {
+      Eyes: [],
+      Skin: [],
+      Lips: [],
+      Body: []
+    };
 
-  const handleEdit = (productId: string) => {
-    setEditingProduct(productId);
-  };
+    makeupProducts.forEach(product => {
+      const mainCategory = categorizeMakeupProduct(product.category);
+      grouped[mainCategory].push(product);
+    });
 
-  const completedCount = Object.values(completionState).filter(Boolean).length;
-  const progressPercentage = makeupProducts.length > 0 
-    ? Math.round((completedCount / makeupProducts.length) * 100) 
-    : 0;
+    return grouped;
+  }, [makeupProducts]);
 
   return (
     <div className="space-y-6">
       <div>
         {/* Header */}
-        <div className="flex items-center gap-3 mb-6">
+        <div className="flex items-center gap-3 mb-8">
           <div className="w-10 h-10 rounded-full bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center">
             <Palette className="w-6 h-6 text-white" />
           </div>
@@ -53,102 +67,126 @@ function MakeupPageContent() {
           </div>
         </div>
 
-        {/* Controls */}
-        <div className="flex flex-wrap items-center gap-4 mb-6">
-          {/* View Toggle */}
-          <div className="flex bg-white rounded-lg p-1 border">
-            <button
-              onClick={() => setView("routine")}
-              className={cn(
-                "px-3 py-1 rounded-md text-sm font-medium transition-colors",
-                view === "routine"
-                  ? "bg-pink-100 text-pink-700"
-                  : "text-gray-600 hover:text-gray-800"
-              )}
-            >
-              Routine
-            </button>
-            <button
-              onClick={() => setView("week")}
-              className={cn(
-                "px-3 py-1 rounded-md text-sm font-medium transition-colors",
-                view === "week"
-                  ? "bg-pink-100 text-pink-700"
-                  : "text-gray-600 hover:text-gray-800"
-              )}
-            >
-              <Calendar className="w-4 h-4 inline mr-1" />
-              Week
-            </button>
-          </div>
-
-          {/* Time of Day Filter */}
-          {view === "routine" && (
-            <div className="flex bg-white rounded-lg p-1 border">
-              {(["AM", "PM"] as const).map((time) => (
-                <button
-                  key={time}
-                  onClick={() => setTimeOfDay(time)}
-                  className={cn(
-                    "px-3 py-1 rounded-md text-sm font-medium transition-colors flex items-center gap-1",
-                    timeOfDay === time
-                      ? "bg-pink-100 text-pink-700"
-                      : "text-gray-600 hover:text-gray-800"
-                  )}
-                >
-                  {time === "AM" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-                  {time}
-                </button>
-              ))}
+        {/* Content */}
+        <div className="space-y-3">
+          {makeupProducts.length === 0 ? (
+            <div className="text-center py-12">
+              <Sparkles className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                No makeup products
+              </h3>
+              <p className="text-gray-500">
+                Add products to start building your makeup routine
+              </p>
             </div>
-          )}
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {/* Eyes Column */}
+              <div className="space-y-3">
+                <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2 pb-2 border-b-2 border-purple-300">
+                  <Palette className="w-5 h-5 text-purple-600" />
+                  Eyes
+                </h3>
+                {productsByCategory.Eyes.length === 0 ? (
+                  <p className="text-sm text-gray-400 italic">No products</p>
+                ) : (
+                  productsByCategory.Eyes.map((product, index) => (
+                    <div key={product.id} className="bg-white rounded-lg p-4 border border-gray-200 hover:border-purple-300 transition-colors">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1 min-w-0">
+                          <div className="text-xs font-medium text-purple-600 mb-1">{product.category}</div>
+                          <h4 className="text-sm font-semibold text-gray-900 mb-1 truncate">{product.name}</h4>
+                          {product.shade && (
+                            <p className="text-xs text-gray-500">{product.shade}</p>
+                          )}
+                        </div>
+                        <span className="text-xs font-medium text-gray-400 ml-2 flex-shrink-0">{index + 1}</span>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
 
-          {/* Progress */}
-          {view === "routine" && makeupProducts.length > 0 && (
-            <div className="flex items-center gap-2 bg-white rounded-lg px-3 py-2 border">
-              <CheckCircle2 className="w-4 h-4 text-green-500" />
-              <span className="text-sm font-medium text-gray-700">
-                {completedCount}/{makeupProducts.length} completed ({progressPercentage}%)
-              </span>
+              {/* Skin Column */}
+              <div className="space-y-3">
+                <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2 pb-2 border-b-2 border-pink-300">
+                  <Sparkles className="w-5 h-5 text-pink-600" />
+                  Skin
+                </h3>
+                {productsByCategory.Skin.length === 0 ? (
+                  <p className="text-sm text-gray-400 italic">No products</p>
+                ) : (
+                  productsByCategory.Skin.map((product, index) => (
+                    <div key={product.id} className="bg-white rounded-lg p-4 border border-gray-200 hover:border-pink-300 transition-colors">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1 min-w-0">
+                          <div className="text-xs font-medium text-pink-600 mb-1">{product.category}</div>
+                          <h4 className="text-sm font-semibold text-gray-900 mb-1 truncate">{product.name}</h4>
+                          {product.shade && (
+                            <p className="text-xs text-gray-500">{product.shade}</p>
+                          )}
+                        </div>
+                        <span className="text-xs font-medium text-gray-400 ml-2 flex-shrink-0">{index + 1}</span>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+
+              {/* Lips Column */}
+              <div className="space-y-3">
+                <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2 pb-2 border-b-2 border-rose-300">
+                  <Palette className="w-5 h-5 text-rose-600" />
+                  Lips
+                </h3>
+                {productsByCategory.Lips.length === 0 ? (
+                  <p className="text-sm text-gray-400 italic">No products</p>
+                ) : (
+                  productsByCategory.Lips.map((product, index) => (
+                    <div key={product.id} className="bg-white rounded-lg p-4 border border-gray-200 hover:border-rose-300 transition-colors">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1 min-w-0">
+                          <div className="text-xs font-medium text-rose-600 mb-1">{product.category}</div>
+                          <h4 className="text-sm font-semibold text-gray-900 mb-1 truncate">{product.name}</h4>
+                          {product.shade && (
+                            <p className="text-xs text-gray-500">{product.shade}</p>
+                          )}
+                        </div>
+                        <span className="text-xs font-medium text-gray-400 ml-2 flex-shrink-0">{index + 1}</span>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+
+              {/* Body Column */}
+              <div className="space-y-3">
+                <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2 pb-2 border-b-2 border-amber-300">
+                  <Sparkles className="w-5 h-5 text-amber-600" />
+                  Body
+                </h3>
+                {productsByCategory.Body.length === 0 ? (
+                  <p className="text-sm text-gray-400 italic">No products</p>
+                ) : (
+                  productsByCategory.Body.map((product, index) => (
+                    <div key={product.id} className="bg-white rounded-lg p-4 border border-gray-200 hover:border-amber-300 transition-colors">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1 min-w-0">
+                          <div className="text-xs font-medium text-amber-600 mb-1">{product.category}</div>
+                          <h4 className="text-sm font-semibold text-gray-900 mb-1 truncate">{product.name}</h4>
+                          {product.shade && (
+                            <p className="text-xs text-gray-500">{product.shade}</p>
+                          )}
+                        </div>
+                        <span className="text-xs font-medium text-gray-400 ml-2 flex-shrink-0">{index + 1}</span>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
             </div>
           )}
         </div>
-
-        {/* Content */}
-        {view === "routine" ? (
-          <div className="space-y-3">
-            {makeupProducts.length === 0 ? (
-              <div className="text-center py-12">
-                <Sparkles className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">
-                  No makeup products for {timeOfDay}
-                </h3>
-                <p className="text-gray-500">
-                  Add products to start building your makeup routine
-                </p>
-              </div>
-            ) : (
-              makeupProducts.map((product, index) => (
-                <ProductCard
-                  key={product.id}
-                  product={product}
-                  isCompleted={completionState[product.id] || false}
-                  onToggleComplete={() => handleToggleComplete(product.id)}
-                  onEdit={() => handleEdit(product.id)}
-                  index={index}
-                  theme={PRODUCT_CARD_THEMES.makeup}
-                  variant="makeup"
-                />
-              ))
-            )}
-          </div>
-        ) : (
-          <MakeupWeekView
-            products={makeupProducts}
-            completionState={completionState}
-            onToggleComplete={handleToggleComplete}
-          />
-        )}
       </div>
     </div>
   );

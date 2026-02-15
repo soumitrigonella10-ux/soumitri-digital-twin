@@ -31,9 +31,9 @@ function BodyPageContent() {
         activeColorClass="bg-blue-100 text-blue-700"
       />
 
-      {/* Dual-Column Routine Board */}
+      {/* Triple-Column Routine Board */}
       <div className="pb-6">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <RoutineColumn
             title="Morning"
             icon={Sun}
@@ -41,13 +41,16 @@ function BodyPageContent() {
             progressRingColorClass="text-amber-500"
             progressBarColorClass="bg-amber-500"
             progress={routine.morningProgress}
-            products={routine.morningProducts}
+            products={routine.morningProducts.filter((p) => 
+              !['Shave', 'Post Shave', 'Healing'].includes(p.category)
+            )}
             completedProducts={routine.completedProducts}
             onToggleComplete={routine.toggleProductCompletion}
             onEdit={routine.handleEditStart}
             theme={PRODUCT_CARD_THEMES.body}
             emptyIcon={Droplets}
             emptyMessage="No morning products"
+            variant="compact"
           />
           <RoutineColumn
             title="Evening"
@@ -63,6 +66,40 @@ function BodyPageContent() {
             theme={PRODUCT_CARD_THEMES.body}
             emptyIcon={Droplets}
             emptyMessage="No evening products"
+            variant="compact"
+          />
+          <RoutineColumn
+            title="Shaving"
+            icon={Droplets}
+            iconColorClass="text-blue-500"
+            progressRingColorClass="text-blue-500"
+            progressBarColorClass="bg-blue-500"
+            progress={
+              routine.morningProducts.filter((p) => 
+                ['Shave', 'Post Shave', 'Healing'].includes(p.category)
+              ).length > 0
+                ? Math.round(
+                    (routine.morningProducts.filter((p) => 
+                      ['Shave', 'Post Shave', 'Healing'].includes(p.category) &&
+                      routine.completedProducts.has(p.id)
+                    ).length /
+                      routine.morningProducts.filter((p) => 
+                        ['Shave', 'Post Shave', 'Healing'].includes(p.category)
+                      ).length) *
+                      100
+                  )
+                : 0
+            }
+            products={routine.morningProducts.filter((p) => 
+              ['Shave', 'Post Shave', 'Healing'].includes(p.category)
+            )}
+            completedProducts={routine.completedProducts}
+            onToggleComplete={routine.toggleProductCompletion}
+            onEdit={routine.handleEditStart}
+            theme={PRODUCT_CARD_THEMES.body}
+            emptyIcon={Droplets}
+            emptyMessage="No shaving products"
+            variant="compact"
           />
         </div>
       </div>

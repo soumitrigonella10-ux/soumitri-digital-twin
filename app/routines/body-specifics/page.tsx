@@ -29,14 +29,46 @@ function BodySpecificsPageContent() {
     [activeAreaFilter]
   );
 
+  // Deduplicate products by name when viewing "ALL" areas
+  const deduplicateProducts = useCallback((products: Product[]): Product[] => {
+    if (activeAreaFilter !== "ALL") return products;
+    
+    const productMap = new Map<string, Product>();
+    
+    products.forEach((product) => {
+      const existing = productMap.get(product.name);
+      if (existing) {
+        // Merge body areas and weekdays
+        const mergedBodyAreas = Array.from(
+          new Set([...(existing.bodyAreas || []), ...(product.bodyAreas || [])])
+        );
+        const mergedWeekdays = Array.from(
+          new Set([...(existing.weekdays || []), ...(product.weekdays || [])])
+        ).sort();
+        
+        productMap.set(product.name, {
+          ...existing,
+          bodyAreas: mergedBodyAreas,
+          weekdays: mergedWeekdays,
+        });
+      } else {
+        productMap.set(product.name, product);
+      }
+    });
+    
+    return Array.from(productMap.values()).sort(
+      (a, b) => (a.displayOrder ?? 999) - (b.displayOrder ?? 999)
+    );
+  }, [activeAreaFilter]);
+
   const morningProducts = useMemo(
-    () => applyAreaFilter(routine.morningProducts),
-    [routine.morningProducts, applyAreaFilter]
+    () => deduplicateProducts(applyAreaFilter(routine.morningProducts)),
+    [routine.morningProducts, applyAreaFilter, deduplicateProducts]
   );
 
   const eveningProducts = useMemo(
-    () => applyAreaFilter(routine.eveningProducts),
-    [routine.eveningProducts, applyAreaFilter]
+    () => deduplicateProducts(applyAreaFilter(routine.eveningProducts)),
+    [routine.eveningProducts, applyAreaFilter, deduplicateProducts]
   );
 
   // Recompute progress for area-filtered products
@@ -66,8 +98,8 @@ function BodySpecificsPageContent() {
           : undefined,
         additionalMetadata:
           product.bodyAreas && product.bodyAreas.length > 0 ? (
-            <div className="flex gap-1">
-              {product.bodyAreas.slice(0, 2).map((area, idx) => {
+            <div className="flex gap-1 flex-wrap">
+              {product.bodyAreas.map((area, idx) => {
                 const areaKey = area as keyof typeof BODY_AREAS;
                 const config = BODY_AREAS[areaKey] || BODY_AREAS.OTHER;
                 return (

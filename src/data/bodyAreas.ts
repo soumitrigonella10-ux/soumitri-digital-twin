@@ -34,40 +34,22 @@ export const BODY_AREAS = {
     glowColor: "ring-purple-300",
     impactZone: "Intimate/private area",
   },
-  B: {
-    name: "B",
-    fullName: "Belly/Stomach",
+  "B&S": {
+    name: "B&S",
+    fullName: "Butt & Stomach",
     color: "bg-green-50 text-green-700",
     border: "border-green-200",
     glowColor: "ring-green-300",
-    impactZone: "Abdomen, stomach area",
-  },
-  LIPS: {
-    name: "Lips",
-    fullName: "Lips",
-    color: "bg-red-50 text-red-700",
-    border: "border-red-200",
-    glowColor: "ring-red-300",
-    impactZone: "Lip area, mouth",
-  },
-  OTHER: {
-    name: "Other",
-    fullName: "Other Areas",
-    color: "bg-gray-50 text-gray-600",
-    border: "border-gray-200",
-    glowColor: "ring-gray-300",
-    impactZone: "Various areas",
+    impactZone: "Buttocks and stomach area",
   },
 } as const;
 
 /** Determine a product's primary body area for grouping */
 export function getProductArea(product: Product): keyof typeof BODY_AREAS {
-  if (product.category === "Lip Care") return "LIPS";
-  if (!product.bodyAreas || product.bodyAreas.length === 0) return "OTHER";
-  if (product.bodyAreas.includes("UA")) return "UA";
-  if (product.bodyAreas.includes("B")) return "B";
-  if (product.bodyAreas.includes("IT")) return "IT";
-  if (product.bodyAreas.includes("BL")) return "BL";
-  if (product.bodyAreas.includes("IA")) return "IA";
-  return "OTHER";
+  if (product.bodyAreas?.includes("UA")) return "UA";
+  if (product.bodyAreas?.includes("B&S")) return "B&S";
+  if (product.bodyAreas?.includes("IT")) return "IT";
+  if (product.bodyAreas?.includes("BL")) return "BL";
+  if (product.bodyAreas?.includes("IA")) return "IA";
+  return "UA"; // Default fallback
 }

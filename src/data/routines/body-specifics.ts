@@ -41,9 +41,9 @@ export const bodySpecificsRoutines: Routine[] = [
       },
       {
         order: 5,
-        title: "B (Buttocks) Care",
+        title: "B&S (Butt & Stomach) Care",
         durationMin: 3,
-        bodyAreas: ["B"],
+        bodyAreas: ["B&S"],
       },
     ],
   },

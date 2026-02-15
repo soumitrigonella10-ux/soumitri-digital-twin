@@ -23,7 +23,15 @@ function TodayContent() {
 
   const [mounted, setMounted] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
-  const [activeTimeSection, setActiveTimeSection] = useState<TimeOfDay | "ALL">("ALL");
+  
+  const getCurrentTimePeriod = useCallback((): TimeOfDay => {
+    const hour = new Date().getHours();
+    if (hour >= 5 && hour < 12) return "AM";
+    if (hour >= 12 && hour < 17) return "MIDDAY";
+    return "PM";
+  }, []);
+  
+  const [activeTimeSection, setActiveTimeSection] = useState<TimeOfDay>(getCurrentTimePeriod);
   const [activeTabs, setActiveTabs] = useState<{ AM: string; MIDDAY: string; PM: string }>({
     AM: "breakfast",
     MIDDAY: "lunch",
@@ -39,13 +47,6 @@ function TodayContent() {
   const today = new Date();
   const dayOfWeek = getDay(today);
   const dateKey = format(today, "yyyy-MM-dd");
-  const currentHour = currentTime.getHours();
-
-  const getCurrentTimePeriod = (): TimeOfDay => {
-    if (currentHour >= 5 && currentHour < 12) return "AM";
-    if (currentHour >= 12 && currentHour < 17) return "MIDDAY";
-    return "PM";
-  };
   const currentTimePeriod = getCurrentTimePeriod();
 
   const setActiveTab = useCallback((timePeriod: TimeOfDay, tab: string) => {
@@ -124,25 +125,14 @@ function TodayContent() {
               {time === "MIDDAY" && <Sun className="w-4 h-4" />}
               {time === "PM" && <Moon className="w-4 h-4" />}
               {time === "MIDDAY" ? "Midday" : time}
-              {time === currentTimePeriod && <Activity className="w-3 h-3" />}
+          {time === currentTimePeriod && <Activity className="w-3 h-3" />}
             </button>
           ))}
-          <button
-            onClick={() => setActiveTimeSection("ALL")}
-            className={cn(
-              "flex-shrink-0 px-3 sm:px-4 py-2 rounded-xl text-sm font-medium transition-all flex items-center gap-1.5 border-2",
-              activeTimeSection === "ALL"
-                ? "bg-gray-800 text-white border-gray-800"
-                : "bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100"
-            )}
-          >
-            All
-          </button>
         </div>
       </header>
 
       {/* AM Section */}
-      {(activeTimeSection === "AM" || activeTimeSection === "ALL") && (
+      {activeTimeSection === "AM" && (
         <TimeSection
           timeOfDay="AM"
           activeTab={activeTabs.AM}
@@ -152,7 +142,7 @@ function TodayContent() {
       )}
 
       {/* MIDDAY Section */}
-      {(activeTimeSection === "MIDDAY" || activeTimeSection === "ALL") && (
+      {activeTimeSection === "MIDDAY" && (
         <TimeSection
           timeOfDay="MIDDAY"
           activeTab={activeTabs.MIDDAY}
@@ -162,7 +152,7 @@ function TodayContent() {
       )}
 
       {/* PM Section */}
-      {(activeTimeSection === "PM" || activeTimeSection === "ALL") && (
+      {activeTimeSection === "PM" && (
         <TimeSection
           timeOfDay="PM"
           activeTab={activeTabs.PM}
