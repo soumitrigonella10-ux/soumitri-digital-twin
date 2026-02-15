@@ -42,7 +42,7 @@ function WardrobePageContent() {
     const types = new Set(data.wardrobe
       .filter(item => item.subcategory === "Seasonals")
       .map(item => item.subType)
-      .filter(Boolean)
+      .filter((t): t is string => Boolean(t))
     );
     
     return Array.from(types);
