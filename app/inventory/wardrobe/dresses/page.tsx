@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import Image from "next/image";
-import { Shirt, Plus, X } from "lucide-react";
+import { Shirt, X } from "lucide-react";
 import { useAppStore } from "@/store/useAppStore";
 import { WardrobeItem } from "@/types";
 import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
@@ -55,23 +55,13 @@ function DressesPageContent() {
                       alt={item.name}
                       fill
                       sizes="(max-width: 768px) 50vw, 20vw"
-                      className="object-cover"
+                      className="object-contain"
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">
                       <Shirt className="w-12 h-12 text-gray-300" />
                     </div>
                   )}
-                </div>
-                <div className="p-3">
-                  <p className="font-medium text-gray-900 text-sm truncate">{item.name}</p>
-                  <div className="flex flex-wrap gap-1 mt-1.5">
-                    {item.colors.slice(0, 2).map((color) => (
-                      <span key={color} className="px-1.5 py-0.5 bg-gray-100 rounded text-xs text-gray-500">
-                        {color}
-                      </span>
-                    ))}
-                  </div>
                 </div>
               </div>
             ))}
@@ -85,11 +75,6 @@ function DressesPageContent() {
           </div>
         )}
       </div>
-
-      <button className="add-button-dashed w-full py-6">
-        <Plus className="w-5 h-5" />
-        <span>Add Dress</span>
-      </button>
 
       {selectedItem && (
         <div

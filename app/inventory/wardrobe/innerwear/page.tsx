@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import Image from "next/image";
-import { Shirt, Plus, X } from "lucide-react";
+import { Shirt, X } from "lucide-react";
 import { useAppStore } from "@/store/useAppStore";
 import { WardrobeItem } from "@/types";
 import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
@@ -63,16 +63,6 @@ function InnerwearPageContent() {
                     </div>
                   )}
                 </div>
-                <div className="p-3">
-                  <p className="font-medium text-gray-900 text-sm truncate">{item.name}</p>
-                  <div className="flex flex-wrap gap-1 mt-1.5">
-                    {item.colors.slice(0, 2).map((color) => (
-                      <span key={color} className="px-1.5 py-0.5 bg-gray-100 rounded text-xs text-gray-500">
-                        {color}
-                      </span>
-                    ))}
-                  </div>
-                </div>
               </div>
             ))}
           </div>
@@ -85,11 +75,6 @@ function InnerwearPageContent() {
           </div>
         )}
       </div>
-
-      <button className="add-button-dashed w-full py-6">
-        <Plus className="w-5 h-5" />
-        <span>Add Innerwear</span>
-      </button>
 
       {selectedItem && (
         <div

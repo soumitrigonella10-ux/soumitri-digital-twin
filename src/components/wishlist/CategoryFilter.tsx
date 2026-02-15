@@ -5,8 +5,8 @@ import { WishlistCategory } from "@/types";
 import { cn } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-const CATEGORIES: (WishlistCategory | "All")[] = [
-  "All", "Tops", "Bottoms", "Dresses", "Outerwear", "Shoes", "Jewellery",
+const CATEGORIES: WishlistCategory[] = [
+  "Tops", "Bottoms", "Dresses", "Outerwear", "Suits", "Bags", "Shoes", "Jewellery", "Things",
 ];
 
 interface CategoryFilterProps {

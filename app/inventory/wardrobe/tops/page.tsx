@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Image from "next/image";
-import { Shirt, Plus, X } from "lucide-react";
+import { Shirt, X } from "lucide-react";
 import { useAppStore } from "@/store/useAppStore";
 import { WardrobeItem } from "@/types";
 import { cn } from "@/lib/utils";
@@ -52,7 +52,7 @@ function TopsPageContent() {
   }, [groupedByOccasion]);
 
   // Set active tab to first available tab on load
-  useMemo(() => {
+  useEffect(() => {
     if (tabs.length > 0 && !tabs.includes(activeTab)) {
       const firstTab = tabs[0];
       if (firstTab) setActiveTab(firstTab);
@@ -145,12 +145,6 @@ function TopsPageContent() {
           </div>
         )}
       </div>
-
-      {/* Add New Item Button */}
-      <button className="add-button-dashed w-full py-6">
-        <Plus className="w-5 h-5" />
-        <span>Add Top</span>
-      </button>
 
       {/* Item Detail Modal */}
       {selectedItem && (

@@ -11,13 +11,42 @@ import { cn } from "@/lib/utils";
 function WardrobePageContent() {
   const { data } = useAppStore();
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
+  const [selectedSubcategory, setSelectedSubcategory] = useState<string | null>(null);
+  const [selectedSeasonalType, setSelectedSeasonalType] = useState<string | null>(null);
   const [selectedItem, setSelectedItem] = useState<WardrobeItem | null>(null);
 
-  // Get unique categories and occasions
+  // Get unique categories
   const categories = useMemo(() => {
     const cats = new Set(data.wardrobe.map((w) => w.category));
     return ["All", ...Array.from(cats)];
   }, [data.wardrobe]);
+
+  // Get subcategories for the selected category
+  const subcategories = useMemo(() => {
+    if (selectedCategory !== "Top") return [];
+    
+    // Get unique subcategories for tops
+    const subcats = new Set(data.wardrobe
+      .filter(item => item.category === "Top")
+      .map(item => item.subcategory)
+      .filter(Boolean)
+    );
+    
+    return Array.from(subcats);
+  }, [data.wardrobe, selectedCategory]);
+
+  // Get seasonal types (Summer/Winter) when Seasonals is selected
+  const seasonalTypes = useMemo(() => {
+    if (selectedSubcategory !== "Seasonals") return [];
+    
+    const types = new Set(data.wardrobe
+      .filter(item => item.subcategory === "Seasonals")
+      .map(item => item.subType)
+      .filter(Boolean)
+    );
+    
+    return Array.from(types);
+  }, [data.wardrobe, selectedSubcategory]);
 
   // Filter items
   const filteredItems = useMemo(() => {
@@ -25,16 +54,30 @@ function WardrobePageContent() {
 
     if (selectedCategory !== "All") {
       items = items.filter((i) => i.category === selectedCategory);
+      
+      if (selectedSubcategory) {
+        items = items.filter((i) => i.subcategory === selectedSubcategory);
+        
+        if (selectedSeasonalType) {
+          items = items.filter((i) => i.subType === selectedSeasonalType);
+        }
+      }
     }
 
     return items;
-  }, [data.wardrobe, selectedCategory]);
+  }, [data.wardrobe, selectedCategory, selectedSubcategory, selectedSeasonalType]);
 
   // Group by category for display
   const groupedItems = useMemo(() => {
-    if (selectedCategory !== "All") {
+    if (selectedSeasonalType) {
+      // Show only the selected seasonal type
+      return { [selectedSeasonalType]: filteredItems };
+    } else if (selectedSubcategory && selectedSubcategory !== "Seasonals") {
+      return { [selectedSubcategory]: filteredItems };
+    } else if (selectedCategory !== "All" && !selectedSubcategory) {
       return { [selectedCategory]: filteredItems };
     }
+    
     return filteredItems.reduce((acc, item) => {
       if (!acc[item.category]) {
         acc[item.category] = [];
@@ -42,7 +85,7 @@ function WardrobePageContent() {
       acc[item.category]!.push(item);
       return acc;
     }, {} as Record<string, WardrobeItem[]>);
-  }, [filteredItems, selectedCategory]);
+  }, [filteredItems, selectedCategory, selectedSubcategory, selectedSeasonalType]);
 
   return (
     <div className="space-y-8">
@@ -62,16 +105,20 @@ function WardrobePageContent() {
       </header>
 
       {/* Filters */}
-      <div className="flex flex-wrap gap-3">
+      <div className="flex flex-col gap-3">
         {/* Category Pills */}
         <div className="flex flex-wrap gap-2">
           {categories.map((cat) => (
             <button
               key={cat}
-              onClick={() => setSelectedCategory(cat)}
+              onClick={() => {
+                setSelectedCategory(cat);
+                setSelectedSubcategory(null); // Clear subcategory when selecting category
+                setSelectedSeasonalType(null); // Clear seasonal type
+              }}
               className={cn(
                 "px-3 py-1.5 rounded-xl text-sm font-medium transition-all",
-                selectedCategory === cat
+                selectedCategory === cat && !selectedSubcategory
                   ? "bg-orange-100 text-orange-700"
                   : "bg-gray-100 text-gray-600 hover:bg-gray-200"
               )}
@@ -81,6 +128,70 @@ function WardrobePageContent() {
           ))}
         </div>
 
+        {/* Subcategory Pills for Tops*/}
+        {selectedCategory === "Top" && subcategories.length > 0 && (
+          <div className="flex flex-wrap gap-2 pl-4 border-l-2 border-orange-200">
+            <span className="text-sm font-medium text-gray-500 self-center px-2">Sections:</span>
+            {subcategories.map((subcat) => {
+              const itemCount = data.wardrobe.filter(item => 
+                item.category === "Top" && item.subcategory === subcat
+              ).length;
+              
+              return (
+                <button
+                  key={subcat}
+                  onClick={() => {
+                    setSelectedSubcategory(subcat);
+                    setSelectedSeasonalType(null); // Clear seasonal type when selecting new subcategory
+                  }}
+                  className={cn(
+                    "px-3 py-1.5 rounded-xl text-sm font-medium transition-all",
+                    selectedSubcategory === subcat
+                      ? subcat === "Seasonals"
+                        ? "bg-green-100 text-green-700"
+                        : "bg-orange-100 text-orange-700"
+                      : subcat === "Seasonals"
+                        ? "bg-green-50 text-green-600 hover:bg-green-100"
+                        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  )}
+                >
+                  {subcat} ({itemCount})
+                </button>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Seasonal Type Pills (Summer/Winter) when Seasonals is selected */}
+        {selectedSubcategory === "Seasonals" && seasonalTypes.length > 0 && (
+          <div className="flex flex-wrap gap-2 pl-8 border-l-2 border-green-200">
+            <span className="text-sm font-medium text-gray-500 self-center px-2">Season:</span>
+            {seasonalTypes.map((seasonType) => {
+              const itemCount = data.wardrobe.filter(item => 
+                item.subcategory === "Seasonals" && item.subType === seasonType
+              ).length;
+              
+              return (
+                <button
+                  key={seasonType}
+                  onClick={() => setSelectedSeasonalType(seasonType)}
+                  className={cn(
+                    "px-3 py-1.5 rounded-xl text-sm font-medium transition-all",
+                    selectedSeasonalType === seasonType
+                      ? seasonType === "Summer"
+                        ? "bg-yellow-100 text-yellow-700"
+                        : "bg-blue-100 text-blue-700"
+                      : seasonType === "Summer"
+                        ? "bg-yellow-50 text-yellow-600 hover:bg-yellow-100"
+                        : "bg-blue-50 text-blue-600 hover:bg-blue-100"
+                  )}
+                >
+                  {seasonType} ({itemCount})
+                </button>
+              );
+            })}
+          </div>
+        )}
 
       </div>
 

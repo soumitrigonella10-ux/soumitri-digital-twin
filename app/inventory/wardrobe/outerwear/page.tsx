@@ -2,13 +2,18 @@
 
 import { useState, useMemo } from "react";
 import Image from "next/image";
-import { Shirt, Plus, X } from "lucide-react";
+import { Shirt, X } from "lucide-react";
 import { useAppStore } from "@/store/useAppStore";
 import { WardrobeItem } from "@/types";
+import { cn } from "@/lib/utils";
 import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
+
+const TABS = ["Good ones", "Outer Ethnic", "Outer warm"] as const;
+type OuterwearTab = (typeof TABS)[number];
 
 function OuterwearPageContent() {
   const { data } = useAppStore();
+  const [activeTab, setActiveTab] = useState<OuterwearTab>("Good ones");
   const [selectedItem, setSelectedItem] = useState<WardrobeItem | null>(null);
 
   // Filter for outerwear only
@@ -16,8 +21,20 @@ function OuterwearPageContent() {
     return data.wardrobe.filter((item) => item.category === "Outerwear");
   }, [data.wardrobe]);
 
-  // No additional filtering needed since properties don't exist
-  const filteredItems = outerwearItems;
+  // Items for the active tab
+  const filteredItems = useMemo(() => {
+    return outerwearItems.filter((item) => item.subType === activeTab);
+  }, [outerwearItems, activeTab]);
+
+  // Count per tab
+  const tabCounts = useMemo(() => {
+    const counts: Record<OuterwearTab, number> = { "Good ones": 0, "Outer Ethnic": 0, "Outer warm": 0 };
+    outerwearItems.forEach((item) => {
+      const tab = item.subType as OuterwearTab;
+      if (tab in counts) counts[tab]++;
+    });
+    return counts;
+  }, [outerwearItems]);
 
   return (
     <div className="space-y-8">
@@ -36,7 +53,27 @@ function OuterwearPageContent() {
         </div>
       </header>
 
-      {/* No filters needed - simplified wardrobe items */}
+      {/* Tabs */}
+      <div className="flex gap-2 border-b border-gray-200">
+        {TABS.map((tab) => (
+          <button
+            key={tab}
+            onClick={() => setActiveTab(tab)}
+            className={cn(
+              "px-4 py-2.5 text-sm font-medium transition-all relative",
+              activeTab === tab
+                ? "text-orange-700"
+                : "text-gray-500 hover:text-gray-700"
+            )}
+          >
+            {tab}
+            <span className="ml-1.5 text-xs text-gray-400">{tabCounts[tab]}</span>
+            {activeTab === tab && (
+              <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-orange-500 rounded-t" />
+            )}
+          </button>
+        ))}
+      </div>
 
       {/* Items Grid */}
       <div className="space-y-8">
@@ -55,23 +92,13 @@ function OuterwearPageContent() {
                       alt={item.name}
                       fill
                       sizes="(max-width: 768px) 50vw, 20vw"
-                      className="object-cover"
+                      className="object-contain"
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">
                       <Shirt className="w-12 h-12 text-gray-300" />
                     </div>
                   )}
-                </div>
-                <div className="p-3">
-                  <p className="font-medium text-gray-900 text-sm truncate">{item.name}</p>
-                  <div className="flex flex-wrap gap-1 mt-1.5">
-                    {item.colors.slice(0, 2).map((color) => (
-                      <span key={color} className="px-1.5 py-0.5 bg-gray-100 rounded text-xs text-gray-500">
-                        {color}
-                      </span>
-                    ))}
-                  </div>
                 </div>
               </div>
             ))}
@@ -81,15 +108,10 @@ function OuterwearPageContent() {
         {filteredItems.length === 0 && (
           <div className="text-center py-12 text-gray-500">
             <Shirt className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-            <p>No outerwear matches your filters</p>
+            <p>No {activeTab.toLowerCase()} items found</p>
           </div>
         )}
       </div>
-
-      <button className="add-button-dashed w-full py-6">
-        <Plus className="w-5 h-5" />
-        <span>Add Outerwear</span>
-      </button>
 
       {selectedItem && (
         <div
@@ -102,7 +124,7 @@ function OuterwearPageContent() {
           >
             <div className="aspect-square bg-gray-100 relative">
               {selectedItem.imageUrl ? (
-                <Image src={selectedItem.imageUrl} alt={selectedItem.name} fill sizes="(max-width: 768px) 100vw, 448px" className="object-cover" />
+                <Image src={selectedItem.imageUrl} alt={selectedItem.name} fill sizes="(max-width: 768px) 100vw, 448px" className="object-contain" />
               ) : (
                 <div className="w-full h-full flex items-center justify-center">
                   <Shirt className="w-24 h-24 text-gray-300" />

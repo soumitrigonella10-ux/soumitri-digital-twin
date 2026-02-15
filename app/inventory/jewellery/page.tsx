@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { Gem, Plus, Heart, X } from "lucide-react";
+import { Gem, Heart, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
 
@@ -134,14 +134,6 @@ function JewelleryPageContent() {
                 </div>
               )}
             </div>
-
-            {/* Info */}
-            <div className="p-3">
-              <p className="font-medium text-gray-900 text-sm truncate">
-                {item.name}
-              </p>
-              <p className="text-xs text-gray-500 mt-0.5">{item.material}</p>
-            </div>
           </div>
         ))}
       </div>
@@ -152,12 +144,6 @@ function JewelleryPageContent() {
           <p>No jewellery in this category</p>
         </div>
       )}
-
-      {/* Add New Item Button */}
-      <button className="add-button-dashed w-full py-6">
-        <Plus className="w-5 h-5" />
-        <span>Add Jewellery Piece</span>
-      </button>
 
       {/* Item Detail Modal */}
       {selectedItem && (

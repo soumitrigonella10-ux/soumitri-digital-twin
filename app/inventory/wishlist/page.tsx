@@ -17,13 +17,10 @@ import {
 
 // --- Hooks -------------------------------------------------
 function useWishlistFilters(wishlist: WishlistItem[]) {
-  const [selectedCategory, setSelectedCategory] = useState<string>("All");
+  const [selectedCategory, setSelectedCategory] = useState<string>("Tops");
 
   const filteredItems = useMemo(() => {
-    let items = [...wishlist];
-    if (selectedCategory !== "All") {
-      items = items.filter((item) => item.category === selectedCategory);
-    }
+    let items = wishlist.filter((item) => item.category === selectedCategory);
     const priorityOrder = { High: 3, Medium: 2, Low: 1 };
     items.sort((a, b) => {
       const pA = priorityOrder[a.priority || "Medium"];
@@ -35,14 +32,7 @@ function useWishlistFilters(wishlist: WishlistItem[]) {
   }, [wishlist, selectedCategory]);
 
   const groupedItems = useMemo(() => {
-    if (selectedCategory !== "All") return { [selectedCategory]: filteredItems };
-    return filteredItems.reduce(
-      (acc, item) => {
-        (acc[item.category] ??= []).push(item);
-        return acc;
-      },
-      {} as Record<string, WishlistItem[]>
-    );
+    return { [selectedCategory]: filteredItems };
   }, [filteredItems, selectedCategory]);
 
   return { selectedCategory, setSelectedCategory, filteredItems, groupedItems };
@@ -109,9 +99,7 @@ export default function WishlistPage() {
           emptyMessage={
             session
               ? "Add some items to your wishlist to get started!"
-              : selectedCategory === "All"
-                ? "No wishlist items available yet."
-                : `No ${selectedCategory.toLowerCase()} items found.`
+              : `No ${selectedCategory.toLowerCase()} items found.`
           }
         />
       </div>

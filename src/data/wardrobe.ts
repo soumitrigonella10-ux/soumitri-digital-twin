@@ -347,6 +347,124 @@ export const wardrobe: WardrobeItem[] = [
   },
 
   // ========================================
+  // TOPS - SEASONALS
+  // ========================================
+  
+  // SUMMER TOPS
+  {
+    id: "w-seasonal-summer-1",
+    name: "Summer Light Tee",
+    category: "Top",
+    subcategory: "Seasonals",
+    styleType: "Seasonals",
+    subType: "Summer",
+    imageUrl: "/images/products/seasonals/summer1.png",
+    colors: ["Light"],
+  },
+  {
+    id: "w-seasonal-summer-2",
+    name: "Flowy Summer Top",
+    category: "Top",
+    subcategory: "Seasonals",
+    styleType: "Seasonals",
+    subType: "Summer",
+    imageUrl: "/images/products/seasonals/summer2.png",
+    colors: ["Light"],
+  },
+  {
+    id: "w-seasonal-summer-3",
+    name: "Breathable Summer Blouse",
+    category: "Top",
+    subcategory: "Seasonals",
+    styleType: "Seasonals",
+    subType: "Summer",
+    imageUrl: "/images/products/seasonals/summer3.png",
+    colors: ["Light"],
+  },
+  {
+    id: "w-seasonal-summer-4", 
+    name: "Linen Summer Top",
+    category: "Top",
+    subcategory: "Seasonals",
+    styleType: "Seasonals",
+    subType: "Summer",
+    imageUrl: "/images/products/seasonals/summer4.png",
+    colors: ["Light"],
+  },
+  {
+    id: "w-seasonal-summer-5",
+    name: "Cotton Summer Shirt",
+    category: "Top", 
+    subcategory: "Seasonals",
+    styleType: "Seasonals",
+    subType: "Summer",
+    imageUrl: "/images/products/seasonals/summer5.png",
+    colors: ["Light"],
+  },
+  {
+    id: "w-seasonal-summer-6",
+    name: "Airy Summer Top",
+    category: "Top",
+    subcategory: "Seasonals", 
+    styleType: "Seasonals",
+    subType: "Summer",
+    imageUrl: "/images/products/seasonals/summer6.png",
+    colors: ["Light"],
+  },
+
+  // WINTER TOPS
+  {
+    id: "w-seasonal-winter-1",
+    name: "Cozy Knit Sweater",
+    category: "Top",
+    subcategory: "Seasonals",
+    styleType: "Seasonals",
+    subType: "Winter",
+    imageUrl: "/images/products/seasonals/sweater1.png",
+    colors: ["Warm"],
+  },
+  {
+    id: "w-seasonal-winter-2", 
+    name: "Warm Pullover",
+    category: "Top",
+    subcategory: "Seasonals",
+    styleType: "Seasonals", 
+    subType: "Winter",
+    imageUrl: "/images/products/seasonals/sweater2.png",
+    colors: ["Warm"],
+  },
+  {
+    id: "w-seasonal-winter-3",
+    name: "Cable Knit Sweater",
+    category: "Top",
+    subcategory: "Seasonals",
+    styleType: "Seasonals",
+    subType: "Winter", 
+    imageUrl: "/images/products/seasonals/sweater3.png",
+    colors: ["Warm"],
+  },
+  {
+    id: "w-seasonal-winter-4",
+    name: "Wool Blend Top",
+    category: "Top",
+    subcategory: "Seasonals",
+    styleType: "Seasonals",
+    subType: "Winter",
+    imageUrl: "/images/products/seasonals/sweater4.png", 
+    colors: ["Warm"],
+  },
+  {
+    id: "w-seasonal-winter-5",
+    name: "Thick Knit Sweater",
+    category: "Top",
+    subcategory: "Seasonals", 
+    styleType: "Seasonals",
+    subType: "Winter",
+    imageUrl: "/images/products/seasonals/sweater5.png",
+    colors: ["Warm"],
+  },
+
+  // ========================================
   // BOTTOMS - BASICS
   // ========================================
   {
@@ -517,14 +635,14 @@ export const wardrobe: WardrobeItem[] = [
   },
 
   // ========================================
-  // BOTTOMS - SEASONALS (SKIRTS)
+  // BOTTOMS - SKIRTS CASUAL
   // ========================================
   {
     id: "w-seasonal-skirt-1",
     name: "Skirt 1",
     category: "Bottom",
     styleType: "Seasonals",
-    subType: "Summer",
+    subType: "Skirt Casual",
     imageUrl: "/images/products/bottonwear/skirt1.png",
     colors: ["Multi"],
   },
@@ -533,7 +651,7 @@ export const wardrobe: WardrobeItem[] = [
     name: "Skirt 2",
     category: "Bottom",
     styleType: "Seasonals",
-    subType: "Summer",
+    subType: "Skirt Casual",
     imageUrl: "/images/products/bottonwear/skirt2.png",
     colors: ["Multi"],
   },
@@ -542,16 +660,20 @@ export const wardrobe: WardrobeItem[] = [
     name: "Skirt 3",
     category: "Bottom",
     styleType: "Seasonals",
-    subType: "Summer",
+    subType: "Skirt Casual",
     imageUrl: "/images/products/bottonwear/skirt3.png",
     colors: ["Multi"],
   },
+
+  // ========================================
+  // BOTTOMS - SKIRTS FORMAL
+  // ========================================
   {
     id: "w-seasonal-skirt-4",
     name: "Skirt 4",
     category: "Bottom",
     styleType: "Seasonals",
-    subType: "Summer",
+    subType: "Skirt Formal",
     imageUrl: "/images/products/bottonwear/skirt4.png",
     colors: ["Multi"],
   },
@@ -560,8 +682,157 @@ export const wardrobe: WardrobeItem[] = [
     name: "Skirt 5",
     category: "Bottom",
     styleType: "Seasonals",
-    subType: "Summer",
+    subType: "Skirt Formal",
     imageUrl: "/images/products/bottonwear/skirt5.png",
     colors: ["Multi"],
+  },
+
+  // ========================================
+  // DRESSES
+  // ========================================
+  {
+    id: "w-dress-casual-1",
+    name: "Casual Dress 1",
+    category: "Dress",
+    subcategory: "Casual",
+    occasion: "Casual",
+    imageUrl: "/images/products/dresses/dress-casual1.png",
+    colors: ["Multi"],
+  },
+  {
+    id: "w-dress-formal-1",
+    name: "Formal Dress 1",
+    category: "Dress",
+    subcategory: "Formal",
+    occasion: "Formal",
+    imageUrl: "/images/products/dresses/dress-formal1.png",
+    colors: ["Neutral"],
+  },
+  {
+    id: "w-dress-formal-2",
+    name: "Formal Dress 2",
+    category: "Dress",
+    subcategory: "Formal",
+    occasion: "Formal",
+    imageUrl: "/images/products/dresses/dress-formal2.png",
+    colors: ["Neutral"],
+  },
+  {
+    id: "w-dress-formal-3",
+    name: "Formal Dress 3",
+    category: "Dress",
+    subcategory: "Formal",
+    occasion: "Formal",
+    imageUrl: "/images/products/dresses/dress-formal3.png",
+    colors: ["Neutral"],
+  },
+  {
+    id: "w-dress-party-1",
+    name: "Party Dress 1",
+    category: "Dress",
+    subcategory: "Party",
+    occasion: "Party",
+    imageUrl: "/images/products/dresses/dress-party1.png",
+    colors: ["Multi"],
+  },
+
+  // ========================================
+  // OUTERWEAR - Good ones
+  // ========================================
+  {
+    id: "w-outerwear-good-1",
+    name: "Outerwear 1",
+    category: "Outerwear",
+    subType: "Good ones",
+    imageUrl: "/images/products/outerwear/ow-out1.png",
+    colors: ["Neutral"],
+  },
+
+  // ========================================
+  // OUTERWEAR - Outer Ethnic
+  // ========================================
+  {
+    id: "w-outerwear-ethnic-1",
+    name: "Ethnic Outer 1",
+    category: "Outerwear",
+    subType: "Outer Ethnic",
+    imageUrl: "/images/products/outerwear/ow-ethnic1.png",
+    colors: ["Multi"],
+  },
+  {
+    id: "w-outerwear-ethnic-2",
+    name: "Ethnic Outer 2",
+    category: "Outerwear",
+    subType: "Outer Ethnic",
+    imageUrl: "/images/products/outerwear/ow-ethnic2.png",
+    colors: ["Multi"],
+  },
+  {
+    id: "w-outerwear-ethnic-3",
+    name: "Ethnic Outer 3",
+    category: "Outerwear",
+    subType: "Outer Ethnic",
+    imageUrl: "/images/products/outerwear/ow-ethnic3.png",
+    colors: ["Multi"],
+  },
+  {
+    id: "w-outerwear-ethnic-4",
+    name: "Ethnic Outer 4",
+    category: "Outerwear",
+    subType: "Outer Ethnic",
+    imageUrl: "/images/products/outerwear/ow-ethnic4.png",
+    colors: ["Multi"],
+  },
+  {
+    id: "w-outerwear-ethnic-5",
+    name: "Ethnic Outer 5",
+    category: "Outerwear",
+    subType: "Outer Ethnic",
+    imageUrl: "/images/products/outerwear/ow-ethnic5.png",
+    colors: ["Multi"],
+  },
+  {
+    id: "w-outerwear-ethnic-6",
+    name: "Ethnic Outer 6",
+    category: "Outerwear",
+    subType: "Outer Ethnic",
+    imageUrl: "/images/products/outerwear/ow-ethnic6.png",
+    colors: ["Multi"],
+  },
+
+  // ========================================
+  // OUTERWEAR - Outer Warm
+  // ========================================
+  {
+    id: "w-outerwear-warm-1",
+    name: "Warm Outer 1",
+    category: "Outerwear",
+    subType: "Outer warm",
+    imageUrl: "/images/products/outerwear/ow-warm1.png",
+    colors: ["Neutral"],
+  },
+  {
+    id: "w-outerwear-warm-2",
+    name: "Warm Outer 2",
+    category: "Outerwear",
+    subType: "Outer warm",
+    imageUrl: "/images/products/outerwear/ow-warm2.png",
+    colors: ["Neutral"],
+  },
+  {
+    id: "w-outerwear-warm-3",
+    name: "Warm Outer 3",
+    category: "Outerwear",
+    subType: "Outer warm",
+    imageUrl: "/images/products/outerwear/ow-warm3.png",
+    colors: ["Neutral"],
+  },
+  {
+    id: "w-outerwear-warm-4",
+    name: "Warm Outer 4",
+    category: "Outerwear",
+    subType: "Outer warm",
+    imageUrl: "/images/products/outerwear/ow-warm4.png",
+    colors: ["Neutral"],
   },
 ];

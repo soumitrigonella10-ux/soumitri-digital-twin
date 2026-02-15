@@ -55,8 +55,11 @@ export type WishlistCategory =
   | "Bottoms" 
   | "Dresses" 
   | "Outerwear" 
+  | "Suits" 
+  | "Bags" 
   | "Shoes" 
-  | "Jewellery";
+  | "Jewellery" 
+  | "Things";
 
 export type ModestyLevel = "Low" | "Medium" | "High";
 export type ComfortLevel = "Low" | "Medium" | "High";

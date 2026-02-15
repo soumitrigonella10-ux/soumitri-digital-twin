@@ -2,44 +2,44 @@
 
 import { useState, useMemo } from "react";
 import Image from "next/image";
-import { Shirt, Plus, X } from "lucide-react";
+import { Shirt, X } from "lucide-react";
 import { useAppStore } from "@/store/useAppStore";
 import { WardrobeItem } from "@/types";
 import { cn } from "@/lib/utils";
 import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
 
+const TABS = ["Jeans", "Trousers", "Skirts Casual", "Skirts Formal"] as const;
+type BottomTab = (typeof TABS)[number];
+
+function classifyItem(item: WardrobeItem): BottomTab {
+  const sub = item.subType?.toLowerCase() ?? "";
+  if (sub === "jeans") return "Jeans";
+  if (sub === "skirt casual") return "Skirts Casual";
+  if (sub === "skirt formal") return "Skirts Formal";
+  return "Trousers";
+}
+
 function BottomsPageContent() {
   const { data } = useAppStore();
-  const [selectedType, setSelectedType] = useState<string>("All");
-  const [selectedSubType, setSelectedSubType] = useState<string>("All");
+  const [activeTab, setActiveTab] = useState<BottomTab>("Jeans");
   const [selectedItem, setSelectedItem] = useState<WardrobeItem | null>(null);
 
-  // Type filter options
-  const typeOptions = ["All", "Basics", "Elevated", "Seasonals"];
-  
-  // Sub-type options for each category
-  const basicsSubTypes = ["All", "Tanks", "Tees", "Full fitted", "Sheer"];
-  const elevatedSubTypes = ["All", "Core Formals", "Semi-fancy", "Fancy", "Casuals", "Ethnic Casuals"];
-  const seasonalsSubTypes = ["All", "Summer", "Winter"];
-
-  // Filter for bottoms only
+  // All bottom items
   const bottomsItems = useMemo(() => {
     return data.wardrobe.filter((item) => item.category === "Bottom");
   }, [data.wardrobe]);
 
-  // Filter items
+  // Items for the active tab
   const filteredItems = useMemo(() => {
-    let items = [...bottomsItems];
+    return bottomsItems.filter((item) => classifyItem(item) === activeTab);
+  }, [bottomsItems, activeTab]);
 
-    if (selectedType !== "All") {
-      items = items.filter((i) => i.styleType === selectedType || i.vibeTags?.includes(selectedType));
-    }
-    if (selectedSubType !== "All") {
-      items = items.filter((i) => i.subType === selectedSubType);
-    }
-
-    return items;
-  }, [bottomsItems, selectedType, selectedSubType]);
+  // Count per tab
+  const tabCounts = useMemo(() => {
+    const counts: Record<BottomTab, number> = { Jeans: 0, Trousers: 0, "Skirts Casual": 0, "Skirts Formal": 0 };
+    bottomsItems.forEach((item) => { counts[classifyItem(item)]++; });
+    return counts;
+  }, [bottomsItems]);
 
   return (
     <div className="space-y-8">
@@ -58,81 +58,26 @@ function BottomsPageContent() {
         </div>
       </header>
 
-      {/* Filters */}
-      <div className="space-y-3">
-        <div className="flex flex-wrap gap-3">
-          <select
-            value={selectedType}
-            onChange={(e) => {
-              setSelectedType(e.target.value);
-              setSelectedSubType("All");
-            }}
-            className="px-3 py-1.5 rounded-xl text-sm bg-gray-100 border-0 text-gray-600"
+      {/* Tabs */}
+      <div className="flex gap-2 border-b border-gray-200">
+        {TABS.map((tab) => (
+          <button
+            key={tab}
+            onClick={() => setActiveTab(tab)}
+            className={cn(
+              "px-4 py-2.5 text-sm font-medium transition-all relative",
+              activeTab === tab
+                ? "text-orange-700"
+                : "text-gray-500 hover:text-gray-700"
+            )}
           >
-            {typeOptions.map((type) => (
-              <option key={type} value={type}>
-                {type === "All" ? "All Types" : type}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {selectedType === "Basics" && (
-          <div className="flex flex-wrap gap-2">
-            {basicsSubTypes.map((subType) => (
-              <button
-                key={subType}
-                onClick={() => setSelectedSubType(subType)}
-                className={cn(
-                  "px-3 py-1.5 rounded-xl text-sm font-medium transition-all",
-                  selectedSubType === subType
-                    ? "bg-orange-100 text-orange-700"
-                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                )}
-              >
-                {subType}
-              </button>
-            ))}
-          </div>
-        )}
-
-        {selectedType === "Elevated" && (
-          <div className="flex flex-wrap gap-2">
-            {elevatedSubTypes.map((subType) => (
-              <button
-                key={subType}
-                onClick={() => setSelectedSubType(subType)}
-                className={cn(
-                  "px-3 py-1.5 rounded-xl text-sm font-medium transition-all",
-                  selectedSubType === subType
-                    ? "bg-orange-100 text-orange-700"
-                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                )}
-              >
-                {subType}
-              </button>
-            ))}
-          </div>
-        )}
-
-        {selectedType === "Seasonals" && (
-          <div className="flex flex-wrap gap-2">
-            {seasonalsSubTypes.map((subType) => (
-              <button
-                key={subType}
-                onClick={() => setSelectedSubType(subType)}
-                className={cn(
-                  "px-3 py-1.5 rounded-xl text-sm font-medium transition-all",
-                  selectedSubType === subType
-                    ? "bg-orange-100 text-orange-700"
-                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                )}
-              >
-                {subType}
-              </button>
-            ))}
-          </div>
-        )}
+            {tab}
+            <span className="ml-1.5 text-xs text-gray-400">{tabCounts[tab]}</span>
+            {activeTab === tab && (
+              <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-orange-500 rounded-t" />
+            )}
+          </button>
+        ))}
       </div>
 
       {/* Items Grid */}
@@ -152,23 +97,13 @@ function BottomsPageContent() {
                       alt={item.name}
                       fill
                       sizes="(max-width: 768px) 50vw, 20vw"
-                      className="object-cover"
+                      className="object-contain"
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">
                       <Shirt className="w-12 h-12 text-gray-300" />
                     </div>
                   )}
-                </div>
-                <div className="p-3">
-                  <p className="font-medium text-gray-900 text-sm truncate">{item.name}</p>
-                  <div className="flex flex-wrap gap-1 mt-1.5">
-                    {item.colors.slice(0, 2).map((color) => (
-                      <span key={color} className="px-1.5 py-0.5 bg-gray-100 rounded text-xs text-gray-500">
-                        {color}
-                      </span>
-                    ))}
-                  </div>
                 </div>
               </div>
             ))}
@@ -178,15 +113,10 @@ function BottomsPageContent() {
         {filteredItems.length === 0 && (
           <div className="text-center py-12 text-gray-500">
             <Shirt className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-            <p>No bottoms match your filters</p>
+            <p>No {activeTab.toLowerCase()} items found</p>
           </div>
         )}
       </div>
-
-      <button className="add-button-dashed w-full py-6">
-        <Plus className="w-5 h-5" />
-        <span>Add Bottom</span>
-      </button>
 
       {selectedItem && (
         <div
@@ -199,7 +129,7 @@ function BottomsPageContent() {
           >
             <div className="aspect-square bg-gray-100 relative">
               {selectedItem.imageUrl ? (
-                <Image src={selectedItem.imageUrl} alt={selectedItem.name} fill sizes="(max-width: 768px) 100vw, 448px" className="object-cover" />
+                <Image src={selectedItem.imageUrl} alt={selectedItem.name} fill sizes="(max-width: 768px) 100vw, 448px" className="object-contain" />
               ) : (
                 <div className="w-full h-full flex items-center justify-center">
                   <Shirt className="w-24 h-24 text-gray-300" />
