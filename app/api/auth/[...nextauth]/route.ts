@@ -77,40 +77,35 @@ const authOptions: NextAuthOptions = {
       },
       from: process.env.EMAIL_FROM || "demo@example.com",
       maxAge: 10 * 60, // 10 minutes
-      ...(process.env.DEMO_MODE === "true" && {
-        // In demo mode, log verification links instead of sending emails
-        sendVerificationRequest: ({ identifier, url }) => {
-          console.log("\n🚀 DEMO MODE - Magic Link Generated:");
-          console.log("📧 Email:", identifier);
-          console.log("🔗 Magic Link:", url);
-          console.log("👆 Copy this URL and paste it in your browser to sign in\n");
-          return Promise.resolve();
-        },
-      }),
-      ...(process.env.DEMO_MODE !== "true" && {
-        // In production, wrap email sending with error handling
-        sendVerificationRequest: async (params) => {
-          try {
-            // Use default email provider behavior
-            const { identifier, url, provider } = params
-            console.log(`[auth] Sending magic link to ${identifier}`)
-            // Import nodemailer dynamically to send email
-            const nodemailer = await import('nodemailer')
-            const transport = nodemailer.createTransport(provider.server)
-            await transport.sendMail({
-              to: identifier,
-              from: provider.from,
-              subject: "Sign in to your account",
-              text: `Sign in to your account: ${url}`,
-              html: `<p>Click <a href="${url}">here</a> to sign in</p>`,
-            })
-            console.log(`[auth] ✅ Magic link sent to ${identifier}`)
-          } catch (error) {
-            console.error("[auth] ❌ Failed to send magic link email:", error)
-            throw error
+      sendVerificationRequest: process.env.DEMO_MODE === "true"
+        ? ({ identifier, url }) => {
+            // Demo mode: log magic links to console
+            console.log("\n🚀 DEMO MODE - Magic Link Generated:");
+            console.log("📧 Email:", identifier);
+            console.log("🔗 Magic Link:", url);
+            console.log("👆 Copy this URL and paste it in your browser to sign in\n");
+            return Promise.resolve();
           }
-        },
-      }),
+        : async (params) => {
+            // Production: send email via nodemailer
+            try {
+              const { identifier, url, provider } = params
+              console.log(`[auth] Sending magic link to ${identifier}`)
+              const nodemailer = await import('nodemailer')
+              const transport = nodemailer.createTransport(provider.server)
+              await transport.sendMail({
+                to: identifier,
+                from: provider.from,
+                subject: "Sign in to your account",
+                text: `Sign in to your account: ${url}`,
+                html: `<p>Click <a href="${url}">here</a> to sign in</p>`,
+              })
+              console.log(`[auth] ✅ Magic link sent to ${identifier}`)
+            } catch (error) {
+              console.error("[auth] ❌ Failed to send magic link email:", error)
+              throw error
+            }
+          },
     }),
   ],
   session: {
