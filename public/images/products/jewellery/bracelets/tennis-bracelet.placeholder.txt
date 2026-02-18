@@ -1,0 +1,2 @@
+# Placeholder for Tennis Bracelet Image
+# Image path: /images/products/jewellery/bracelets/tennis-bracelet.png

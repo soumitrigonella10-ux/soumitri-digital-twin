@@ -173,6 +173,24 @@ export interface WishlistItem {
 }
 
 // ========================================
+// Jewellery Item
+// ========================================
+export interface JewelleryItem {
+  id: string;
+  name: string;
+  category: "Ring" | "Necklace" | "Bracelet" | "Earrings" | "Watch" | "Other";
+  subcategory?: string; // e.g., "Casual", "Classy", "Silver", "Fancy", "Hoop", "Ethnic", "Cuff", "Locket", "Regular"
+  imageUrl: string;
+  material: string;
+  occasions: string[];
+  favorite?: boolean;
+  notes?: string;
+  price?: number;
+  currency?: string;
+  brand?: string;
+}
+
+// ========================================
 // Outfit (saved combinations)
 // ========================================
 export interface Outfit {

@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { devtools, persist, subscribeWithSelector } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 import type { AppState } from "./types";
+import type { WishlistItem } from "@/types";
 import { createDataSlice } from "./slices/dataSlice";
 import { createFilterSlice } from "./slices/filterSlice";
 import { createCompletionSlice } from "./slices/completionSlice";
@@ -31,6 +32,7 @@ export const useAppStore = create<AppState>()(
           }),
           {
             name: "routines-wardrobe-app",
+            version: 2, // Bumped to invalidate stale localStorage with old image paths
 
             // Only persist user-generated data, not seed data
             partialize: (state) => ({
@@ -59,9 +61,24 @@ export const useAppStore = create<AppState>()(
                     outfits: Array.isArray((persisted.data as Partial<AppState["data"]>)?.outfits)
                       ? (persisted.data as Partial<AppState["data"]>)!.outfits!
                       : [],
-                    wishlist: Array.isArray((persisted.data as Partial<AppState["data"]>)?.wishlist)
-                      ? (persisted.data as Partial<AppState["data"]>)!.wishlist!
-                      : [],
+                    // Always refresh seed wishlist items with latest paths from code,
+                    // while preserving any user-added items
+                    wishlist: (() => {
+                      const persistedWishlist = Array.isArray((persisted.data as Partial<AppState["data"]>)?.wishlist)
+                        ? (persisted.data as Partial<AppState["data"]>)!.wishlist!
+                        : [];
+                      const seedIds = new Set(currentState.data.wishlist.map((i) => i.id));
+                      const userAdded = persistedWishlist.filter((i) => !seedIds.has(i.id));
+                      // Use fresh seed data (with correct paths) + merge purchase status from persisted
+                      const refreshedSeed: WishlistItem[] = currentState.data.wishlist.map((seedItem) => {
+                        const persItem = persistedWishlist.find((p) => p.id === seedItem.id);
+                        if (persItem?.purchased) {
+                          return { ...seedItem, purchased: persItem.purchased, purchaseDate: persItem.purchaseDate } as WishlistItem;
+                        }
+                        return seedItem;
+                      });
+                      return [...refreshedSeed, ...userAdded];
+                    })(),
                   },
                 };
               } catch (e) {

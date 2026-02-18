@@ -1,0 +1,2 @@
+# Placeholder for Silver Ring Stack Image
+# Image path: /images/products/jewellery/rings/silver-stack.png

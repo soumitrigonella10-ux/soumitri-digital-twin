@@ -1,0 +1,3 @@
+# Placeholder for Gold Hoop Earrings Image
+# This file represents where the actual image would be placed
+# Image path: /images/products/jewellery/earrings/gold-hoops.png

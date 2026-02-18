@@ -1,0 +1,2 @@
+# Placeholder for Classic Gold Watch Image
+# Image path: /images/products/jewellery/watches/classic-gold.png

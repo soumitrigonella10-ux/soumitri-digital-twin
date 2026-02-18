@@ -1,75 +1,45 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import Image from "next/image";
 import { Gem, Heart, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
-
-// Jewellery type (to be added to types.ts later)
-interface JewelleryItem {
-  id: string;
-  name: string;
-  category: "Ring" | "Necklace" | "Bracelet" | "Earrings" | "Watch" | "Other";
-  imageUrl: string;
-  material: string;
-  occasions: string[];
-  favorite?: boolean;
-  notes?: string;
-}
-
-// Sample jewellery data
-const sampleJewellery: JewelleryItem[] = [
-  {
-    id: "j-1",
-    name: "Gold Hoop Earrings",
-    category: "Earrings",
-    imageUrl: "",
-    material: "14k Gold",
-    occasions: ["Daily", "Work", "Casual"],
-    favorite: true,
-  },
-  {
-    id: "j-2",
-    name: "Pearl Necklace",
-    category: "Necklace",
-    imageUrl: "",
-    material: "Freshwater Pearls",
-    occasions: ["Formal", "Date"],
-    favorite: true,
-  },
-  {
-    id: "j-3",
-    name: "Silver Ring Stack",
-    category: "Ring",
-    imageUrl: "",
-    material: "Sterling Silver",
-    occasions: ["Daily", "Casual"],
-    favorite: false,
-  },
-  {
-    id: "j-4",
-    name: "Tennis Bracelet",
-    category: "Bracelet",
-    imageUrl: "",
-    material: "White Gold & Diamonds",
-    occasions: ["Formal", "Special"],
-    favorite: true,
-  },
-];
+import { jewelleryInventory, getSubcategories } from "@/data/jewellery";
+import { JewelleryItem } from "@/types";
 
 // Jewellery Page Content
 function JewelleryPageContent() {
-  const [items] = useState<JewelleryItem[]>(sampleJewellery);
+  const [items] = useState<JewelleryItem[]>(jewelleryInventory);
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
+  const [selectedSubcategory, setSelectedSubcategory] = useState<string>("All");
   const [selectedItem, setSelectedItem] = useState<JewelleryItem | null>(null);
 
-  const categories = ["All", "Ring", "Necklace", "Bracelet", "Earrings", "Watch", "Other"];
+  const categories = ["All", "Earrings", "Necklace", "Other"];
 
-  const filteredItems =
-    selectedCategory === "All"
-      ? items
-      : items.filter((i) => i.category === selectedCategory);
+  // Get subcategories dynamically based on selected category
+  const subcategories = useMemo(() => {
+    if (selectedCategory === "All") return [];
+    return getSubcategories(selectedCategory);
+  }, [selectedCategory]);
+
+  // Filter items by category and subcategory
+  const filteredItems = useMemo(() => {
+    let result = items;
+    if (selectedCategory !== "All") {
+      result = result.filter((i) => i.category === selectedCategory);
+    }
+    if (selectedSubcategory !== "All" && subcategories.length > 0) {
+      result = result.filter((i) => i.subcategory === selectedSubcategory);
+    }
+    return result;
+  }, [items, selectedCategory, selectedSubcategory, subcategories]);
+
+  // Reset subcategory when main category changes
+  const handleCategoryChange = (cat: string) => {
+    setSelectedCategory(cat);
+    setSelectedSubcategory("All");
+  };
 
   return (
     <div className="space-y-8">
@@ -91,7 +61,7 @@ function JewelleryPageContent() {
         {categories.map((cat) => (
           <button
             key={cat}
-            onClick={() => setSelectedCategory(cat)}
+            onClick={() => handleCategoryChange(cat)}
             className={cn(
               "px-3 py-1.5 rounded-xl text-sm font-medium transition-all",
               selectedCategory === cat
@@ -103,6 +73,37 @@ function JewelleryPageContent() {
           </button>
         ))}
       </div>
+
+      {/* Subcategory Filter — appears when a main category is selected */}
+      {subcategories.length > 0 && (
+        <div className="flex flex-wrap gap-2">
+          <button
+            onClick={() => setSelectedSubcategory("All")}
+            className={cn(
+              "px-3 py-1.5 rounded-xl text-xs font-medium transition-all",
+              selectedSubcategory === "All"
+                ? "bg-cyan-500 text-white"
+                : "bg-gray-50 text-gray-500 hover:bg-gray-100 border border-gray-200"
+            )}
+          >
+            All {selectedCategory}
+          </button>
+          {subcategories.map((sub) => (
+            <button
+              key={sub}
+              onClick={() => setSelectedSubcategory(sub)}
+              className={cn(
+                "px-3 py-1.5 rounded-xl text-xs font-medium transition-all",
+                selectedSubcategory === sub
+                  ? "bg-cyan-500 text-white"
+                  : "bg-gray-50 text-gray-500 hover:bg-gray-100 border border-gray-200"
+              )}
+            >
+              {sub}
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* Items Grid */}
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
@@ -197,6 +198,26 @@ function JewelleryPageContent() {
                   </p>
                   <p className="text-gray-900">{selectedItem.material}</p>
                 </div>
+
+                {selectedItem.brand && (
+                  <div>
+                    <p className="text-xs font-medium text-gray-500 uppercase mb-1">
+                      Brand
+                    </p>
+                    <p className="text-gray-900">{selectedItem.brand}</p>
+                  </div>
+                )}
+
+                {selectedItem.price && (
+                  <div>
+                    <p className="text-xs font-medium text-gray-500 uppercase mb-1">
+                      Price
+                    </p>
+                    <p className="text-gray-900 font-semibold">
+                      ₹{selectedItem.price.toLocaleString()}
+                    </p>
+                  </div>
+                )}
 
                 <div>
                   <p className="text-xs font-medium text-gray-500 uppercase mb-1">
