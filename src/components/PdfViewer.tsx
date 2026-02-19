@@ -60,7 +60,7 @@ export function PdfViewer({ pdfUrl, title = "PDF Document", className = "" }: Pd
   return (
     <div className={`relative w-full h-full ${className}`}>
       <iframe
-        src={apiUrl}
+        src={`${apiUrl}#toolbar=0&navpanes=0&scrollbar=0&view=FitH`}
         title={title}
         className="w-full h-full border-0 rounded-sm"
         style={{ minHeight: "70vh" }}

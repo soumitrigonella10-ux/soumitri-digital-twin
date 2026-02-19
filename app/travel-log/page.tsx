@@ -7,7 +7,7 @@ import { X, ChevronLeft, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
 import { EditorialNav } from "@/components/EditorialNav";
-import { PdfViewer } from "@/components/PdfViewer";
+import { PdfBookViewer } from "@/components/PdfBookViewer";
 import {
   travelLocations,
   type TravelLocation,
@@ -168,7 +168,7 @@ function JournalModal({ location, onClose }: JournalModalProps) {
           {/* PDF mode: embed PDF directly */}
           {location.pdfUrl ? (
             <div className="w-full h-full" style={{ minHeight: "70vh" }}>
-              <PdfViewer
+              <PdfBookViewer
                 pdfUrl={location.pdfUrl}
                 title={`${location.name} Travel Journal`}
                 className="rounded-lg overflow-hidden"

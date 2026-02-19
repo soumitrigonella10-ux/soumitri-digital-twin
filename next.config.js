@@ -37,11 +37,12 @@ const securityHeaders = [
     key: 'Content-Security-Policy',
     value: [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval'", // Next.js requires unsafe-inline/eval in dev
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com", // Next.js requires unsafe-inline/eval in dev; cdnjs for PDF.js
       "style-src 'self' 'unsafe-inline'", // Tailwind uses inline styles
       "img-src 'self' data: https: blob:",
       "font-src 'self' data:",
       "connect-src 'self' https:",
+      "worker-src 'self' blob: https://cdnjs.cloudflare.com",
       "frame-ancestors 'none'",
       "base-uri 'self'",
       "form-action 'self'",

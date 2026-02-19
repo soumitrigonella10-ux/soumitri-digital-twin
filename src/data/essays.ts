@@ -50,7 +50,7 @@ export const essays: Essay[] = [
     imageUrl: "/images/essays/on-taste.jpg",
     isFeatured: true,
     tags: ["aesthetics", "identity", "curation"],
-    pdfUrl: "/pdfs/essays/on-taste.pdf",
+    pdfUrl: "/pdfs/essays/kyoto-2025.pdf",
     body: [
       { type: "paragraph", text: "Taste is not preference. Preference is passive — it is the residue of habit, convenience, and exposure. You prefer vanilla because your mother bought vanilla. You prefer blue because you were once complimented in a blue shirt. Preference requires no argument, no defense. It simply exists, and it asks nothing of you." },
       { type: "paragraph", text: "Taste demands more. Taste is a position. It is the willingness to look at two beautiful things and say: this one is better, and here is why. It is an act of editorial courage — of narrowing the infinite into the specific, of choosing not just what to include but what to leave behind." },
