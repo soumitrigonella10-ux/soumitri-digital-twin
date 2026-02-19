@@ -115,23 +115,6 @@ describe("DataSlice", () => {
     ).toBeUndefined();
   });
 
-  it("addOutfit and removeOutfit", () => {
-    const outfit = {
-      id: "outfit-1",
-      name: "Summer Outfit",
-      itemIds: ["w-1", "w-2"],
-      occasions: ["Casual"],
-      createdAt: new Date().toISOString(),
-    };
-
-    useAppStore.getState().addOutfit(outfit);
-    expect(useAppStore.getState().data.outfits).toHaveLength(1);
-    expect(useAppStore.getState().data.outfits[0]!.name).toBe("Summer Outfit");
-
-    useAppStore.getState().removeOutfit("outfit-1");
-    expect(useAppStore.getState().data.outfits).toHaveLength(0);
-  });
-
   it("wishlist CRUD operations", () => {
     const item: WishlistItem = {
       id: "wish-1",

@@ -47,8 +47,12 @@ export type WardrobeCategory =
   | "Bottom" 
   | "Dress" 
   | "Shoes" 
-  | "Accessories" 
-  | "Outerwear";
+  | "Bags"
+  | "Innerwear"
+  | "Activewear"
+  | "Ethnic"
+  | "Outerwear"
+  | "Others";
 
 export type WishlistCategory = 
   | "Tops" 
@@ -162,17 +166,6 @@ export interface JewelleryItem {
   subcategory?: string; // e.g., "Casual", "Classy", "Silver", "Fancy", "Hoop", "Ethnic", "Cuff", "Locket", "Regular"
   imageUrl: string;
   favorite?: boolean;
-}
-
-// ========================================
-// Outfit (saved combinations)
-// ========================================
-export interface Outfit {
-  id: string;
-  name: string;
-  itemIds: string[];
-  occasions: string[];
-  createdAt: string; // ISO date
 }
 
 // ========================================

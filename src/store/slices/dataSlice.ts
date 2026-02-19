@@ -19,7 +19,7 @@ export function mergeById<T extends { id: string }>(base: T[], updates: T[]): T[
 }
 
 // ========================================
-// Data slice — all domain data + CRUD + wishlist + outfits
+// Data slice — all domain data + CRUD + wishlist
 // Uses immer for clean nested mutations
 // ========================================
 export const createDataSlice: ImmerSliceCreator<DataSlice> = (set) => ({
@@ -30,7 +30,6 @@ export const createDataSlice: ImmerSliceCreator<DataSlice> = (set) => ({
     mealTemplates: seedMeals,
     dressings: seedDressings,
     workoutPlans: seedWorkouts,
-    outfits: [],
     wishlist: seedWishlist,
   },
 
@@ -68,17 +67,6 @@ export const createDataSlice: ImmerSliceCreator<DataSlice> = (set) => ({
       const arr = state.data[type] as { id: string }[];
       const idx = arr.findIndex((item) => item.id === id);
       if (idx !== -1) arr.splice(idx, 1);
-    }),
-
-  // --- Outfit operations ---
-  addOutfit: (outfit) =>
-    set((state) => {
-      state.data.outfits.push(outfit);
-    }),
-  removeOutfit: (id) =>
-    set((state) => {
-      const idx = state.data.outfits.findIndex((o) => o.id === id);
-      if (idx !== -1) state.data.outfits.splice(idx, 1);
     }),
 
   // --- Wishlist operations ---

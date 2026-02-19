@@ -11,5 +11,5 @@ export { routines } from "./routines/index";
 export { dressings } from "./dressings";
 export { meals } from "./meals";
 export { workouts } from "./workouts";
-export { wardrobe } from "./wardrobe";
+export { wardrobe, wardrobeTops, wardrobeBottoms, wardrobeDresses, wardrobeOuterwear } from "./wardrobe/index";
 export { wishlist } from "./wishlist";

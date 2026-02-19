@@ -39,7 +39,6 @@ export const useAppStore = create<AppState>()(
               completions: state.completions,
               productCompletions: state.productCompletions,
               data: {
-                outfits: state.data.outfits,
                 wishlist: state.data.wishlist,
               },
             }),
@@ -58,9 +57,6 @@ export const useAppStore = create<AppState>()(
                   productCompletions: persisted.productCompletions ?? {},
                   data: {
                     ...currentState.data,
-                    outfits: Array.isArray((persisted.data as Partial<AppState["data"]>)?.outfits)
-                      ? (persisted.data as Partial<AppState["data"]>)!.outfits!
-                      : [],
                     // Always refresh seed wishlist items with latest paths from code,
                     // while preserving any user-added items
                     wishlist: (() => {

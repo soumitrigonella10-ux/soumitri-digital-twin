@@ -4,7 +4,6 @@ import type {
   Dressing,
   Filters,
   MealTemplate,
-  Outfit,
   Product,
   Routine,
   WardrobeItem,
@@ -22,7 +21,6 @@ export interface AppData {
   mealTemplates: MealTemplate[];
   dressings: Dressing[];
   workoutPlans: WorkoutPlan[];
-  outfits: Outfit[];
   wishlist: WishlistItem[];
 }
 
@@ -48,8 +46,6 @@ export interface DataSlice {
   upsertWorkout: (w: WorkoutPlan) => void;
   refreshWorkoutData: () => void;
   deleteById: (type: keyof AppData, id: string) => void;
-  addOutfit: (outfit: Outfit) => void;
-  removeOutfit: (id: string) => void;
   addWishlistItem: (item: WishlistItem) => void;
   updateWishlistItem: (item: WishlistItem) => void;
   removeWishlistItem: (id: string) => void;

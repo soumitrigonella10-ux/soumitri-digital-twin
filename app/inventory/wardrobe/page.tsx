@@ -8,26 +8,25 @@ import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
 import { WardrobeItem } from "@/types";
 import { cn } from "@/lib/utils";
 
+const categories = ["Top", "Bottom", "Dress", "Shoes", "Bags", "Innerwear", "Activewear", "Ethnic", "Outerwear", "Others"];
+
+// Bottom chip → subType mapping
+const bottomChipMap: Record<string, string[]> = {
+  "Jeans": ["Jeans"],
+  "Trousers": ["Straight", "Skinny", "Bootcut", "Baggy", "Home", "Semi-fancy", "Fancy", "Casuals"],
+  "Skirts": ["Skirt Casual", "Skirt Formal"],
+};
+
 function WardrobePageContent() {
   const { data } = useAppStore();
   const [selectedCategory, setSelectedCategory] = useState<string>("Top");
   const [selectedSubchip, setSelectedSubchip] = useState<string | null>(null);
 
-
-  const categories = ["Top", "Bottom", "Dress", "Shoe", "Outerwear", "Innerwear"];
-
-  // Bottom chip → subType mapping
-  const bottomChipMap: Record<string, string[]> = {
-    "Jeans": ["Jeans"],
-    "Trousers": ["Straight", "Skinny", "Bootcut", "Baggy", "Home", "Semi-fancy", "Fancy", "Casuals"],
-    "Skirts": ["Skirt Casual", "Skirt Formal"],
-  };
-
   // Get level-1 sub-chips for the selected category
   const subchips = useMemo(() => {
     const items = data.wardrobe.filter((i) => i.category === selectedCategory);
 
-    if (selectedCategory === "Top" || selectedCategory === "Shoe") {
+    if (selectedCategory === "Top" || selectedCategory === "Shoes") {
       const set = new Set(items.map((i) => i.subcategory).filter((s): s is string => Boolean(s)));
       return Array.from(set);
     }
@@ -52,7 +51,7 @@ function WardrobePageContent() {
     let items = data.wardrobe.filter((i) => i.category === selectedCategory);
 
     if (activeSubchip) {
-      if (selectedCategory === "Top" || selectedCategory === "Shoe") {
+      if (selectedCategory === "Top" || selectedCategory === "Shoes") {
         items = items.filter((i) => i.subcategory === activeSubchip);
       } else if (selectedCategory === "Bottom") {
         const allowedSubTypes = bottomChipMap[activeSubchip] || [];

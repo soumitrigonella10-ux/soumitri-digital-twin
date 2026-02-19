@@ -4,7 +4,6 @@ import { useMemo, useState, useEffect } from "react";
 import { Shirt } from "lucide-react";
 import { useAppStore } from "@/store/useAppStore";
 import { WardrobeGrid } from "@/components/WardrobeGrid";
-import { OutfitBuilder } from "@/components/OutfitBuilder";
 import {
   WardrobeFilters,
   WardrobeFilterState,
@@ -72,7 +71,7 @@ function WardrobePageContent() {
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Wardrobe</h1>
           <p className="text-sm text-gray-500 mt-1">
-            Browse and build outfits from your collection
+            Browse and manage your collection
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -93,7 +92,7 @@ function WardrobePageContent() {
       </div>
 
       {/* Main Content Grid */}
-      <div className="grid md:grid-cols-4 gap-4">
+      <div className="grid md:grid-cols-3 gap-4">
         {/* Left: Filters */}
         <div className="md:col-span-1">
           <WardrobeFilters
@@ -121,11 +120,6 @@ function WardrobePageContent() {
               <WardrobeGrid items={filteredItems} />
             </CardContent>
           </Card>
-        </div>
-
-        {/* Right: Outfit Builder */}
-        <div className="md:col-span-1">
-          <OutfitBuilder filteredItems={filteredItems} />
         </div>
       </div>
     </div>

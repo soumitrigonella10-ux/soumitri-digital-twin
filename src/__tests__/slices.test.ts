@@ -118,26 +118,6 @@ describe("DataSlice deleteById", () => {
 });
 
 // ========================================
-// DataSlice — outfit operations
-// ========================================
-describe("DataSlice outfits", () => {
-  it("adds an outfit", () => {
-    const outfit = { id: "o-1", name: "Test Outfit", itemIds: ["w-1"], occasions: ["Casual"], createdAt: "2025-01-01" };
-    useAppStore.getState().addOutfit(outfit);
-    const state = useAppStore.getState();
-    expect(state.data.outfits).toHaveLength(1);
-    expect(state.data.outfits[0]!.name).toBe("Test Outfit");
-  });
-
-  it("removes an outfit", () => {
-    const outfit = { id: "o-2", name: "Remove Me", itemIds: [], occasions: [], createdAt: "2025-01-01" };
-    useAppStore.getState().addOutfit(outfit);
-    useAppStore.getState().removeOutfit("o-2");
-    expect(useAppStore.getState().data.outfits).toHaveLength(0);
-  });
-});
-
-// ========================================
 // DataSlice — wishlist operations
 // ========================================
 describe("DataSlice wishlist operations", () => {

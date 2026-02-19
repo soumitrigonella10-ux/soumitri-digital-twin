@@ -13,7 +13,7 @@ import {
   wellnessProducts,
 } from "@/data/products/index";
 import { routines } from "@/data/routines/index";
-import { wardrobe } from "@/data/wardrobe";
+import { wardrobe } from "@/data/wardrobe/index";
 import { meals, breakfastMeals, lunchMeals, dinnerMeals } from "@/data/meals/index";
 import { dressings } from "@/data/dressings";
 import { workouts } from "@/data/workouts";

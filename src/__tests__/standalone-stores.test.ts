@@ -193,10 +193,6 @@ describe("WardrobeSlice (standalone store)", () => {
     expect(useStore.getState().data.wardrobe.length).toBeGreaterThan(0);
   });
 
-  it("initializes with empty outfits", () => {
-    expect(useStore.getState().data.outfits).toEqual([]);
-  });
-
   it("upsertWardrobe adds new item", () => {
     useStore.getState().upsertWardrobe({
       id: "test-w-item",
@@ -208,28 +204,6 @@ describe("WardrobeSlice (standalone store)", () => {
     expect(found).toBeDefined();
   });
 
-  it("addOutfit adds an outfit", () => {
-    useStore.getState().addOutfit({
-      id: "o-1",
-      name: "Office Look",
-      itemIds: ["w-1", "w-2"],
-      occasions: ["Business"],
-      createdAt: "2025-01-01",
-    });
-    expect(useStore.getState().data.outfits).toHaveLength(1);
-  });
-
-  it("removeOutfit removes an outfit", () => {
-    useStore.getState().addOutfit({
-      id: "o-2",
-      name: "Casual",
-      itemIds: [],
-      occasions: [],
-      createdAt: "2025-01-01",
-    });
-    useStore.getState().removeOutfit("o-2");
-    expect(useStore.getState().data.outfits).toHaveLength(0);
-  });
 });
 
 // ========================================
