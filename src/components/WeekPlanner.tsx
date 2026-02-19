@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { format, addDays } from "date-fns";
 import { ChevronRight, Check } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
@@ -17,7 +17,12 @@ interface WeekPlannerProps {
 
 export function WeekPlanner({ weekStart, plans }: WeekPlannerProps) {
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
+  const [todayStr, setTodayStr] = useState<string>("");
   const { filters, setFilters } = useAppStore();
+
+  useEffect(() => {
+    setTodayStr(format(new Date(), "yyyy-MM-dd"));
+  }, []);
 
   const days = [...Array(7)].map((_, i) => addDays(weekStart, i));
 
@@ -27,7 +32,7 @@ export function WeekPlanner({ weekStart, plans }: WeekPlannerProps) {
       <div className="grid grid-cols-1 md:grid-cols-7 gap-2">
         {days.map((day, index) => {
           const plan = plans[index]!;
-          const isToday = format(day, "yyyy-MM-dd") === format(new Date(), "yyyy-MM-dd");
+          const isToday = format(day, "yyyy-MM-dd") === todayStr;
           const isSelected = format(day, "yyyy-MM-dd") === format(filters.date, "yyyy-MM-dd");
 
           const totalSteps = plan.sections.reduce(

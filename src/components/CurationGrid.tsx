@@ -32,7 +32,7 @@ export function CurationGrid() {
           </p>
         </div>
         <p className="text-xs text-telugu-marigold uppercase tracking-[0.2em] font-medium hidden sm:block">
-          {sortedTopics.length} Collections &bull; {new Date().getFullYear()}
+          {sortedTopics.length} Collections &bull; 2026
         </p>
       </div>
 

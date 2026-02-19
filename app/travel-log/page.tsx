@@ -7,6 +7,7 @@ import { X, ChevronLeft, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
 import { EditorialNav } from "@/components/EditorialNav";
+import { PdfViewer } from "@/components/PdfViewer";
 import {
   travelLocations,
   type TravelLocation,
@@ -164,7 +165,18 @@ function JournalModal({ location, onClose }: JournalModalProps) {
 
         {/* Viewer Area */}
         <div className="journal-viewer">
-          {/* Journal Book */}
+          {/* PDF mode: embed PDF directly */}
+          {location.pdfUrl ? (
+            <div className="w-full h-full" style={{ minHeight: "70vh" }}>
+              <PdfViewer
+                pdfUrl={location.pdfUrl}
+                title={`${location.name} Travel Journal`}
+                className="rounded-lg overflow-hidden"
+              />
+            </div>
+          ) : (
+          <>
+          {/* Journal Book (legacy text mode) */}
           <div
             className="journal-book-container"
             onClick={handleBookClick}
@@ -236,6 +248,8 @@ function JournalModal({ location, onClose }: JournalModalProps) {
           <p className="text-xs text-gray-400 mt-4 text-center">
             Click left/right edges of the journal to turn pages
           </p>
+          </>
+          )}
         </div>
       </div>
     </div>

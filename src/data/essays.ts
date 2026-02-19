@@ -13,7 +13,9 @@ export interface Essay {
   isFeatured?: boolean;
   tags?: string[];
   slug: string;
-  /** Full essay body — array of content blocks for rich rendering */
+  /** Path to PDF file in public/pdfs/essays/ (e.g. "/pdfs/essays/on-taste.pdf") */
+  pdfUrl?: string;
+  /** Full essay body — array of content blocks for rich rendering (fallback if no PDF) */
   body?: EssayBlock[];
 }
 
@@ -48,6 +50,7 @@ export const essays: Essay[] = [
     imageUrl: "/images/essays/on-taste.jpg",
     isFeatured: true,
     tags: ["aesthetics", "identity", "curation"],
+    pdfUrl: "/pdfs/essays/on-taste.pdf",
     body: [
       { type: "paragraph", text: "Taste is not preference. Preference is passive — it is the residue of habit, convenience, and exposure. You prefer vanilla because your mother bought vanilla. You prefer blue because you were once complimented in a blue shirt. Preference requires no argument, no defense. It simply exists, and it asks nothing of you." },
       { type: "paragraph", text: "Taste demands more. Taste is a position. It is the willingness to look at two beautiful things and say: this one is better, and here is why. It is an act of editorial courage — of narrowing the infinite into the specific, of choosing not just what to include but what to leave behind." },
@@ -73,6 +76,7 @@ export const essays: Essay[] = [
     imageUrl: "/images/essays/daily-rituals.jpg",
     isFeatured: true,
     tags: ["routines", "intentionality", "time"],
+    pdfUrl: "/pdfs/essays/the-architecture-of-daily-rituals.pdf",
     body: [
       { type: "paragraph", text: "Every morning is a small act of construction. Not in the productivity-guru sense — not the cold shower, the 4 AM alarm, the optimized stack of supplements. I mean something quieter. The order in which you do things is itself a form of authorship. You are writing the opening paragraph of your day." },
       { type: "paragraph", text: "I wake up and I do not reach for my phone. This is not discipline; it is architecture. The phone is kept in another room, charging. The first thing my hands touch is the kettle. The second is the French press. The third is a pen. This sequence didn't happen by accident — I designed it, the way you'd design the entryway of a home." },
@@ -97,6 +101,7 @@ export const essays: Essay[] = [
     readingTime: "10 min read",
     imageUrl: "/images/essays/against-minimalism.jpg",
     tags: ["design", "consumerism", "intention"],
+    pdfUrl: "/pdfs/essays/against-minimalism.pdf",
     body: [
       { type: "paragraph", text: "Minimalism began as a liberation. Fewer things, less noise, more clarity. It was a reaction to decades of accumulation — a necessary correction. But somewhere along the way, it became its own religion, complete with dogma, virtue signaling, and a very specific uniform (white walls, linen shirts, Scandinavian everything)." },
       { type: "paragraph", text: "The problem with minimalism-as-religion is that it replaces one form of consumption with another. Instead of buying things, you buy the idea of not buying things. The capsule wardrobe becomes a status symbol. The empty shelf becomes a performance of restraint masquerading as taste." },
@@ -119,6 +124,7 @@ export const essays: Essay[] = [
     readingTime: "15 min read",
     imageUrl: "/images/essays/digital-twin.jpg",
     tags: ["software", "self-knowledge", "systems"],
+    pdfUrl: "/pdfs/essays/the-digital-twin-hypothesis.pdf",
     body: [
       { type: "paragraph", text: "Building a mirror of your life in software isn't vanity. It is, if done honestly, a form of introspection at scale. We journal for the same reason — to see ourselves from the outside, to catch patterns invisible from within. The difference is that software doesn't forget, doesn't flatter, and doesn't tire." },
       { type: "paragraph", text: "The concept of a 'digital twin' comes from engineering. In manufacturing, it means a virtual replica of a physical system — a jet engine, a factory floor — updated in real time with sensor data. The replica lets you simulate, predict, and optimize without touching the real thing." },
@@ -141,6 +147,7 @@ export const essays: Essay[] = [
     readingTime: "7 min read",
     imageUrl: "/images/essays/clothing-language.jpg",
     tags: ["fashion", "semiotics", "expression"],
+    pdfUrl: "/pdfs/essays/on-clothing-as-language.pdf",
     body: [
       { type: "paragraph", text: "We dress in sentences. Some mornings the sentence is clipped and efficient — dark jeans, white tee, done. Other mornings it is more baroque — a layered thought, a deliberate clash, a reference only you would catch. The wardrobe is less a closet and more a vocabulary, assembled over years and revised every morning." },
       { type: "paragraph", text: "Fashion critics love to talk about clothing as communication. But the metaphor goes deeper than they usually push it. Clothing isn't just communication — it is language itself. It has grammar (silhouettes, proportions), vocabulary (specific garments, textures, colors), and syntax (how you combine them)." },
@@ -163,6 +170,7 @@ export const essays: Essay[] = [
     readingTime: "9 min read",
     imageUrl: "/images/essays/systems-goals.jpg",
     tags: ["productivity", "philosophy", "growth"],
+    pdfUrl: "/pdfs/essays/systems-over-goals.pdf",
     body: [
       { type: "paragraph", text: "Goals are fragile. They depend on a future that may never arrive — a specific number on a scale, a title on a business card, a date on a calendar. When you reach them, the satisfaction is brief. When you don't, the failure feels total. This binary quality is the weakness of goal-oriented thinking." },
       { type: "paragraph", text: "Systems are different. A system is a repeatable process that produces results over time, regardless of any specific outcome. Going to the gym is a system. 'Lose 20 pounds' is a goal. Writing every morning is a system. 'Finish a novel' is a goal. The system survives failure. The goal does not." },
@@ -185,6 +193,7 @@ export const essays: Essay[] = [
     readingTime: "6 min read",
     imageUrl: "/images/essays/good-taste.jpg",
     tags: ["solitude", "curation", "identity"],
+    pdfUrl: "/pdfs/essays/the-loneliness-of-good-taste.pdf",
     body: [
       { type: "paragraph", text: "Refinement is a narrowing. This is the part that nobody warns you about. The more precisely you know what you want — in food, in music, in conversation, in love — the fewer options satisfy you. The menu shrinks. The playlist shortens. The circle tightens." },
       { type: "paragraph", text: "This is not snobbery, though it is easily mistaken for it. It is the natural consequence of paying attention. Once you've tasted exceptional olive oil, the supermarket kind becomes difficult. Once you've read Borges, airport fiction loses its grip. Once you've experienced a truly well-made garment, fast fashion feels like cardboard." },
@@ -207,6 +216,7 @@ export const essays: Essay[] = [
     readingTime: "11 min read",
     imageUrl: "/images/essays/friction.jpg",
     tags: ["technology", "slowness", "intention"],
+    pdfUrl: "/pdfs/essays/in-defense-of-friction.pdf",
     body: [
       { type: "paragraph", text: "Silicon Valley's central promise is the elimination of friction. One-click ordering. Instant delivery. Frictionless payments. Seamless experiences. The language itself is revealing — friction is treated as the enemy, an obstacle between desire and fulfillment that technology must destroy." },
       { type: "paragraph", text: "But what if friction is not the enemy? What if friction is where thought lives? The pause before a purchase. The effort of cooking a meal from scratch. The discipline of a morning walk when you'd rather scroll. These are not inconveniences. They are the spaces where intentionality survives." },

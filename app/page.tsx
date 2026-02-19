@@ -1,6 +1,8 @@
 "use client";
 
+import { useEffect } from "react";
 import { useSession, signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { HeroSection } from "@/components/HeroSection";
 import { BentoDashboard } from "@/components/bento";
 import { EditorialNav } from "@/components/EditorialNav";
@@ -8,24 +10,22 @@ import { EditorialNav } from "@/components/EditorialNav";
 export default function HomePage() {
   const { data: session, status } = useSession();
   const isDemoMode = process.env.NODE_ENV === 'development';
+  const router = useRouter();
 
   // Auto-redirect authenticated users to Today dashboard
-  if (session && typeof window !== 'undefined') {
-    window.location.href = '/today';
+  useEffect(() => {
+    if (session) {
+      router.replace('/today');
+    }
+  }, [session, router]);
+
+  if (status === "loading" || session) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto mb-4"></div>
-          <p className="text-gray-600">Redirecting to your dashboard...</p>
+          {session && <p className="text-gray-600">Redirecting to your dashboard...</p>}
         </div>
-      </div>
-    );
-  }
-
-  if (status === "loading") {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-white">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
       </div>
     );
   }

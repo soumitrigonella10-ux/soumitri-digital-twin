@@ -45,8 +45,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${playfair.variable} ${inter.variable} ${teluguFont.variable} ${scriptFont.variable}`}>
-      <body className="bg-telugu-sandstone min-h-screen">
+    <html lang="en" className={`${playfair.variable} ${inter.variable} ${teluguFont.variable} ${scriptFont.variable}`} suppressHydrationWarning>
+      <body className="bg-telugu-sandstone min-h-screen" suppressHydrationWarning>
         <SessionProvider>
           <ToastProvider>
             <GlobalErrorListener />

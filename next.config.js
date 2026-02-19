@@ -52,11 +52,11 @@ const securityHeaders = [
 const nextConfig = {
   reactStrictMode: true,
   
-  // Apply security headers to all routes
+  // Apply security headers to all routes except PDF API (which sets its own)
   async headers() {
     return [
       {
-        source: '/:path*',
+        source: '/((?!api/pdf).*)',
         headers: securityHeaders,
       },
     ];

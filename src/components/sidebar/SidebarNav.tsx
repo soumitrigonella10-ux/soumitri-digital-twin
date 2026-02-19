@@ -16,9 +16,14 @@ import {
 
 export function Sidebar() {
   const pathname = usePathname();
-  const today = new Date();
+  const [todayLabel, setTodayLabel] = useState<string>("");
   const [expandedItems, setExpandedItems] = useState<string[]>(["wardrobe"]);
   const navRef = useRef<HTMLElement>(null);
+
+  // Defer date formatting to avoid server/client hydration mismatch
+  useEffect(() => {
+    setTodayLabel(format(new Date(), "EEE, MMMM d"));
+  }, []);
 
   // Save scroll position before navigation causes re-render
   const saveScrollPosition = useCallback(() => {
@@ -54,7 +59,7 @@ export function Sidebar() {
       <div className="p-6 border-b border-gray-100">
         <h1 className="text-xl font-semibold text-white">Soumitri Digital Twin</h1>
         <p className="text-sm text-gray-500 mt-1">
-          {format(today, "EEE, MMMM d")}
+          {todayLabel || "\u00A0"}
         </p>
       </div>
 

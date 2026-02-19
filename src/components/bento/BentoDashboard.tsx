@@ -224,7 +224,7 @@ export function BentoDashboard() {
       <footer className="flex flex-col sm:flex-row items-center justify-between mt-12 pt-6 border-t border-[#2d2d2d]/10 px-1 gap-3">
         <span className="font-script text-xl text-[#2d2d2d]/30 select-none">Soumitri</span>
         <p className="text-[11px] font-light uppercase tracking-[0.15em] text-[#6b6b6b]">
-          © {new Date().getFullYear()} — Built with intentionality
+          © 2026 — Built with intentionality
         </p>
       </footer>
     </div>

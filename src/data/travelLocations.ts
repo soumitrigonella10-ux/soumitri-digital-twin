@@ -26,7 +26,10 @@ export interface TravelLocation {
   inventory: string[];
   notes: string;
   
-  // Journal pages
+  /** Path to PDF journal in public/pdfs/travel/ (e.g. "/pdfs/travel/kyoto-2025.pdf") */
+  pdfUrl?: string;
+  
+  // Journal pages (fallback if no PDF)
   journalPages: JournalPage[];
 }
 
@@ -49,6 +52,7 @@ export const travelLocations: TravelLocation[] = [
       "Portable tea set",
     ],
     notes: "The concept of 'ma' (間) — negative space as active element. Everything here is an argument for restraint.",
+    pdfUrl: "/pdfs/travel/kyoto-2025.pdf",
     journalPages: [
       {
         pageNumber: 1,
@@ -120,6 +124,7 @@ export const travelLocations: TravelLocation[] = [
       "Portable wine opener",
     ],
     notes: "The light here is different. Golden, angled, slightly melancholic. Every photographer mentions it.",
+    pdfUrl: "/pdfs/travel/lisbon-2024.pdf",
     journalPages: [
       {
         pageNumber: 1,
@@ -171,6 +176,7 @@ export const travelLocations: TravelLocation[] = [
       "Instant coffee sachets",
     ],
     notes: "The silence here is profound. Even in the city, there's an absence of noise that's almost tangible.",
+    pdfUrl: "/pdfs/travel/reykjavik-2023.pdf",
     journalPages: [
       {
         pageNumber: 1,
@@ -217,6 +223,7 @@ export const travelLocations: TravelLocation[] = [
       "Sunscreen (SPF 50)",
     ],
     notes: "Get lost in the medina. Seriously. It's the only way to find anything real.",
+    pdfUrl: "/pdfs/travel/marrakech-2022.pdf",
     journalPages: [
       {
         pageNumber: 1,
@@ -256,6 +263,7 @@ export const travelLocations: TravelLocation[] = [
       "Empty suitcase (for snacks)",
     ],
     notes: "Osaka's motto: 'Kuidaore' — eat until you drop. I took this literally.",
+    pdfUrl: "/pdfs/travel/osaka-2021.pdf",
     journalPages: [
       {
         pageNumber: 1,
