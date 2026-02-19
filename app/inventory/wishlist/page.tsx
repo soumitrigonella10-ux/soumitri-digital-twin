@@ -39,20 +39,12 @@ function useWishlistFilters(wishlist: WishlistItem[]) {
 // --- Page Component ----------------------------------------
 export default function WishlistPage() {
   const { data: session, status } = useSession();
-  const { data, addWishlistItem, removeWishlistItem, markWishlistItemPurchased } = useAppStore();
+  const { data, addWishlistItem } = useAppStore();
 
   const { selectedCategory, setSelectedCategory, filteredItems, groupedItems } =
     useWishlistFilters(data.wishlist);
 
   const [showAddModal, setShowAddModal] = useState(false);
-
-  const handleRemoveItem = (id: string) => {
-    removeWishlistItem(id);
-  };
-
-  const handleMarkPurchased = (id: string) => {
-    markWishlistItemPurchased(id);
-  };
 
   const handleAddItem = (item: WishlistItem) => {
     addWishlistItem(item);
