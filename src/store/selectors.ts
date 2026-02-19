@@ -33,7 +33,7 @@ export const selectWardrobe = (s: AppState) => s.data.wardrobe;
 export const selectMeals = (s: AppState) => s.data.mealTemplates;
 export const selectDressings = (s: AppState) => s.data.dressings;
 export const selectWorkouts = (s: AppState) => s.data.workoutPlans;
-export const selectOutfits = (s: AppState) => s.data.outfits;
+export const selectOutfits = (s: AppState) => (s.data as any).outfits ?? [];
 export const selectWishlist = (s: AppState) => s.data.wishlist;
 export const selectData = (s: AppState) => s.data;
 export const selectFilters = (s: AppState) => s.filters;

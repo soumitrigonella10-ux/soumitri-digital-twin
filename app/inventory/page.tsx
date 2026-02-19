@@ -57,7 +57,7 @@ const inventoryItems = [
         </Card>
         <Card>
           <CardContent className="p-4">
-            <div className="text-2xl font-bold">{appData.outfits.length}</div>
+            <div className="text-2xl font-bold">{(appData as any).outfits?.length ?? 0}</div>
             <div className="text-sm text-muted-foreground">Saved Outfits</div>
           </CardContent>
         </Card>
