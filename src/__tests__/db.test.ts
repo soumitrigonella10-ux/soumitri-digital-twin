@@ -50,10 +50,11 @@ describe("db module", () => {
     process.env.POSTGRES_URL = "postgresql://user:pass@localhost:5432/testdb";
     const mod = await import("@/lib/db");
     
-    if (mod.pool) {
+    const { pool } = mod;
+    if (pool != null) {
       await mod.setupAuthTables();
       // Pool should have had connect called
-      expect(mod.pool.connect).toHaveBeenCalled();
+      expect(pool.connect).toHaveBeenCalled();
     }
   });
 });

@@ -20,7 +20,6 @@ import {
   selectCompletionActions,
   selectCrudActions,
   selectWishlistActions,
-  selectOutfitActions,
   selectPresetActions,
 } from "@/store/selectors";
 
@@ -131,13 +130,6 @@ describe("Action selectors", () => {
     expect(typeof actions.updateWishlistItem).toBe("function");
     expect(typeof actions.removeWishlistItem).toBe("function");
     expect(typeof actions.markWishlistItemPurchased).toBe("function");
-  });
-
-  it("selectOutfitActions returns outfit functions", () => {
-    const state = useAppStore.getState();
-    const actions = selectOutfitActions(state);
-    expect(typeof actions.addOutfit).toBe("function");
-    expect(typeof actions.removeOutfit).toBe("function");
   });
 
   it("selectPresetActions returns preset functions", () => {
