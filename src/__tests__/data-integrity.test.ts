@@ -221,7 +221,6 @@ describe("Wardrobe data", () => {
       expect(w.name).toBeDefined();
       expect(w.category).toBeDefined();
       expect(w.imageUrl).toBeDefined();
-      expect(Array.isArray(w.colors)).toBe(true);
     }
   });
 
@@ -237,15 +236,6 @@ describe("Wardrobe data", () => {
     }
   });
 
-  it("colors are non-empty strings", () => {
-    for (const w of wardrobe) {
-      expect(w.colors.length).toBeGreaterThan(0);
-      for (const c of w.colors) {
-        expect(typeof c).toBe("string");
-        expect(c.length).toBeGreaterThan(0);
-      }
-    }
-  });
 });
 
 // ========================================
@@ -403,7 +393,6 @@ describe("Wishlist data", () => {
       expect(w.id).toBeDefined();
       expect(w.name).toBeDefined();
       expect(w.category).toBeDefined();
-      expect(w.dateAdded).toBeDefined();
     }
   });
 
@@ -416,13 +405,6 @@ describe("Wishlist data", () => {
     const validCategories = ["Tops", "Bottoms", "Dresses", "Outerwear", "Shoes", "Jewellery"];
     for (const w of wishlist) {
       expect(validCategories).toContain(w.category);
-    }
-  });
-
-  it("dateAdded is a valid ISO date", () => {
-    for (const w of wishlist) {
-      const date = new Date(w.dateAdded);
-      expect(date.toString()).not.toBe("Invalid Date");
     }
   });
 

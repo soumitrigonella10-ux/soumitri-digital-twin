@@ -73,7 +73,7 @@ export const useAppStore = create<AppState>()(
                       const refreshedSeed: WishlistItem[] = currentState.data.wishlist.map((seedItem) => {
                         const persItem = persistedWishlist.find((p) => p.id === seedItem.id);
                         if (persItem?.purchased) {
-                          return { ...seedItem, purchased: persItem.purchased, purchaseDate: persItem.purchaseDate } as WishlistItem;
+                          return { ...seedItem, purchased: persItem.purchased } as WishlistItem;
                         }
                         return seedItem;
                       });

@@ -95,9 +95,6 @@ export const bodyRoutines: Routine[] = [
     schedule: { weekday: [6] }, // Sunday (as per your SSOT block)
     timeOfDay: "AM",
     tags: { office: false, wfh: true, travel: false, goingOut: false },
-    constraints: {
-      dontCombineWith: ["p-shave-gel", "p-glycolic"],
-    },
     steps: [
       {
         order: 1,
@@ -118,9 +115,6 @@ export const bodyRoutines: Routine[] = [
     schedule: { weekday: [0] }, // Sunday
     timeOfDay: "AM",
     tags: { office: false, wfh: true, travel: false, goingOut: false },
-    constraints: {
-      dontCombineWith: ["p-body-scrub", "p-glycolic"],
-    },
     steps: [
       {
         order: 1,
@@ -149,9 +143,6 @@ export const bodyRoutines: Routine[] = [
     schedule: { weekday: [2, 4] }, // Tue, Thu
     timeOfDay: "PM",
     tags: { office: true, wfh: true, travel: false, goingOut: false },
-    constraints: {
-      dontCombineWith: ["p-body-scrub", "p-shave-gel"],
-    },
     steps: [
       {
         order: 1,
@@ -180,9 +171,6 @@ export const bodyRoutines: Routine[] = [
     schedule: { weekday: [1, 3] }, // Mon, Wed
     timeOfDay: "PM",
     tags: { office: true, wfh: true, travel: true, goingOut: true },
-    constraints: {
-      dontCombineWith: ["p-glycolic"],
-    },
     steps: [
       {
         order: 1,
@@ -204,9 +192,6 @@ export const bodyRoutines: Routine[] = [
     schedule: { weekday: [5, 6] }, // Fri, Sat
     timeOfDay: "PM",
     tags: { office: true, wfh: true, travel: true, goingOut: true },
-    constraints: {
-      dontCombineWith: ["p-glycolic"],
-    },
     steps: [
       {
         order: 1,

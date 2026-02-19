@@ -175,7 +175,6 @@ describe("DataSlice wishlist operations", () => {
     useAppStore.getState().markWishlistItemPurchased(existing.id);
     const updated = useAppStore.getState().data.wishlist.find((i) => i.id === existing.id);
     expect(updated!.purchased).toBe(true);
-    expect(updated!.purchaseDate).toBeDefined();
   });
 });
 

@@ -22,15 +22,12 @@ export const productSchema = z.object({
   category: stringRequired,
   actives: z.array(z.string()).default([]),
   cautionTags: z.array(z.string()).default([]),
-  imageUrl: stringOptional,
   routineType: z.enum(["skin", "hair", "body", "bodySpecific", "wellness", "workout", "food"]).optional(),
   bodyAreas: z.array(z.enum(["UA", "IT", "BL", "IA", "B"])).optional(),
   hairPhase: z.enum(["oiling", "washing", "postWash", "daily"]).optional(),
   timeOfDay: z.enum(["AM", "MIDDAY", "PM", "ANY"]).optional(),
   weekdays: z.array(z.number().min(0).max(6)).optional(),
   displayOrder: numberOptional,
-  notes: stringOptional,
-  isActive: booleanOptional.default(true),
 });
 
 // ========================================
@@ -43,11 +40,7 @@ export const wardrobeItemSchema = z.object({
   subcategory: stringOptional,
   occasion: stringOptional,
   imageUrl: stringRequired,
-  colors: z.array(z.string()).default([]),
-  styleType: stringOptional,
   subType: stringOptional,
-  vibeTags: z.array(z.string()).optional(),
-  notes: stringOptional,
 });
 
 // ========================================

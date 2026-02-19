@@ -13,12 +13,10 @@ interface WardrobeFiltersProps {
 }
 
 export interface WardrobeFilterState {
-  color: string;
   category: string;
 }
 
 const FILTER_OPTIONS = {
-  color: ["Any", "Black", "White", "Blue", "Green", "Red", "Neutral"],
   category: ["Any", "Top", "Bottom", "Dress", "Shoes", "Accessories", "Outerwear"],
 };
 
@@ -84,6 +82,5 @@ export function WardrobeFilters({ filters, onChange, onReset }: WardrobeFiltersP
 
 // Default filter state
 export const defaultWardrobeFilters: WardrobeFilterState = {
-  color: "Any",
   category: "Any",
 };

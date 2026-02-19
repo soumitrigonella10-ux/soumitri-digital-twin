@@ -13,7 +13,6 @@ export const wishlist: WishlistItem[] = [
     imageUrl: "/images/products/wishlist/basic-tops/tees-polyamide-black.png",
     price: 690,
     currency: "INR",
-    dateAdded: new Date().toISOString(),
     priority: "High",
   },
   {
@@ -25,7 +24,6 @@ export const wishlist: WishlistItem[] = [
     imageUrl: "/images/products/wishlist/basic-tops/tees-polyamide-maroon.png",
     price: 1249,
     currency: "INR",
-    dateAdded: new Date().toISOString(),
     priority: "High",
   },
   {
@@ -37,7 +35,6 @@ export const wishlist: WishlistItem[] = [
     imageUrl: "/images/products/wishlist/basic-tops/tanks-polyamide-burgundy.png",
     price: 690,
     currency: "INR",
-    dateAdded: new Date().toISOString(),
     priority: "High",
   },
   {
@@ -49,7 +46,6 @@ export const wishlist: WishlistItem[] = [
     imageUrl: "/images/products/wishlist/basic-tops/tanks-polyamide-white.png",
     price: 690,
     currency: "INR",
-    dateAdded: new Date().toISOString(),
     priority: "High",
   },
   {
@@ -61,7 +57,6 @@ export const wishlist: WishlistItem[] = [
     imageUrl: "/images/products/wishlist/basic-tops/tanks-cotton-black.png",
     price: 490,
     currency: "INR",
-    dateAdded: new Date().toISOString(),
     priority: "High",
   },
   {
@@ -73,7 +68,6 @@ export const wishlist: WishlistItem[] = [
     imageUrl: "/images/products/wishlist/basic-tops/tanks-cotton-white.png",
     price: 490,
     currency: "INR",
-    dateAdded: new Date().toISOString(),
     priority: "High",
   },
   {
@@ -85,7 +79,6 @@ export const wishlist: WishlistItem[] = [
     imageUrl: "/images/products/wishlist/basic-tops/polyamide-white.png",
     price: 690,
     currency: "INR",
-    dateAdded: new Date().toISOString(),
     priority: "High",
   },
   {
@@ -97,7 +90,6 @@ export const wishlist: WishlistItem[] = [
     imageUrl: "/images/products/wishlist/basic-tops/polyamide-white-full.png",
     price: 890,
     currency: "INR",
-    dateAdded: new Date().toISOString(),
     priority: "High",
   },
   {
@@ -109,7 +101,6 @@ export const wishlist: WishlistItem[] = [
     imageUrl: "/images/products/wishlist/basic-tops/fitted-combo.png",
     price: 1199,
     currency: "INR",
-    dateAdded: new Date().toISOString(),
     priority: "High",
   },
 
@@ -123,7 +114,6 @@ export const wishlist: WishlistItem[] = [
     imageUrl: "/images/products/wishlist/elevated-tops/elevated1.png",
     price: 549,
     currency: "INR",
-    dateAdded: new Date().toISOString(),
     priority: "Medium",
   },
   {
@@ -135,7 +125,6 @@ export const wishlist: WishlistItem[] = [
     imageUrl: "/images/products/wishlist/elevated-tops/elevated8.png",
     price: 2195,
     currency: "INR",
-    dateAdded: new Date().toISOString(),
     priority: "Medium",
   },
   {
@@ -147,7 +136,6 @@ export const wishlist: WishlistItem[] = [
     imageUrl: "/images/products/wishlist/elevated-tops/elevated9.png",
     price: 699,
     currency: "INR",
-    dateAdded: new Date().toISOString(),
     priority: "Medium",
   },
   {
@@ -159,7 +147,6 @@ export const wishlist: WishlistItem[] = [
     imageUrl: "/images/products/wishlist/elevated-tops/elevated11.png",
     price: 3000,
     currency: "INR",
-    dateAdded: new Date().toISOString(),
     priority: "Medium",
   },
   {
@@ -171,7 +158,6 @@ export const wishlist: WishlistItem[] = [
     imageUrl: "/images/products/wishlist/elevated-tops/elevated5.png",
     price: 1399,
     currency: "INR",
-    dateAdded: new Date().toISOString(),
     priority: "Medium",
   },
   {
@@ -183,7 +169,6 @@ export const wishlist: WishlistItem[] = [
     imageUrl: "/images/products/wishlist/elevated-tops/elevated6.png",
     price: 999,
     currency: "INR",
-    dateAdded: new Date().toISOString(),
     priority: "Medium",
   },
   {
@@ -195,7 +180,6 @@ export const wishlist: WishlistItem[] = [
     imageUrl: "/images/products/wishlist/elevated-tops/elevated2.png",
     price: 1399,
     currency: "INR",
-    dateAdded: new Date().toISOString(),
     priority: "Medium",
   },
   {
@@ -207,7 +191,6 @@ export const wishlist: WishlistItem[] = [
     imageUrl: "/images/products/wishlist/elevated-tops/elevated4.png",
     price: 1399,
     currency: "INR",
-    dateAdded: new Date().toISOString(),
     priority: "Medium",
   },
   {
@@ -219,7 +202,6 @@ export const wishlist: WishlistItem[] = [
     imageUrl: "/images/products/wishlist/elevated-tops/elevated3.png",
     price: 2999,
     currency: "INR",
-    dateAdded: new Date().toISOString(),
     priority: "Medium",
   },
   {
@@ -231,7 +213,6 @@ export const wishlist: WishlistItem[] = [
     imageUrl: "/images/products/wishlist/elevated-tops/elevated7.png",
     price: 1399,
     currency: "INR",
-    dateAdded: new Date().toISOString(),
     priority: "Medium",
   },
 
@@ -247,7 +228,6 @@ export const wishlist: WishlistItem[] = [
     imageUrl: "/images/products/wishlist/bottoms/bootcut-formal.png",
     price: 2995,
     currency: "INR",
-    dateAdded: new Date().toISOString(),
     priority: "Low",
   },
   {
@@ -259,7 +239,6 @@ export const wishlist: WishlistItem[] = [
     imageUrl: "/images/products/wishlist/bottoms/bottom1.png",
     price: 899,
     currency: "INR",
-    dateAdded: new Date().toISOString(),
     priority: "Low",
   },
   {
@@ -271,7 +250,6 @@ export const wishlist: WishlistItem[] = [
     imageUrl: "/images/products/wishlist/bottoms/leather_bootcut.png",
     price: 2099,
     currency: "INR",
-    dateAdded: new Date().toISOString(),
     priority: "Low",
   },
   {
@@ -283,7 +261,6 @@ export const wishlist: WishlistItem[] = [
     imageUrl: "/images/products/wishlist/bottoms/woolen-bottom.png",
     price: 2499,
     currency: "INR",
-    dateAdded: new Date().toISOString(),
     priority: "Low",
   },
 
@@ -299,7 +276,6 @@ export const wishlist: WishlistItem[] = [
     imageUrl: "/images/products/wishlist/seasonals/winter1.png",
     price: 2099,
     currency: "INR",
-    dateAdded: new Date().toISOString(),
     priority: "Medium",
   },
   {
@@ -311,7 +287,6 @@ export const wishlist: WishlistItem[] = [
     imageUrl: "/images/products/wishlist/seasonals/summer1.png",
     price: 699,
     currency: "INR",
-    dateAdded: new Date().toISOString(),
     priority: "Medium",
   },
   {
@@ -323,7 +298,6 @@ export const wishlist: WishlistItem[] = [
     imageUrl: "/images/products/wishlist/seasonals/winter2.png",
     price: 2495,
     currency: "INR",
-    dateAdded: new Date().toISOString(),
     priority: "High",
   },
   {
@@ -335,7 +309,6 @@ export const wishlist: WishlistItem[] = [
     imageUrl: "/images/products/wishlist/outerwear/ow-out1.png",
     price: 5490,
     currency: "INR",
-    dateAdded: new Date().toISOString(),
     priority: "Medium",
   },
 ]

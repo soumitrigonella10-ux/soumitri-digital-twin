@@ -106,11 +106,6 @@ export function ProductCard({
               </span>
             </div>
             
-            {product.notes && (
-              <p className="text-xs text-gray-500 mt-1 line-clamp-1">
-                {product.notes}
-              </p>
-            )}
           </div>
 
           {/* Edit Button */}
@@ -149,24 +144,6 @@ export function ProductCard({
           {index + 1}
         </div>
 
-        {/* Product Image Viewport */}
-        {product.imageUrl && (
-          <div className={cn(
-            "w-14 h-14 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0 border border-gray-200 overflow-hidden relative",
-            isCompleted && "grayscale opacity-60"
-          )}>
-            <Image 
-              src={product.imageUrl} 
-              alt={product.name}
-              fill
-              sizes="56px"
-              className={cn(
-                "object-cover transition-all duration-300",
-                isCompleted && "grayscale opacity-60"
-              )}
-            />
-          </div>
-        )}
 
         <div className="flex-1 min-w-0">
           {/* Product Name */}
@@ -224,14 +201,6 @@ export function ProductCard({
             )}
 
             {/* Dosage or serving info for wellness products */}
-            {variant === 'compact' && product.notes && (
-              <span className={cn(
-                "px-1.5 py-0.5 bg-gray-100 text-gray-600 text-xs rounded transition-all",
-                isCompleted && "opacity-50"
-              )}>
-                {product.notes}
-              </span>
-            )}
           </div>
 
           {/* Metadata Row */}

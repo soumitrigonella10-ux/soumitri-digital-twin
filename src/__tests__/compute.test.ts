@@ -245,13 +245,13 @@ describe("computeDayPlan — flag filtering", () => {
 // Travel mode
 // ========================================
 describe("computeDayPlan — travel mode", () => {
-  it("filters to essential steps only when travel flag is set", () => {
+  it("shows only first 2 steps when travel flag is set", () => {
     const routine = makeRoutine({
       tags: { travel: true },
       steps: [
-        { order: 1, title: "Essential Step", essential: true },
-        { order: 2, title: "Optional Step", essential: false },
-        { order: 3, title: "Another Optional", essential: false },
+        { order: 1, title: "First Step" },
+        { order: 2, title: "Second Step" },
+        { order: 3, title: "Third Step" },
       ],
     });
     const plan = computeDayPlan(
@@ -263,17 +263,17 @@ describe("computeDayPlan — travel mode", () => {
     const skinSection = plan.sections.find((s) => s.key === "Skincare")!;
     const steps = skinSection.routines[0]!.steps;
 
-    expect(steps).toHaveLength(1);
-    expect(steps[0]!.title).toBe("Essential Step");
+    expect(steps).toHaveLength(2);
+    expect(steps[0]!.title).toBe("First Step");
+    expect(steps[1]!.title).toBe("Second Step");
   });
 
-  it("keeps first 2 steps when none marked essential", () => {
+  it("keeps all steps when routine has 2 or fewer steps", () => {
     const routine = makeRoutine({
       tags: { travel: true },
       steps: [
         { order: 1, title: "A" },
         { order: 2, title: "B" },
-        { order: 3, title: "C" },
       ],
     });
     const plan = computeDayPlan(

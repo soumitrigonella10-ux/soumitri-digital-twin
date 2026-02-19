@@ -22,7 +22,7 @@ export function WishlistItemCard({ item, isSelected, onSelect }: WishlistItemCar
       onClick={() => onSelect(item)}
     >
       {/* Image area with priority badge */}
-      <div className="relative bg-gray-200">
+      <div className="relative bg-[#FDF5E6]">
         {item.priority && (
           <div className="absolute top-4 left-4 z-10">
             <span

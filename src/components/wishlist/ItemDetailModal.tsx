@@ -36,7 +36,7 @@ export function ItemDetailModal({
         </CardHeader>
         <CardContent className="space-y-4">
           {item.imageUrl && (
-            <div className="aspect-square rounded-md overflow-hidden bg-gray-100 relative">
+            <div className="aspect-square rounded-md overflow-hidden bg-[#FDF5E6] relative">
               <Image
                 src={item.imageUrl}
                 alt={item.name}
@@ -54,20 +54,7 @@ export function ItemDetailModal({
               <div><strong>Price:</strong> ₹{item.price}</div>
             )}
             <div><strong>Priority:</strong> {item.priority}</div>
-            {isAuthenticated && (
-              <div><strong>Added:</strong> {new Date(item.dateAdded).toLocaleDateString()}</div>
-            )}
-            {isAuthenticated && item.purchased && item.purchaseDate && (
-              <div><strong>Purchased:</strong> {new Date(item.purchaseDate).toLocaleDateString()}</div>
-            )}
           </div>
-
-          {item.notes && (
-            <div>
-              <strong>Notes:</strong>
-              <p className="mt-1 text-sm text-muted-foreground">{item.notes}</p>
-            </div>
-          )}
 
           <div className="flex gap-2 pt-4">
             {item.websiteUrl && (

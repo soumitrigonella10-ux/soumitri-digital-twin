@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import Image from "next/image";
-import { Shirt, Plus, X } from "lucide-react";
+import { Shirt } from "lucide-react";
 import { useAppStore } from "@/store/useAppStore";
 import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
 import { WardrobeItem } from "@/types";
@@ -10,327 +10,222 @@ import { cn } from "@/lib/utils";
 
 function WardrobePageContent() {
   const { data } = useAppStore();
-  const [selectedCategory, setSelectedCategory] = useState<string>("All");
-  const [selectedSubcategory, setSelectedSubcategory] = useState<string | null>(null);
-  const [selectedSeasonalType, setSelectedSeasonalType] = useState<string | null>(null);
-  const [selectedItem, setSelectedItem] = useState<WardrobeItem | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string>("Top");
+  const [selectedSubchip, setSelectedSubchip] = useState<string | null>(null);
 
-  // Get unique categories
-  const categories = useMemo(() => {
-    const cats = new Set(data.wardrobe.map((w) => w.category));
-    return ["All", ...Array.from(cats)];
-  }, [data.wardrobe]);
 
-  // Get subcategories for the selected category
-  const subcategories = useMemo(() => {
-    if (selectedCategory !== "Top") return [];
-    
-    // Get unique subcategories for tops
-    const subcats = new Set(data.wardrobe
-      .filter(item => item.category === "Top")
-      .map(item => item.subcategory)
-      .filter((s): s is string => Boolean(s))
-    );
-    
-    return Array.from(subcats);
+  const categories = ["Top", "Bottom", "Dress", "Shoe", "Outerwear", "Innerwear"];
+
+  // Bottom chip → subType mapping
+  const bottomChipMap: Record<string, string[]> = {
+    "Jeans": ["Jeans"],
+    "Trousers": ["Straight", "Skinny", "Bootcut", "Baggy", "Home", "Semi-fancy", "Fancy", "Casuals"],
+    "Skirts": ["Skirt Casual", "Skirt Formal"],
+  };
+
+  // Get level-1 sub-chips for the selected category
+  const subchips = useMemo(() => {
+    const items = data.wardrobe.filter((i) => i.category === selectedCategory);
+
+    if (selectedCategory === "Top" || selectedCategory === "Shoe") {
+      const set = new Set(items.map((i) => i.subcategory).filter((s): s is string => Boolean(s)));
+      return Array.from(set);
+    }
+    if (selectedCategory === "Bottom") {
+      return ["Jeans", "Trousers", "Skirts"];
+    }
+    if (selectedCategory === "Dress" || selectedCategory === "Outerwear") {
+      const set = new Set(items.map((i) => i.subType).filter((s): s is string => Boolean(s)));
+      return Array.from(set);
+    }
+    return [];
   }, [data.wardrobe, selectedCategory]);
 
-  // Get seasonal types (Summer/Winter) when Seasonals is selected
-  const seasonalTypes = useMemo(() => {
-    if (selectedSubcategory !== "Seasonals") return [];
-    
-    const types = new Set(data.wardrobe
-      .filter(item => item.subcategory === "Seasonals")
-      .map(item => item.subType)
-      .filter((t): t is string => Boolean(t))
-    );
-    
-    return Array.from(types);
-  }, [data.wardrobe, selectedSubcategory]);
+  // Auto-select first sub-chip
+  const activeSubchip =
+    selectedSubchip && subchips.includes(selectedSubchip)
+      ? selectedSubchip
+      : subchips[0] ?? null;
 
   // Filter items
   const filteredItems = useMemo(() => {
-    let items = [...data.wardrobe];
+    let items = data.wardrobe.filter((i) => i.category === selectedCategory);
 
-    if (selectedCategory !== "All") {
-      items = items.filter((i) => i.category === selectedCategory);
-      
-      if (selectedSubcategory) {
-        items = items.filter((i) => i.subcategory === selectedSubcategory);
-        
-        if (selectedSeasonalType) {
-          items = items.filter((i) => i.subType === selectedSeasonalType);
-        }
+    if (activeSubchip) {
+      if (selectedCategory === "Top" || selectedCategory === "Shoe") {
+        items = items.filter((i) => i.subcategory === activeSubchip);
+      } else if (selectedCategory === "Bottom") {
+        const allowedSubTypes = bottomChipMap[activeSubchip] || [];
+        items = items.filter((i) => i.subType && allowedSubTypes.includes(i.subType));
+      } else {
+        items = items.filter((i) => i.subType === activeSubchip);
       }
     }
 
     return items;
-  }, [data.wardrobe, selectedCategory, selectedSubcategory, selectedSeasonalType]);
+  }, [data.wardrobe, selectedCategory, activeSubchip]);
 
-  // Group by category for display
+  // Group items by sub-heading when applicable
   const groupedItems = useMemo(() => {
-    if (selectedSeasonalType) {
-      // Show only the selected seasonal type
-      return { [selectedSeasonalType]: filteredItems };
-    } else if (selectedSubcategory && selectedSubcategory !== "Seasonals") {
-      return { [selectedSubcategory]: filteredItems };
-    } else if (selectedCategory !== "All" && !selectedSubcategory) {
-      return { [selectedCategory]: filteredItems };
-    }
-    
-    return filteredItems.reduce((acc, item) => {
-      if (!acc[item.category]) {
-        acc[item.category] = [];
+    if (activeSubchip === "Elevated tops") {
+      const groups: Record<string, WardrobeItem[]> = {};
+      for (const item of filteredItems) {
+        const key = item.occasion || "Other";
+        if (!groups[key]) groups[key] = [];
+        groups[key].push(item);
       }
-      acc[item.category]!.push(item);
-      return acc;
-    }, {} as Record<string, WardrobeItem[]>);
-  }, [filteredItems, selectedCategory, selectedSubcategory, selectedSeasonalType]);
+      return groups;
+    }
+    if (activeSubchip === "Seasonals") {
+      const groups: Record<string, WardrobeItem[]> = {};
+      for (const item of filteredItems) {
+        const key = item.subType || "Other";
+        if (!groups[key]) groups[key] = [];
+        groups[key].push(item);
+      }
+      return groups;
+    }
+    // Group Trousers and Skirts by subType sub-headings
+    if (selectedCategory === "Bottom" && activeSubchip && (activeSubchip === "Trousers" || activeSubchip === "Skirts")) {
+      const groups: Record<string, WardrobeItem[]> = {};
+      for (const item of filteredItems) {
+        const key = item.subType || "Other";
+        if (!groups[key]) groups[key] = [];
+        groups[key].push(item);
+      }
+      return groups;
+    }
+    return null;
+  }, [filteredItems, activeSubchip, selectedCategory]);
+
+  const handleCategoryChange = (cat: string) => {
+    setSelectedCategory(cat);
+    setSelectedSubchip(null);
+  };
 
   return (
     <div className="space-y-8">
       {/* Header */}
       <header className="animate-fade-scale">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-category-wardrobe flex items-center justify-center">
-              <Shirt className="w-6 h-6 text-orange-500" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">Wardrobe</h1>
-              <p className="text-gray-500">{data.wardrobe.length} items</p>
-            </div>
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 rounded-2xl bg-category-wardrobe flex items-center justify-center">
+            <Shirt className="w-6 h-6 text-orange-500" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Wardrobe</h1>
+            <p className="text-gray-500">{data.wardrobe.length} items</p>
           </div>
         </div>
       </header>
 
-      {/* Filters */}
-      <div className="flex flex-col gap-3">
-        {/* Category Pills */}
+      {/* Category Chips */}
+      <div className="flex flex-wrap gap-2">
+        {categories.map((cat) => (
+          <button
+            key={cat}
+            onClick={() => handleCategoryChange(cat)}
+            className={cn(
+              "px-3 py-1.5 rounded-xl text-sm font-medium transition-all",
+              selectedCategory === cat
+                ? "bg-orange-100 text-orange-700"
+                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+            )}
+          >
+            {cat}
+          </button>
+        ))}
+      </div>
+
+      {/* Sub-chips (level 1) */}
+      {subchips.length > 0 && (
         <div className="flex flex-wrap gap-2">
-          {categories.map((cat) => (
+          {subchips.map((sub) => (
             <button
-              key={cat}
+              key={sub}
               onClick={() => {
-                setSelectedCategory(cat);
-                setSelectedSubcategory(null); // Clear subcategory when selecting category
-                setSelectedSeasonalType(null); // Clear seasonal type
+                setSelectedSubchip(sub);
               }}
               className={cn(
-                "px-3 py-1.5 rounded-xl text-sm font-medium transition-all",
-                selectedCategory === cat && !selectedSubcategory
-                  ? "bg-orange-100 text-orange-700"
-                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                "px-3 py-1.5 rounded-xl text-xs font-medium transition-all",
+                activeSubchip === sub
+                  ? "bg-orange-500 text-white"
+                  : "bg-gray-50 text-gray-500 hover:bg-gray-100 border border-gray-200"
               )}
             >
-              {cat}
+              {sub}
             </button>
           ))}
         </div>
-
-        {/* Subcategory Pills for Tops*/}
-        {selectedCategory === "Top" && subcategories.length > 0 && (
-          <div className="flex flex-wrap gap-2 pl-4 border-l-2 border-orange-200">
-            <span className="text-sm font-medium text-gray-500 self-center px-2">Sections:</span>
-            {subcategories.map((subcat) => {
-              const itemCount = data.wardrobe.filter(item => 
-                item.category === "Top" && item.subcategory === subcat
-              ).length;
-              
-              return (
-                <button
-                  key={subcat}
-                  onClick={() => {
-                    setSelectedSubcategory(subcat);
-                    setSelectedSeasonalType(null); // Clear seasonal type when selecting new subcategory
-                  }}
-                  className={cn(
-                    "px-3 py-1.5 rounded-xl text-sm font-medium transition-all",
-                    selectedSubcategory === subcat
-                      ? subcat === "Seasonals"
-                        ? "bg-green-100 text-green-700"
-                        : "bg-orange-100 text-orange-700"
-                      : subcat === "Seasonals"
-                        ? "bg-green-50 text-green-600 hover:bg-green-100"
-                        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                  )}
-                >
-                  {subcat} ({itemCount})
-                </button>
-              );
-            })}
-          </div>
-        )}
-
-        {/* Seasonal Type Pills (Summer/Winter) when Seasonals is selected */}
-        {selectedSubcategory === "Seasonals" && seasonalTypes.length > 0 && (
-          <div className="flex flex-wrap gap-2 pl-8 border-l-2 border-green-200">
-            <span className="text-sm font-medium text-gray-500 self-center px-2">Season:</span>
-            {seasonalTypes.map((seasonType) => {
-              const itemCount = data.wardrobe.filter(item => 
-                item.subcategory === "Seasonals" && item.subType === seasonType
-              ).length;
-              
-              return (
-                <button
-                  key={seasonType}
-                  onClick={() => setSelectedSeasonalType(seasonType)}
-                  className={cn(
-                    "px-3 py-1.5 rounded-xl text-sm font-medium transition-all",
-                    selectedSeasonalType === seasonType
-                      ? seasonType === "Summer"
-                        ? "bg-yellow-100 text-yellow-700"
-                        : "bg-blue-100 text-blue-700"
-                      : seasonType === "Summer"
-                        ? "bg-yellow-50 text-yellow-600 hover:bg-yellow-100"
-                        : "bg-blue-50 text-blue-600 hover:bg-blue-100"
-                  )}
-                >
-                  {seasonType} ({itemCount})
-                </button>
-              );
-            })}
-          </div>
-        )}
-
-      </div>
+      )}
 
       {/* Items Grid */}
-      <div className="space-y-8">
-        {Object.entries(groupedItems).map(([category, items]) => (
-          <section key={category} className="animate-slide-in">
-            <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-4">
-              {category} ({items.length})
-            </h3>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-              {items.map((item) => (
-                <div
-                  key={item.id}
-                  onClick={() => setSelectedItem(item)}
-                  className="lifeos-card-interactive overflow-hidden group"
-                >
-                  {/* Image */}
-                  <div className="aspect-square bg-gray-100 relative">
-                    {item.imageUrl ? (
-                      <Image
-                        src={item.imageUrl}
-                        alt={item.name}
-                        fill
-                        sizes="(max-width: 768px) 50vw, 20vw"
-                        className="object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <Shirt className="w-12 h-12 text-gray-300" />
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Info */}
-                  <div className="p-3">
-                    <p className="font-medium text-gray-900 text-sm truncate">
-                      {item.name}
-                    </p>
-                    <div className="flex flex-wrap gap-1 mt-1.5">
-                      {item.colors.slice(0, 2).map((color) => (
-                        <span
-                          key={color}
-                          className="px-1.5 py-0.5 bg-gray-100 rounded text-xs text-gray-500"
-                        >
-                          {color}
-                        </span>
-                      ))}
+      {groupedItems ? (
+        <div className="space-y-6">
+          {Object.entries(groupedItems).map(([group, items]) => (
+            <section key={group}>
+              <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+                {group} ({items.length})
+              </h3>
+              <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8 gap-2">
+                {items.map((item, index) => (
+                  <div
+                    key={item.id}
+                    className="lifeos-card-interactive overflow-hidden animate-slide-in"
+                    style={{ animationDelay: `${index * 50}ms` }}
+                  >
+                    <div className="aspect-square bg-[#FDF5E6] relative flex items-center justify-center">
+                      {item.imageUrl ? (
+                        <Image
+                          src={item.imageUrl}
+                          alt={item.name}
+                          fill
+                          sizes="(max-width: 768px) 25vw, 12.5vw"
+                          className="object-contain"
+                        />
+                      ) : (
+                        <Shirt className="w-8 h-8 text-gray-300" />
+                      )}
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          </section>
-        ))}
-
-        {filteredItems.length === 0 && (
-          <div className="text-center py-12 text-gray-500">
-            <Shirt className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-            <p>No items match your filters</p>
-          </div>
-        )}
-      </div>
-
-      {/* Add New Item Button */}
-      <button className="add-button-dashed w-full py-6">
-        <Plus className="w-5 h-5" />
-        <span>Add Wardrobe Item</span>
-      </button>
-
-      {/* Item Detail Modal */}
-      {selectedItem && (
-        <div
-          className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
-          onClick={() => setSelectedItem(null)}
-        >
-          <div
-            className="bg-white rounded-2xl max-w-md w-full max-h-[90vh] overflow-y-auto"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Image */}
-            <div className="aspect-square bg-gray-100 relative">
-              {selectedItem.imageUrl ? (
-                <Image
-                  src={selectedItem.imageUrl}
-                  alt={selectedItem.name}
-                  fill
-                  sizes="(max-width: 768px) 100vw, 448px"
-                  className="object-cover"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center">
-                  <Shirt className="w-24 h-24 text-gray-300" />
-                </div>
-              )}
-              <button
-                onClick={() => setSelectedItem(null)}
-                className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/90 flex items-center justify-center"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            {/* Details */}
-            <div className="p-6">
-              <div className="flex items-start justify-between mb-4">
-                <h2 className="text-xl font-semibold text-gray-900">
-                  {selectedItem.name}
-                </h2>
+                ))}
               </div>
-
-              <div className="space-y-4">
-                <div>
-                  <p className="text-xs font-medium text-gray-500 uppercase mb-1">
-                    Category
-                  </p>
-                  <p className="text-gray-900">{selectedItem.category}</p>
-                </div>
-
-                <div>
-                  <p className="text-xs font-medium text-gray-500 uppercase mb-1">
-                    Colors
-                  </p>
-                  <div className="flex flex-wrap gap-1">
-                    {selectedItem.colors.map((color) => (
-                      <span
-                        key={color}
-                        className="px-2 py-0.5 bg-gray-100 rounded-full text-sm"
-                      >
-                        {color}
-                      </span>
-                    ))}
-                  </div>
-                </div>
+            </section>
+          ))}
+        </div>
+      ) : (
+        <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8 gap-2">
+          {filteredItems.map((item, index) => (
+            <div
+              key={item.id}
+              className="lifeos-card-interactive overflow-hidden animate-slide-in"
+              style={{ animationDelay: `${index * 50}ms` }}
+            >
+              <div className="aspect-square bg-[#FDF5E6] relative flex items-center justify-center">
+                {item.imageUrl ? (
+                  <Image
+                    src={item.imageUrl}
+                    alt={item.name}
+                    fill
+                    sizes="(max-width: 768px) 25vw, 12.5vw"
+                    className="object-contain"
+                  />
+                ) : (
+                  <Shirt className="w-8 h-8 text-gray-300" />
+                )}
               </div>
             </div>
-          </div>
+          ))}
         </div>
       )}
+
+      {filteredItems.length === 0 && (
+        <div className="text-center py-12 text-gray-500">
+          <Shirt className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+          <p>No items in this category</p>
+        </div>
+      )}
+
+
     </div>
   );
 }

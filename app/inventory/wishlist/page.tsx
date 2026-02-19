@@ -11,7 +11,6 @@ import { EditorialNav } from "@/components/EditorialNav";
 import {
   CategoryFilter,
   WishlistGrid,
-  ItemDetailModal,
   AddItemModal,
 } from "@/components/wishlist";
 
@@ -25,8 +24,7 @@ function useWishlistFilters(wishlist: WishlistItem[]) {
     items.sort((a, b) => {
       const pA = priorityOrder[a.priority || "Medium"];
       const pB = priorityOrder[b.priority || "Medium"];
-      if (pA !== pB) return pB - pA;
-      return new Date(b.dateAdded).getTime() - new Date(a.dateAdded).getTime();
+      return pB - pA;
     });
     return items;
   }, [wishlist, selectedCategory]);
@@ -46,7 +44,6 @@ export default function WishlistPage() {
   const { selectedCategory, setSelectedCategory, filteredItems, groupedItems } =
     useWishlistFilters(data.wishlist);
 
-  const [selectedItem, setSelectedItem] = useState<WishlistItem | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
 
   const handleSignIn = async (email: string) => {
@@ -59,12 +56,10 @@ export default function WishlistPage() {
 
   const handleRemoveItem = (id: string) => {
     removeWishlistItem(id);
-    setSelectedItem(null);
   };
 
   const handleMarkPurchased = (id: string) => {
     markWishlistItemPurchased(id);
-    setSelectedItem(null);
   };
 
   const handleAddItem = (item: WishlistItem) => {
@@ -94,8 +89,8 @@ export default function WishlistPage() {
           filteredItems={filteredItems}
           groupedItems={groupedItems}
           selectedCategory={selectedCategory}
-          selectedItem={selectedItem}
-          onSelectItem={setSelectedItem}
+          selectedItem={null}
+          onSelectItem={() => {}}
           emptyMessage={
             session
               ? "Add some items to your wishlist to get started!"
@@ -103,24 +98,6 @@ export default function WishlistPage() {
           }
         />
       </div>
-
-      {selectedItem && (
-        <ItemDetailModal
-          item={selectedItem}
-          isAuthenticated={!!session}
-          onClose={() => setSelectedItem(null)}
-          {...(session ? { onMarkPurchased: handleMarkPurchased } : {})}
-          {...(session ? { onRemove: handleRemoveItem } : {})}
-          {...(!session
-            ? {
-                onSignInPrompt: () => {
-                  const email = prompt("Enter your email to sign in:");
-                  if (email) handleSignIn(email);
-                },
-              }
-            : {})}
-        />
-      )}
     </>
   );
 

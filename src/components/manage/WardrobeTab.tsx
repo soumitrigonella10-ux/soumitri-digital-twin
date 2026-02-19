@@ -19,7 +19,6 @@ const wardrobeSchema = z.object({
   name: z.string().min(1, "Name is required"),
   category: z.enum(["Top", "Bottom", "Dress", "Shoes", "Accessories", "Outerwear"]),
   imageUrl: z.string().url("Must be a valid URL"),
-  colors: z.string(),
 });
 
 type WardrobeForm = z.infer<typeof wardrobeSchema>;
@@ -45,7 +44,6 @@ export function WardrobeTab() {
       name: values.name,
       category: values.category,
       imageUrl: values.imageUrl,
-      colors: values.colors.split(",").map((s) => s.trim()).filter(Boolean),
     };
     upsertWardrobe(item);
     toast({ title: "Wardrobe item saved", variant: "success" });
@@ -87,7 +85,6 @@ export function WardrobeTab() {
             <Input placeholder="Image URL" {...register("imageUrl")} />
             {errors.imageUrl && <span className="text-xs text-red-500">{errors.imageUrl.message}</span>}
           </div>
-          <Input placeholder="Colors (comma-separated)" {...register("colors")} />
           <div className="flex gap-2">
             <Button type="submit">Save</Button>
             <Button type="button" variant="outline" onClick={() => setShowForm(false)}>Cancel</Button>

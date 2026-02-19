@@ -1,16 +1,13 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useMemo } from "react";
 import Image from "next/image";
-import { Shirt, X } from "lucide-react";
+import { Shirt } from "lucide-react";
 import { useAppStore } from "@/store/useAppStore";
-import { WardrobeItem } from "@/types";
 import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
 
 function InnerwearPageContent() {
   const { data } = useAppStore();
-  const [selectedItem, setSelectedItem] = useState<WardrobeItem | null>(null);
-
   // Filter for innerwear only - checking if such category exists, otherwise empty
   const innerwearItems = useMemo(() => {
     return data.wardrobe.filter((item) => item.category === "Accessories");
@@ -45,10 +42,9 @@ function InnerwearPageContent() {
             {filteredItems.map((item) => (
               <div
                 key={item.id}
-                onClick={() => setSelectedItem(item)}
                 className="lifeos-card-interactive overflow-hidden group"
               >
-                <div className="aspect-square bg-gray-100 relative">
+                <div className="aspect-square bg-[#FDF5E6] relative">
                   {item.imageUrl ? (
                     <Image
                       src={item.imageUrl}
@@ -76,46 +72,7 @@ function InnerwearPageContent() {
         )}
       </div>
 
-      {selectedItem && (
-        <div
-          className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
-          onClick={() => setSelectedItem(null)}
-        >
-          <div
-            className="bg-white rounded-2xl max-w-md w-full max-h-[90vh] overflow-y-auto"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="aspect-square bg-gray-100 relative">
-              {selectedItem.imageUrl ? (
-                <Image src={selectedItem.imageUrl} alt={selectedItem.name} fill sizes="(max-width: 768px) 100vw, 448px" className="object-cover" />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center">
-                  <Shirt className="w-24 h-24 text-gray-300" />
-                </div>
-              )}
-              <button
-                onClick={() => setSelectedItem(null)}
-                className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/90 flex items-center justify-center"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-            <div className="p-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">{selectedItem.name}</h2>
-              <div className="space-y-4">
-                <div>
-                  <p className="text-xs font-medium text-gray-500 uppercase mb-1">Colors</p>
-                  <div className="flex flex-wrap gap-1">
-                    {selectedItem.colors.map((color) => (
-                      <span key={color} className="px-2 py-0.5 bg-gray-100 rounded-full text-sm">{color}</span>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+
     </div>
   );
 }

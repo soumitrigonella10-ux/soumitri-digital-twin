@@ -174,14 +174,6 @@ export const categories: SidebarCategory[] = [
     bgClass: "bg-category-wardrobe",
     borderClass: "border-category-wardrobe",
     group: "Inventory",
-    subCategories: [
-      { id: "tops", name: "Tops", href: "/inventory/wardrobe/tops" },
-      { id: "bottoms", name: "Bottoms", href: "/inventory/wardrobe/bottoms" },
-      { id: "dresses", name: "Dresses", href: "/inventory/wardrobe/dresses" },
-      { id: "outerwear", name: "Outerwear", href: "/inventory/wardrobe/outerwear" },
-      { id: "shoes", name: "Shoes", href: "/inventory/wardrobe/shoes" },
-      { id: "innerwear", name: "Innerwear", href: "/inventory/wardrobe/innerwear" },
-    ],
   },
   {
     id: "jewellery",

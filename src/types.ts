@@ -75,7 +75,6 @@ export interface Product {
   shade?: string; // Shade or variant name
   actives?: string[];
   cautionTags?: string[]; // e.g., "strong-active", "drying"
-  imageUrl?: string; // Product image URL
   // Routine-specific fields
   routineType?: RoutineType; // skin, body, bodySpecific, hair, etc.
   bodyAreas?: BodyArea[]; // Which body areas this product is used on (UA, IT, BL, IA, B)
@@ -83,8 +82,6 @@ export interface Product {
   timeOfDay?: TimeOfDay; // AM, MIDDAY, PM, or ANY
   weekdays?: number[]; // 0=Sun, 1=Mon, ..., 6=Sat (which days to use this product)
   displayOrder?: number; // Order in which to display/use the product in routine
-  notes?: string; // Additional notes about dosage, purpose, timing, etc.
-  isActive?: boolean; // Whether this product is currently active in routine
 }
 
 // ========================================
@@ -97,8 +94,6 @@ export interface RoutineStep {
   durationMin?: number;
   productIds?: string[];
   bodyAreas?: BodyArea[];
-  essential?: boolean; // For Travel mode - only essential steps shown
-  mildAlternative?: boolean; // Marks step as mild alternative for going out
   weekdaysOnly?: number[]; // 0=Sun, 1=Mon, ..., 6=Sat - only show this step on specific days
 }
 
@@ -125,13 +120,6 @@ export interface Routine {
   productIds?: string[]; // Direct product references (alternative to steps)
   steps?: RoutineStep[]; // Made optional since some routines use productIds instead
   notes?: string; // Additional notes about the routine, tips, etc.
-  constraints?: {
-    avoidIfGoingOut?: boolean;
-    cooldownDaysAfter?: { tag: string; days: number }[];
-    dontCombineWith?: string[]; // product name or active tag
-    requiresSunscreenIfUsing?: string[]; // products that require sunscreen
-    optionalFallbackFor?: string[]; // routine IDs this is a fallback for
-  };
 }
 
 // ========================================
@@ -144,12 +132,7 @@ export interface WardrobeItem {
   subcategory?: string; // e.g., "Basics", "Elevated", "Seasonals" for tops
   occasion?: string; // e.g., "Business Casual", "Formal", "Casual"
   imageUrl: string;
-  colors: string[];
-  // Additional fields for bottoms
-  styleType?: string; // e.g., "Basics", "Elevated", "Seasonals" for bottoms
   subType?: string; // e.g., "Straight", "Skinny", "Bootcut" for bottoms
-  vibeTags?: string[]; // e.g., ["Casual", "Professional"]
-  notes?: string;
 }
 
 // ========================================
@@ -165,11 +148,8 @@ export interface WishlistItem {
   websiteUrl?: string;
   price?: number;
   currency?: string;
-  notes?: string;
-  dateAdded: string; // ISO date
   priority?: "Low" | "Medium" | "High";
   purchased?: boolean;
-  purchaseDate?: string; // ISO date
 }
 
 // ========================================
@@ -181,13 +161,7 @@ export interface JewelleryItem {
   category: "Ring" | "Necklace" | "Bracelet" | "Earrings" | "Watch" | "Other";
   subcategory?: string; // e.g., "Casual", "Classy", "Silver", "Fancy", "Hoop", "Ethnic", "Cuff", "Locket", "Regular"
   imageUrl: string;
-  material: string;
-  occasions: string[];
   favorite?: boolean;
-  notes?: string;
-  price?: number;
-  currency?: string;
-  brand?: string;
 }
 
 // ========================================

@@ -31,9 +31,6 @@ function WardrobePageContent() {
     let items = [...data.wardrobe];
 
     // Apply filters
-    if (filters.color !== "Any") {
-      items = items.filter((item) => item.colors.includes(filters.color));
-    }
     if (filters.category !== "Any") {
       items = items.filter((item) => item.category === filters.category);
     }

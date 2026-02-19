@@ -137,7 +137,6 @@ describe("DataSlice", () => {
       id: "wish-1",
       name: "Nice Bag",
       category: "Tops",
-      dateAdded: new Date().toISOString(),
     };
 
     // Add
@@ -157,7 +156,6 @@ describe("DataSlice", () => {
       .getState()
       .data.wishlist.find((i) => i.id === "wish-1")!;
     expect(purchased.purchased).toBe(true);
-    expect(purchased.purchaseDate).toBeDefined();
 
     // Remove
     useAppStore.getState().removeWishlistItem("wish-1");

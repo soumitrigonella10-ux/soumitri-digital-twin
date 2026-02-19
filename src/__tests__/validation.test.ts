@@ -36,15 +36,12 @@ describe("productSchema", () => {
   it("accepts a product with all optional fields", () => {
     const full = {
       ...validProduct,
-      imageUrl: "https://example.com/img.jpg",
       routineType: "skin" as const,
       bodyAreas: ["UA", "IT"] as const,
       hairPhase: "daily" as const,
       timeOfDay: "AM" as const,
       weekdays: [1, 3, 5],
       displayOrder: 2,
-      notes: "Apply after cleansing",
-      isActive: true,
     };
     const result = validateWithSchema(productSchema, full);
     expect(result.success).toBe(true);

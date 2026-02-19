@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import Image from "next/image";
-import { Gem, Heart, X } from "lucide-react";
+import { Gem, Heart } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
 import { jewelleryInventory, getSubcategories } from "@/data/jewellery";
@@ -11,34 +11,35 @@ import { JewelleryItem } from "@/types";
 // Jewellery Page Content
 function JewelleryPageContent() {
   const [items] = useState<JewelleryItem[]>(jewelleryInventory);
-  const [selectedCategory, setSelectedCategory] = useState<string>("All");
-  const [selectedSubcategory, setSelectedSubcategory] = useState<string>("All");
-  const [selectedItem, setSelectedItem] = useState<JewelleryItem | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string>("Earrings");
+  const [selectedSubcategory, setSelectedSubcategory] = useState<string | null>(null);
 
-  const categories = ["All", "Earrings", "Necklace", "Other"];
+
+  const categories = ["Earrings", "Necklace", "Other"];
 
   // Get subcategories dynamically based on selected category
   const subcategories = useMemo(() => {
-    if (selectedCategory === "All") return [];
     return getSubcategories(selectedCategory);
   }, [selectedCategory]);
 
+  // Auto-select first subcategory when subcategories change
+  const activeSubcategory = selectedSubcategory && subcategories.includes(selectedSubcategory)
+    ? selectedSubcategory
+    : subcategories[0] ?? null;
+
   // Filter items by category and subcategory
   const filteredItems = useMemo(() => {
-    let result = items;
-    if (selectedCategory !== "All") {
-      result = result.filter((i) => i.category === selectedCategory);
-    }
-    if (selectedSubcategory !== "All" && subcategories.length > 0) {
-      result = result.filter((i) => i.subcategory === selectedSubcategory);
+    let result = items.filter((i) => i.category === selectedCategory);
+    if (activeSubcategory) {
+      result = result.filter((i) => i.subcategory === activeSubcategory);
     }
     return result;
-  }, [items, selectedCategory, selectedSubcategory, subcategories]);
+  }, [items, selectedCategory, activeSubcategory]);
 
   // Reset subcategory when main category changes
   const handleCategoryChange = (cat: string) => {
     setSelectedCategory(cat);
-    setSelectedSubcategory("All");
+    setSelectedSubcategory(null);
   };
 
   return (
@@ -77,24 +78,13 @@ function JewelleryPageContent() {
       {/* Subcategory Filter — appears when a main category is selected */}
       {subcategories.length > 0 && (
         <div className="flex flex-wrap gap-2">
-          <button
-            onClick={() => setSelectedSubcategory("All")}
-            className={cn(
-              "px-3 py-1.5 rounded-xl text-xs font-medium transition-all",
-              selectedSubcategory === "All"
-                ? "bg-cyan-500 text-white"
-                : "bg-gray-50 text-gray-500 hover:bg-gray-100 border border-gray-200"
-            )}
-          >
-            All {selectedCategory}
-          </button>
           {subcategories.map((sub) => (
             <button
               key={sub}
               onClick={() => setSelectedSubcategory(sub)}
               className={cn(
                 "px-3 py-1.5 rounded-xl text-xs font-medium transition-all",
-                selectedSubcategory === sub
+                activeSubcategory === sub
                   ? "bg-cyan-500 text-white"
                   : "bg-gray-50 text-gray-500 hover:bg-gray-100 border border-gray-200"
               )}
@@ -106,32 +96,31 @@ function JewelleryPageContent() {
       )}
 
       {/* Items Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8 gap-2">
         {filteredItems.map((item, index) => (
           <div
             key={item.id}
-            onClick={() => setSelectedItem(item)}
             className="lifeos-card-interactive overflow-hidden animate-slide-in"
             style={{ animationDelay: `${index * 50}ms` }}
           >
             {/* Image */}
-            <div className="aspect-square bg-gradient-to-br from-cyan-50 to-gray-100 relative flex items-center justify-center">
+            <div className="aspect-square bg-[#FDF5E6] relative flex items-center justify-center">
               {item.imageUrl ? (
                 <Image
                   src={item.imageUrl}
                   alt={item.name}
                   fill
-                  sizes="(max-width: 768px) 50vw, 25vw"
-                  className="object-cover"
+                  sizes="(max-width: 768px) 25vw, 12.5vw"
+                  className="object-contain"
                 />
               ) : (
-                <Gem className="w-12 h-12 text-cyan-300" />
+                <Gem className="w-8 h-8 text-cyan-300" />
               )}
 
               {/* Favorite Badge */}
               {item.favorite && (
-                <div className="absolute top-2 right-2 w-6 h-6 rounded-full bg-white/90 flex items-center justify-center">
-                  <Heart className="w-3.5 h-3.5 text-red-500 fill-current" />
+                <div className="absolute top-1 right-1 w-5 h-5 rounded-full bg-white/90 flex items-center justify-center">
+                  <Heart className="w-2.5 h-2.5 text-red-500 fill-current" />
                 </div>
               )}
             </div>
@@ -146,108 +135,7 @@ function JewelleryPageContent() {
         </div>
       )}
 
-      {/* Item Detail Modal */}
-      {selectedItem && (
-        <div
-          className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
-          onClick={() => setSelectedItem(null)}
-        >
-          <div
-            className="bg-white rounded-2xl max-w-sm w-full"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Image */}
-            <div className="aspect-square bg-gradient-to-br from-cyan-50 to-gray-100 rounded-t-2xl relative flex items-center justify-center">
-              {selectedItem.imageUrl ? (
-                <Image
-                  src={selectedItem.imageUrl}
-                  alt={selectedItem.name}
-                  fill
-                  sizes="(max-width: 768px) 100vw, 384px"
-                  className="object-cover rounded-t-2xl"
-                />
-              ) : (
-                <Gem className="w-24 h-24 text-cyan-300" />
-              )}
-              <button
-                onClick={() => setSelectedItem(null)}
-                className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/90 flex items-center justify-center"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
 
-            {/* Details */}
-            <div className="p-6">
-              <div className="flex items-start justify-between mb-4">
-                <div>
-                  <h2 className="text-xl font-semibold text-gray-900">
-                    {selectedItem.name}
-                  </h2>
-                  <p className="text-sm text-gray-500">{selectedItem.category}</p>
-                </div>
-                {selectedItem.favorite && (
-                  <Heart className="w-5 h-5 text-red-500 fill-current" />
-                )}
-              </div>
-
-              <div className="space-y-4">
-                <div>
-                  <p className="text-xs font-medium text-gray-500 uppercase mb-1">
-                    Material
-                  </p>
-                  <p className="text-gray-900">{selectedItem.material}</p>
-                </div>
-
-                {selectedItem.brand && (
-                  <div>
-                    <p className="text-xs font-medium text-gray-500 uppercase mb-1">
-                      Brand
-                    </p>
-                    <p className="text-gray-900">{selectedItem.brand}</p>
-                  </div>
-                )}
-
-                {selectedItem.price && (
-                  <div>
-                    <p className="text-xs font-medium text-gray-500 uppercase mb-1">
-                      Price
-                    </p>
-                    <p className="text-gray-900 font-semibold">
-                      ₹{selectedItem.price.toLocaleString()}
-                    </p>
-                  </div>
-                )}
-
-                <div>
-                  <p className="text-xs font-medium text-gray-500 uppercase mb-1">
-                    Occasions
-                  </p>
-                  <div className="flex flex-wrap gap-1">
-                    {selectedItem.occasions.map((occ) => (
-                      <span
-                        key={occ}
-                        className="px-2 py-0.5 bg-cyan-100 text-cyan-700 rounded-full text-sm"
-                      >
-                        {occ}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-
-                {selectedItem.notes && (
-                  <div>
-                    <p className="text-xs font-medium text-gray-500 uppercase mb-1">
-                      Notes
-                    </p>
-                    <p className="text-gray-600 text-sm">{selectedItem.notes}</p>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

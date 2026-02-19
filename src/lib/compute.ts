@@ -103,12 +103,11 @@ function enrichSteps(
 }
 
 // ========================================
-// Filter steps for Travel mode (essentials only)
+// Filter steps for Travel mode (first 2 steps only)
 // ========================================
 function filterForTravel(steps: RoutineStep[]): RoutineStep[] {
-  const essentials = steps.filter((s) => s.essential);
-  // If no essentials marked, take first 2 steps as minimal
-  return essentials.length > 0 ? essentials : steps.slice(0, 2);
+  // Take only first 2 steps for simplified travel routines
+  return steps.slice(0, 2);
 }
 
 // ========================================
@@ -187,20 +186,13 @@ function checkConflicts(
       );
     }
 
-    // Check for routines that should be avoided when going out
-    pmRoutines.forEach((routine) => {
-      if (routine.constraints?.avoidIfGoingOut) {
-        warnings.push(
-          `💡 Suggestion: "${routine.name}" is typically avoided on going-out nights. Consider the mild routine instead.`
-        );
-      }
-    });
+
   }
 
   // Rule 3: Travel mode notice
   if (flags.travel) {
     warnings.push(
-      "✈️ Travel mode: Showing essential steps only. Non-essential steps are hidden to simplify your routine."
+      "✈️ Travel mode: Showing first 2 steps only. Additional steps are hidden to simplify your routine."
     );
   }
 

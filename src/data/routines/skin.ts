@@ -30,9 +30,6 @@ export const skinRoutines: Routine[] = [
     timeOfDay: "PM",
     tags: { office: true, wfh: true, travel: true, goingOut: true },
     productIds: ["p-wash-cetaphil", "p-salicylic-serum"],
-    constraints: {
-      dontCombineWith: ["p-tret", "p-peel-aha-bha"],
-    },
   },
 
   {
@@ -43,10 +40,6 @@ export const skinRoutines: Routine[] = [
     timeOfDay: "PM",
     tags: { office: true, wfh: true, travel: false, goingOut: false },
     productIds: ["p-wash-cetaphil", "p-tret", "p-pm-moisturizer"],
-    constraints: {
-      avoidIfGoingOut: true,
-      dontCombineWith: ["p-peel-aha-bha", "p-salicylic-serum"],
-    },
   },
 
   {
@@ -57,10 +50,6 @@ export const skinRoutines: Routine[] = [
     timeOfDay: "PM",
     tags: { office: true, wfh: true, travel: true, goingOut: true },
     productIds: ["p-wash-cetaphil", "p-niacinamide"],
-    constraints: {
-      // keep it compatible with your active nights
-      dontCombineWith: ["p-tret", "p-peel-aha-bha", "p-salicylic-serum"],
-    },
   },
 
   {
@@ -71,10 +60,6 @@ export const skinRoutines: Routine[] = [
     timeOfDay: "PM",
     tags: { office: false, wfh: true, travel: false, goingOut: false },
     productIds: ["p-wash-cetaphil", "p-peel-aha-bha", "p-eye-pads"],
-    constraints: {
-      avoidIfGoingOut: true,
-      dontCombineWith: ["p-tret", "p-salicylic-serum"],
-    },
   },
 
   {
@@ -85,9 +70,6 @@ export const skinRoutines: Routine[] = [
     timeOfDay: "PM",
     tags: { office: false, wfh: true, travel: false, goingOut: false },
     productIds: ["p-wash-cetaphil", "p-pm-moisturizer"],
-    constraints: {
-      optionalFallbackFor: ["r-skin-pm-peel"],
-    },
   },
 ];
 

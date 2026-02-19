@@ -164,11 +164,6 @@ function StepItem({ step, isChecked, onToggle }: StepItemProps) {
           {step.durationMin && (
             <span className="text-xs text-gray-400">{step.durationMin} min</span>
           )}
-          {step.essential && (
-            <Badge variant="warning" className="text-xs">
-              Essential
-            </Badge>
-          )}
         </div>
 
         {step.description && (

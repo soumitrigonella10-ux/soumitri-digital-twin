@@ -100,7 +100,6 @@ export const createDataSlice: ImmerSliceCreator<DataSlice> = (set) => ({
       const item = state.data.wishlist.find((i) => i.id === id);
       if (item) {
         item.purchased = true;
-        item.purchaseDate = new Date().toISOString();
       }
     }),
 });

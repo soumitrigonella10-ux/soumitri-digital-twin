@@ -203,7 +203,6 @@ describe("WardrobeSlice (standalone store)", () => {
       name: "Test Top",
       category: "Top",
       imageUrl: "/test.png",
-      colors: ["Red"],
     });
     const found = useStore.getState().data.wardrobe.find((w) => w.id === "test-w-item");
     expect(found).toBeDefined();
@@ -255,7 +254,6 @@ describe("WishlistSlice (standalone store)", () => {
       id: "wl-test-1",
       name: "Want This",
       category: "Tops",
-      dateAdded: "2025-06-01",
     });
     expect(useStore.getState().data.wishlist.length).toBe(before + 1);
   });
@@ -279,6 +277,5 @@ describe("WishlistSlice (standalone store)", () => {
     useStore.getState().markWishlistItemPurchased(existing.id);
     const found = useStore.getState().data.wishlist.find((i) => i.id === existing.id);
     expect(found!.purchased).toBe(true);
-    expect(found!.purchaseDate).toBeDefined();
   });
 });

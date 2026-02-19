@@ -105,17 +105,6 @@ function WardrobeCard({ item, isSelected, onSelect, selectable }: WardrobeCardPr
           </Badge>
         </div>
 
-        {/* Colors */}
-        <div className="flex items-center gap-1 mt-1 flex-wrap">
-          {item.colors.slice(0, 3).map((color) => (
-            <span
-              key={color}
-              className="text-xs text-gray-500"
-            >
-              {color}
-            </span>
-          ))}
-        </div>
       </CardContent>
     </Card>
   );

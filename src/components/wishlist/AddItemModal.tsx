@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 
 const INITIAL_FORM: Partial<WishlistItem> = {
   name: "",
@@ -17,7 +16,6 @@ const INITIAL_FORM: Partial<WishlistItem> = {
   imageUrl: "",
   websiteUrl: "",
   currency: "INR",
-  notes: "",
   priority: "Medium",
 };
 
@@ -42,9 +40,7 @@ export function AddItemModal({ onAdd, onClose }: AddItemModalProps) {
       ...(newItem.websiteUrl ? { websiteUrl: newItem.websiteUrl } : {}),
       ...(newItem.price != null ? { price: newItem.price } : {}),
       currency: newItem.currency || "INR",
-      ...(newItem.notes ? { notes: newItem.notes } : {}),
       priority: newItem.priority || "Medium",
-      dateAdded: new Date().toISOString(),
       purchased: false,
     };
 
@@ -162,16 +158,6 @@ export function AddItemModal({ onAdd, onClose }: AddItemModalProps) {
                 <option value="Low">Low</option>
               </Select>
             </div>
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Notes</label>
-            <Textarea
-              value={newItem.notes}
-              onChange={(e) => setNewItem({ ...newItem, notes: e.target.value })}
-              placeholder="Additional notes about this item..."
-              rows={3}
-            />
           </div>
 
           <div className="flex gap-2 pt-4">
