@@ -15,7 +15,7 @@ import {
 import { routines } from "@/data/routines/index";
 import { wardrobe } from "@/data/wardrobe/index";
 import { meals, breakfastMeals, lunchMeals, dinnerMeals } from "@/data/meals/index";
-import { dressings } from "@/data/dressings";
+import { dressings } from "@/data/meals/dressings";
 import { workouts } from "@/data/workouts";
 import { wishlist } from "@/data/wishlist";
 import { BODY_AREAS, getProductArea } from "@/data/bodyAreas";
@@ -132,7 +132,7 @@ describe("Products data", () => {
   });
 
   it("bodyAreas contain valid area codes", () => {
-    const validAreas = ["UA", "IT", "BL", "IA", "B"];
+    const validAreas = ["UA", "IT", "BL", "IA", "B&S"];
     for (const p of products) {
       if (p.bodyAreas) {
         for (const area of p.bodyAreas) {
@@ -230,7 +230,7 @@ describe("Wardrobe data", () => {
   });
 
   it("wardrobe items have valid category", () => {
-    const validCategories = ["Top", "Bottom", "Dress", "Shoes", "Accessories", "Outerwear"];
+    const validCategories = ["Top", "Bottom", "Dress", "Shoes", "Bags", "Innerwear", "Activewear", "Ethnic", "Outerwear", "Others"];
     for (const w of wardrobe) {
       expect(validCategories).toContain(w.category);
     }
@@ -450,10 +450,10 @@ describe("Body Areas data", () => {
     expect(BODY_AREAS[area]).toBeDefined();
   });
 
-  it("getProductArea returns OTHER for no bodyAreas", () => {
+  it("getProductArea returns UA as default for no bodyAreas", () => {
     const mockProduct = {} as Product;
     const area = getProductArea(mockProduct);
-    expect(area).toBe("OTHER");
+    expect(area).toBe("UA");
   });
 });
 

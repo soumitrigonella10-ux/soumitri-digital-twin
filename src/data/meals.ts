@@ -1,3 +1,3 @@
 // Re-export from meals folder for backward compatibility
-export { meals, breakfastMeals, lunchMeals, dinnerMeals } from "./meals/index";
+export { meals, breakfastMeals, lunchMeals, dinnerMeals, dressings } from "./meals/index";
 

@@ -17,8 +17,11 @@ export interface ContentItem {
   aspectRatio: "3/4" | "1/1" | "2/3" | "16/9" | "4/5";
 }
 
-export const CONTENT_TYPES = ["All", "Books", "Playlists", "Movies", "Videos", "Essays"] as const;
+export const CONTENT_TYPES = ["Books & Essays", "Movies", "Videos", "Playlists"] as const;
 export type ContentFilter = typeof CONTENT_TYPES[number];
+
+export const SUB_CHIPS = ["Looking Forward", "Recommendations", "Completed"] as const;
+export type ContentSubChip = typeof SUB_CHIPS[number];
 
 // Sample content items with diverse types
 export const contentItems: ContentItem[] = [
@@ -187,18 +190,31 @@ export const contentItems: ContentItem[] = [
 
 // Helper functions
 export function getItemsByType(type: ContentFilter): ContentItem[] {
-  if (type === "All") return contentItems;
-  
-  const typeMap: Record<Exclude<ContentFilter, "All">, ContentType[]> = {
-    Books: ["book"],
-    Playlists: ["playlist"],
+  const typeMap: Record<ContentFilter, ContentType[]> = {
+    "Books & Essays": ["book", "essay"],
     Movies: ["movie"],
     Videos: ["video", "series"],
-    Essays: ["essay"],
+    Playlists: ["playlist"],
   };
   
-  const targetTypes = typeMap[type as Exclude<ContentFilter, "All">];
+  const targetTypes = typeMap[type];
   return contentItems.filter(item => targetTypes.includes(item.type));
+}
+
+// Sub-chip status mapping
+const SUB_CHIP_STATUSES: Record<ContentSubChip, ContentStatus[]> = {
+  "Looking Forward": ["QUEUED"],
+  "Recommendations": ["CURRENTLY READING", "CURRENTLY WATCHING", "LISTENING"],
+  "Completed": ["COMPLETED"],
+};
+
+export function getItemsBySubChip(
+  type: ContentFilter,
+  subChip: ContentSubChip
+): ContentItem[] {
+  const items = getItemsByType(type);
+  const allowedStatuses = SUB_CHIP_STATUSES[subChip];
+  return items.filter(item => allowedStatuses.includes(item.status));
 }
 
 export function getItemById(id: string): ContentItem | undefined {

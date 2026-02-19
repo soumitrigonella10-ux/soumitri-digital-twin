@@ -20,14 +20,17 @@ export const productSchema = z.object({
   id: stringRequired,
   name: stringRequired,
   category: stringRequired,
+  brand: stringOptional,
+  shade: stringOptional,
   actives: z.array(z.string()).default([]),
   cautionTags: z.array(z.string()).default([]),
   routineType: z.enum(["skin", "hair", "body", "bodySpecific", "wellness", "workout", "food"]).optional(),
-  bodyAreas: z.array(z.enum(["UA", "IT", "BL", "IA", "B"])).optional(),
+  bodyAreas: z.array(z.enum(["UA", "IT", "BL", "IA", "B&S"])).optional(),
   hairPhase: z.enum(["oiling", "washing", "postWash", "daily"]).optional(),
   timeOfDay: z.enum(["AM", "MIDDAY", "PM", "ANY"]).optional(),
   weekdays: z.array(z.number().min(0).max(6)).optional(),
   displayOrder: numberOptional,
+  notes: stringOptional,
 });
 
 // ========================================

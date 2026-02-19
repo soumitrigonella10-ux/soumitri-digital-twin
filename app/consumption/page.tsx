@@ -6,10 +6,12 @@ import { Play, Film, BookOpen } from "lucide-react";
 import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
 import { EditorialNav } from "@/components/EditorialNav";
 import {
-  getItemsByType,
+  getItemsBySubChip,
   CONTENT_TYPES,
+  SUB_CHIPS,
   type ContentItem,
   type ContentFilter,
+  type ContentSubChip,
 } from "@/data/consumption";
 
 // ─────────────────────────────────────────────
@@ -18,7 +20,7 @@ import {
 
 function HeroSection() {
   return (
-    <header className="pt-32 pb-16 max-w-7xl mx-auto px-6 md:px-8 lg:px-12">
+    <header className="pt-20 pb-8 max-w-7xl mx-auto px-6 md:px-8 lg:px-12">
       <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-8">
         {/* Main Title */}
         <div className="flex-1">
@@ -60,6 +62,34 @@ function FilterBar({
             }`}
           >
             {filter}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function SubChipBar({
+  active,
+  onChange,
+}: {
+  active: ContentSubChip;
+  onChange: (chip: ContentSubChip) => void;
+}) {
+  return (
+    <div className="max-w-7xl mx-auto px-6 md:px-8 lg:px-12 pb-4">
+      <div className="flex flex-wrap gap-2">
+        {SUB_CHIPS.map((chip) => (
+          <button
+            key={chip}
+            onClick={() => onChange(chip)}
+            className={`px-3 py-1.5 rounded-full text-xs font-medium tracking-wide transition-all border ${
+              active === chip
+                ? "bg-[#802626] text-white border-[#802626]"
+                : "bg-transparent text-gray-500 border-gray-300 hover:border-gray-400 hover:text-gray-700"
+            }`}
+          >
+            {chip}
           </button>
         ))}
       </div>
@@ -123,7 +153,7 @@ function ContentCardVisual({ item }: { item: ContentItem }) {
     );
   }
 
-  // Fallback (should not happen)
+  // Fallback
   return (
     <div
       className="consumption-card-image"
@@ -136,7 +166,27 @@ function ContentCardVisual({ item }: { item: ContentItem }) {
   );
 }
 
+function EssayCard({ item }: { item: ContentItem }) {
+  return (
+    <article className="consumption-essay-card">
+      <div className="consumption-essay-card-accent" />
+      <div className="consumption-essay-card-body">
+        <div className="flex items-start justify-between gap-2">
+          <h2 className="consumption-essay-card-title">{item.title}</h2>
+          <span className="consumption-essay-badge">{item.status}</span>
+        </div>
+        <p className="consumption-essay-card-author">{item.author} · {item.metadata}</p>
+        <p className="consumption-essay-card-desc">{item.description}</p>
+      </div>
+    </article>
+  );
+}
+
 function ContentCard({ item }: { item: ContentItem }) {
+  if (item.type === "essay") {
+    return <EssayCard item={item} />;
+  }
+
   return (
     <article className="consumption-card">
       {/* Visual Container with Status Badge */}
@@ -166,13 +216,14 @@ function SideDecoration() {
 
 function ConsumptionPageContent() {
   const { data: session, status } = useSession();
-  const [activeFilter, setActiveFilter] = useState<ContentFilter>("All");
+  const [activeFilter, setActiveFilter] = useState<ContentFilter>("Books & Essays");
+  const [activeSubChip, setActiveSubChip] = useState<ContentSubChip>("Looking Forward");
 
   const isAuthenticated = !!session;
 
   const filteredItems = useMemo(
-    () => getItemsByType(activeFilter),
-    [activeFilter]
+    () => getItemsBySubChip(activeFilter, activeSubChip),
+    [activeFilter, activeSubChip]
   );
 
   // Loading state
@@ -197,6 +248,9 @@ function ConsumptionPageContent() {
 
       {/* Filter Bar */}
       <FilterBar active={activeFilter} onChange={setActiveFilter} />
+
+      {/* Sub-Chip Bar */}
+      <SubChipBar active={activeSubChip} onChange={setActiveSubChip} />
 
       {/* Content Grid (Masonry) */}
       <div className="max-w-7xl mx-auto px-6 md:px-8 lg:px-12 pb-20">

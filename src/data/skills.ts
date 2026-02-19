@@ -138,6 +138,14 @@ export function getExperimentsByCategory(category: string): SkillExperiment[] {
   return skillExperiments.filter((exp) => exp.category === category);
 }
 
+export function getCurrentSkills(): SkillExperiment[] {
+  return skillExperiments.filter((exp) => exp.proficiency < 75);
+}
+
+export function getAchievedSkills(): SkillExperiment[] {
+  return skillExperiments.filter((exp) => exp.proficiency >= 75);
+}
+
 export function getAverageProficiency(): number {
   const total = skillExperiments.reduce((sum, exp) => sum + exp.proficiency, 0);
   return Math.round(total / skillExperiments.length);

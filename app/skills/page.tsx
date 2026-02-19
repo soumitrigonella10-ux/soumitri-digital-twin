@@ -4,17 +4,17 @@ import { useState, useEffect, useRef } from "react";
 import { useSession } from "next-auth/react";
 import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
 import { EditorialNav } from "@/components/EditorialNav";
-import { skillExperiments, type SkillExperiment } from "@/data/skills";
+import { getCurrentSkills, getAchievedSkills, type SkillExperiment } from "@/data/skills";
 
 // ─────────────────────────────────────────────
-// Experiment Card Component
+// Skill Card Component
 // ─────────────────────────────────────────────
 
-interface ExperimentCardProps {
-  experiment: SkillExperiment;
+interface SkillCardProps {
+  skill: SkillExperiment;
 }
 
-function ExperimentCard({ experiment }: ExperimentCardProps) {
+function SkillCard({ skill }: SkillCardProps) {
   const [isVisible, setIsVisible] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
 
@@ -36,43 +36,39 @@ function ExperimentCard({ experiment }: ExperimentCardProps) {
     return () => observer.disconnect();
   }, []);
 
-  const cardClass = experiment.isInverted
-    ? "experiment-card inverted"
-    : "experiment-card";
+  const cardClass = skill.isInverted
+    ? "skill-card inverted"
+    : "skill-card";
 
   return (
     <div ref={cardRef} className={cardClass}>
       {/* Header */}
-      <div className="experiment-card-header">
-        <div className="experiment-pill">
-          Experiment {String(experiment.experimentNumber).padStart(2, "0")}
-        </div>
-        <div className="experiment-index">
-          {String(experiment.experimentNumber).padStart(2, "0")}
+      <div className="skill-card-header">
+        <div className="skill-category">
+          {skill.category}
         </div>
       </div>
 
       {/* Body */}
-      <div className="experiment-card-body">
-        <h3 className="experiment-name">{experiment.name}</h3>
+      <div className="skill-card-body">
+        <h3 className="skill-name">{skill.name}</h3>
 
-        <div className="experiment-tools">
-          {experiment.tools.map((tool, idx) => (
-            <span key={idx} className="experiment-tool">
+        <div className="skill-tools">
+          {skill.tools.slice(0, 2).map((tool, idx) => (
+            <span key={idx} className="skill-tool">
               {tool}
-              {idx < experiment.tools.length - 1 && " · "}
+              {idx < Math.min(skill.tools.length - 1, 1) && " · "}
             </span>
           ))}
+          {skill.tools.length > 2 && (
+            <span className="skill-tool">+{skill.tools.length - 2} more</span>
+          )}
         </div>
-      </div>
 
-      {/* Footer */}
-      <div className="experiment-card-footer">
         {/* Proficiency */}
-        <div className="experiment-proficiency">
+        <div className="skill-proficiency">
           <div className="proficiency-header">
-            <span className="proficiency-label">Proficiency</span>
-            <span className="proficiency-value">{experiment.proficiency}%</span>
+            <span className="proficiency-value">{skill.proficiency}%</span>
           </div>
 
           <div className="proficiency-bar-container">
@@ -80,16 +76,13 @@ function ExperimentCard({ experiment }: ExperimentCardProps) {
               className={`proficiency-bar-fill ${isVisible ? "animated" : ""}`}
               style={
                 {
-                  "--target-width": `${experiment.proficiency}%`,
-                  width: isVisible ? `${experiment.proficiency}%` : "0%",
+                  "--target-width": `${skill.proficiency}%`,
+                  width: isVisible ? `${skill.proficiency}%` : "0%",
                 } as React.CSSProperties
               }
             />
           </div>
         </div>
-
-        {/* Description */}
-        <p className="experiment-description">{experiment.description}</p>
       </div>
     </div>
   );
@@ -101,14 +94,14 @@ function ExperimentCard({ experiment }: ExperimentCardProps) {
 
 function HeroSection() {
   return (
-    <header className="skills-hero-container pt-32 pb-16 max-w-7xl mx-auto px-6 md:px-8 lg:px-12">
+    <header className="skills-hero-container pt-20 pb-8 max-w-7xl mx-auto px-6 md:px-8 lg:px-12">
       {/* Rotating Dashed Circle */}
       <div className="skills-rotating-decoration" />
 
       {/* Content */}
       <div className="skills-hero-content">
         <p
-          className="font-sans text-[10px] font-semibold uppercase tracking-[0.4em] mb-4"
+          className="font-sans text-[10px] font-semibold uppercase tracking-[0.4em] mb-2"
           style={{ color: "#802626" }}
         >
           The Laboratory
@@ -138,6 +131,10 @@ function HeroSection() {
 function SkillsPageContent() {
   const { data: session, status } = useSession();
   const isAuthenticated = !!session;
+  const [activeTab, setActiveTab] = useState<'current' | 'achieved'>('current');
+
+  const currentSkills = getCurrentSkills();
+  const achievedSkills = getAchievedSkills();
 
   // Loading state
   if (status === "loading") {
@@ -156,12 +153,44 @@ function SkillsPageContent() {
       {/* Hero Section */}
       <HeroSection />
 
-      {/* Experiments Grid */}
+      {/* Skills Tabs */}
       <div className="max-w-7xl mx-auto px-6 md:px-8 lg:px-12 pb-20">
-        <div className="skills-grid">
-          {skillExperiments.map((experiment) => (
-            <ExperimentCard key={experiment.id} experiment={experiment} />
-          ))}
+        
+        {/* Tab Navigation */}
+        <div className="skills-tabs-container">
+          <div className="skills-tabs">
+            <button
+              onClick={() => setActiveTab('current')}
+              className={`skills-filter-pill ${activeTab === 'current' ? 'active' : ''}`}
+            >
+              Current ({currentSkills.length})
+            </button>
+            <button
+              onClick={() => setActiveTab('achieved')}
+              className={`skills-filter-pill ${activeTab === 'achieved' ? 'active' : ''}`}
+            >
+              Achieved ({achievedSkills.length})
+            </button>
+          </div>
+        </div>
+
+        {/* Tab Content */}
+        <div className="skills-tab-content">
+          {activeTab === 'current' && (
+            <div className="skills-grid">
+              {currentSkills.map((skill) => (
+                <SkillCard key={skill.id} skill={skill} />
+              ))}
+            </div>
+          )}
+          
+          {activeTab === 'achieved' && (
+            <div className="skills-grid">
+              {achievedSkills.map((skill) => (
+                <SkillCard key={skill.id} skill={skill} />
+              ))}
+            </div>
+          )}
         </div>
       </div>
 

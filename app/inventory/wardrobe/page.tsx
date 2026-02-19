@@ -8,7 +8,7 @@ import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
 import { WardrobeItem } from "@/types";
 import { cn } from "@/lib/utils";
 
-const categories = ["Top", "Bottom", "Dress", "Shoes", "Bags", "Innerwear", "Activewear", "Ethnic", "Outerwear", "Others"];
+const categories = ["Top", "Bottom", "Dress", "Outerwear", "Ethnic", "Shoes", "Bags", "Others", "Innerwear", "Activewear"];
 
 // Bottom chip → subType mapping
 const bottomChipMap: Record<string, string[]> = {
@@ -26,7 +26,7 @@ function WardrobePageContent() {
   const subchips = useMemo(() => {
     const items = data.wardrobe.filter((i) => i.category === selectedCategory);
 
-    if (selectedCategory === "Top" || selectedCategory === "Shoes") {
+    if (selectedCategory === "Top" || selectedCategory === "Shoes" || selectedCategory === "Ethnic") {
       const set = new Set(items.map((i) => i.subcategory).filter((s): s is string => Boolean(s)));
       return Array.from(set);
     }
@@ -51,7 +51,7 @@ function WardrobePageContent() {
     let items = data.wardrobe.filter((i) => i.category === selectedCategory);
 
     if (activeSubchip) {
-      if (selectedCategory === "Top" || selectedCategory === "Shoes") {
+      if (selectedCategory === "Top" || selectedCategory === "Shoes" || selectedCategory === "Ethnic") {
         items = items.filter((i) => i.subcategory === activeSubchip);
       } else if (selectedCategory === "Bottom") {
         const allowedSubTypes = bottomChipMap[activeSubchip] || [];

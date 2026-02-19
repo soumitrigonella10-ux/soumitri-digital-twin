@@ -1,4 +1,4 @@
-import { Ingredient } from "@/types";
+import { Dressing, Ingredient } from "@/types";
 
 // ========================================
 // DRESSING TYPE
@@ -182,5 +182,35 @@ export const lunchDressings: DressingRecipe[] = [
       "Add water to make it pourable",
     ],
     tags: ["tomato-based", "italian", "versatile"],
+  },
+];
+
+// ========================================
+// SIMPLE DRESSINGS (store-managed seed data)
+// ========================================
+export const dressings: Dressing[] = [
+  {
+    id: "d-spicy-tahini",
+    name: "Spicy Tahini Dressing",
+    shelfLifeDays: 7,
+    ingredients: ["tahini", "lemon juice", "garlic", "sriracha", "salt", "water"],
+  },
+  {
+    id: "d-herb-vinaigrette",
+    name: "Fresh Herb Vinaigrette",
+    shelfLifeDays: 10,
+    ingredients: ["olive oil", "apple cider vinegar", "fresh herbs", "dijon mustard", "honey", "salt"],
+  },
+  {
+    id: "d-miso-ginger",
+    name: "Miso Ginger Dressing",
+    shelfLifeDays: 14,
+    ingredients: ["white miso", "rice vinegar", "ginger", "sesame oil", "honey", "water"],
+  },
+  {
+    id: "d-lemon-garlic",
+    name: "Lemon Garlic Dressing",
+    shelfLifeDays: 5,
+    ingredients: ["lemon juice", "olive oil", "garlic", "oregano", "salt", "pepper"],
   },
 ];

@@ -78,7 +78,6 @@ describe("Data selectors", () => {
     expect(data).toHaveProperty("mealTemplates");
     expect(data).toHaveProperty("dressings");
     expect(data).toHaveProperty("workoutPlans");
-    expect(data).toHaveProperty("outfits");
     expect(data).toHaveProperty("wishlist");
   });
 

@@ -1,31 +1,31 @@
 // ========================================
 // Tests for standalone store slices using their own mini-stores
-// fitnessSlice, nutritionSlice, wardrobeSlice, wishlistSlice, productSlice
+// Tests the unified dataSlice which replaced the legacy per-domain slices
 // ========================================
 
 import { describe, it, expect, beforeEach } from "vitest";
 import { create } from "zustand";
+import { immer } from "zustand/middleware/immer";
+import type { DataSlice } from "@/store/types";
+import { createDataSlice } from "@/store/slices/dataSlice";
 
-/** Minimal store interface used in tests — only getState() is needed */
-interface TestStore<T> {
-  getState: () => T;
-}
-
-/** Create a typed test store from a slice creator */
-function createTestStore<T>(creator: unknown): TestStore<T> {
-  return create(creator as any) as unknown as TestStore<T>;
+/** Create a typed immer-enabled test store from DataSlice */
+function createImmerTestStore() {
+  // Use `any` for the slice creator in tests since the full AppState
+  // composition isn't available in standalone store tests
+  return create<DataSlice>()(
+    immer(createDataSlice as any)
+  );
 }
 
 // ========================================
-// productSlice
+// DataSlice — Products
 // ========================================
-import { createProductSlice, type ProductSlice } from "@/store/slices/productSlice";
-
-describe("ProductSlice (standalone store)", () => {
-  let useStore: TestStore<ProductSlice>;
+describe("DataSlice — Products (standalone store)", () => {
+  let useStore: ReturnType<typeof createImmerTestStore>;
 
   beforeEach(() => {
-    useStore = createTestStore<ProductSlice>(createProductSlice);
+    useStore = createImmerTestStore();
   });
 
   it("initializes with seed products", () => {
@@ -76,15 +76,13 @@ describe("ProductSlice (standalone store)", () => {
 });
 
 // ========================================
-// fitnessSlice
+// DataSlice — Fitness
 // ========================================
-import { createFitnessSlice, type FitnessSlice } from "@/store/slices/fitnessSlice";
-
-describe("FitnessSlice (standalone store)", () => {
-  let useStore: TestStore<FitnessSlice>;
+describe("DataSlice — Fitness (standalone store)", () => {
+  let useStore: ReturnType<typeof createImmerTestStore>;
 
   beforeEach(() => {
-    useStore = createTestStore<FitnessSlice>(createFitnessSlice);
+    useStore = createImmerTestStore();
   });
 
   it("initializes with seed workout data", () => {
@@ -127,15 +125,13 @@ describe("FitnessSlice (standalone store)", () => {
 });
 
 // ========================================
-// nutritionSlice
+// DataSlice — Nutrition
 // ========================================
-import { createNutritionSlice, type NutritionSlice } from "@/store/slices/nutritionSlice";
-
-describe("NutritionSlice (standalone store)", () => {
-  let useStore: TestStore<NutritionSlice>;
+describe("DataSlice — Nutrition (standalone store)", () => {
+  let useStore: ReturnType<typeof createImmerTestStore>;
 
   beforeEach(() => {
-    useStore = createTestStore<NutritionSlice>(createNutritionSlice);
+    useStore = createImmerTestStore();
   });
 
   it("initializes with seed meals", () => {
@@ -178,15 +174,13 @@ describe("NutritionSlice (standalone store)", () => {
 });
 
 // ========================================
-// wardrobeSlice
+// DataSlice — Wardrobe
 // ========================================
-import { createWardrobeSlice, type WardrobeSlice } from "@/store/slices/wardrobeSlice";
-
-describe("WardrobeSlice (standalone store)", () => {
-  let useStore: TestStore<WardrobeSlice>;
+describe("DataSlice — Wardrobe (standalone store)", () => {
+  let useStore: ReturnType<typeof createImmerTestStore>;
 
   beforeEach(() => {
-    useStore = createTestStore<WardrobeSlice>(createWardrobeSlice);
+    useStore = createImmerTestStore();
   });
 
   it("initializes with seed wardrobe", () => {
@@ -203,19 +197,16 @@ describe("WardrobeSlice (standalone store)", () => {
     const found = useStore.getState().data.wardrobe.find((w) => w.id === "test-w-item");
     expect(found).toBeDefined();
   });
-
 });
 
 // ========================================
-// wishlistSlice
+// DataSlice — Wishlist
 // ========================================
-import { createWishlistSlice, type WishlistSlice } from "@/store/slices/wishlistSlice";
-
-describe("WishlistSlice (standalone store)", () => {
-  let useStore: TestStore<WishlistSlice>;
+describe("DataSlice — Wishlist (standalone store)", () => {
+  let useStore: ReturnType<typeof createImmerTestStore>;
 
   beforeEach(() => {
-    useStore = createTestStore<WishlistSlice>(createWishlistSlice);
+    useStore = createImmerTestStore();
   });
 
   it("initializes with seed wishlist", () => {

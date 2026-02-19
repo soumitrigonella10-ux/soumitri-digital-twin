@@ -130,7 +130,7 @@ describe("wardrobeItemSchema", () => {
   });
 
   it("accepts all valid categories", () => {
-    const cats = ["Top", "Bottom", "Dress", "Shoes", "Accessories", "Outerwear"] as const;
+    const cats = ["Top", "Bottom", "Dress", "Shoes", "Bags", "Innerwear", "Activewear", "Ethnic", "Outerwear", "Others"] as const;
     for (const category of cats) {
       const result = validateWithSchema(wardrobeItemSchema, { ...validItem, category });
       expect(result.success).toBe(true);

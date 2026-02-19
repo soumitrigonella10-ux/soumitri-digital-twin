@@ -15,7 +15,7 @@ export default function HomePage() {
   // Auto-redirect authenticated users to Today dashboard
   useEffect(() => {
     if (session) {
-      router.replace('/today');
+      router.replace('/dashboard');
     }
   }, [session, router]);
 

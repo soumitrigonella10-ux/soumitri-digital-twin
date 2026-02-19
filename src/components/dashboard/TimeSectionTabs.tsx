@@ -23,7 +23,6 @@ const TAB_DEFINITIONS: Record<TimeOfDay, { id: string; label: string; icon: Reac
   ],
   PM: [
     { id: "dinner", label: "Food", icon: <Moon className="w-4 h-4" /> },
-    { id: "fitness", label: "Fitness", icon: <Dumbbell className="w-4 h-4" /> },
     { id: "routines", label: "Routines", icon: <Sparkles className="w-4 h-4" /> },
     { id: "wellness", label: "Wellness", icon: <Heart className="w-4 h-4" /> },
   ],
@@ -42,7 +41,7 @@ export function TimeSectionTabs({ timeOfDay, activeTab, onTabChange }: TimeSecti
           className={cn(
             "flex-shrink-0 px-3 sm:px-4 py-2 rounded-xl text-sm font-medium transition-all border-2 flex items-center gap-1.5 sm:gap-2",
             activeTab === tab.id
-              ? "bg-yellow-500 text-white border-yellow-500"
+              ? "bg-telugu-kavi text-white border-telugu-kavi"
               : "bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100"
           )}
         >

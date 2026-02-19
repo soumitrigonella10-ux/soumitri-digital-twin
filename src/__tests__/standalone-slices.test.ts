@@ -1,16 +1,16 @@
 // ========================================
-// Tests for standalone store slices that are NOT 
-// composed into the main useAppStore (product, fitness, nutrition, wardrobe, wishlist)
-// These are tested independently since they use their own createXxxSlice pattern
+// Tests for store slice utilities and structure validation
+// Legacy per-domain slices (product, fitness, nutrition, wardrobe, wishlist)
+// have been consolidated into the unified dataSlice.
 // ========================================
 
 import { describe, it, expect } from "vitest";
-import { mergeById } from "@/store/slices/productSlice";
+import { mergeById } from "@/store/slices/dataSlice";
 
 // ========================================
-// mergeById from productSlice (duplicate export)
+// mergeById from dataSlice
 // ========================================
-describe("mergeById from productSlice", () => {
+describe("mergeById from dataSlice", () => {
   it("merges new items", () => {
     const base: { id: string; v: number }[] = [{ id: "1", v: 1 }];
     const updates = [{ id: "2", v: 2 }];
@@ -27,57 +27,13 @@ describe("mergeById from productSlice", () => {
 });
 
 // ========================================
-// FitnessSlice shape validation
+// DataSlice shape validation
 // ========================================
-describe("FitnessSlice structure", () => {
-  it("creates slice with seed workout data", async () => {
-    const { createFitnessSlice } = await import("@/store/slices/fitnessSlice");
-    expect(createFitnessSlice).toBeDefined();
-    expect(typeof createFitnessSlice).toBe("function");
-  });
-});
-
-// ========================================
-// NutritionSlice shape validation
-// ========================================
-describe("NutritionSlice structure", () => {
-  it("creates slice with seed meal and dressing data", async () => {
-    const { createNutritionSlice } = await import("@/store/slices/nutritionSlice");
-    expect(createNutritionSlice).toBeDefined();
-    expect(typeof createNutritionSlice).toBe("function");
-  });
-});
-
-// ========================================
-// ProductSlice shape validation
-// ========================================
-describe("ProductSlice structure", () => {
-  it("exports createProductSlice function", async () => {
-    const { createProductSlice } = await import("@/store/slices/productSlice");
-    expect(createProductSlice).toBeDefined();
-    expect(typeof createProductSlice).toBe("function");
-  });
-});
-
-// ========================================
-// WardrobeSlice shape validation
-// ========================================
-describe("WardrobeSlice structure", () => {
-  it("exports createWardrobeSlice function", async () => {
-    const { createWardrobeSlice } = await import("@/store/slices/wardrobeSlice");
-    expect(createWardrobeSlice).toBeDefined();
-    expect(typeof createWardrobeSlice).toBe("function");
-  });
-});
-
-// ========================================
-// WishlistSlice shape validation
-// ========================================
-describe("WishlistSlice structure", () => {
-  it("exports createWishlistSlice function", async () => {
-    const { createWishlistSlice } = await import("@/store/slices/wishlistSlice");
-    expect(createWishlistSlice).toBeDefined();
-    expect(typeof createWishlistSlice).toBe("function");
+describe("DataSlice structure", () => {
+  it("exports createDataSlice function", async () => {
+    const { createDataSlice } = await import("@/store/slices/dataSlice");
+    expect(createDataSlice).toBeDefined();
+    expect(typeof createDataSlice).toBe("function");
   });
 });
 

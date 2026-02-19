@@ -29,9 +29,9 @@ export type EssayBlock =
 export const ESSAY_CATEGORIES = [
   "All",
   "Philosophy",
-  "Design",
+  "Thoughts",
   "Culture",
-  "Technology",
+  "I have a list of things I hate",
   "Personal",
 ] as const;
 
@@ -96,7 +96,7 @@ export const essays: Essay[] = [
     title: "Against Minimalism (As Religion)",
     excerpt:
       "Minimalism became its own form of maximalism — a lifestyle brand dressed in linen. What if the goal isn't fewer things, but better reasons for the things we keep?",
-    category: "Design",
+    category: "Thoughts",
     date: "November 2025",
     readingTime: "10 min read",
     imageUrl: "/images/essays/against-minimalism.jpg",
@@ -119,7 +119,7 @@ export const essays: Essay[] = [
     title: "The Digital Twin Hypothesis",
     excerpt:
       "Building a mirror of your life in software isn't vanity — it's introspection at scale. What happens when your decisions become data you can revisit, question, and learn from?",
-    category: "Technology",
+    category: "I have a list of things I hate",
     date: "October 2025",
     readingTime: "15 min read",
     imageUrl: "/images/essays/digital-twin.jpg",
@@ -211,7 +211,7 @@ export const essays: Essay[] = [
     title: "In Defense of Friction",
     excerpt:
       "Silicon Valley wants to eliminate every inconvenience. But friction is where thought lives — in the pause before a purchase, the effort of cooking, the discipline of a morning walk.",
-    category: "Technology",
+    category: "I have a list of things I hate",
     date: "June 2025",
     readingTime: "11 min read",
     imageUrl: "/images/essays/friction.jpg",

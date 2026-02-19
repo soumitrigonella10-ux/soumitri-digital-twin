@@ -13,81 +13,14 @@ import {
   Bookmark,
   Share2,
   Type,
-  Clock,
   BookOpen,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { PdfViewer } from "@/components/PdfViewer";
-import type { Essay, EssayBlock } from "@/data/essays";
-
-// ─────────────────────────────────────────────
-// Typography size presets
-// ─────────────────────────────────────────────
-const FONT_SIZES = [
-  { label: "S", bodyClass: "text-base leading-[1.6]" },
-  { label: "M", bodyClass: "text-lg leading-[1.7]" },
-  { label: "L", bodyClass: "text-xl leading-[1.75]" },
-] as const;
-
-// ─────────────────────────────────────────────
-// Content block renderer
-// ─────────────────────────────────────────────
-function EssayBlockRenderer({
-  block,
-  index,
-  bodyClass,
-}: {
-  block: EssayBlock;
-  index: number;
-  bodyClass: string;
-}) {
-  const isFirstParagraph = block.type === "paragraph" && index === 0;
-
-  switch (block.type) {
-    case "paragraph":
-      return (
-        <p
-          className={cn(
-            "font-editorial text-stone-700 mb-6",
-            bodyClass,
-            isFirstParagraph && "essay-drop-cap"
-          )}
-        >
-          {block.text}
-        </p>
-      );
-
-    case "pullquote":
-      return (
-        <blockquote className="my-12 md:my-16 pl-6 border-l-[3px] border-amber-600">
-          <p className="font-serif italic text-xl md:text-2xl text-stone-800 leading-snug">
-            {block.text}
-          </p>
-          {block.attribution && (
-            <cite className="block mt-3 font-editorial text-xs text-stone-400 uppercase tracking-[0.12em] not-italic">
-              — {block.attribution}
-            </cite>
-          )}
-        </blockquote>
-      );
-
-    case "heading":
-      return (
-        <h3 className="font-serif italic text-2xl md:text-3xl font-bold text-stone-900 mt-14 mb-6 leading-tight">
-          {block.text}
-        </h3>
-      );
-
-    case "separator":
-      return (
-        <div className="flex justify-center items-center gap-3 my-14">
-          <span className="w-1.5 h-1.5 rounded-full bg-stone-300" />
-          <span className="w-1.5 h-1.5 rounded-full bg-stone-300" />
-          <span className="w-1.5 h-1.5 rounded-full bg-stone-300" />
-        </div>
-      );
-  }
-}
+import type { Essay } from "@/data/essays";
+import { FONT_SIZES } from "@/components/essay/constants";
+import { EssayBlockRenderer } from "@/components/essay/EssayBlockRenderer";
+import { EssayArticleHeader } from "@/components/essay/EssayArticleHeader";
 
 // ─────────────────────────────────────────────
 // Main Modal Component
@@ -293,36 +226,7 @@ export function EssayModal({ essay, onClose }: EssayModalProps) {
             <>
               {/* Article header (kept for context) */}
               <article className="px-6 md:px-12 lg:px-16">
-                <div className="pt-12 md:pt-16 pb-8 md:pb-10">
-                  <span className="font-editorial text-[11px] font-bold uppercase tracking-[0.2em] editorial-accent">
-                    {essay.category}
-                  </span>
-                  <h1 className="font-serif italic text-3xl md:text-4xl lg:text-5xl font-bold text-stone-900 leading-[1.05] mt-4 mb-5">
-                    {essay.title}
-                  </h1>
-                  <div className="flex flex-wrap items-center gap-4 text-stone-400 mb-6">
-                    <span className="font-editorial text-xs font-medium">
-                      {essay.date}
-                    </span>
-                    <span className="w-1 h-1 rounded-full bg-stone-300" />
-                    <span className="font-editorial text-xs font-medium flex items-center gap-1">
-                      <Clock className="w-3 h-3" />
-                      {essay.readingTime}
-                    </span>
-                  </div>
-                  {essay.tags && essay.tags.length > 0 && (
-                    <div className="flex flex-wrap gap-2">
-                      {essay.tags.map((tag) => (
-                        <span
-                          key={tag}
-                          className="font-editorial text-[10px] font-medium uppercase tracking-wider text-stone-400 bg-stone-50 border border-stone-100 px-2.5 py-1 rounded-sm"
-                        >
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </div>
+                <EssayArticleHeader essay={essay} />
                 <hr className="editorial-rule mb-6" />
               </article>
 
@@ -345,43 +249,7 @@ export function EssayModal({ essay, onClose }: EssayModalProps) {
           {/* Article content */}
           <article className="px-6 md:px-12 lg:px-16">
             {/* Entry header */}
-            <div className="pt-12 md:pt-16 pb-8 md:pb-10">
-              {/* Category */}
-              <span className="font-editorial text-[11px] font-bold uppercase tracking-[0.2em] editorial-accent">
-                {essay.category}
-              </span>
-
-              {/* Title */}
-              <h1 className="font-serif italic text-3xl md:text-4xl lg:text-5xl font-bold text-stone-900 leading-[1.05] mt-4 mb-5">
-                {essay.title}
-              </h1>
-
-              {/* Meta row */}
-              <div className="flex flex-wrap items-center gap-4 text-stone-400 mb-6">
-                <span className="font-editorial text-xs font-medium">
-                  {essay.date}
-                </span>
-                <span className="w-1 h-1 rounded-full bg-stone-300" />
-                <span className="font-editorial text-xs font-medium flex items-center gap-1">
-                  <Clock className="w-3 h-3" />
-                  {essay.readingTime}
-                </span>
-              </div>
-
-              {/* Tags */}
-              {essay.tags && essay.tags.length > 0 && (
-                <div className="flex flex-wrap gap-2">
-                  {essay.tags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="font-editorial text-[10px] font-medium uppercase tracking-wider text-stone-400 bg-stone-50 border border-stone-100 px-2.5 py-1 rounded-sm"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              )}
-            </div>
+            <EssayArticleHeader essay={essay} />
 
             {/* Thin rule before body */}
             <hr className="editorial-rule mb-10" />

@@ -211,7 +211,7 @@ export function PdfBookViewer({
       <div
         ref={containerRef}
         className="flex-1 flex items-center justify-center bg-stone-800/5 overflow-hidden"
-        style={{ minHeight: "65vh" }}
+        style={{ minHeight: "75vh" }}
       >
         {isLoading ? (
           <div className="flex items-center justify-center py-32">
@@ -226,21 +226,21 @@ export function PdfBookViewer({
               <canvas
                 ref={leftCanvasRef}
                 className="rounded-l-sm shadow-[inset_-8px_0_12px_-6px_rgba(0,0,0,0.08)] border border-stone-200/60"
-                style={{ maxHeight: "75vh", width: "auto" }}
+                style={{ maxHeight: "80vh", width: "auto" }}
               />
               {/* Page curl shadow on the spine side */}
               <div className="absolute top-0 right-0 w-4 h-full bg-gradient-to-l from-stone-900/[0.06] to-transparent pointer-events-none" />
             </div>
 
             {/* Spine / gutter */}
-            <div className="w-[3px] h-[70vh] bg-gradient-to-b from-stone-300/40 via-stone-400/60 to-stone-300/40 rounded-full flex-shrink-0" />
+            <div className="w-[3px] h-[75vh] bg-gradient-to-b from-stone-300/40 via-stone-400/60 to-stone-300/40 rounded-full flex-shrink-0" />
 
             {/* Right page */}
             <div className="relative">
               <canvas
                 ref={rightCanvasRef}
                 className="rounded-r-sm shadow-[inset_8px_0_12px_-6px_rgba(0,0,0,0.08)] border border-stone-200/60"
-                style={{ maxHeight: "75vh", width: "auto" }}
+                style={{ maxHeight: "80vh", width: "auto" }}
               />
               {/* Page curl shadow on the spine side */}
               <div className="absolute top-0 left-0 w-4 h-full bg-gradient-to-r from-stone-900/[0.06] to-transparent pointer-events-none" />

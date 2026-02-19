@@ -20,20 +20,20 @@ interface TimePeriodConfig {
 
 const TIME_PERIOD_CONFIG: Record<TimeOfDay, TimePeriodConfig> = {
   AM: {
-    icon: <Sunrise className="w-5 h-5 text-amber-600" />,
-    iconBg: "bg-amber-100",
+    icon: <Sunrise className="w-5 h-5 text-telugu-kavi" />,
+    iconBg: "bg-red-50",
     title: "Morning (5AM - 12PM)",
     subtitle: "Start your day right",
   },
   MIDDAY: {
-    icon: <Sun className="w-5 h-5 text-yellow-600" />,
-    iconBg: "bg-yellow-100",
+    icon: <Sun className="w-5 h-5 text-telugu-kavi" />,
+    iconBg: "bg-red-50",
     title: "Midday (12PM - 5PM)",
     subtitle: "Recharge and refuel",
   },
   PM: {
-    icon: <Moon className="w-5 h-5 text-indigo-600" />,
-    iconBg: "bg-indigo-100",
+    icon: <Moon className="w-5 h-5 text-telugu-kavi" />,
+    iconBg: "bg-red-50",
     title: "Evening (5PM onwards)",
     subtitle: "Wind down and care",
   },

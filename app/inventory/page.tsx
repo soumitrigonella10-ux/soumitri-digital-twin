@@ -117,9 +117,9 @@ const inventoryItems = [
                 Add to Wishlist
               </Button>
             </Link>
-            <Link href="/wardrobe" passHref>
+            <Link href="/inventory/wardrobe" passHref>
               <Button variant="outline" size="sm">
-                Create Outfit
+                Browse Wardrobe
               </Button>
             </Link>
           </div>

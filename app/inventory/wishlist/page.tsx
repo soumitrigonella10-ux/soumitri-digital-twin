@@ -92,12 +92,26 @@ export default function WishlistPage() {
         <EditorialNav currentSlug="wishlist" />
         <div className="container mx-auto py-8 space-y-6">
           {/* Header */}
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-3xl font-bold">Wishlist</h2>
-              <p className="text-muted-foreground">A running list of objects I'm considering</p>
-            </div>
-          </div>
+          <header className="pt-20 pb-8 max-w-7xl mx-auto px-6 md:px-8 lg:px-12">
+            <p
+              className="font-sans text-[10px] font-semibold uppercase tracking-[0.4em] mb-2"
+              style={{ color: "#802626" }}
+            >
+              Inventory
+            </p>
+            <h1
+              className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold leading-[0.95] mb-3"
+              style={{ color: "#2D2424" }}
+            >
+              Wishlist
+            </h1>
+            <p
+              className="font-sans text-base leading-relaxed max-w-xl"
+              style={{ color: "#2D2424", opacity: 0.8 }}
+            >
+              A running list of objects I&apos;m considering
+            </p>
+          </header>
 
           {sharedContent}
         </div>
@@ -108,18 +122,36 @@ export default function WishlistPage() {
   // Authenticated view
   return (
     <AuthenticatedLayout>
-      <div className="min-h-screen py-8 px-6 md:px-8 lg:px-12">
+      <div className="min-h-screen px-6 md:px-8 lg:px-12">
         <div className="max-w-7xl mx-auto space-y-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold">Wishlist</h1>
-              <p className="text-muted-foreground">Keep track of items you want to buy</p>
+          <header className="pt-20 pb-8">
+            <div className="flex items-center justify-between">
+              <div>
+                <p
+                  className="font-sans text-[10px] font-semibold uppercase tracking-[0.4em] mb-2"
+                  style={{ color: "#802626" }}
+                >
+                  Inventory
+                </p>
+                <h1
+                  className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold leading-[0.95] mb-3"
+                  style={{ color: "#2D2424" }}
+                >
+                  Wishlist
+                </h1>
+                <p
+                  className="font-sans text-base leading-relaxed max-w-xl"
+                  style={{ color: "#2D2424", opacity: 0.8 }}
+                >
+                  A running list of objects I&apos;m considering
+                </p>
+              </div>
+              <Button onClick={() => setShowAddModal(true)} className="flex items-center gap-2">
+                <Plus className="h-4 w-4" />
+                Add Item
+              </Button>
             </div>
-            <Button onClick={() => setShowAddModal(true)} className="flex items-center gap-2">
-              <Plus className="h-4 w-4" />
-              Add Item
-            </Button>
-          </div>
+          </header>
 
           {sharedContent}
 

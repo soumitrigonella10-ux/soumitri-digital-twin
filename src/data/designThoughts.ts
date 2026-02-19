@@ -17,6 +17,7 @@ export interface DesignThought {
   redlineText?: string;
   stampText?: string;
   hasTechnicalPattern?: boolean;
+  pdfUrl?: string;
 }
 
 export const designThoughts: DesignThought[] = [
@@ -33,7 +34,8 @@ export const designThoughts: DesignThought[] = [
     date: 'Feb 2026',
     cardType: 'standard',
     annotationType: 'redline',
-    redlineText: 'APPROVED'
+    redlineText: 'APPROVED',
+    pdfUrl: '/pdfs/essays/design-philosophy.pdf'
   },
   {
     id: 'thought-02',
@@ -48,6 +50,7 @@ export const designThoughts: DesignThought[] = [
     date: 'Jan 2026',
     cardType: 'blueprint',
     annotationType: 'measurement',
+    pdfUrl: '/pdfs/essays/grid-systems.pdf',
     measurement: {
       label: '320px',
       position: 'right'
@@ -66,7 +69,8 @@ export const designThoughts: DesignThought[] = [
     date: 'Feb 2026',
     cardType: 'standard',
     annotationType: 'stamp',
-    stampText: 'Draft v2'
+    stampText: 'Draft v2',
+    pdfUrl: '/pdfs/essays/typography-voice.pdf'
   },
   {
     id: 'thought-04',
@@ -85,7 +89,8 @@ export const designThoughts: DesignThought[] = [
       label: '200ms',
       position: 'top'
     },
-    hasTechnicalPattern: true
+    hasTechnicalPattern: true,
+    pdfUrl: '/pdfs/essays/interaction-timing.pdf'
   },
   {
     id: 'thought-05',

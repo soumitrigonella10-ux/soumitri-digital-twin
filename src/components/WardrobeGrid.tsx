@@ -1,111 +1,56 @@
 "use client";
 
-import { useState } from "react";
-import Image from "next/image";
-import { Tag, Star } from "lucide-react";
-import { Card, CardContent } from "./ui/card";
-import { Badge } from "./ui/badge";
 import { WardrobeItem } from "@/types";
-import { cn } from "@/lib/utils";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
 interface WardrobeGridProps {
   items: WardrobeItem[];
-  selectedIds?: string[];
-  onSelect?: (id: string) => void;
-  selectable?: boolean;
 }
 
-export function WardrobeGrid({
-  items,
-  selectedIds = [],
-  onSelect,
-  selectable = false,
-}: WardrobeGridProps) {
+export function WardrobeGrid({ items }: WardrobeGridProps) {
   if (items.length === 0) {
     return (
-      <div className="text-center py-12 text-gray-500">
-        <p>No items match your filters</p>
+      <div className="text-center py-12 text-muted-foreground">
+        <p>No items match your current filters.</p>
       </div>
     );
   }
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
       {items.map((item) => (
-        <WardrobeCard
-          key={item.id}
-          item={item}
-          isSelected={selectedIds.includes(item.id)}
-          {...(onSelect ? { onSelect } : {})}
-          selectable={selectable}
-        />
+        <Card key={item.id} className="group hover:shadow-md transition-shadow">
+          <CardContent className="p-4">
+            <div className="aspect-square bg-gray-100 rounded-lg mb-3 overflow-hidden">
+              <img
+                src={item.imageUrl}
+                alt={item.name}
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                onError={(e) => {
+                  e.currentTarget.src = '/images/placeholder-clothing.png';
+                }}
+              />
+            </div>
+            <div className="space-y-2">
+              <h3 className="font-medium text-sm line-clamp-2">{item.name}</h3>
+              <div className="flex items-center justify-between">
+                <Badge variant="outline" className="text-xs">
+                  {item.category}
+                </Badge>
+                {item.occasion && (
+                  <Badge variant="secondary" className="text-xs">
+                    {item.occasion}
+                  </Badge>
+                )}
+              </div>
+              {item.subcategory && (
+                <p className="text-xs text-muted-foreground">{item.subcategory}</p>
+              )}
+            </div>
+          </CardContent>
+        </Card>
       ))}
     </div>
-  );
-}
-
-// ========================================
-// Individual Wardrobe Card
-// ========================================
-interface WardrobeCardProps {
-  item: WardrobeItem;
-  isSelected: boolean;
-  onSelect?: (id: string) => void;
-  selectable: boolean;
-}
-
-function WardrobeCard({ item, isSelected, onSelect, selectable }: WardrobeCardProps) {
-  const [imageError, setImageError] = useState(false);
-
-  return (
-    <Card
-      className={cn(
-        "overflow-hidden transition-all cursor-pointer group",
-        selectable && "hover:ring-2 hover:ring-gray-300",
-        isSelected && "ring-2 ring-blue-500"
-      )}
-      onClick={() => selectable && onSelect?.(item.id)}
-    >
-      {/* Image */}
-      <div className="relative aspect-[3/4] bg-gray-100">
-        {!imageError ? (
-          <Image
-            src={item.imageUrl}
-            alt={item.name}
-            fill
-            className="object-cover"
-            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-            onError={() => setImageError(true)}
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center text-gray-400">
-            <Tag className="h-8 w-8" />
-          </div>
-        )}
-
-        {/* Selection indicator */}
-        {selectable && isSelected && (
-          <div className="absolute inset-0 bg-blue-500/20 flex items-center justify-center">
-            <div className="bg-blue-500 text-white rounded-full p-2">
-              <Star className="h-5 w-5 fill-white" />
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Content */}
-      <CardContent className="p-2">
-        <h3 className="text-sm font-medium text-gray-900 truncate">
-          {item.name}
-        </h3>
-
-        <div className="flex items-center gap-1 mt-1">
-          <Badge variant="secondary" className="text-xs">
-            {item.category}
-          </Badge>
-        </div>
-
-      </CardContent>
-    </Card>
   );
 }

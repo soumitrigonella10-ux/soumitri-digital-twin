@@ -2,6 +2,7 @@
 
 import { useMemo, useState, useEffect } from "react";
 import { Shirt } from "lucide-react";
+import { WardrobeItem } from "@/types";
 import { useAppStore } from "@/store/useAppStore";
 import { WardrobeGrid } from "@/components/WardrobeGrid";
 import {
@@ -40,7 +41,7 @@ function WardrobePageContent() {
   // Calculate stats
   const stats = useMemo(() => {
     const byCategory: Record<string, number> = {};
-    data.wardrobe.forEach((item) => {
+    data.wardrobe.forEach((item: WardrobeItem) => {
       byCategory[item.category] = (byCategory[item.category] || 0) + 1;
     });
     return {

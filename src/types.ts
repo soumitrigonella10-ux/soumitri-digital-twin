@@ -1,302 +1,54 @@
 // ========================================
 // Core Type Definitions for Routines + Wardrobe App
+//
+// Types are organized into domain-specific modules under src/types/.
+// This file re-exports everything for backward compatibility.
+// Prefer importing from "@/types" (resolves to src/types/index.ts).
 // ========================================
 
-// Authentication Types
-import { DefaultSession } from "next-auth"
+export type {
+  UserRole,
+} from "./types/auth";
 
-export type UserRole = "admin" | "user"
+export type {
+  TimeOfDay,
+  RoutineType,
+  BodyArea,
+  HairPhase,
+  Product,
+  RoutineStep,
+  Routine,
+} from "./types/routines";
 
-declare module "next-auth" {
-  interface Session {
-    user: {
-      email: string
-      role: UserRole
-    } & DefaultSession["user"]
-  }
+export type {
+  WardrobeCategory,
+  WishlistCategory,
+  WardrobeItem,
+  WishlistItem,
+  JewelleryItem,
+} from "./types/wardrobe";
 
-  interface User {
-    role?: UserRole
-  }
-}
+export type {
+  Ingredient,
+  MealTemplate,
+  Dressing,
+} from "./types/nutrition";
 
-declare module "next-auth/jwt" {
-  interface JWT {
-    role?: UserRole
-  }
-}
+export type {
+  Exercise,
+  WorkoutSection,
+  WorkoutPlan,
+} from "./types/fitness";
 
-// App Types
-export type TimeOfDay = "AM" | "MIDDAY" | "PM" | "ANY";
+export type {
+  Filters,
+  EnrichedStep,
+  PlanRoutine,
+  PlanSection,
+  DayPlan,
+  FilterPreset,
+  CompletionMap,
+} from "./types/planner";
 
-export type RoutineType = 
-  | "skin" 
-  | "hair" 
-  | "body" 
-  | "bodySpecific" 
-  | "wellness" 
-  | "workout" 
-  | "food";
-
-export type BodyArea = "UA" | "IT" | "BL" | "IA" | "B&S";
-
-export type HairPhase = "oiling" | "washing" | "postWash" | "daily";
-
-export type WardrobeCategory = 
-  | "Top" 
-  | "Bottom" 
-  | "Dress" 
-  | "Shoes" 
-  | "Bags"
-  | "Innerwear"
-  | "Activewear"
-  | "Ethnic"
-  | "Outerwear"
-  | "Others";
-
-export type WishlistCategory = 
-  | "Tops" 
-  | "Bottoms" 
-  | "Dresses" 
-  | "Outerwear" 
-  | "Suits" 
-  | "Bags" 
-  | "Shoes" 
-  | "Jewellery" 
-  | "Things";
-
-export type ModestyLevel = "Low" | "Medium" | "High";
-export type ComfortLevel = "Low" | "Medium" | "High";
-
-// ========================================
-// Product
-// ========================================
-export interface Product {
-  id: string;
-  name: string;
-  category: string;
-  brand?: string; // Brand name
-  shade?: string; // Shade or variant name
-  actives?: string[];
-  cautionTags?: string[]; // e.g., "strong-active", "drying"
-  // Routine-specific fields
-  routineType?: RoutineType; // skin, body, bodySpecific, hair, etc.
-  bodyAreas?: BodyArea[]; // Which body areas this product is used on (UA, IT, BL, IA, B)
-  hairPhase?: HairPhase; // For hair products: oiling, washing, postWash, daily
-  timeOfDay?: TimeOfDay; // AM, MIDDAY, PM, or ANY
-  weekdays?: number[]; // 0=Sun, 1=Mon, ..., 6=Sat (which days to use this product)
-  displayOrder?: number; // Order in which to display/use the product in routine
-  notes?: string; // Optional notes about the product
-}
-
-// ========================================
-// Routine Step
-// ========================================
-export interface RoutineStep {
-  order: number;
-  title: string;
-  description?: string;
-  durationMin?: number;
-  productIds?: string[];
-  bodyAreas?: BodyArea[];
-  weekdaysOnly?: number[]; // 0=Sun, 1=Mon, ..., 6=Sat - only show this step on specific days
-  essential?: boolean; // Whether this step is essential
-}
-
-// ========================================
-// Routine
-// ========================================
-export interface Routine {
-  id: string;
-  type: RoutineType;
-  name: string;
-  schedule: {
-    weekday?: number[]; // 0=Sun, 1=Mon, ..., 6=Sat
-    cycleDay?: number[]; // For cycle-based schedules
-    frequencyPerWeek?: number;
-  };
-  timeOfDay: TimeOfDay;
-  tags: {
-    office?: boolean;
-    wfh?: boolean;
-    travel?: boolean;
-    goingOut?: boolean;
-  };
-  occasion?: string[]; // Office/Party/etc for outfit alignment
-  productIds?: string[]; // Direct product references (alternative to steps)
-  steps?: RoutineStep[]; // Made optional since some routines use productIds instead
-  notes?: string; // Additional notes about the routine, tips, etc.
-}
-
-// ========================================
-// Wardrobe Item
-// ========================================
-export interface WardrobeItem {
-  id: string;
-  name: string;
-  category: WardrobeCategory;
-  subcategory?: string; // e.g., "Basics", "Elevated", "Seasonals" for tops
-  occasion?: string; // e.g., "Business Casual", "Formal", "Casual"
-  imageUrl: string;
-  subType?: string; // e.g., "Straight", "Skinny", "Bootcut" for bottoms
-}
-
-// ========================================
-// Wishlist Item
-// ========================================
-export interface WishlistItem {
-  id: string;
-  name: string;
-  brand?: string; // Brand name displayed above product name (e.g., "TI.DEHI")
-  category: WishlistCategory;
-  tags?: string[]; // Display tags like ["Tops", "Apparel"]
-  imageUrl?: string;
-  websiteUrl?: string;
-  price?: number;
-  currency?: string;
-  priority?: "Low" | "Medium" | "High";
-  purchased?: boolean;
-}
-
-// ========================================
-// Jewellery Item
-// ========================================
-export interface JewelleryItem {
-  id: string;
-  name: string;
-  category: "Ring" | "Necklace" | "Bracelet" | "Earrings" | "Watch" | "Other";
-  subcategory?: string; // e.g., "Casual", "Classy", "Silver", "Fancy", "Hoop", "Ethnic", "Cuff", "Locket", "Regular"
-  imageUrl: string;
-  favorite?: boolean;
-}
-
-// ========================================
-// Meal Template
-// ========================================
-export interface Ingredient {
-  name: string;
-  quantity: string;
-  unit?: string;
-  category?: string; // e.g., "grains", "vegetables", "protein"
-}
-
-export interface MealTemplate {
-  id: string;
-  name: string;
-  timeOfDay: TimeOfDay; // AM = breakfast, ANY = lunch, PM = dinner
-  mealType: "breakfast" | "lunch" | "dinner";
-  items: string[]; // simple list for backward compatibility
-  ingredients?: Ingredient[]; // detailed ingredients with quantities
-  instructions?: string[]; // step-by-step cooking instructions
-  weekdays?: number[]; // 0=Sun, 1=Mon, ..., 6=Sat (which days to eat this)
-  prepTimeMin?: number;
-  cookTimeMin?: number;
-  servings?: number;
-  tags?: string[]; // e.g., "vegetarian", "high-protein", "quick"
-}
-
-// ========================================
-// Dressing
-// ========================================
-export interface Dressing {
-  id: string;
-  name: string;
-  shelfLifeDays: number;
-  ingredients: string[];
-}
-
-// ========================================
-// Workout Exercise
-// ========================================
-export interface Exercise {
-  name: string;
-  sets?: string; // e.g., "4×8–12", "3×10–15"
-  reps?: string;
-  notes?: string; // Additional info like "NEW:", "✅", etc.
-  benefit?: string; // How this exercise helps the body
-  isNew?: boolean;
-  isEssential?: boolean;
-}
-
-// ========================================
-// Workout Section (warm-up, main, finisher, etc.)
-// ========================================
-export interface WorkoutSection {
-  title: string; // "Warm-up", "Main Workout", "Optional Finisher", etc.
-  description?: string; // e.g., "6–8 min"
-  exercises: Exercise[];
-}
-
-// ========================================
-// Workout Plan
-// ========================================
-export interface WorkoutPlan {
-  id: string;
-  name: string;
-  weekday: number[]; // days scheduled
-  durationMin: number;
-  goal?: string; // Goal of the workout
-  sections: WorkoutSection[]; // Warm-up, Main, Finisher, etc.
-}
-
-// ========================================
-// Filter State
-// ========================================
-export interface Filters {
-  date: Date;
-  timeOfDay: TimeOfDay;
-  flags: {
-    office: boolean;
-    wfh: boolean;
-    travel: boolean;
-    goingOut: boolean;
-  };
-  occasion: string;
-  bodyAreas: BodyArea[];
-}
-
-// ========================================
-// Computed Plan Types
-// ========================================
-export interface EnrichedStep extends RoutineStep {
-  products: Product[];
-}
-
-export interface PlanRoutine {
-  routineId: string;
-  name: string;
-  steps: EnrichedStep[];
-}
-
-export interface PlanSection {
-  key: string; // "Skincare", "Haircare", etc.
-  routines: PlanRoutine[];
-  totalSteps: number;
-}
-
-export interface DayPlan {
-  warnings: string[];
-  sections: PlanSection[];
-}
-
-// ========================================
-// Preset for saved filter configurations
-// ========================================
-export interface FilterPreset {
-  name: string;
-  filters: Omit<Filters, "date"> & { date: string }; // ISO date for storage
-}
-
-// ========================================
-// Completion tracking
-// ========================================
-export type CompletionMap = Record<
-  string, // dateKey (yyyy-MM-dd)
-  Record<
-    string, // sectionKey
-    Record<
-      string, // routineId
-      Record<number, boolean> // stepOrder => done
-    >
-  >
->;
+// Side-effect: augment next-auth module types
+import "./types/auth";

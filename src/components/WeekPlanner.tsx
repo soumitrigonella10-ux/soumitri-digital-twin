@@ -5,9 +5,30 @@ import { format, addDays } from "date-fns";
 import { ChevronRight, Check } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Badge } from "./ui/badge";
-import { Modal } from "./Modal";
 import { DayPlan } from "@/types";
 import { cn } from "@/lib/utils";
+
+// Inline modal for day detail view
+function Modal({ isOpen, onClose, title, className, children }: {
+  isOpen: boolean;
+  onClose: () => void;
+  title: string;
+  className?: string;
+  children: React.ReactNode;
+}) {
+  if (!isOpen) return null;
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={onClose}>
+      <div className={cn("bg-white rounded-xl shadow-xl p-6 mx-4 max-h-[85vh] overflow-y-auto", className)} onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-bold">{title}</h2>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-2xl leading-none">&times;</button>
+        </div>
+        {children}
+      </div>
+    </div>
+  );
+}
 import { useAppStore } from "@/store/useAppStore";
 
 interface WeekPlannerProps {

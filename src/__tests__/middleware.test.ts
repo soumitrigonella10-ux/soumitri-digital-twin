@@ -141,8 +141,8 @@ describe("isPublicPath (middleware logic)", () => {
     expect(isPublicPath("/routines")).toBe(false);
   });
 
-  it("/manage is protected", () => {
-    expect(isPublicPath("/manage")).toBe(false);
+  it("/admin is protected", () => {
+    expect(isPublicPath("/admin")).toBe(false);
   });
 
   it("/fitness is protected", () => {

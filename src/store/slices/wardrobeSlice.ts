@@ -1,7 +1,7 @@
 import type { StateCreator } from "zustand";
 import { wardrobe as seedWardrobe } from "@/data/index";
 import { WardrobeItem } from "@/types";
-import { mergeById } from "./productSlice";
+import { mergeById } from "./dataSlice";
 
 export interface WardrobeSlice {
   data: {

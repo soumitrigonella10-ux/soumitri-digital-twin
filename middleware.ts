@@ -2,23 +2,10 @@ import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 import { getToken } from "next-auth/jwt"
 import { getPublicTopicSlugs } from "@/data/topics"
+import { config as appConfig } from "@/lib/config"
 
-// Static public paths (always accessible)
-const STATIC_PUBLIC_PATHS = [
-  "/",
-  "/archive",
-  "/consumption",
-  "/travel-log",
-  "/skills",
-  "/artifacts",
-  "/design-theology",
-  "/inspiration",
-  "/inventory/wishlist",
-  "/api/auth",
-  "/auth/signin",
-  "/_next",
-  "/favicon.ico",
-]
+// Static public paths from centralized config
+const STATIC_PUBLIC_PATHS = appConfig.routing.staticPublicPaths;
 
 // Derived from the single source of truth in src/data/topics.ts
 const PUBLIC_TOPIC_SLUGS = getPublicTopicSlugs()

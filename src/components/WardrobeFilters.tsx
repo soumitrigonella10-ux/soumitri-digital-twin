@@ -1,10 +1,19 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { Button } from "./ui/button";
-import { Select } from "./ui/select";
-import { Badge } from "./ui/badge";
-import { Filter, RotateCcw } from "lucide-react";
+import { WardrobeCategory } from "@/types";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Select } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { RotateCcw } from "lucide-react";
+
+export interface WardrobeFilterState {
+  category: WardrobeCategory | "Any";
+}
+
+export const defaultWardrobeFilters: WardrobeFilterState = {
+  category: "Any",
+};
 
 interface WardrobeFiltersProps {
   filters: WardrobeFilterState;
@@ -12,75 +21,74 @@ interface WardrobeFiltersProps {
   onReset: () => void;
 }
 
-export interface WardrobeFilterState {
-  category: string;
-}
-
-const FILTER_OPTIONS = {
-  category: ["Any", "Top", "Bottom", "Dress", "Shoes", "Accessories", "Outerwear"],
-};
+const wardrobeCategories: (WardrobeCategory | "Any")[] = [
+  "Any",
+  "Top",
+  "Bottom", 
+  "Dress",
+  "Shoes",
+  "Bags",
+  "Innerwear",
+  "Activewear",
+  "Ethnic",
+  "Outerwear",
+  "Others"
+];
 
 export function WardrobeFilters({ filters, onChange, onReset }: WardrobeFiltersProps) {
-  const updateFilter = <K extends keyof WardrobeFilterState>(
-    key: K,
-    value: WardrobeFilterState[K]
-  ) => {
-    onChange({ ...filters, [key]: value });
+  const handleCategoryChange = (category: string) => {
+    onChange({
+      ...filters,
+      category: category as WardrobeCategory | "Any",
+    });
   };
 
-  const activeFilterCount = Object.entries(filters).filter(([_key, value]) => {
-    return value !== "Any";
-  }).length;
+  const isDefaultFilters = filters.category === "Any";
 
   return (
     <Card>
-      <CardHeader className="pb-2">
-        <CardTitle className="text-base flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Filter className="h-4 w-4" />
-            Filters
-            {activeFilterCount > 0 && (
-              <Badge variant="default" className="text-xs">
-                {activeFilterCount}
-              </Badge>
-            )}
-          </div>
-          <Button variant="ghost" size="sm" onClick={onReset} className="gap-1">
-            <RotateCcw className="h-3 w-3" />
+      <CardHeader className="pb-3">
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-base">Filters</CardTitle>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onReset}
+            disabled={isDefaultFilters}
+            className="h-8 px-2"
+          >
+            <RotateCcw className="h-3 w-3 mr-1" />
             Reset
           </Button>
-        </CardTitle>
+        </div>
       </CardHeader>
-      <CardContent className="space-y-3">
-        {/* Select Filters */}
-        {(Object.keys(FILTER_OPTIONS) as (keyof typeof FILTER_OPTIONS)[]).map(
-          (filterKey) => (
-            <div key={filterKey} className="space-y-1">
-              <label className="text-xs text-gray-500 capitalize">
-                {filterKey}
-              </label>
-              <Select
-                value={filters[filterKey]}
-                onChange={(e) => updateFilter(filterKey, e.target.value)}
-                className="text-sm"
-              >
-                {FILTER_OPTIONS[filterKey].map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </Select>
+      <CardContent className="space-y-4">
+        {/* Category Filter */}
+        <div className="space-y-2">
+          <label className="text-sm font-medium">Category</label>
+          <Select value={filters.category} onChange={(e) => handleCategoryChange(e.target.value)}>
+            {wardrobeCategories.map((category) => (
+              <option key={category} value={category}>
+                {category}
+              </option>
+            ))}
+          </Select>
+        </div>
+
+        {/* Active Filters */}
+        {!isDefaultFilters && (
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Active Filters</label>
+            <div className="flex flex-wrap gap-2">
+              {filters.category !== "Any" && (
+                <Badge variant="secondary" className="text-xs">
+                  Category: {filters.category}
+                </Badge>
+              )}
             </div>
-          )
+          </div>
         )}
-
-
       </CardContent>
     </Card>
   );
 }
-
-// Default filter state
-export const defaultWardrobeFilters: WardrobeFilterState = {
-  category: "Any",
-};
