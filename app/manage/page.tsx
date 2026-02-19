@@ -33,7 +33,7 @@ function ManagePageContent() {
       mealTemplates: data.mealTemplates,
       dressings: data.dressings,
       workoutPlans: data.workoutPlans,
-      outfits: data.outfits,
+      wishlist: data.wishlist,
       exportedAt: new Date().toISOString(),
     };
 
@@ -145,8 +145,8 @@ function ManagePageContent() {
         </Card>
         <Card>
           <CardContent className="p-3 text-center">
-            <p className="text-xl font-bold text-gray-900">{data.outfits.length}</p>
-            <p className="text-xs text-gray-500">Outfits</p>
+            <p className="text-xl font-bold text-gray-900">{data.wishlist.length}</p>
+            <p className="text-xs text-gray-500">Wishlist</p>
           </CardContent>
         </Card>
       </div>

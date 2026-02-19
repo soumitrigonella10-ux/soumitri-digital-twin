@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { Calendar, CheckCircle2, Edit2, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Product } from "@/types";

@@ -86,6 +86,7 @@ export interface Product {
   timeOfDay?: TimeOfDay; // AM, MIDDAY, PM, or ANY
   weekdays?: number[]; // 0=Sun, 1=Mon, ..., 6=Sat (which days to use this product)
   displayOrder?: number; // Order in which to display/use the product in routine
+  notes?: string; // Optional notes about the product
 }
 
 // ========================================
@@ -99,6 +100,7 @@ export interface RoutineStep {
   productIds?: string[];
   bodyAreas?: BodyArea[];
   weekdaysOnly?: number[]; // 0=Sun, 1=Mon, ..., 6=Sat - only show this step on specific days
+  essential?: boolean; // Whether this step is essential
 }
 
 // ========================================

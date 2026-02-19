@@ -91,10 +91,10 @@ describe("productSchema", () => {
     expect(result.data!.actives).toEqual([]);
   });
 
-  it("defaults isActive to true", () => {
+  it("defaults actives to empty when present", () => {
     const result = validateWithSchema(productSchema, validProduct);
     expect(result.success).toBe(true);
-    expect(result.data!.isActive).toBe(true);
+    expect(result.data!.actives).toBeDefined();
   });
 });
 

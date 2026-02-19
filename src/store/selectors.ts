@@ -72,10 +72,7 @@ export const selectWishlistActions = (s: AppState) => ({
   markWishlistItemPurchased: s.markWishlistItemPurchased,
 });
 
-export const selectOutfitActions = (s: AppState) => ({
-  addOutfit: s.addOutfit,
-  removeOutfit: s.removeOutfit,
-});
+
 
 export const selectPresetActions = (s: AppState) => ({
   savePreset: s.savePreset,

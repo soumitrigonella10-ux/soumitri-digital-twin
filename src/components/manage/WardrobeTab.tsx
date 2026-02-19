@@ -17,7 +17,7 @@ import { WardrobeItem } from "@/types";
 const wardrobeSchema = z.object({
   id: z.string().min(1, "ID is required"),
   name: z.string().min(1, "Name is required"),
-  category: z.enum(["Top", "Bottom", "Dress", "Shoes", "Accessories", "Outerwear"]),
+  category: z.enum(["Top", "Bottom", "Dress", "Shoes", "Bags", "Innerwear", "Activewear", "Ethnic", "Outerwear", "Others"]),
   imageUrl: z.string().url("Must be a valid URL"),
 });
 
