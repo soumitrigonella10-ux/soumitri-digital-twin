@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { useSession, signIn } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import { Plus } from "lucide-react";
 import { useAppStore } from "@/store/useAppStore";
 import { WishlistItem } from "@/types";
@@ -45,14 +45,6 @@ export default function WishlistPage() {
     useWishlistFilters(data.wishlist);
 
   const [showAddModal, setShowAddModal] = useState(false);
-
-  const handleSignIn = async (email: string) => {
-    try {
-      await signIn("email", { email, callbackUrl: "/", redirect: false });
-    } catch {
-      // Sign-in error handling can be added here if needed
-    }
-  };
 
   const handleRemoveItem = (id: string) => {
     removeWishlistItem(id);
