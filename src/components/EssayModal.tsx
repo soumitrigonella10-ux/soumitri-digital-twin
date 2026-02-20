@@ -15,8 +15,7 @@ import {
 import { cn } from "@/lib/utils";
 import { PdfViewer } from "@/components/PdfViewer";
 import type { Essay } from "@/data/essays";
-import { FONT_SIZES } from "@/components/essay/constants";
-import { EssayBlockRenderer } from "@/components/essay/EssayBlockRenderer";
+import { FONT_SIZES, EssayBlockRenderer } from "@/components/essay";
 
 // ─────────────────────────────────────────────
 // Main Modal Component

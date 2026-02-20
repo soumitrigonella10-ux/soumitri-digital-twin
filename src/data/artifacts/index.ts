@@ -10,6 +10,5 @@ export type {
   InspirationFragment,
 } from "./types";
 
-export { artifacts } from "./artifacts";
+export { artifacts, getArtifactsByMedium, getArtifactsByYear } from "./artifacts";
 export { inspirations } from "./inspirations";
-export { getArtifactsByMedium, getArtifactsByYear } from "./helpers";

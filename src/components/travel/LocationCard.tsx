@@ -1,5 +1,5 @@
 import Image from "next/image";
-import type { TravelLocation } from "@/data/travel/types";
+import type { TravelLocation } from "@/data/travel";
 
 interface LocationCardProps {
   location: TravelLocation;
@@ -32,7 +32,7 @@ export function LocationCard({ location, onOpen }: LocationCardProps) {
           </span>
         </h2>
         <p className="travel-card-date">{location.dateVisited}</p>
-        <div className="travel-view-label">View Journal →</div>
+        <div className="travel-view-label">View PDF →</div>
       </div>
     </div>
   );

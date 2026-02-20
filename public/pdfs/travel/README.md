@@ -1,6 +1,6 @@
 # Travel Journal PDFs
 
-Drop your travel journal PDF files here. They will be embedded in the journal modals.
+Drop your travel journal PDF files here. They will be embedded in the travel log modals.
 
 ## Naming Convention
 
@@ -17,7 +17,4 @@ Name each PDF to match the travel location ID in `src/data/travelLocations.ts`:
 ## Adding a New Travel Journal
 
 1. Create your PDF and drop it in this folder
-2. In `src/data/travelLocations.ts`, add a new location entry with `pdfUrl: "/pdfs/travel/your-file.pdf"`
-3. The `journalPages` array is optional — it serves as a fallback if no PDF is found
-
-If a location has a `pdfUrl`, the modal will embed the PDF. If not, it falls back to the page-flip journal view.
+2. In `src/data/travel/`, add a new location entry with `pdfUrl: "/pdfs/travel/your-file.pdf"`

@@ -209,3 +209,17 @@ export const artifacts: Artifact[] = [
     backgroundColor: '#4E5D6C'
   }
 ];
+
+// ========================================
+// Artifact Helpers (query functions)
+// ========================================
+
+export function getArtifactsByMedium(medium: string): Artifact[] {
+  return artifacts.filter(artifact => 
+    artifact.medium.toLowerCase().includes(medium.toLowerCase())
+  );
+}
+
+export function getArtifactsByYear(year: string): Artifact[] {
+  return artifacts.filter(artifact => artifact.date.includes(year));
+}

@@ -1307,126 +1307,6 @@ a.bento-tile {
   transform: rotate(90deg);
 }
 
-/* Journal Book Container */
-.journal-book-container {
-  max-width: 900px;
-  width: 100%;
-  background: white;
-  border-radius: 2px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15), 0 8px 16px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
-  margin-bottom: 2rem;
-}
-
-/* Journal Page */
-.journal-page {
-  padding: 4rem 3rem;
-  min-height: 600px;
-  background: #FDFBF9;
-  position: relative;
-}
-
-.journal-page::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 50%;
-  width: 1px;
-  background: linear-gradient(to bottom, transparent 5%, rgba(196, 182, 166, 0.3) 50%, transparent 95%);
-}
-
-.journal-page-number {
-  font-family: var(--font-inter), system-ui, sans-serif;
-  font-size: 11px;
-  font-weight: 500;
-  color: #C4B6A6;
-  text-align: center;
-  margin-bottom: 2rem;
-  letter-spacing: 0.2em;
-}
-
-.journal-page-title {
-  font-family: var(--font-playfair), Georgia, serif;
-  font-size: 28px;
-  font-weight: 700;
-  color: #2D2424;
-  margin-bottom: 1.5rem;
-  text-align: center;
-}
-
-.journal-page-content {
-  font-family: var(--font-inter), system-ui, sans-serif;
-  font-size: 15px;
-  line-height: 1.8;
-  color: #2D2424;
-  white-space: pre-line;
-}
-
-/* Navigation Controls */
-.journal-controls {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 2rem;
-  margin-top: 2rem;
-}
-
-.journal-nav-btn {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  border: 1px solid #802626;
-  background: transparent;
-  color: #802626;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
-}
-
-.journal-nav-btn:hover:not(:disabled) {
-  background: #802626;
-  color: white;
-  transform: scale(1.1);
-}
-
-.journal-nav-btn:disabled {
-  opacity: 0.3;
-  cursor: not-allowed;
-}
-
-.journal-page-counter {
-  font-family: var(--font-inter), system-ui, sans-serif;
-  font-size: 13px;
-  font-weight: 500;
-  color: #2D2424;
-  letter-spacing: 0.1em;
-  padding: 0 1rem;
-  position: relative;
-}
-
-.journal-page-counter::before,
-.journal-page-counter::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  width: 32px;
-  height: 1px;
-  background: #C4B6A6;
-}
-
-.journal-page-counter::before {
-  right: 100%;
-  margin-right: 0.5rem;
-}
-
-.journal-page-counter::after {
-  left: 100%;
-  margin-left: 0.5rem;
-}
-
 /* Responsive Modal */
 @media (max-width: 1024px) {
   .journal-modal-overlay {
@@ -1450,10 +1330,6 @@ a.bento-tile {
   .journal-viewer {
     padding: 1.25rem 1rem;
   }
-
-  .journal-page {
-    padding: 3rem 2rem;
-  }
 }
 
 @media (max-width: 640px) {
@@ -1473,7 +1349,7 @@ a.bento-tile {
 
   .journal-sidebar {
     padding: 1.25rem 1rem;
-    padding-top: 3.5rem; /* space for close button */
+    padding-top: 3.5rem;
   }
 
   .journal-sidebar-section {
@@ -1491,77 +1367,6 @@ a.bento-tile {
   .journal-viewer {
     padding: 1rem 0.75rem;
   }
-
-  .journal-book-container {
-    max-width: 100%;
-    border-radius: 0;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
-  }
-
-  .journal-page {
-    padding: 1.5rem 1.25rem;
-    min-height: 350px;
-  }
-
-  .journal-page::before {
-    display: none; /* hide center spine line on mobile */
-  }
-
-  .journal-page-number {
-    font-size: 10px;
-    margin-bottom: 1rem;
-  }
-
-  .journal-page-title {
-    font-size: 20px;
-    margin-bottom: 1rem;
-  }
-
-  .journal-page-content {
-    font-size: 13px;
-    line-height: 1.7;
-  }
-
-  .journal-controls {
-    gap: 1.25rem;
-    margin-top: 1.25rem;
-  }
-
-  .journal-nav-btn {
-    width: 36px;
-    height: 36px;
-  }
-}
-
-/* Page Flip Animation (3D Effect) */
-@keyframes page-flip-forward {
-  0% {
-    transform: perspective(2000px) rotateY(0deg);
-    transform-origin: left center;
-  }
-  100% {
-    transform: perspective(2000px) rotateY(180deg);
-    transform-origin: left center;
-  }
-}
-
-@keyframes page-flip-backward {
-  0% {
-    transform: perspective(2000px) rotateY(180deg);
-    transform-origin: right center;
-  }
-  100% {
-    transform: perspective(2000px) rotateY(0deg);
-    transform-origin: right center;
-  }
-}
-
-.journal-page.flipping-forward {
-  animation: page-flip-forward 0.8s cubic-bezier(0.645, 0.045, 0.355, 1);
-}
-
-.journal-page.flipping-backward {
-  animation: page-flip-backward 0.8s cubic-bezier(0.645, 0.045, 0.355, 1);
 }
 
 /* ========================================

@@ -8,7 +8,7 @@ import { LocationCard, JournalModal, TravelHeroSection } from "@/components/trav
 import {
   travelLocations,
   type TravelLocation,
-} from "@/data/travelLocations";
+} from "@/data/travel";
 
 // ─────────────────────────────────────────────
 // Main Page Content

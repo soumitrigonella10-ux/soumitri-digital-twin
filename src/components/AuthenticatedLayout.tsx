@@ -3,8 +3,8 @@
 import { useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { ReactNode } from "react";
-import { Sidebar, MobileMenu } from "@/components/Sidebar";
+import type { ReactNode } from "react";
+import { Sidebar, MobileMenu } from "@/components/sidebar";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 interface AuthenticatedLayoutProps {
