@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { getDay } from "date-fns";
-import { Dumbbell, Plus, Clock, Zap } from "lucide-react";
+import { Dumbbell, Clock, Zap } from "lucide-react";
 import { useAppStore } from "@/store/useAppStore";
 import { cn } from "@/lib/utils";
 import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
@@ -12,7 +12,7 @@ const dayNamesFull = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "F
 
 // Fitness Page Content
 function FitnessPageContent() {
-  const { data, refreshWorkoutData } = useAppStore();
+  const { data } = useAppStore();
   const [selectedDay, setSelectedDay] = useState<number>(getDay(new Date()));
 
   const today = new Date();
@@ -49,12 +49,6 @@ function FitnessPageContent() {
             <h1 className="text-2xl font-bold text-gray-900">Fitness</h1>
             <p className="text-gray-500">Your workout library</p>
           </div>
-          <button
-            onClick={refreshWorkoutData}
-            className="px-3 py-2 bg-red-100 text-red-600 rounded-xl text-sm font-medium hover:bg-red-200 transition-colors"
-          >
-            Refresh Data
-          </button>
         </div>
 
         {/* Day Tabs */}
@@ -203,12 +197,6 @@ function FitnessPageContent() {
           </div>
         )}
       </div>
-
-      {/* Add New Workout Button */}
-      <button className="add-button-dashed w-full py-6">
-        <Plus className="w-5 h-5" />
-        <span>Add New Workout</span>
-      </button>
     </div>
   );
 }

@@ -67,7 +67,7 @@ function TravelLogPageContent() {
             Soumitri Digital Twin
           </span>
           <p className="font-sans text-[11px] text-gray-400 tracking-wide uppercase">
-            &copy; {new Date().getFullYear()} &middot; Traveling with intention
+            &copy; {new Date().getFullYear()} &middot; Fly bro, fly.
           </p>
         </div>
       </footer>

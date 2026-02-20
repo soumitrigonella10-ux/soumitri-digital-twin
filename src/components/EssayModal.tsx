@@ -8,11 +8,8 @@ import {
   type MouseEvent,
 } from "react";
 import {
-  X,
   ArrowLeft,
-  Bookmark,
   Share2,
-  Type,
   BookOpen,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -20,7 +17,6 @@ import { PdfViewer } from "@/components/PdfViewer";
 import type { Essay } from "@/data/essays";
 import { FONT_SIZES } from "@/components/essay/constants";
 import { EssayBlockRenderer } from "@/components/essay/EssayBlockRenderer";
-import { EssayArticleHeader } from "@/components/essay/EssayArticleHeader";
 
 // ─────────────────────────────────────────────
 // Main Modal Component
@@ -33,9 +29,7 @@ interface EssayModalProps {
 export function EssayModal({ essay, onClose }: EssayModalProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [scrollProgress, setScrollProgress] = useState(0);
-  const [fontIndex, setFontIndex] = useState(0);
-  const [showTypePicker, setShowTypePicker] = useState(false);
-  const [isBookmarked, setIsBookmarked] = useState(false);
+  const [fontIndex] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
 
@@ -133,81 +127,29 @@ export function EssayModal({ essay, onClose }: EssayModalProps) {
         {/* ── Sticky header ── */}
         <div className="sticky top-0 z-10 essay-modal-header">
           <div className="flex items-center justify-between px-5 md:px-8 h-12">
-            {/* Left — close */}
+            {/* Left — back arrow */}
             <button
               onClick={handleClose}
-              className="flex items-center gap-2 text-stone-400 hover:text-stone-700 transition-colors group"
+              className="w-8 h-8 rounded-full flex items-center justify-center text-stone-400 hover:text-stone-700 hover:bg-stone-100 transition-colors group"
+              aria-label="Close"
             >
               <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-0.5" />
-              <span className="font-editorial text-[10px] font-semibold uppercase tracking-[0.12em] hidden sm:inline">
-                Return to Essays
-              </span>
-              <X className="w-4 h-4 sm:hidden" />
             </button>
 
-            {/* Center — brand */}
-            <span className="font-serif italic text-sm font-bold text-stone-400 absolute left-1/2 -translate-x-1/2 hidden sm:inline">
-              Soumitri Digital Twin
+            {/* Center — essay title */}
+            <span className="font-serif italic text-sm font-bold text-stone-600 absolute left-1/2 -translate-x-1/2 hidden sm:inline truncate max-w-[50%] text-center">
+              {essay.title}
             </span>
 
-            {/* Right — tools */}
-            <div className="flex items-center gap-1">
-              {/* Typography picker */}
-              <div className="relative">
-                <button
-                  onClick={() => setShowTypePicker((v) => !v)}
-                  className={cn(
-                    "w-8 h-8 rounded-full flex items-center justify-center transition-colors",
-                    showTypePicker
-                      ? "bg-stone-200 text-stone-700"
-                      : "text-stone-400 hover:text-stone-700 hover:bg-stone-100"
-                  )}
-                  aria-label="Adjust typography"
-                >
-                  <Type className="w-4 h-4" />
-                </button>
-
-                {showTypePicker && (
-                  <div className="absolute right-0 top-10 bg-white border border-stone-200 rounded-lg shadow-lg p-2 flex gap-1 z-20">
-                    {FONT_SIZES.map((size, i) => (
-                      <button
-                        key={size.label}
-                        onClick={() => {
-                          setFontIndex(i);
-                          setShowTypePicker(false);
-                        }}
-                        className={cn(
-                          "w-8 h-8 rounded-md flex items-center justify-center font-editorial text-xs font-semibold transition-colors",
-                          fontIndex === i
-                            ? "bg-stone-900 text-white"
-                            : "text-stone-500 hover:bg-stone-100"
-                        )}
-                      >
-                        {size.label}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Bookmark */}
-              <button
-                onClick={() => setIsBookmarked((v) => !v)}
-                className={cn(
-                  "w-8 h-8 rounded-full flex items-center justify-center transition-colors",
-                  isBookmarked
-                    ? "text-amber-600 bg-amber-50"
-                    : "text-stone-400 hover:text-stone-700 hover:bg-stone-100"
-                )}
-                aria-label={isBookmarked ? "Remove bookmark" : "Bookmark"}
-              >
-                <Bookmark
-                  className="w-4 h-4"
-                  fill={isBookmarked ? "currentColor" : "none"}
-                />
-              </button>
-
-              {/* Share */}
+            {/* Right — category, date, share */}
+            <div className="flex items-center gap-3">
+              <span className="font-editorial text-[10px] font-bold uppercase tracking-[0.15em] editorial-accent hidden md:inline">
+                {essay.category}
+              </span>
+              <span className="hidden md:inline w-1 h-1 rounded-full bg-stone-300" />
+              <span className="font-editorial text-[10px] font-medium text-stone-400 hidden md:inline">
+                {essay.date}
+              </span>
               <button
                 onClick={handleShare}
                 className="w-8 h-8 rounded-full flex items-center justify-center text-stone-400 hover:text-stone-700 hover:bg-stone-100 transition-colors"
@@ -224,12 +166,6 @@ export function EssayModal({ essay, onClose }: EssayModalProps) {
           {/* If essay has a PDF, show the embedded PDF viewer */}
           {essay.pdfUrl ? (
             <>
-              {/* Article header (kept for context) */}
-              <article className="px-6 md:px-12 lg:px-16">
-                <EssayArticleHeader essay={essay} />
-                <hr className="editorial-rule mb-6" />
-              </article>
-
               {/* Embedded PDF */}
               <div className="px-4 md:px-8 pb-10" style={{ height: "75vh" }}>
                 <PdfViewer pdfUrl={essay.pdfUrl} title={essay.title} className="rounded-lg overflow-hidden" />
@@ -248,12 +184,6 @@ export function EssayModal({ essay, onClose }: EssayModalProps) {
 
           {/* Article content */}
           <article className="px-6 md:px-12 lg:px-16">
-            {/* Entry header */}
-            <EssayArticleHeader essay={essay} />
-
-            {/* Thin rule before body */}
-            <hr className="editorial-rule mb-10" />
-
             {/* Body blocks */}
             <div className="pb-16 md:pb-20">
               {essay.body && essay.body.length > 0 ? (

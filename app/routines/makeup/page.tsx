@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import { Palette, Sparkles } from "lucide-react";
 import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
-import { SAMPLE_MAKEUP_PRODUCTS } from "@/data/makeupProducts";
+import { SAMPLE_MAKEUP_PRODUCTS } from "@/data/makeup/index";
 
 // Categorize products into 4 main groups
 const categorizeMakeupProduct = (category: string): "Eyes" | "Skin" | "Lips" | "Body" => {

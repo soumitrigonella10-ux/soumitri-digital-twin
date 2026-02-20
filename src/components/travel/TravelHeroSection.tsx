@@ -18,9 +18,7 @@ export function TravelHeroSection() {
           className="font-sans text-base leading-relaxed"
           style={{ color: "#2D2424", opacity: 0.8 }}
         >
-          Places I&apos;ve been, places I&apos;m going. This is not a bucket list —
-          it&apos;s an archive of attention. Each location comes with a field journal:
-          unfiltered notes, sketches, and observations written on-site.
+          I went there to see what it would do to me.
         </p>
       </div>
     </header>

@@ -2,16 +2,13 @@
 
 import { useState, useMemo } from "react";
 import { useSession } from "next-auth/react";
-import { Plus } from "lucide-react";
 import { useAppStore } from "@/store/useAppStore";
 import { WishlistItem } from "@/types";
-import { Button } from "@/components/ui/button";
 import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
 import { EditorialNav } from "@/components/EditorialNav";
 import {
   CategoryFilter,
   WishlistGrid,
-  AddItemModal,
 } from "@/components/wishlist";
 
 // --- Hooks -------------------------------------------------
@@ -39,17 +36,10 @@ function useWishlistFilters(wishlist: WishlistItem[]) {
 // --- Page Component ----------------------------------------
 export default function WishlistPage() {
   const { data: session, status } = useSession();
-  const { data, addWishlistItem } = useAppStore();
+  const { data } = useAppStore();
 
   const { selectedCategory, setSelectedCategory, filteredItems, groupedItems } =
     useWishlistFilters(data.wishlist);
-
-  const [showAddModal, setShowAddModal] = useState(false);
-
-  const handleAddItem = (item: WishlistItem) => {
-    addWishlistItem(item);
-    setShowAddModal(false);
-  };
 
   // Loading
   if (status === "loading") {
@@ -77,7 +67,7 @@ export default function WishlistPage() {
           onSelectItem={() => {}}
           emptyMessage={
             session
-              ? "Add some items to your wishlist to get started!"
+              ? "No items in your wishlist yet."
               : `No ${selectedCategory.toLowerCase()} items found.`
           }
         />
@@ -125,37 +115,29 @@ export default function WishlistPage() {
       <div className="min-h-screen px-6 md:px-8 lg:px-12">
         <div className="max-w-7xl mx-auto space-y-6">
           <header className="pt-20 pb-8">
-            <div className="flex items-center justify-between">
-              <div>
-                <p
-                  className="font-sans text-[10px] font-semibold uppercase tracking-[0.4em] mb-2"
-                  style={{ color: "#802626" }}
-                >
-                  Inventory
-                </p>
-                <h1
-                  className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold leading-[0.95] mb-3"
-                  style={{ color: "#2D2424" }}
-                >
-                  Wishlist
-                </h1>
-                <p
-                  className="font-sans text-base leading-relaxed max-w-xl"
-                  style={{ color: "#2D2424", opacity: 0.8 }}
-                >
-                  A running list of objects I&apos;m considering
-                </p>
-              </div>
-              <Button onClick={() => setShowAddModal(true)} className="flex items-center gap-2">
-                <Plus className="h-4 w-4" />
-                Add Item
-              </Button>
+            <div>
+              <p
+                className="font-sans text-[10px] font-semibold uppercase tracking-[0.4em] mb-2"
+                style={{ color: "#802626" }}
+              >
+                Inventory
+              </p>
+              <h1
+                className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold leading-[0.95] mb-3"
+                style={{ color: "#2D2424" }}
+              >
+                Wishlist
+              </h1>
+              <p
+                className="font-sans text-base leading-relaxed max-w-xl"
+                style={{ color: "#2D2424", opacity: 0.8 }}
+              >
+                A running list of objects I&apos;m considering
+              </p>
             </div>
           </header>
 
           {sharedContent}
-
-          {showAddModal && <AddItemModal onAdd={handleAddItem} onClose={() => setShowAddModal(false)} />}
         </div>
       </div>
     </AuthenticatedLayout>

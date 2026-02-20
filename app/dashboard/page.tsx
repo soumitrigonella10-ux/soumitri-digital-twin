@@ -100,10 +100,6 @@ function TodayContent() {
               {format(today, "EEEE, MMMM d")} • {format(currentTime, "h:mm a")}
             </p>
           </div>
-          <div className="text-right hidden sm:block">
-            <p className="text-sm font-medium text-gray-900">Current Time</p>
-            <p className="text-xs text-gray-500 capitalize">{currentTimePeriod.toLowerCase()} Period</p>
-          </div>
         </div>
 
         {/* Time Period Toggle */}

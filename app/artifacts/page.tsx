@@ -26,11 +26,9 @@ function ArtifactsPageContent() {
       {/* Hero Section */}
       <section className="artifacts-hero">
         <div className="hero-content">
-          <h1 className="hero-title">Visual Artifacts</h1>
-          <p className="hero-subtitle">A curated collection of creative experiments, field notes, and visual studies</p>
+          <h1 className="hero-title">The Studio</h1>
+          <p className="hero-subtitle">A collection of creative experiments and visual studies</p>
           <div className="hero-metadata">
-            <span>Archive Est. 2024</span>
-            <span className="divider">•</span>
             <span>{artifacts.length} Pieces</span>
           </div>
         </div>

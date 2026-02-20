@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Coffee, Plus, Clock, Calendar } from "lucide-react";
+import { Coffee, Clock, Calendar } from "lucide-react";
 import { useAppStore } from "@/store/useAppStore";
 import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
 import { cn } from "@/lib/utils";
@@ -207,21 +207,6 @@ function BreakfastPageContent() {
       </div>
 
       {/* Add New Template Button */}
-      <button className="add-button-dashed w-full py-6">
-        <Plus className="w-5 h-5" />
-        <span>Add Breakfast Dish</span>
-      </button>
-
-      {/* Tips Card */}
-      <div className="lifeos-card p-5 bg-amber-50 border-amber-100">
-        <h3 className="font-medium text-amber-800 mb-2">Breakfast Tips</h3>
-        <ul className="text-sm text-amber-700 space-y-1">
-          <li>• Eat within 1-2 hours of waking</li>
-          <li>• Include protein for sustained energy</li>
-          <li>• Add fiber for digestion</li>
-          <li>• Hydrate before eating</li>
-        </ul>
-      </div>
     </div>
   );
 }

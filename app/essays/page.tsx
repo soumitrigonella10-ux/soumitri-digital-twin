@@ -103,7 +103,7 @@ function EssaysPageContent() {
       {(activeCategory !== "All" ? filteredEssays : secondaryEssays).length >
         0 && (
         <section className="max-w-[1200px] mx-auto px-6 md:px-8 pb-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-10">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-8">
             {(activeCategory !== "All" ? filteredEssays : secondaryEssays).map(
               (essay, i) => (
                 <EssayCard key={essay.id} essay={essay} index={i} onOpen={handleOpenEssay} />

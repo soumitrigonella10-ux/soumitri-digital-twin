@@ -123,27 +123,6 @@ function ThoughtCard({ thought, onClick }: ThoughtCardProps) {
         <div className="technical-pattern-bg" />
       )}
 
-      {/* Measurement Annotation */}
-      {thought.annotationType === 'measurement' && thought.measurement && (
-        <div className={`measurement-line measurement-${thought.measurement.position}`}>
-          <span className="measurement-label">{thought.measurement.label}</span>
-        </div>
-      )}
-
-      {/* Redline Annotation */}
-      {thought.annotationType === 'redline' && thought.redlineText && (
-        <div className="redline-label">
-          {thought.redlineText}
-        </div>
-      )}
-
-      {/* Stamp Annotation */}
-      {thought.annotationType === 'stamp' && thought.stampText && (
-        <div className="stamp-label">
-          {thought.stampText}
-        </div>
-      )}
-
       {/* Card Content */}
       <div className="thought-card-content">
         <div className="thought-card-header">
@@ -158,14 +137,6 @@ function ThoughtCard({ thought, onClick }: ThoughtCardProps) {
               <span className="thought-subtitle">{thought.subtitle}</span>
             )}
           </h3>
-
-          <div className="thought-content">
-            {thought.content.map((paragraph, index) => (
-              <p key={index} className="thought-paragraph">
-                {paragraph}
-              </p>
-            ))}
-          </div>
         </div>
       </div>
     </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { UtensilsCrossed, Plus, Clock, Leaf, Droplets, ChefHat, Info } from "lucide-react";
+import { UtensilsCrossed, Clock, Leaf, Droplets, ChefHat, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { lunchBowlConfig } from "@/data/meals/lunch";
 import { lunchDressings, DressingRecipe } from "@/data/meals/dressings";
@@ -301,12 +301,6 @@ function LunchPageContent() {
               </div>
             ))}
           </div>
-
-          {/* Add New Dressing Button */}
-          <button className="add-button-dashed w-full py-6">
-            <Plus className="w-5 h-5" />
-            <span>Add New Dressing</span>
-          </button>
         </div>
       )}
     </div>

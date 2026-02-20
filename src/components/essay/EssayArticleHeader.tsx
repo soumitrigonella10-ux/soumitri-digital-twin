@@ -28,18 +28,7 @@ export function EssayArticleHeader({ essay }: EssayArticleHeaderProps) {
           {essay.readingTime}
         </span>
       </div>
-      {essay.tags && essay.tags.length > 0 && (
-        <div className="flex flex-wrap gap-2">
-          {essay.tags.map((tag) => (
-            <span
-              key={tag}
-              className="font-editorial text-[10px] font-medium uppercase tracking-wider text-stone-400 bg-stone-50 border border-stone-100 px-2.5 py-1 rounded-sm"
-            >
-              {tag}
-            </span>
-          ))}
-        </div>
-      )}
+
     </div>
   );
 }

@@ -33,9 +33,7 @@ function HeroSection() {
         {/* Summary */}
         <div className="consumption-hero-summary">
           <p>
-            A curated archive of everything I&apos;m reading, watching, and listening to.
-            This is my digital museum — a place where consumption becomes curation,
-            and attention becomes intentional.
+            An archive of cultural intake.
           </p>
         </div>
       </div>
@@ -276,7 +274,7 @@ function ConsumptionPageContent() {
             Soumitri Digital Twin
           </span>
           <p className="font-sans text-[11px] text-gray-400 tracking-wide uppercase">
-            &copy; {new Date().getFullYear()} &middot; Consuming with intention
+            &copy; {new Date().getFullYear()} &middot; Brainful consumption.
           </p>
         </div>
       </footer>

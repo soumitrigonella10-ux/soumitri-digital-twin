@@ -1,4 +1,4 @@
-import { Clock, BookOpen } from "lucide-react";
+import { Clock } from "lucide-react";
 import type { Essay } from "@/data/essays";
 
 interface EssayCardProps {
@@ -10,22 +10,13 @@ interface EssayCardProps {
 export function EssayCard({ essay, index, onOpen }: EssayCardProps) {
   return (
     <article
-      className="editorial-card editorial-image-wrapper editorial-fade-up group cursor-pointer"
+      className="editorial-card editorial-image-wrapper editorial-fade-up group cursor-pointer bg-white border border-stone-200 rounded-lg p-6 hover:shadow-md hover:border-stone-300 transition-all duration-300"
       style={{ animationDelay: `${index * 0.07}s` }}
       onClick={() => onOpen(essay)}
       role="button"
       tabIndex={0}
       onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") onOpen(essay); }}
     >
-      {/* Image */}
-      <div className="relative aspect-[16/10] overflow-hidden rounded-sm bg-stone-100 mb-4">
-        <div className="absolute inset-0 bg-stone-200 editorial-image flex items-center justify-center">
-          <div className="w-full h-full bg-gradient-to-br from-stone-200 via-stone-300 to-stone-200 flex items-center justify-center">
-            <BookOpen className="w-8 h-8 text-stone-400/50" />
-          </div>
-        </div>
-      </div>
-
       {/* Category */}
       <span className="font-editorial text-[10px] font-bold uppercase tracking-[0.2em] editorial-accent">
         {essay.category}

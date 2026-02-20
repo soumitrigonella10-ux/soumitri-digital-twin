@@ -3,6 +3,7 @@
 import { WardrobeItem } from "@/types";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import Image from "next/image";
 
 interface WardrobeGridProps {
   items: WardrobeItem[];
@@ -23,12 +24,17 @@ export function WardrobeGrid({ items }: WardrobeGridProps) {
         <Card key={item.id} className="group hover:shadow-md transition-shadow">
           <CardContent className="p-4">
             <div className="aspect-square bg-gray-100 rounded-lg mb-3 overflow-hidden">
-              <img
+              <Image
                 src={item.imageUrl}
                 alt={item.name}
+                width={300}
+                height={300}
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                onError={(e) => {
-                  e.currentTarget.src = '/images/placeholder-clothing.png';
+                loading="lazy"
+                placeholder="blur"
+                blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
+                onError={() => {
+                  // Handle with a fallback component or state
                 }}
               />
             </div>

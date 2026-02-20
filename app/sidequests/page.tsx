@@ -81,9 +81,7 @@ function ArchivePageContent() {
             className="max-w-xl text-[#4A2C2A] text-base lg:text-lg font-light tracking-wide leading-relaxed ml-0 lg:ml-8"
             style={{ fontFamily: "'Inter', system-ui, sans-serif", letterSpacing: '0.05em' }}
           >
-            A curated archive of intentional pursuits—each one a deliberate step 
-            toward becoming. These are the quests that shape identity, build character, 
-            and transform daily life into something meaningful.
+            I am just a girl standing in front of a hobby asking it to become her whole brand. (knowing damn well this is a three-week phase.)
           </p>
         </header>
 

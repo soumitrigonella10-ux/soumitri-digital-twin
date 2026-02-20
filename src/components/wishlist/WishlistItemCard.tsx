@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { Heart, Check, ExternalLink, Tag } from "lucide-react";
+import { Heart, Check, ExternalLink } from "lucide-react";
 import { WishlistItem } from "@/types";
 import { cn } from "@/lib/utils";
 
@@ -15,65 +15,71 @@ export function WishlistItemCard({ item, isSelected, onSelect }: WishlistItemCar
   return (
     <div
       className={cn(
-        "cursor-pointer transition-all hover:shadow-xl rounded-2xl overflow-hidden bg-white shadow-md",
-        item.purchased && "opacity-75",
-        isSelected && "ring-2 ring-blue-500"
+        "group cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl rounded-xl overflow-hidden bg-white shadow-md border border-gray-100",
+        item.purchased && "opacity-60 grayscale",
+        isSelected && "ring-2 ring-telugu-kavi shadow-lg scale-[1.01]"
       )}
       onClick={() => onSelect(item)}
     >
       {/* Image area with priority badge */}
-      <div className="relative bg-[#FDF5E6]">
+      <div className="relative bg-gradient-to-br from-[#FDF5E6] to-[#FAF0E0]">
         {item.priority && (
-          <div className="absolute top-4 left-4 z-10">
+          <div className="absolute top-3 left-3 z-10">
             <span
               className={cn(
-                "px-3 py-1.5 rounded-full text-[11px] font-bold tracking-wide uppercase backdrop-blur-sm border",
-                item.priority === "High" && "bg-rose-50/90 text-rose-700 border-rose-200",
-                item.priority === "Medium" && "bg-amber-50/90 text-amber-700 border-amber-200",
-                item.priority === "Low" && "bg-slate-50/90 text-slate-600 border-slate-200"
+                "px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase shadow-lg backdrop-blur-sm",
+                item.priority === "High" && "bg-red-500/90 text-white border border-red-400",
+                item.priority === "Medium" && "bg-amber-500/90 text-white border border-amber-400", 
+                item.priority === "Low" && "bg-gray-500/90 text-white border border-gray-400"
               )}
             >
-              {item.priority} Priority
+              {item.priority}
             </span>
           </div>
         )}
 
         {item.imageUrl ? (
-          <div className="aspect-[4/5] relative">
+          <div className="aspect-[4/5] relative overflow-hidden">
             <Image
               src={item.imageUrl}
               alt={item.name}
               fill
               sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-              className="object-contain"
+              className="object-contain group-hover:scale-105 transition-transform duration-500"
               quality={90}
             />
           </div>
         ) : (
           <div className="aspect-[4/5] flex items-center justify-center">
-            <Heart className="h-12 w-12 text-gray-400" />
+            <div className="w-16 h-16 rounded-full bg-telugu-kavi/10 flex items-center justify-center">
+              <Heart className="h-8 w-8 text-telugu-kavi/60" />
+            </div>
           </div>
         )}
 
         {item.purchased && (
-          <div className="absolute top-4 right-4 z-10">
-            <Check className="h-6 w-6 text-green-600 bg-white rounded-full p-0.5 shadow" />
+          <div className="absolute top-3 right-3 z-10">
+            <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center shadow-lg">
+              <Check className="h-5 w-5 text-white" />
+            </div>
           </div>
         )}
       </div>
 
       {/* Details area */}
-      <div className="px-4 pt-4 pb-3 space-y-3">
+      <div className="px-4 py-4 space-y-3">
         <div>
           {item.brand && (
-            <p className="text-[11px] font-medium text-gray-400 uppercase tracking-wider mb-0.5">
+            <p className="font-editorial text-[10px] font-bold uppercase tracking-[0.15em] text-telugu-kavi/70 mb-1">
               {item.brand}
             </p>
           )}
-          <div className="flex items-baseline justify-between gap-3">
-            <h3 className="font-bold text-base text-gray-900 leading-tight">{item.name}</h3>
+          <div className="flex items-start justify-between gap-3">
+            <h3 className="font-serif text-sm font-medium text-gray-900 leading-tight line-clamp-2 flex-1">
+              {item.name}
+            </h3>
             {item.price != null && (
-              <span className="text-base font-bold text-gray-900 whitespace-nowrap">
+              <span className="font-editorial text-sm font-bold text-telugu-kavi whitespace-nowrap">
                 ₹{item.price.toLocaleString()}
               </span>
             )}
@@ -81,20 +87,22 @@ export function WishlistItemCard({ item, isSelected, onSelect }: WishlistItemCar
         </div>
 
         <div className="flex items-center justify-between pt-1">
-          <div className="flex items-center gap-2">
-            {item.tags?.[0] && (
-              <span className="px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700 border border-blue-200">
-                {item.tags[0]}
+          <div className="flex items-center gap-1.5 flex-wrap">
+            {item.tags?.slice(0, 2).map((tag, index) => (
+              <span 
+                key={tag}
+                className={cn(
+                  "px-2.5 py-1 rounded-full text-[10px] font-medium transition-colors",
+                  index === 0 
+                    ? "bg-telugu-kavi/10 text-telugu-kavi border border-telugu-kavi/20" 
+                    : "bg-gray-100 text-gray-600 border border-gray-200"
+                )}
+              >
+                {tag}
               </span>
-            )}
-            {item.tags?.[1] && (
-              <span className="px-3 py-1 rounded-full text-xs font-medium bg-white text-gray-600 border border-gray-300 inline-flex items-center gap-1">
-                <Tag className="h-3 w-3" />
-                {item.tags[1]}
-              </span>
-            )}
+            ))}
           </div>
-          <ExternalLink className="h-4 w-4 text-gray-400 flex-shrink-0" />
+          <ExternalLink className="h-4 w-4 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
         </div>
       </div>
     </div>

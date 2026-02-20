@@ -9,8 +9,7 @@ export function EssaysHeroSection() {
           Essays &amp;&nbsp;Reflections
         </h1>
         <p className="mt-6 font-editorial text-base md:text-lg text-gray-600 leading-relaxed max-w-xl">
-          On things that matter to me — taste, systems, clothing, friction,
-          and the quiet architecture of a deliberately lived life.
+          I thought about something and now I have to inconvenience you by making you read it.
         </p>
       </div>
     </header>

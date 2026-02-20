@@ -7,7 +7,7 @@ export function EditorialFooter() {
           Soumitri Digital Twin
         </span>
         <p className="font-editorial text-[11px] text-stone-400 tracking-wide">
-          &copy; {new Date().getFullYear()} &middot; Long-form thinking, quietly published.
+          &copy; {new Date().getFullYear()} &middot; For once, think bro.
         </p>
       </div>
     </footer>

@@ -114,10 +114,7 @@ function HeroSection() {
           className="font-sans text-lg leading-relaxed mt-6 max-w-2xl"
           style={{ color: "#2D2424", opacity: 0.8 }}
         >
-          Learning framed as scientific inquiry. Each skill is an experiment with
-          measurable progress, documented tools, and a hypothesis about what
-          mastery looks like. Some are complete. Others are ongoing. All are
-          intentional.
+          Data or It Didn’t Happen
         </p>
       </div>
     </header>
@@ -201,7 +198,7 @@ function SkillsPageContent() {
             Soumitri Digital Twin
           </span>
           <p className="font-sans text-[11px] text-gray-400 tracking-wide uppercase">
-            &copy; {new Date().getFullYear()} &middot; Learning with intention
+            &copy; {new Date().getFullYear()} &middot; Master f all trades, jack of none.
           </p>
         </div>
       </footer>
