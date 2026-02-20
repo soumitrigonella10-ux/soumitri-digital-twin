@@ -1,4 +1,4 @@
-import { WishlistItem } from "@/types";
+import type { WishlistItem } from "@/types";
 
 // ========================================
 // WISHLIST — Elevated Tops

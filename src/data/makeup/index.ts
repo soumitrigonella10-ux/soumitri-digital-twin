@@ -1,7 +1,7 @@
 // ========================================
 // Makeup Products — Barrel Export
 // ========================================
-import { Product } from "@/types";
+import type { Product } from "@/types";
 import { faceProducts } from "./face";
 import { eyeProducts } from "./eyes";
 import { lipProducts } from "./lips";

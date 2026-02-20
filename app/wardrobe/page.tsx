@@ -2,12 +2,13 @@
 
 import { useMemo, useState, useEffect } from "react";
 import { Shirt } from "lucide-react";
-import { WardrobeItem } from "@/types";
+import type { WardrobeItem } from "@/types";
 import { useAppStore } from "@/store/useAppStore";
 import { WardrobeGrid } from "@/components/WardrobeGrid";
+import type {
+  WardrobeFilterState} from "@/components/WardrobeFilters";
 import {
   WardrobeFilters,
-  WardrobeFilterState,
   defaultWardrobeFilters,
 } from "@/components/WardrobeFilters";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";

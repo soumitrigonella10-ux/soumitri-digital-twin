@@ -1,7 +1,7 @@
 "use client";
 
 import { Clock } from "lucide-react";
-import { MealTemplate } from "@/types";
+import type { MealTemplate } from "@/types";
 import { MEAL_THEMES } from "./constants";
 
 interface MealSectionProps {

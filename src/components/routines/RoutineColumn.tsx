@@ -1,8 +1,9 @@
 "use client";
 
 import { type LucideIcon } from "lucide-react";
-import { Product } from "@/types";
-import { ProductCard, ProductCardTheme } from "@/components/ProductCard";
+import type { Product } from "@/types";
+import type { ProductCardTheme } from "@/components/ProductCard";
+import { ProductCard } from "@/components/ProductCard";
 import { ProgressRing, ProgressBar } from "./ProgressRing";
 
 export interface ColumnProgress {

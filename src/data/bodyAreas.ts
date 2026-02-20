@@ -1,4 +1,4 @@
-import { Product } from "@/types";
+import type { Product } from "@/types";
 
 // Body Area configuration with colors and metadata
 export const BODY_AREAS = {

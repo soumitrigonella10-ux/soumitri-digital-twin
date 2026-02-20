@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useAppStore } from "@/store/useAppStore";
 import { useToast } from "@/components/ToastProvider";
-import { Product } from "@/types";
+import type { Product } from "@/types";
 
 const productSchema = z.object({
   id: z.string().min(1, "ID is required"),

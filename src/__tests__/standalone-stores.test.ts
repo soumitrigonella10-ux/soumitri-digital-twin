@@ -14,6 +14,7 @@ function createImmerTestStore() {
   // Use `any` for the slice creator in tests since the full AppState
   // composition isn't available in standalone store tests
   return create<DataSlice>()(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     immer(createDataSlice as any)
   );
 }

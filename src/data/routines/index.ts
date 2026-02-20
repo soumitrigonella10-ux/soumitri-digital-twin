@@ -15,7 +15,7 @@ import { bodySpecificsRoutines } from "./body-specifics";
 import { wellnessRoutines } from "./wellness";
 import { workoutRoutines } from "./workout";
 import { foodRoutines } from "./food";
-import { Routine } from "@/types";
+import type { Routine } from "@/types";
 
 export const routines: Routine[] = [
   ...skinRoutines,

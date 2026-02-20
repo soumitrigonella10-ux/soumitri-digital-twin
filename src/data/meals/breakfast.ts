@@ -1,4 +1,4 @@
-import { MealTemplate } from "@/types";
+import type { MealTemplate } from "@/types";
 
 // ========================================
 // BREAKFAST MEALS

@@ -1,4 +1,4 @@
-import { Product } from "@/types";
+import type { Product } from "@/types";
 
 // ========================================
 // FACE PRODUCTS — Primer, CC Cream, Foundation, Concealer, Highlight, Blush, Compact

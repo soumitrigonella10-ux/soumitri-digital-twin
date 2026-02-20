@@ -1,4 +1,4 @@
-import { Routine } from "@/types";
+import type { Routine } from "@/types";
 
 // ========================================
 // BODYCARE ROUTINES (Aligned to BODY SSOT)

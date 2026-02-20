@@ -6,7 +6,7 @@ import { Gem, Heart } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
 import { jewelleryInventory, getSubcategories } from "@/data/jewellery";
-import { JewelleryItem } from "@/types";
+import type { JewelleryItem } from "@/types";
 
 // Jewellery Page Content
 function JewelleryPageContent() {

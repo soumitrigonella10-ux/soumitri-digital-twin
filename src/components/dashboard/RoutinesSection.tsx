@@ -1,7 +1,7 @@
 "use client";
 
 import { Sparkles, Droplets, Target } from "lucide-react";
-import { Product, TimeOfDay } from "@/types";
+import type { Product, TimeOfDay } from "@/types";
 import { getTodayProducts } from "./constants";
 import { DashboardRoutineColumn } from "./DashboardRoutineColumn";
 

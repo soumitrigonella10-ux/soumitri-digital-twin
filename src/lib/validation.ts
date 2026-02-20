@@ -156,7 +156,7 @@ export function validateWithSchema<T>(
         message: "Validation failed. Please check the form for errors.",
       };
     }
-  } catch (error) {
+  } catch {
     return {
       success: false,
       message: "An unexpected validation error occurred.",

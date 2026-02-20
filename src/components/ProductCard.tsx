@@ -2,7 +2,7 @@
 
 import { Calendar, CheckCircle2, Edit2, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Product } from "@/types";
+import type { Product } from "@/types";
 
 const DAYS_OF_WEEK = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 

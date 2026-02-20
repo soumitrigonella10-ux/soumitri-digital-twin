@@ -84,6 +84,7 @@ describe("productSchema", () => {
   });
 
   it("defaults actives to empty array if not provided", () => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { actives, ...withoutActives } = validProduct;
     const result = validateWithSchema(productSchema, withoutActives);
     // actives has .default([]) so missing should pass
@@ -124,6 +125,7 @@ describe("wardrobeItemSchema", () => {
   });
 
   it("rejects missing imageUrl", () => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { imageUrl, ...noImage } = validItem;
     const result = validateWithSchema(wardrobeItemSchema, noImage);
     expect(result.success).toBe(false);

@@ -2,7 +2,7 @@
 
 import { Coffee, UtensilsCrossed, Moon, Dumbbell, Sparkles, Heart } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { TimeOfDay } from "@/types";
+import type { TimeOfDay } from "@/types";
 
 interface TimeSectionTabsProps {
   timeOfDay: TimeOfDay;

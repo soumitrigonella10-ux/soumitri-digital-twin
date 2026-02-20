@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import { useSession } from 'next-auth/react';
-import { artifacts, Artifact } from '@/data/artifacts';
+import type { Artifact } from '@/data/artifacts';
+import { artifacts } from '@/data/artifacts';
 import { EditorialNav } from '@/components/EditorialNav';
 import { AuthenticatedLayout } from '@/components/AuthenticatedLayout';
 

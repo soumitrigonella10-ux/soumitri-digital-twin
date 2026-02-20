@@ -3,7 +3,7 @@
 import { useState, useMemo } from "react";
 import { useSession } from "next-auth/react";
 import { useAppStore } from "@/store/useAppStore";
-import { WishlistItem } from "@/types";
+import type { WishlistItem } from "@/types";
 import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
 import { EditorialNav } from "@/components/EditorialNav";
 import {
@@ -16,11 +16,11 @@ function useWishlistFilters(wishlist: WishlistItem[]) {
   const [selectedCategory, setSelectedCategory] = useState<string>("Tops");
 
   const filteredItems = useMemo(() => {
-    let items = wishlist.filter((item) => item.category === selectedCategory);
-    const priorityOrder = { High: 3, Medium: 2, Low: 1 };
+    const items = wishlist.filter((item) => item.category === selectedCategory);
+    const priorityOrder: Record<string, number> = { High: 3, Medium: 2, Low: 1 };
     items.sort((a, b) => {
-      const pA = priorityOrder[a.priority || "Medium"];
-      const pB = priorityOrder[b.priority || "Medium"];
+      const pA = priorityOrder[a.priority || "Medium"] ?? 0;
+      const pB = priorityOrder[b.priority || "Medium"] ?? 0;
       return pB - pA;
     });
     return items;

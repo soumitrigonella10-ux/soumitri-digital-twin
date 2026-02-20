@@ -5,7 +5,7 @@ import Image from "next/image";
 import { Shirt } from "lucide-react";
 import { useAppStore } from "@/store/useAppStore";
 import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
-import { WardrobeItem } from "@/types";
+import type { WardrobeItem } from "@/types";
 import { cn } from "@/lib/utils";
 
 const categories = ["Top", "Bottom", "Dress", "Outerwear", "Ethnic", "Shoes", "Bags", "Others", "Innerwear", "Activewear"];

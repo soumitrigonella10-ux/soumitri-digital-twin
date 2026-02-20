@@ -11,7 +11,7 @@ import { Select } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { useAppStore } from "@/store/useAppStore";
 import { useToast } from "@/components/ToastProvider";
-import { MealTemplate } from "@/types";
+import type { MealTemplate } from "@/types";
 
 const mealSchema = z.object({
   id: z.string().min(1),

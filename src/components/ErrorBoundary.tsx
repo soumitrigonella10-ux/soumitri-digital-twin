@@ -5,7 +5,8 @@
 
 "use client";
 
-import React, { Component, ReactNode, useEffect } from "react";
+import type { ReactNode} from "react";
+import React, { Component, useEffect } from "react";
 import { AlertTriangle, RefreshCw, Home } from "lucide-react";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";

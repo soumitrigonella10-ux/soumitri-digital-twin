@@ -1,4 +1,4 @@
-import { MealTemplate } from "@/types";
+import type { MealTemplate } from "@/types";
 import { breakfastMeals } from "./breakfast";
 import { lunchMeals } from "./lunch";
 import { dinnerMeals } from "./dinner";

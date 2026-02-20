@@ -1,4 +1,4 @@
-import { WorkoutPlan } from "@/types";
+import type { WorkoutPlan } from "@/types";
 
 // ========================================
 // CORE & FLEXIBILITY — Wednesday (Pilates)

@@ -1,8 +1,8 @@
 "use client";
 
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
 import { Sunrise, Sun, Moon } from "lucide-react";
-import { TimeOfDay, MealTemplate, Product, WorkoutPlan } from "@/types";
+import type { TimeOfDay, MealTemplate, Product, WorkoutPlan } from "@/types";
 import { TimeSectionTabs } from "./TimeSectionTabs";
 import { MealSection } from "./MealSection";
 import { FitnessSection } from "./FitnessSection";

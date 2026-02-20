@@ -1,4 +1,4 @@
-import { Dressing, Ingredient } from "@/types";
+import type { Dressing, Ingredient } from "@/types";
 
 // ========================================
 // DRESSING TYPE

@@ -4,7 +4,8 @@ import { useState } from "react";
 import { UtensilsCrossed, Clock, Leaf, Droplets, ChefHat, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { lunchBowlConfig } from "@/data/meals/lunch";
-import { lunchDressings, DressingRecipe } from "@/data/meals/dressings";
+import type { DressingRecipe } from "@/data/meals/dressings";
+import { lunchDressings } from "@/data/meals/dressings";
 import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
 
 type TabType = "bowl" | "dressings";

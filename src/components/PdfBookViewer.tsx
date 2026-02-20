@@ -74,6 +74,7 @@ function loadPdfJs(): Promise<unknown> {
 }
 
 async function renderPageToCanvas(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   pdfDoc: any,
   pageNum: number,
   canvas: HTMLCanvasElement,
@@ -115,6 +116,7 @@ export function PdfBookViewer({
   title = "PDF Document",
   className = "",
 }: PdfBookViewerProps) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [pdfDoc, setPdfDoc] = useState<any>(null);
   const [numPages, setNumPages] = useState(0);
   const [spread, setSpread] = useState(0); // 0 = pages 1-2, 1 = pages 3-4, etc.
@@ -133,6 +135,7 @@ export function PdfBookViewer({
 
     async function load() {
       try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const pdfjsLib = (await loadPdfJs()) as any;
         const doc = await pdfjsLib.getDocument(apiUrl).promise;
         if (!cancelled) {

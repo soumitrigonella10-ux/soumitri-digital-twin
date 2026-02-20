@@ -1,9 +1,9 @@
 "use client";
 
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
 import { Info, CheckCircle2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Product } from "@/types";
+import type { Product } from "@/types";
 import { BODY_AREAS } from "./constants";
 
 export interface DashboardRoutineColumnProps {

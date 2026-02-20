@@ -1,7 +1,7 @@
 "use client";
 
 import { Clock } from "lucide-react";
-import { WorkoutPlan } from "@/types";
+import type { WorkoutPlan } from "@/types";
 
 interface FitnessSectionProps {
   todayWorkout: WorkoutPlan | undefined;

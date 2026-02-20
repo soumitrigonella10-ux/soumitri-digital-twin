@@ -1,4 +1,4 @@
-import { Product } from "@/types";
+import type { Product } from "@/types";
 import { skinProducts } from "./skin";
 import { bodyProducts } from "./body";
 import { bodySpecificProducts } from "./body-specifics";

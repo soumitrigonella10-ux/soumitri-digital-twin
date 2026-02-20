@@ -12,7 +12,7 @@ import { Select } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { useAppStore } from "@/store/useAppStore";
 import { useToast } from "@/components/ToastProvider";
-import { WardrobeItem } from "@/types";
+import type { WardrobeItem } from "@/types";
 
 const wardrobeSchema = z.object({
   id: z.string().min(1, "ID is required"),

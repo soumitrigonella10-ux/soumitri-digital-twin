@@ -1,4 +1,4 @@
-import { JewelleryItem } from "@/types";
+import type { JewelleryItem } from "@/types";
 
 // ========================================
 // JEWELLERY INVENTORY — based on actual image files

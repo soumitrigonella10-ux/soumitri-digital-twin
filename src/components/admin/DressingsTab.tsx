@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAppStore } from "@/store/useAppStore";
 import { useToast } from "@/components/ToastProvider";
-import { Dressing } from "@/types";
+import type { Dressing } from "@/types";
 
 const dressingSchema = z.object({
   id: z.string().min(1),

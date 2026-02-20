@@ -22,10 +22,11 @@ export interface PerformanceMetrics {
 /**
  * Web Vitals monitoring for production
  */
-export function trackWebVitals(metric: any) {
+export function trackWebVitals(metric: { name: string; value: number; id: string }) {
   // Send to analytics service in production
   if (process.env.NODE_ENV === 'production') {
     // Example: Google Analytics, Vercel Analytics, or custom service
+    // eslint-disable-next-line no-console
     console.log('[PERFORMANCE]', metric);
   }
 }

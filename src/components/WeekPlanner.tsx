@@ -5,7 +5,7 @@ import { format, addDays } from "date-fns";
 import { ChevronRight, Check } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Badge } from "./ui/badge";
-import { DayPlan } from "@/types";
+import type { DayPlan } from "@/types";
 import { cn } from "@/lib/utils";
 
 // Inline modal for day detail view

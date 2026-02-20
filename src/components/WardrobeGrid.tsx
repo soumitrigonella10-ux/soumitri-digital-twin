@@ -1,6 +1,6 @@
 "use client";
 
-import { WardrobeItem } from "@/types";
+import type { WardrobeItem } from "@/types";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Image from "next/image";

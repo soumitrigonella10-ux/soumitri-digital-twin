@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { Heart, Check, ExternalLink } from "lucide-react";
-import { WishlistItem } from "@/types";
+import type { WishlistItem } from "@/types";
 import { cn } from "@/lib/utils";
 
 interface WishlistItemCardProps {

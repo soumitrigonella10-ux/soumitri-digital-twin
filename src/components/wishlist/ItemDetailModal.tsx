@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { X, ExternalLink, ShoppingBag, Trash2 } from "lucide-react";
-import { WishlistItem } from "@/types";
+import type { WishlistItem } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 

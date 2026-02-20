@@ -3,7 +3,7 @@
 import { useState, useMemo } from "react";
 import { Wind, Sun, Droplet } from "lucide-react";
 import { useAppStore } from "@/store/useAppStore";
-import { Product } from "@/types";
+import type { Product } from "@/types";
 import { PRODUCT_CARD_THEMES } from "@/components/ProductCard";
 import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
 import { RoutineColumn, EditProductModal } from "@/components/routines";

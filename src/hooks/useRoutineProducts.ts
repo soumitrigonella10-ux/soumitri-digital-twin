@@ -1,6 +1,6 @@
 import { useState, useMemo, useCallback, useRef, useEffect } from "react";
 import { useAppStore } from "@/store/useAppStore";
-import { Product, TimeOfDay, RoutineType } from "@/types";
+import type { Product, TimeOfDay, RoutineType } from "@/types";
 import type { EditFormState } from "@/components/routines/EditProductModal";
 
 interface UseRoutineProductsOptions {

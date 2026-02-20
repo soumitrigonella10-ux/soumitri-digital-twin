@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAppStore } from "@/store/useAppStore";
 import { useToast } from "@/components/ToastProvider";
-import { WorkoutPlan } from "@/types";
+import type { WorkoutPlan } from "@/types";
 
 const workoutSchema = z.object({
   id: z.string().min(1),

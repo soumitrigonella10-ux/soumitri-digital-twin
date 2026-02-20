@@ -4,7 +4,7 @@ import { useState, useMemo, useCallback } from "react";
 import { Target, Sun, Moon } from "lucide-react";
 import { useRoutineProducts } from "@/hooks/useRoutineProducts";
 import { cn } from "@/lib/utils";
-import { Product, BodyArea } from "@/types";
+import type { Product, BodyArea } from "@/types";
 import { PRODUCT_CARD_THEMES } from "@/components/ProductCard";
 import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
 import { DayOfWeekFilter, RoutineColumn, EditProductModal } from "@/components/routines";

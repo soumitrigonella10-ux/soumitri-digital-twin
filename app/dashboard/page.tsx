@@ -12,7 +12,7 @@ import { useAppStore } from "@/store/useAppStore";
 import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
 import { TimeSection } from "@/components/dashboard";
 import { cn } from "@/lib/utils";
-import { TimeOfDay } from "@/types";
+import type { TimeOfDay } from "@/types";
 
 function TodayContent() {
   const {

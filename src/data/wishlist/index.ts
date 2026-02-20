@@ -1,7 +1,7 @@
 // ========================================
 // Wishlist — Barrel Export
 // ========================================
-import { WishlistItem } from "@/types";
+import type { WishlistItem } from "@/types";
 import { wishlistBasicTops } from "./tops";
 import { wishlistElevatedTops } from "./elevated";
 import { wishlistBottoms } from "./bottoms";

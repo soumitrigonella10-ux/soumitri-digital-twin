@@ -1,7 +1,7 @@
 // ========================================
 // Workouts — Barrel Export
 // ========================================
-import { WorkoutPlan } from "@/types";
+import type { WorkoutPlan } from "@/types";
 import { lowerBodyWorkouts } from "./lower-body";
 import { upperBodyWorkouts } from "./upper-body";
 import { coreWorkouts } from "./core";

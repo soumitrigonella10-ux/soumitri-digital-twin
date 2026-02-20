@@ -1,4 +1,4 @@
-import { WardrobeItem } from "@/types";
+import type { WardrobeItem } from "@/types";
 
 // ========================================
 // OUTERWEAR - Good ones

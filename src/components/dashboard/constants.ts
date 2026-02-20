@@ -1,4 +1,4 @@
-import { Product, TimeOfDay } from "@/types";
+import type { Product, TimeOfDay } from "@/types";
 
 // Body Area configuration for tags
 export const BODY_AREAS = {

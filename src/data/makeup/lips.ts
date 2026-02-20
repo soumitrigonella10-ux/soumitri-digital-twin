@@ -1,4 +1,4 @@
-import { Product } from "@/types";
+import type { Product } from "@/types";
 
 // ========================================
 // LIP PRODUCTS — Lip Glow, Lip Tint, Lip Stick, Lip Gloss

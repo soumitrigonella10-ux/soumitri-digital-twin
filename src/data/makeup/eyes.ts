@@ -1,4 +1,4 @@
-import { Product } from "@/types";
+import type { Product } from "@/types";
 
 // ========================================
 // EYE PRODUCTS — Eyeliner, Kajal, Mascara, Eye Shine, Eye Shimmer, Eye Shadow

@@ -1,6 +1,6 @@
 "use client";
 
-import { WardrobeCategory } from "@/types";
+import type { WardrobeCategory } from "@/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select } from "@/components/ui/select";

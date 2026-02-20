@@ -1,6 +1,6 @@
 "use client";
 
-import { Product, TimeOfDay } from "@/types";
+import type { Product, TimeOfDay } from "@/types";
 import { DashboardProductCard } from "./DashboardProductCard";
 
 interface WellnessSectionProps {

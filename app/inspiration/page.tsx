@@ -2,7 +2,8 @@
 
 import { useState, useMemo } from 'react';
 import { useSession } from 'next-auth/react';
-import { inspirations, InspirationFragment } from '@/data/artifacts';
+import type { InspirationFragment } from '@/data/artifacts';
+import { inspirations } from '@/data/artifacts';
 import { EditorialNav } from '@/components/EditorialNav';
 import { AuthenticatedLayout } from '@/components/AuthenticatedLayout';
 import { Play } from 'lucide-react';

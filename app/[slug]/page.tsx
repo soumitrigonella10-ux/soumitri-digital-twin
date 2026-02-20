@@ -9,7 +9,8 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { getTopicBySlug } from "@/data/topics";
-import { getItemsByTopic, getPublicItemsByTopic, CurationItem } from "@/data/items";
+import type { CurationItem } from "@/data/items";
+import { getItemsByTopic, getPublicItemsByTopic } from "@/data/items";
 import { cn } from "@/lib/utils";
 import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
 import { EditorialNav } from "@/components/EditorialNav";

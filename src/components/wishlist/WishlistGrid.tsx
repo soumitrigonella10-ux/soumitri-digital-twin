@@ -1,6 +1,6 @@
 "use client";
 
-import { WishlistItem } from "@/types";
+import type { WishlistItem } from "@/types";
 import { WishlistItemCard } from "./WishlistItemCard";
 import { Heart } from "lucide-react";
 

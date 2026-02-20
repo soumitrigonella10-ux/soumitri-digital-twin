@@ -1,6 +1,6 @@
 "use client";
 
-import { WishlistCategory } from "@/types";
+import type { WishlistCategory } from "@/types";
 import { cn } from "@/lib/utils";
 
 const CATEGORIES: WishlistCategory[] = [

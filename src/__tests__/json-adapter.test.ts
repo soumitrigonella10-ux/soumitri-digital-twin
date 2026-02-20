@@ -30,6 +30,7 @@ import fs from "fs";
 function resetFsStore() {
   // Reset the in-memory store
   const mod = vi.mocked(fs);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (mod as any).__resetStore?.();
   // Also clear call counts
   vi.mocked(fs.readFileSync).mockClear();
@@ -38,6 +39,7 @@ function resetFsStore() {
 
 /** Helper to construct createUser input with proper typing */
 function userInput(name: string, email: string, emailVerified: Date | null = null) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return { name, email, emailVerified, image: null } as any;
 }
 
@@ -111,6 +113,7 @@ describe("JsonAdapter", () => {
         type: "oauth",
         provider: "github",
         providerAccountId: "gh-123",
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } as any);
       const found = await adapter.getUserByAccount!({
         provider: "github",
@@ -155,6 +158,7 @@ describe("JsonAdapter", () => {
         type: "oauth",
         provider: "google",
         providerAccountId: "g-1",
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } as any);
       await adapter.createSession!({
         sessionToken: "sess-1",
@@ -177,6 +181,7 @@ describe("JsonAdapter", () => {
         type: "oauth",
         provider: "github",
         providerAccountId: "gh-456",
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } as any);
       expect(account!.provider).toBe("github");
 

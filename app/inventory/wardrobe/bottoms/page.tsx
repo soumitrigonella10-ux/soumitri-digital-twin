@@ -4,7 +4,7 @@ import { useState, useMemo } from "react";
 import Image from "next/image";
 import { Shirt } from "lucide-react";
 import { useAppStore } from "@/store/useAppStore";
-import { WardrobeItem } from "@/types";
+import type { WardrobeItem } from "@/types";
 import { cn } from "@/lib/utils";
 import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
 

@@ -57,6 +57,7 @@ const inventoryItems = [
         </Card>
         <Card>
           <CardContent className="p-4">
+            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
             <div className="text-2xl font-bold">{(appData as any).outfits?.length ?? 0}</div>
             <div className="text-sm text-muted-foreground">Saved Outfits</div>
           </CardContent>
