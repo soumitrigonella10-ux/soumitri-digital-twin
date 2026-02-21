@@ -46,6 +46,13 @@ const basicTops: WardrobeItem[] = [
     subcategory: "Basics",
     imageUrl: "/images/products/Basic%20tops/tank-black.png",
   },
+  {
+    id: "7",
+    name: "Tees Textured Sheer",
+    category: "Top",
+    subcategory: "Basics",
+    imageUrl: "/images/products/Basic%20tops/tees-textured-sheer.png",
+  },
 ];
 
 // ========================================
@@ -153,6 +160,22 @@ const elevatedBusinessEthnic: WardrobeItem[] = [
     subcategory: "Elevated tops",
     occasion: "Business Ethnic",
     imageUrl: "/images/products/elevated-tops/business-ethnic8.png",
+  },
+  {
+    id: "business-ethnic-9",
+    name: "Business Ethnic Top 9",
+    category: "Top",
+    subcategory: "Elevated tops",
+    occasion: "Business Ethnic",
+    imageUrl: "/images/products/elevated-tops/business-ethnic9.png",
+  },
+  {
+    id: "business-ethnic-10",
+    name: "Business Ethnic Top 10",
+    category: "Top",
+    subcategory: "Elevated tops",
+    occasion: "Business Ethnic",
+    imageUrl: "/images/products/elevated-tops/business-ethnic10.png",
   },
 ];
 

@@ -7,7 +7,9 @@ import type { WardrobeItem } from "@/types";
 
 export const wardrobeShoes: WardrobeItem[] = [];
 
-export const wardrobeBags: WardrobeItem[] = [];
+export const wardrobeBags: WardrobeItem[] = [
+  { id: "bags-1", name: "Bag 1", category: "Bags", imageUrl: "/images/products/bags/bag1.png" },
+];
 
 export const wardrobeInnerwear: WardrobeItem[] = [];
 
