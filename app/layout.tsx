@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import { Playfair_Display, Inter, Noto_Sans_Telugu, Mrs_Saint_Delafield } from "next/font/google";
 import "./globals.css";
 import { ToastProvider } from "@/components/ToastProvider";
@@ -39,11 +40,17 @@ export const metadata: Metadata = {
   description: "Your personal digital twin for daily routines, fitness, and wardrobe management",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  // Read the CSP nonce from the middleware-set request header.
+  // This forces dynamic rendering AND tells Next.js to apply the nonce
+  // to all framework-injected inline <script> tags (hydration, chunks, etc.).
+  const hdrs = await headers();
+  const nonce = hdrs.get("x-nonce") ?? undefined;
+
   return (
     <html lang="en" className={`${playfair.variable} ${inter.variable} ${teluguFont.variable} ${scriptFont.variable}`} suppressHydrationWarning>
       <body className="bg-telugu-sandstone min-h-screen" suppressHydrationWarning>
