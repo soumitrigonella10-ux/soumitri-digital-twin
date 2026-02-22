@@ -15,6 +15,9 @@ import EmailProvider from "next-auth/providers/email";
 import CustomPgAdapter from "@/lib/pg-adapter";
 import { JsonAdapter } from "@/lib/json-adapter";
 import { pool } from "@/lib/db";
+import { createLogger } from "@/lib/logger";
+
+const log = createLogger("auth");
 
 // ========================================
 // Security: Email allowlisting
@@ -62,8 +65,8 @@ function validateEnvironment() {
   }
 
   if (issues.length > 0) {
-    console.error("[auth] ⚠️ Environment validation failed:");
-    issues.forEach((issue) => console.error(`  - ${issue}`));
+    log.error("\u26a0\ufe0f Environment validation failed:");
+    issues.forEach((issue) => log.error(`  - ${issue}`));
   }
 
   return issues.length === 0;
@@ -72,8 +75,8 @@ function validateEnvironment() {
 // Validate on module load
 const envValid = validateEnvironment();
 if (!envValid) {
-  console.warn(
-    "[auth] ⚠️ Sign-in may fail due to missing environment variables"
+  log.warn(
+    "\u26a0\ufe0f Sign-in may fail due to missing environment variables"
   );
 }
 
@@ -83,18 +86,18 @@ if (!envValid) {
 function getAdapter() {
   if (process.env.POSTGRES_URL) {
     if (!pool) {
-      console.error(
-        "[auth] ⚠️ POSTGRES_URL is set but pool failed to initialize"
+      log.error(
+        "\u26a0\ufe0f POSTGRES_URL is set but pool failed to initialize"
       );
-      console.log(
-        "[auth] Falling back to JSON adapter due to pool initialization failure"
+      log.info(
+        "Falling back to JSON adapter due to pool initialization failure"
       );
       return JsonAdapter();
     }
-    console.log("[auth] Using PostgreSQL adapter");
+    log.info("Using PostgreSQL adapter");
     return CustomPgAdapter(pool);
   }
-  console.log("[auth] ⚠️ No POSTGRES_URL — using local JSON adapter");
+  log.info("\u26a0\ufe0f No POSTGRES_URL \u2014 using local JSON adapter");
   return JsonAdapter();
 }
 
@@ -123,15 +126,15 @@ export const authOptions: NextAuthOptions = {
         process.env.DEMO_MODE === "true"
           ? ({ identifier, url }) => {
               if (!isAllowedEmail(identifier)) {
-                console.warn(
-                  `[auth] ⛔ Blocked magic link request from unauthorized email: ${identifier}`
+                log.warn(
+                  `⛔ Blocked magic link request from unauthorized email: ${identifier}`
                 );
                 throw new Error("This email is not authorized to sign in");
               }
-              console.log("\n🚀 DEMO MODE - Magic Link Generated:");
-              console.log("📧 Email:", identifier);
-              console.log("🔗 Magic Link:", url);
-              console.log(
+              log.info("\n🚀 DEMO MODE - Magic Link Generated:");
+              log.info("📧 Email:", identifier);
+              log.info("🔗 Magic Link:", url);
+              log.info(
                 "👆 Copy this URL and paste it in your browser to sign in\n"
               );
               return Promise.resolve();
@@ -140,14 +143,14 @@ export const authOptions: NextAuthOptions = {
               const { identifier, url, provider } = params;
 
               if (!isAllowedEmail(identifier)) {
-                console.warn(
-                  `[auth] ⛔ Blocked magic link email to unauthorized address: ${identifier}`
+                log.warn(
+                  `\u26d4 Blocked magic link email to unauthorized address: ${identifier}`
                 );
                 throw new Error("This email is not authorized to sign in");
               }
 
               try {
-                console.log(`[auth] Sending magic link to ${identifier}`);
+                log.info(`Sending magic link to ${identifier}`);
                 const nodemailer = await import("nodemailer");
                 const transport = nodemailer.createTransport(provider.server);
                 await transport.sendMail({
@@ -157,10 +160,10 @@ export const authOptions: NextAuthOptions = {
                   text: `Sign in to your account: ${url}`,
                   html: `<p>Click <a href="${url}">here</a> to sign in</p>`,
                 });
-                console.log(`[auth] ✅ Magic link sent to ${identifier}`);
+                log.info(`\u2705 Magic link sent to ${identifier}`);
               } catch (error) {
-                console.error(
-                  "[auth] ❌ Failed to send magic link email:",
+                log.error(
+                  "\u274c Failed to send magic link email:",
                   error
                 );
                 throw error;
@@ -179,21 +182,21 @@ export const authOptions: NextAuthOptions = {
   debug: process.env.NODE_ENV === "development",
   logger: {
     error(code, metadata) {
-      console.error(
-        "[next-auth][error]",
+      log.error(
+        "[next-auth]",
         code,
         JSON.stringify(metadata, null, 2)
       );
     },
     warn(code) {
-      console.warn("[next-auth][warn]", code);
+      log.warn("[next-auth]", code);
     },
   },
   callbacks: {
     async signIn({ user }) {
       if (!user?.email || !isAllowedEmail(user.email)) {
-        console.warn(
-          `[auth] ⛔ Blocked sign-in attempt from: ${user?.email || "unknown"}`
+        log.warn(
+          `\u26d4 Blocked sign-in attempt from: ${user?.email || "unknown"}`
         );
         return false;
       }

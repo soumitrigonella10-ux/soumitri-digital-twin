@@ -11,9 +11,9 @@ import path from "path";
  */
 export async function GET(
   _request: NextRequest,
-  { params }: { params: { path: string[] } }
+  { params }: { params: Promise<{ path: string[] }> }
 ) {
-  const segments = params.path;
+  const { path: segments } = await params;
 
   // Validate: only allow .pdf extension
   const fileName = segments[segments.length - 1];

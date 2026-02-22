@@ -4,14 +4,14 @@
 export interface BentoTileConfig {
   id: string;
   title: string;
-  subtitle?: string;
-  description?: string;
+  subtitle: string;
+  description: string;
   badge?: string;
   icon: string; // Lucide icon name
   iconColor: string; // Tailwind bg class for icon blob
-  gridArea: string; // CSS grid-area value
   href?: string;
   signature?: boolean; // Show script signature stamp
+  tall?: boolean; // Tall pillar tile spanning 2 rows
 }
 
 export const BENTO_PALETTE = {
@@ -40,48 +40,47 @@ export const BENTO_TILES: BentoTileConfig[] = [
     title: "Essays",
     subtitle: "Long-form thinking",
     description:
-      "Carefully considered perspectives on design, technology, culture, and the art of intentional living. Each piece is a slow exploration.",
+      "I thought about something and now I have to inconvenience you by making you read it.",
     icon: "PenLine",
     iconColor: ICON_COLORS.amber,
-    gridArea: "1 / 1 / 3 / 2", // row 1-2, col 1
     href: "/essays",
+    tall: true,
   },
   {
     id: "sidequests",
     title: "Sidequests",
-    subtitle: "Curiosity trails",
-    description: "Short detours into things that caught my attention.",
+    subtitle: "Data or it didn't happen",
+    description: "I am just a girl standing in front of a hobby asking it to become her whole brand. (knowing damn well this is a three-week phase.)",
     icon: "Compass",
     iconColor: ICON_COLORS.emerald,
-    gridArea: "1 / 2 / 2 / 3", // row 1, col 2
     href: "/sidequests",
   },
   {
     id: "consumption",
-    title: "Consumption",
-    subtitle: "What I'm absorbing",
+    title: "WatchList & Reccs List",
+    subtitle: "Brainful consumption",
     description: "Books, films, podcasts, and articles currently in rotation.",
     icon: "BookOpen",
     iconColor: ICON_COLORS.indigo,
-    gridArea: "1 / 3 / 2 / 4", // row 1, col 3
+    href: "/consumption",
   },
   {
-    id: "skill-up",
+    id: "skillup",
     title: "Skill Up",
-    subtitle: "Active learning",
-    description: "Courses, topics, and deliberate practice logs.",
+    subtitle: "Wish me luck",
+    description: "Master of all trades, jack of none.",
     icon: "GraduationCap",
     iconColor: ICON_COLORS.violet,
-    gridArea: "2 / 2 / 3 / 3", // row 2, col 2
+    href: "/skills",
   },
   {
-    id: "travel-log",
+    id: "travellog",
     title: "Travel Log",
-    subtitle: "Places & memories",
-    description: "A visual journal of places visited and planned.",
+    subtitle: "Photo or it didn't happen",
+    description: "I went there to see what it would do to me.",
     icon: "MapPin",
     iconColor: ICON_COLORS.rose,
-    gridArea: "2 / 3 / 3 / 4", // row 2, col 3
+    href: "/travel-log",
   },
   {
     id: "studio",
@@ -90,17 +89,17 @@ export const BENTO_TILES: BentoTileConfig[] = [
     description: "Design experiments, mood boards, and visual research.",
     icon: "Palette",
     iconColor: ICON_COLORS.cyan,
-    gridArea: "3 / 1 / 4 / 3", // row 3, col 1-2
+    href: "/artifacts",
     signature: true,
   },
   {
     id: "inspiration",
-    title: "Inspiration",
-    subtitle: "Collected beauty",
-    description: "A curated feed of aesthetic references and visual sparks.",
+    title: "Inspiration board",
+    subtitle: "It made me feel something",
+    description: "Selected references and visual sparks that made me feel something.",
     icon: "Sparkles",
     iconColor: ICON_COLORS.orange,
-    gridArea: "3 / 3 / 4 / 4", // row 3, col 3
+    href: "/inspiration",
   },
   {
     id: "wishlist",
@@ -109,7 +108,6 @@ export const BENTO_TILES: BentoTileConfig[] = [
     description: "Things I want. Tracked with intention, not impulse.",
     icon: "Heart",
     iconColor: ICON_COLORS.fuchsia,
-    gridArea: "4 / 1 / 5 / 2", // row 4, col 1
     href: "/inventory/wishlist",
   },
   {
@@ -117,10 +115,9 @@ export const BENTO_TILES: BentoTileConfig[] = [
     title: "Design",
     subtitle: "Systems thinking",
     description:
-      "How I approach design — from product interfaces to personal systems. A working philosophy built on clarity, restraint, and purpose.",
-    badge: "Design Perspective",
+      "From product interfaces to personal systems.",
     icon: "Layers",
     iconColor: ICON_COLORS.sky,
-    gridArea: "4 / 2 / 5 / 4", // row 4, col 2-3
+    href: "/design-theology",
   },
 ];

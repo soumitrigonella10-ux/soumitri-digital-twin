@@ -50,7 +50,11 @@ function HairPageContent() {
   const toggleProductCompletion = (productId: string) => {
     setCompletedProducts((prev) => {
       const newSet = new Set(prev);
-      newSet.has(productId) ? newSet.delete(productId) : newSet.add(productId);
+      if (newSet.has(productId)) {
+        newSet.delete(productId);
+      } else {
+        newSet.add(productId);
+      }
       return newSet;
     });
   };

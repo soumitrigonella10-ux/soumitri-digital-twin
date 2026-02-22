@@ -6,7 +6,8 @@
 // intentionally excluded — import them directly when needed.
 // ========================================
 
-// Configuration
+// Configuration — imported directly by middleware.ts via "@/lib/config"
+// Re-exported here for discoverability; no barrel consumers currently.
 export { config } from "./config";
 export type { AppConfig } from "./config";
 

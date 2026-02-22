@@ -10,7 +10,7 @@ export const eyeProducts: Product[] = [
     name: "SUGAR",
     category: "Eyeliner",
     shade: "Black",
-    displayOrder: 14,
+    displayOrder: 1,
     notes: "Matte liquid eyeliner",
   },
   {
@@ -18,7 +18,7 @@ export const eyeProducts: Product[] = [
     name: "Lakme",
     category: "Eyeliner",
     shade: "Blue",
-    displayOrder: 15,
+    displayOrder: 2,
     notes: "Classic liquid liner",
   },
   {
@@ -26,7 +26,7 @@ export const eyeProducts: Product[] = [
     name: "Colorbar",
     category: "Eyeliner",
     shade: "Black",
-    displayOrder: 16,
+    displayOrder: 3,
     notes: "Precision brush liner",
   },
   {
@@ -34,7 +34,7 @@ export const eyeProducts: Product[] = [
     name: "Elle 18",
     category: "Eyeliner",
     shade: "Black",
-    displayOrder: 17,
+    displayOrder: 4,
     notes: "Affordable liquid liner",
   },
   {
@@ -42,7 +42,7 @@ export const eyeProducts: Product[] = [
     name: "NYX",
     category: "Eyeliner",
     shade: "Black",
-    displayOrder: 18,
+    displayOrder: 5,
     notes: "Precise felt-tip liner",
   },
   {
@@ -50,7 +50,7 @@ export const eyeProducts: Product[] = [
     name: "Maybelline",
     category: "Eyeliner",
     shade: "Pitch Black",
-    displayOrder: 19,
+    displayOrder: 6,
     notes: "Easy glide felt tip liner",
   },
 
@@ -60,7 +60,7 @@ export const eyeProducts: Product[] = [
     name: "Faces Canada",
     category: "Kajal",
     shade: "Black",
-    displayOrder: 20,
+    displayOrder: 7,
     notes: "Intense kajal for waterline",
   },
   {
@@ -68,7 +68,7 @@ export const eyeProducts: Product[] = [
     name: "Colorbar",
     category: "Kajal",
     shade: "Black",
-    displayOrder: 21,
+    displayOrder: 8,
     notes: "Smudge-proof kajal",
   },
   {
@@ -76,7 +76,7 @@ export const eyeProducts: Product[] = [
     name: "Lakme",
     category: "Kajal",
     shade: "Black",
-    displayOrder: 22,
+    displayOrder: 9,
     notes: "Long-lasting kajal",
   },
   {
@@ -84,7 +84,7 @@ export const eyeProducts: Product[] = [
     name: "Swiss Beauty",
     category: "Kajal",
     shade: "Black",
-    displayOrder: 23,
+    displayOrder: 10,
     notes: "Retractable kajal pencil",
   },
 
@@ -94,7 +94,7 @@ export const eyeProducts: Product[] = [
     name: "Maybelline",
     category: "Mascara",
     shade: "Waterproof Black",
-    displayOrder: 24,
+    displayOrder: 11,
     notes: "Volume and length mascara",
   },
 
@@ -104,7 +104,7 @@ export const eyeProducts: Product[] = [
     name: "Pigment Play",
     category: "Eye Shine",
     shade: "Copper Rose",
-    displayOrder: 25,
+    displayOrder: 12,
     notes: "Loose shimmer pigment",
   },
   {
@@ -112,7 +112,7 @@ export const eyeProducts: Product[] = [
     name: "Pigment Play",
     category: "Eye Shine",
     shade: "Emerald Green",
-    displayOrder: 26,
+    displayOrder: 13,
     notes: "Loose shimmer pigment",
   },
   {
@@ -120,7 +120,7 @@ export const eyeProducts: Product[] = [
     name: "Miss Claire",
     category: "Eye Shine",
     shade: "Silver Green",
-    displayOrder: 27,
+    displayOrder: 14,
     notes: "Pressed shimmer pot",
   },
 
@@ -130,7 +130,7 @@ export const eyeProducts: Product[] = [
     name: "Miniso",
     category: "Eye Shimmer",
     shade: "Pink Shimmer",
-    displayOrder: 28,
+    displayOrder: 15,
     notes: "Cream-to-powder stick",
   },
   {
@@ -138,17 +138,17 @@ export const eyeProducts: Product[] = [
     name: "Swiss Beauty",
     category: "Eye Shimmer",
     shade: "Bronze",
-    displayOrder: 29,
+    displayOrder: 16,
     notes: "Liquid shimmer shadow",
   },
 
   // -------------------- EYE SHADOW --------------------
   {
     id: "eyeshadow-huda-light",
-    name: "Huda Beauty",
+    name: "Glossier",
     category: "Eye Shadow",
-    shade: "Light Nude",
-    displayOrder: 30,
+    shade: "Matte Pinks",
+    displayOrder: 17,
     notes: "4-shade nude palette",
   },
   {
@@ -156,15 +156,15 @@ export const eyeProducts: Product[] = [
     name: "Huda Beauty",
     category: "Eye Shadow",
     shade: "Warm Brown",
-    displayOrder: 31,
+    displayOrder: 18,
     notes: "4-shade warm palette",
   },
   {
     id: "eyeshadow-nyx",
-    name: "NYX",
+    name: "Faces Canada",
     category: "Eye Shadow",
     shade: "Brights",
-    displayOrder: 32,
+    displayOrder: 19,
     notes: "Colorful palette with brights",
   },
 ];

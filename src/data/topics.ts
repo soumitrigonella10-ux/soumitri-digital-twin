@@ -2,29 +2,14 @@
 // Public Curation Topics
 // ========================================
 
-export interface Topic {
-  slug: string;
-  title: string;
-  description: string;
-  isPublic: boolean;
-  icon: string; // lucide icon name
-  iconColor: string; // tailwind text color class for the icon
-  iconBg: string; // tailwind bg color class for the icon container
-  displayOrder: number;
-  subTabs?: SubTab[];
-}
-
-export interface SubTab {
-  id: string;
-  label: string;
-  displayOrder: number;
-}
+import type { Topic, SubTab } from "@/types/editorial";
+export type { Topic, SubTab };
 
 export const topics: Topic[] = [
   {
     slug: "essays",
     title: "Essays",
-    description: "Long-form thinking on things that matter to me.",
+    description: "Long-form thinking.",
     isPublic: true,
     icon: "file-text",
     iconColor: "text-gray-500",
@@ -34,7 +19,7 @@ export const topics: Topic[] = [
   {
     slug: "sidequests",
     title: "Sidequests",
-    description: "Micro-projects and tangents worth following.",
+    description: "I am just a girl standing in front of a hobby asking it to become her whole brand. ",
     isPublic: true,
     icon: "compass",
     iconColor: "text-teal-600",
@@ -54,22 +39,19 @@ export const topics: Topic[] = [
   {
     slug: "content-consumption",
     title: "Content Consumption",
-    description: "Books, films, series, and cultural artifacts I'm tracking.",
+    description: "An archive of cultural intake.",
     isPublic: true,
     icon: "monitor",
     iconColor: "text-violet-500",
     iconBg: "bg-violet-50",
     displayOrder: 4,
-    subTabs: [
-      { id: "reading", label: "Reading", displayOrder: 1 },
-      { id: "watching", label: "Watching", displayOrder: 2 },
-      { id: "culture", label: "Culture", displayOrder: 3 },
-    ],
+    // Sub-tabs removed — /consumption page uses its own filter system
+    // (CONTENT_TYPES + SUB_CHIPS from data/consumption.ts)
   },
   {
     slug: "wishlist",
     title: "Wishlist",
-    description: "A running list of objects I'm considering. No expectations attached.",
+    description: "A running list of objects I'm considering.",
     isPublic: true,
     icon: "heart",
     iconColor: "text-rose-500",
@@ -79,7 +61,7 @@ export const topics: Topic[] = [
   {
     slug: "skilling",
     title: "Skill up",
-    description: "An honest inventory of gaps I intend to close.",
+    description: "Master of all trades, jack of none.",
     isPublic: true,
     icon: "graduation-cap",
     iconColor: "text-teal-600",
@@ -89,7 +71,7 @@ export const topics: Topic[] = [
   {
     slug: "art",
     title: "Art",
-    description: "Things I built, drew, wrote, or shaped into existence.",
+    description: "A collection of creative experiments and visual studies.",
     isPublic: true,
     icon: "pen-tool",
     iconColor: "text-emerald-600",
@@ -103,7 +85,7 @@ export const topics: Topic[] = [
   {
     slug: "inspiration",
     title: "Inspiration",
-    description: "Work by others that I want to absorb completely.",
+    description: "Small fragments of influence—tacked on, torn out, and treasured.",
     isPublic: true,
     icon: "palette",
     iconColor: "text-teal-500",
@@ -118,7 +100,7 @@ export const topics: Topic[] = [
   {
     slug: "design-thoughts",
     title: "Design Thoughts",
-    description: "Reflections on design, aesthetics, and intentional creation.",
+    description: "A working document of principles, beliefs, and process notes from the drafting table.",
     isPublic: true,
     icon: "lightbulb",
     iconColor: "text-amber-500",

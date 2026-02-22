@@ -1,4 +1,7 @@
 import { Pool } from 'pg'
+import { createLogger } from '@/lib/logger'
+
+const log = createLogger('db')
 
 // Create a connection pool for PostgreSQL (Neon requires SSL)
 // - Neon free tier databases suspend after inactivity; cold starts need up to 10s
@@ -10,20 +13,20 @@ try {
   if (process.env.POSTGRES_URL) {
     pool = new Pool({
       connectionString: process.env.POSTGRES_URL,
+      // Neon's free-tier database uses a shared TLS certificate that doesn't
+      // match the connection hostname, so strict verification fails.  This is
+      // acceptable for Neon Serverless; do NOT copy to other providers.
       ssl: { rejectUnauthorized: false },
       max: 3,
       idleTimeoutMillis: 30000,
       connectionTimeoutMillis: 20000, // Increased to 20s to handle Neon cold starts reliably
     })
-    // eslint-disable-next-line no-console
-    console.log('[db] PostgreSQL pool initialized successfully')
+    log.info('PostgreSQL pool initialized successfully')
   } else {
-    // eslint-disable-next-line no-console
-    console.log('[db] No POSTGRES_URL found, pool will be null')
+    log.info('No POSTGRES_URL found, pool will be null')
   }
 } catch (error) {
-  // eslint-disable-next-line no-console
-  console.error('[db] ❌ Failed to create PostgreSQL pool:', error)
+  log.error('❌ Failed to create PostgreSQL pool:', error)
   pool = null
 }
 
@@ -32,7 +35,7 @@ export { pool }
 // Prevent unhandled pool errors from crashing the process
 if (pool) {
   pool.on('error', (err) => {
-    console.error('Unexpected PG pool error:', err.message)
+    log.error('Unexpected PG pool error:', err.message)
   })
 }
 
@@ -43,8 +46,7 @@ export async function setupAuthTables() {
   if (tablesSetup || !pool) return;
   
   try {
-    // eslint-disable-next-line no-console
-    console.log('[db] Attempting to setup auth tables...')
+    log.info('Attempting to setup auth tables...')
     const client = await pool.connect()
     
     // Check if users table exists
@@ -56,8 +58,7 @@ export async function setupAuthTables() {
     `)
     
     if (!result.rows[0].exists) {
-      // eslint-disable-next-line no-console
-      console.log('[db] Setting up NextAuth database tables...')
+      log.info('Setting up NextAuth database tables...')
       
       // Column names MUST match the pg-adapter queries (camelCase, quoted)
       // and the setup-neon-tables.js schema
@@ -103,18 +104,15 @@ export async function setupAuthTables() {
         );
       `)
       
-      // eslint-disable-next-line no-console
-      console.log('[db] ✅ NextAuth database tables created successfully')
+      log.info('✅ NextAuth database tables created successfully')
     } else {
-      // eslint-disable-next-line no-console
-      console.log('[db] ✅ NextAuth database tables already exist')
+      log.info('✅ NextAuth database tables already exist')
     }
     
     tablesSetup = true;
     client.release()
   } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error('[db] ❌ Failed to setup auth tables:', error)
+    log.error('❌ Failed to setup auth tables:', error)
     // Don't throw - allow app to continue but log the error
     // Sign-in will fail with a more specific error when it tries to use the tables
   }

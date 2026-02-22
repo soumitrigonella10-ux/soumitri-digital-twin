@@ -2,40 +2,10 @@
 // Essays — Editorial Archive Data
 // ========================================
 
-export interface Essay {
-  id: string;
-  title: string;
-  excerpt: string;
-  category: string;
-  date: string;
-  readingTime: string;
-  imageUrl: string;
-  isFeatured?: boolean;
-  tags?: string[];
-  slug: string;
-  /** Path to PDF file in public/pdfs/essays/ (e.g. "/pdfs/essays/on-taste.pdf") */
-  pdfUrl?: string;
-  /** @deprecated Legacy essay body content - now using PDFs for display */
-  body?: EssayBlock[];
-}
-
-/** Content block types for structured essay rendering (legacy - now using PDFs) */
-export type EssayBlock =
-  | { type: "paragraph"; text: string }
-  | { type: "pullquote"; text: string; attribution?: string }
-  | { type: "heading"; text: string }
-  | { type: "separator" };
-
-export const ESSAY_CATEGORIES = [
-  "All",
-  "Philosophy",
-  "History",
-  "Culture",
-  "Don't be absurd, I have a list of things I hate",
-  "Personal",
-] as const;
-
-export type EssayCategory = (typeof ESSAY_CATEGORIES)[number];
+import type { Essay, EssayBlock, EssayCategory } from "@/types/editorial";
+import { ESSAY_CATEGORIES } from "@/types/editorial";
+export type { Essay, EssayBlock, EssayCategory };
+export { ESSAY_CATEGORIES };
 
 export const essays: Essay[] = [
   {

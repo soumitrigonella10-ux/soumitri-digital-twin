@@ -12,7 +12,7 @@ const categorizeMakeupProduct = (category: string): "Eyes" | "Skin" | "Lips" | "
   // Eyes category
   if (lowerCategory.includes("eye") || lowerCategory.includes("mascara") || 
       lowerCategory.includes("liner") || lowerCategory.includes("shadow") ||
-      lowerCategory.includes("brow")) {
+      lowerCategory.includes("brow") || lowerCategory.includes("kajal")) {
     return "Eyes";
   }
   

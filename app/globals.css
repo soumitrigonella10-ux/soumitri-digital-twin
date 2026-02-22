@@ -1053,6 +1053,201 @@ a.bento-tile {
 }
 
 /* ========================================
+   Completed — Compact Filterable List View
+   ======================================== */
+
+/* Dropdown select filters */
+.completed-dropdown {
+  appearance: none;
+  -webkit-appearance: none;
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: #4B5563;
+  background: #FDFBF7;
+  border: 1px solid #D1D5DB;
+  border-radius: 999px;
+  padding: 6px 32px 6px 14px;
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+  min-width: 130px;
+}
+
+.completed-dropdown:hover {
+  border-color: #9CA3AF;
+}
+
+.completed-dropdown:focus {
+  outline: none;
+  border-color: #802626;
+  box-shadow: 0 0 0 2px rgba(128, 38, 38, 0.08);
+}
+
+.completed-dropdown-icon {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 14px;
+  height: 14px;
+  color: #9CA3AF;
+  pointer-events: none;
+}
+
+/* List container */
+.completed-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  background: #E8E4DF;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+/* Single row */
+.completed-row {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.7rem 1rem;
+  background: #FDFBF7;
+  transition: background 0.15s ease;
+}
+
+.completed-row:hover {
+  background: #F5F0EB;
+}
+
+/* Tiny coloured icon tile */
+.completed-tile {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 5px;
+  background: linear-gradient(135deg, #D4C4B0 0%, #C4B6A6 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #2D2424;
+}
+
+/* Title + author block */
+.completed-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex-shrink: 0;
+  width: 180px;
+}
+
+.completed-title {
+  font-family: var(--font-playfair), Georgia, serif;
+  font-size: 13.5px;
+  font-weight: 600;
+  line-height: 1.3;
+  color: #2D2424;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.completed-author {
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-size: 9px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: #2D2424;
+  opacity: 0.4;
+  margin-top: 1px;
+}
+
+/* One-liner comment */
+.completed-comment {
+  flex: 1;
+  min-width: 0;
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-size: 11.5px;
+  font-style: italic;
+  line-height: 1.4;
+  color: #2D2424;
+  opacity: 0.55;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Right-side badge group */
+.completed-badges {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+}
+
+/* Genre badge */
+.completed-genre-badge {
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-size: 8px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #6B7280;
+  background: rgba(0, 0, 0, 0.04);
+  border: 1px solid #E5E7EB;
+  padding: 3px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+/* Language badge */
+.completed-lang-badge {
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-size: 8px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #6B7280;
+  background: rgba(0, 0, 0, 0.04);
+  border: 1px solid #E5E7EB;
+  padding: 3px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+/* Responsive: stack on small screens */
+@media (max-width: 640px) {
+  .completed-row {
+    flex-wrap: wrap;
+    gap: 0.4rem 0.6rem;
+  }
+
+  .completed-info {
+    width: auto;
+    flex: 1;
+    min-width: 120px;
+  }
+
+  .completed-comment {
+    width: 100%;
+    flex: none;
+    padding-left: calc(32px + 0.85rem);
+    white-space: normal;
+  }
+
+  .completed-badges {
+    width: 100%;
+    padding-left: calc(32px + 0.85rem);
+    margin-left: 0;
+  }
+}
+
+/* ========================================
    Travel Log — Cinematic Field Journal
    ======================================== */
 
@@ -1191,9 +1386,12 @@ a.bento-tile {
 .journal-modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(249, 247, 242, 0.99);
+  background: rgba(0, 0, 0, 0.45);
   z-index: 100;
-  overflow-y: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2.5rem;
   animation: journal-fade-in 0.4s cubic-bezier(0.645, 0.045, 0.355, 1);
 }
 
@@ -1206,10 +1404,30 @@ a.bento-tile {
   }
 }
 
+@keyframes journal-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
 /* Modal Layout: Sidebar + Viewer */
 .journal-modal-container {
   display: flex;
-  min-height: calc(100vh - 3rem);
+  width: 90vw;
+  max-width: 1200px;
+  height: 85vh;
+  max-height: 800px;
+  background: #F9F7F2;
+  border-radius: 16px;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.25), 0 8px 24px rgba(0, 0, 0, 0.12);
+  overflow: hidden;
+  position: relative;
+  animation: journal-slide-up 0.4s cubic-bezier(0.645, 0.045, 0.355, 1);
 }
 
 /* Left Sidebar — compact to maximize PDF space */
@@ -1220,6 +1438,8 @@ a.bento-tile {
   padding: 2.5rem 1.5rem;
   border-right: 1px solid #C4B6A6;
   background: rgba(255, 255, 255, 0.5);
+  overflow-y: auto;
+  flex-shrink: 0;
 }
 
 .journal-sidebar-section {
@@ -1276,19 +1496,21 @@ a.bento-tile {
 /* Viewer Area — maximized */
 .journal-viewer {
   flex: 1;
-  padding: 1.5rem;
+  padding: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
+  overflow: hidden;
+  min-width: 0;
 }
 
 /* Close Button */
 .journal-close-btn {
   position: absolute;
-  top: 2rem;
-  right: 2rem;
-  width: 48px;
-  height: 48px;
+  top: -12px;
+  right: -12px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   background: white;
   border: 1px solid #C4B6A6;
@@ -1298,6 +1520,7 @@ a.bento-tile {
   cursor: pointer;
   transition: all 0.3s ease;
   z-index: 10;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
 }
 
 .journal-close-btn:hover {
@@ -1310,12 +1533,14 @@ a.bento-tile {
 /* Responsive Modal */
 @media (max-width: 1024px) {
   .journal-modal-overlay {
-    inset: 0.75rem;
+    padding: 1.5rem;
   }
 
   .journal-modal-container {
     flex-direction: column;
-    min-height: calc(100vh - 1.5rem);
+    width: 95vw;
+    height: 90vh;
+    max-height: unset;
   }
 
   .journal-sidebar {
@@ -1325,16 +1550,29 @@ a.bento-tile {
     border-right: none;
     border-bottom: 1px solid #C4B6A6;
     padding: 1.5rem 1.25rem;
+    overflow-y: visible;
+    flex-shrink: unset;
   }
 
   .journal-viewer {
     padding: 1.25rem 1rem;
   }
+
+  .journal-close-btn {
+    top: -10px;
+    right: -10px;
+  }
 }
 
 @media (max-width: 640px) {
   .journal-modal-overlay {
-    inset: 0;
+    padding: 0;
+  }
+
+  .journal-modal-container {
+    width: 100vw;
+    height: 100vh;
+    max-height: unset;
     border-radius: 0;
     box-shadow: none;
   }
@@ -1769,71 +2007,85 @@ a.bento-tile {
   opacity: 0.4;
 }
 
-/* Scrapbook Grid Container */
+/* Bento Grid Container */
 .artifacts-grid-container {
-  padding: 0 5vw 120px;
-  max-width: 1800px;
+  padding: 0 5vw 80px;
+  max-width: 1400px;
   margin: 0 auto;
 }
 
 .artifacts-scrapbook-grid {
   display: grid;
-  grid-template-columns: repeat(12, 1fr);
-  gap: 60px 40px;
-  align-items: start;
+  grid-template-columns: repeat(4, 1fr);
+  grid-auto-rows: 200px;
+  grid-auto-flow: dense;
+  gap: 16px;
 }
 
 /* Base Artifact Piece */
 .artifact-piece {
   position: relative;
-  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1),
               z-index 0s;
   will-change: transform;
   cursor: pointer;
+  border-radius: 8px;
+  overflow: hidden;
 }
 
-/* Frame Variants - Define Grid Column Spans */
+/* Bento Grid Sizes */
 .frame-hero {
-  grid-column: span 8;
+  grid-column: span 2;
+  grid-row: span 2;
 }
 
 .frame-standard {
-  grid-column: span 4;
+  grid-column: span 1;
+  grid-row: span 2;
 }
 
 .frame-mini {
-  grid-column: span 3;
+  grid-column: span 1;
+  grid-row: span 1;
+}
+
+.frame-tiny {
+  grid-column: span 1;
+  grid-row: span 1;
 }
 
 .frame-wide {
-  grid-column: span 12;
+  grid-column: span 2;
+  grid-row: span 1;
 }
 
-/* Offset Classes - Asymmetrical Positioning */
+/* Subtle offsets — kept minimal for bento feel */
 .offset-up {
-  margin-top: -100px;
+  margin-top: 0;
 }
 
 .offset-down {
-  margin-top: 100px;
+  margin-top: 0;
 }
 
 .pull-left {
-  margin-left: -5%;
+  margin-left: 0;
 }
 
 .pull-right {
-  margin-right: -5%;
-  justify-self: end;
+  margin-right: 0;
 }
 
-/* Artifact Content Container */
+/* Artifact Content Container — fill cell */
 .artifact-content {
   position: relative;
   width: 100%;
   height: 100%;
   overflow: hidden;
-  transition: box-shadow 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  transition: box-shadow 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* Border Styles */
@@ -1877,10 +2129,10 @@ a.bento-tile {
   border-radius: 2px;
 }
 
-/* Artifact Visual Area */
+/* Artifact Visual Area — fills bento cell */
 .artifact-visual {
   width: 100%;
-  aspect-ratio: 4 / 5;
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1888,12 +2140,7 @@ a.bento-tile {
 }
 
 .frame-wide .artifact-visual {
-  aspect-ratio: 16 / 5;
-  padding: 60px 80px;
-}
-
-.frame-mini .artifact-visual {
-  aspect-ratio: 1 / 1;
+  padding: 24px 32px;
 }
 
 /* Image Placeholder */
@@ -1919,39 +2166,44 @@ a.bento-tile {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 0 40px;
+  padding: 0 24px;
 }
 
 .artifact-large-title {
   font-family: 'Playfair Display', serif;
-  font-size: clamp(32px, 4vw, 54px);
+  font-size: clamp(20px, 2.5vw, 32px);
   font-weight: 700;
   color: #802626;
-  margin-bottom: 24px;
-  line-height: 1.1;
+  margin-bottom: 12px;
+  line-height: 1.15;
 }
 
 .artifact-description {
   font-family: 'Inter', sans-serif;
-  font-size: clamp(14px, 1.2vw, 18px);
-  line-height: 1.8;
+  font-size: clamp(12px, 1vw, 15px);
+  line-height: 1.6;
   color: #2D2424;
   opacity: 0.8;
-  max-width: 900px;
+  max-width: 600px;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
-/* Metadata Bar */
+/* Metadata Bar — compact for bento */
 .artifact-metadata {
-  padding: 16px 20px;
+  padding: 10px 14px;
   background-color: rgba(249, 247, 242, 0.95);
   border-top: 1px solid rgba(128, 38, 38, 0.1);
+  flex-shrink: 0;
 }
 
 .metadata-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
 }
 
 .metadata-row:last-child {
@@ -2031,11 +2283,20 @@ a.bento-tile {
   display: block;
 }
 
-/* Responsive Design - Mobile */
+/* Tablet — 3 columns */
+@media (max-width: 1024px) {
+  .artifacts-scrapbook-grid {
+    grid-template-columns: repeat(3, 1fr);
+    grid-auto-rows: 180px;
+    gap: 12px;
+  }
+}
+
+/* Mobile — 2 columns */
 @media (max-width: 768px) {
   .artifacts-hero {
     padding: 60px 5vw 30px;
-    margin-bottom: 30px;
+    margin-bottom: 24px;
   }
 
   .hero-title {
@@ -2047,88 +2308,94 @@ a.bento-tile {
   }
 
   .artifacts-grid-container {
-    padding: 0 5vw 80px;
+    padding: 0 4vw 60px;
   }
 
   .artifacts-scrapbook-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 60px;
+    grid-template-columns: repeat(2, 1fr);
+    grid-auto-rows: 160px;
+    gap: 10px;
   }
 
-  /* All frames become full-width on mobile */
-  .frame-hero,
-  .frame-standard,
-  .frame-mini,
+  /* Wide becomes full 2 cols on mobile */
   .frame-wide {
-    width: 100%;
+    grid-column: span 2;
   }
 
-  /* Disable horizontal offsets on mobile */
-  .pull-left,
-  .pull-right {
-    margin-left: 0;
-    margin-right: 0;
-  }
-
-  /* Reduce vertical offsets */
-  .offset-up {
-    margin-top: -40px;
-  }
-
-  .offset-down {
-    margin-top: 40px;
-  }
-
-  /* Adjust visual aspect ratios */
-  .artifact-visual {
-    aspect-ratio: 3 / 4;
-  }
-
-  .frame-wide .artifact-visual {
-    aspect-ratio: 16 / 9;
-    padding: 40px 30px;
-  }
-
-  .frame-mini .artifact-visual {
-    aspect-ratio: 4 / 5;
+  /* Hero stays 2×2 on mobile */
+  .frame-hero {
+    grid-column: span 2;
+    grid-row: span 2;
   }
 
   .artifact-large-title {
-    font-size: 28px;
+    font-size: 22px;
   }
 
   .artifact-description {
-    font-size: 14px;
+    font-size: 13px;
+  }
+
+  .artifact-metadata {
+    padding: 8px 10px;
+  }
+
+  .artifact-title {
+    font-size: 11px;
+  }
+
+  .artifact-date {
+    font-size: 8px;
+  }
+
+  .artifact-medium {
+    font-size: 12px;
   }
 
   /* Paper notes smaller on mobile */
   .paper-note {
-    padding: 8px 12px;
+    padding: 6px 10px;
   }
 
   .paper-note-text {
-    font-size: 12px;
+    font-size: 11px;
   }
 
   .paper-note-top-left,
   .paper-note-top-right {
-    top: -15px;
+    top: -12px;
   }
 
   .paper-note-bottom-left,
   .paper-note-bottom-right {
-    bottom: -15px;
+    bottom: -12px;
   }
 
   .paper-note-top-left,
   .paper-note-bottom-left {
-    left: -10px;
+    left: -8px;
   }
 
   .paper-note-top-right,
   .paper-note-bottom-right {
-    right: -10px;
+    right: -8px;
+  }
+}
+
+/* Small mobile — single column */
+@media (max-width: 480px) {
+  .artifacts-scrapbook-grid {
+    grid-template-columns: repeat(2, 1fr);
+    grid-auto-rows: 140px;
+  }
+
+  .frame-hero {
+    grid-column: span 2;
+    grid-row: span 2;
+  }
+
+  .frame-standard {
+    grid-row: span 2;
   }
 }
 

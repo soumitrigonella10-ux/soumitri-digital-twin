@@ -10,8 +10,7 @@ export const artifacts: Artifact[] = [
     frameType: 'hero',
     offsetType: 'none',
     borderStyle: 'shadow',
-    rotation: '-0.5deg',
-    hasWashiTape: true,
+    hasWashiTape: false,
     paperNote: {
       text: 'Captured at Golden Hour',
       position: 'bottom-right'
@@ -24,11 +23,9 @@ export const artifacts: Artifact[] = [
     title: 'Field Notes: Kyoto',
     medium: 'Ink & Watercolor',
     date: 'March 2025',
-    frameType: 'standard',
-    offsetType: 'offset-up',
+    frameType: 'mini',
+    offsetType: 'none',
     borderStyle: 'polaroid',
-    rotation: '1.5deg',
-    hasWashiTape: false,
     paperNote: {
       text: 'Temple sketch series',
       position: 'top-left'
@@ -41,9 +38,8 @@ export const artifacts: Artifact[] = [
     medium: 'Digital Illustration',
     date: 'November 2025',
     frameType: 'mini',
-    offsetType: 'pull-right',
+    offsetType: 'none',
     borderStyle: 'thin',
-    rotation: '-2deg',
     backgroundColor: '#802626'
   },
   {
@@ -64,10 +60,9 @@ export const artifacts: Artifact[] = [
     date: 'August 2024',
     dimensions: '4" × 6"',
     frameType: 'standard',
-    offsetType: 'offset-down',
+    offsetType: 'none',
     borderStyle: 'polaroid',
-    rotation: '-1deg',
-    hasWashiTape: true,
+    hasWashiTape: false,
     paperNote: {
       text: 'Nikon FM2, Portra 400',
       position: 'bottom-left'
@@ -81,9 +76,8 @@ export const artifacts: Artifact[] = [
     date: 'February 2026',
     dimensions: '12" × 12"',
     frameType: 'mini',
-    offsetType: 'pull-left',
+    offsetType: 'none',
     borderStyle: 'shadow',
-    rotation: '0.8deg',
     backgroundColor: '#D4A574'
   },
   {
@@ -93,10 +87,9 @@ export const artifacts: Artifact[] = [
     date: 'July 2025',
     dimensions: '8" × 10"',
     frameType: 'standard',
-    offsetType: 'offset-up',
+    offsetType: 'none',
     borderStyle: 'thin',
-    rotation: '1deg',
-    hasWashiTape: true,
+    hasWashiTape: false,
     backgroundColor: '#1B3A52'
   },
   {
@@ -107,7 +100,6 @@ export const artifacts: Artifact[] = [
     frameType: 'mini',
     offsetType: 'none',
     borderStyle: 'polaroid',
-    rotation: '-1.5deg',
     paperNote: {
       text: 'Quick 15-min study',
       position: 'top-right'
@@ -121,9 +113,8 @@ export const artifacts: Artifact[] = [
     date: 'May 2025',
     dimensions: '24" × 36"',
     frameType: 'hero',
-    offsetType: 'pull-left',
+    offsetType: 'none',
     borderStyle: 'shadow',
-    rotation: '0.3deg',
     hasWashiTape: false,
     backgroundColor: '#A65555'
   },
@@ -132,10 +123,9 @@ export const artifacts: Artifact[] = [
     title: 'Typography Experiment: Brutalist',
     medium: 'Digital Design',
     date: 'September 2025',
-    frameType: 'standard',
-    offsetType: 'offset-down',
+    frameType: 'wide',
+    offsetType: 'none',
     borderStyle: 'none',
-    rotation: '-0.5deg',
     backgroundColor: '#2D2424',
     description: 'Exploring weight, hierarchy, and tension through severely constrained letterforms.'
   },
@@ -146,10 +136,9 @@ export const artifacts: Artifact[] = [
     date: 'January 2026',
     dimensions: '2400 × 3200',
     frameType: 'mini',
-    offsetType: 'pull-right',
+    offsetType: 'none',
     borderStyle: 'thin',
-    rotation: '2deg',
-    hasWashiTape: true,
+    hasWashiTape: false,
     backgroundColor: '#F4E8D0'
   },
   {
@@ -170,10 +159,9 @@ export const artifacts: Artifact[] = [
     date: 'April 2025',
     dimensions: '11" × 14"',
     frameType: 'standard',
-    offsetType: 'offset-up',
+    offsetType: 'none',
     borderStyle: 'polaroid',
-    rotation: '1.2deg',
-    hasWashiTape: true,
+    hasWashiTape: false,
     paperNote: {
       text: 'Assembled from travels',
       position: 'bottom-right'
@@ -186,9 +174,8 @@ export const artifacts: Artifact[] = [
     medium: 'Charcoal',
     date: 'June 2025',
     frameType: 'mini',
-    offsetType: 'pull-left',
+    offsetType: 'none',
     borderStyle: 'thin',
-    rotation: '-1.8deg',
     backgroundColor: '#E0D5C7'
   },
   {
@@ -198,9 +185,8 @@ export const artifacts: Artifact[] = [
     date: 'November 2025',
     dimensions: '3000 × 4000',
     frameType: 'standard',
-    offsetType: 'offset-down',
+    offsetType: 'none',
     borderStyle: 'shadow',
-    rotation: '0.5deg',
     hasWashiTape: false,
     paperNote: {
       text: 'Symmetry & repetition',

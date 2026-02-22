@@ -32,22 +32,8 @@ const securityHeaders = [
     key: 'Permissions-Policy',
     value: 'camera=(), microphone=(), geolocation=(), interest-cohort=()',
   },
-  {
-    // Content Security Policy - adjust as needed for your app
-    key: 'Content-Security-Policy',
-    value: [
-      "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com", // Next.js requires unsafe-inline/eval in dev; cdnjs for PDF.js
-      "style-src 'self' 'unsafe-inline'", // Tailwind uses inline styles
-      "img-src 'self' data: https: blob:",
-      "font-src 'self' data:",
-      "connect-src 'self' https:",
-      "worker-src 'self' blob: https://cdnjs.cloudflare.com",
-      "frame-ancestors 'none'",
-      "base-uri 'self'",
-      "form-action 'self'",
-    ].join('; '),
-  },
+  // Content Security Policy is set dynamically in middleware.ts
+  // (nonce-based in production, unsafe-inline/eval in dev for HMR)
 ];
 
 const nextConfig = {
@@ -67,7 +53,12 @@ const nextConfig = {
     formats: ['image/webp', 'image/avif'],
     deviceSizes: [640, 768, 1024, 1280, 1600],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
-    unoptimized: true,
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+      },
+    ],
   },
   
   // Disable x-powered-by header to hide Next.js fingerprint

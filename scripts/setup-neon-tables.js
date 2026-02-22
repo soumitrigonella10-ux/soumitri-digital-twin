@@ -7,6 +7,9 @@ if (!process.env.POSTGRES_URL) {
 
 const pool = new Pool({
   connectionString: process.env.POSTGRES_URL,
+  // Neon's free-tier database uses a shared TLS certificate that doesn't
+  // match the connection hostname, so strict verification fails.  This is
+  // acceptable for Neon Serverless; do NOT copy to other providers.
   ssl: { rejectUnauthorized: false }
 });
 

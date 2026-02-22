@@ -114,7 +114,7 @@ function HeroSection() {
           className="font-sans text-lg leading-relaxed mt-6 max-w-2xl"
           style={{ color: "#2D2424", opacity: 0.8 }}
         >
-          Data or It Didn’t Happen
+          Master of all trades, jack of none.
         </p>
       </div>
     </header>
@@ -198,7 +198,7 @@ function SkillsPageContent() {
             Soumitri Digital Twin
           </span>
           <p className="font-sans text-[11px] text-gray-400 tracking-wide uppercase">
-            &copy; {new Date().getFullYear()} &middot; Master f all trades, jack of none.
+            &copy; {new Date().getFullYear()} &middot; Master of all trades, jack of none.
           </p>
         </div>
       </footer>

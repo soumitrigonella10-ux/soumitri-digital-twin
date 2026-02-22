@@ -64,66 +64,61 @@ interface ArtifactCardProps {
 function ArtifactCard({ artifact }: ArtifactCardProps) {
   const [isHovered, setIsHovered] = useState(false);
 
-  // Construct CSS classes
-  const frameClass = `artifact-frame frame-${artifact.frameType}`;
-  const offsetClass = artifact.offsetType !== 'none' ? artifact.offsetType : '';
+  const frameClass = `frame-${artifact.frameType}`;
   const borderClass = `border-${artifact.borderStyle}`;
+  const isCompact = artifact.frameType === 'mini' || artifact.frameType === 'tiny';
+  const isTextCard = artifact.frameType === 'wide' && artifact.description;
   
   return (
     <div 
-      className={`artifact-piece ${frameClass} ${offsetClass} ${borderClass}`}
+      className={`artifact-piece ${frameClass} ${borderClass}`}
       style={{
-        transform: isHovered 
-          ? `scale(1.02) rotate(${parseFloat(artifact.rotation || '0') + 0.5}deg)`
-          : `rotate(${artifact.rotation || '0deg'})`,
+        transform: isHovered ? 'scale(1.03)' : 'scale(1)',
         zIndex: isHovered ? 100 : 1
       }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {/* Washi Tape Detail */}
-      {artifact.hasWashiTape && (
-        <div className="washi-tape" />
-      )}
-
-      {/* Artifact Content */}
+      {/* Artifact Content — fills entire bento cell */}
       <div 
         className="artifact-content"
         style={{ backgroundColor: artifact.backgroundColor || '#F9F7F2' }}
       >
         {/* Main Visual Area */}
         <div className="artifact-visual">
-          {artifact.frameType === 'wide' && artifact.description ? (
-            // Text-based wide format pieces
+          {isTextCard ? (
             <div className="artifact-text-content">
               <h2 className="artifact-large-title">{artifact.title}</h2>
               <p className="artifact-description">{artifact.description}</p>
             </div>
           ) : (
-            // Image-based pieces (placeholder for now)
             <div className="artifact-image-placeholder">
-              <span className="placeholder-icon">◈</span>
+              <span className="placeholder-icon" style={{ fontSize: isCompact ? '28px' : '48px' }}>◈</span>
             </div>
           )}
         </div>
 
-        {/* Metadata Bar */}
-        <div className="artifact-metadata">
-          <div className="metadata-row">
-            <span className="artifact-title">{artifact.title}</span>
-            <span className="artifact-date">{artifact.date}</span>
-          </div>
-          <div className="metadata-row">
-            <span className="artifact-medium">{artifact.medium}</span>
-            {artifact.dimensions && (
-              <span className="artifact-dimensions">{artifact.dimensions}</span>
+        {/* Metadata Bar — hidden on tiny cards to save space */}
+        {artifact.frameType !== 'tiny' && (
+          <div className="artifact-metadata">
+            <div className="metadata-row">
+              <span className="artifact-title">{artifact.title}</span>
+              {!isCompact && <span className="artifact-date">{artifact.date}</span>}
+            </div>
+            {!isCompact && (
+              <div className="metadata-row">
+                <span className="artifact-medium">{artifact.medium}</span>
+                {artifact.dimensions && (
+                  <span className="artifact-dimensions">{artifact.dimensions}</span>
+                )}
+              </div>
             )}
           </div>
-        </div>
+        )}
       </div>
 
-      {/* Paper Note */}
-      {artifact.paperNote && (
+      {/* Paper Note — only on hero/standard to avoid overcrowding */}
+      {artifact.paperNote && !isCompact && (
         <div className={`paper-note paper-note-${artifact.paperNote.position}`}>
           <span className="paper-note-text">{artifact.paperNote.text}</span>
         </div>

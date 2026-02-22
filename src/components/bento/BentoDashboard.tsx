@@ -12,41 +12,34 @@ import {
   Heart,
   Layers,
   ArrowUpRight,
+  type LucideIcon,
 } from "lucide-react";
+import { BENTO_TILES, type BentoTileConfig } from "./bentoConfig";
+
+/* ─── Icon lookup ────────────────────────────────────────── */
+const ICON_MAP: Record<string, LucideIcon> = {
+  PenLine,
+  Compass,
+  BookOpen,
+  GraduationCap,
+  MapPin,
+  Palette,
+  Sparkles,
+  Heart,
+  Layers,
+};
 
 /* ─── Tile helper ────────────────────────────────────────── */
-interface TileProps {
-  area: string;
-  icon: React.ReactNode;
-  iconColor: string;
-  title: string;
-  subtitle: string;
-  description: string;
-  href?: string;
-  badge?: string;
-  signature?: boolean;
-  tall?: boolean;
-}
-
-function Tile({
-  area,
-  icon,
-  iconColor,
-  title,
-  subtitle,
-  description,
-  href,
-  badge,
-  signature,
-  tall,
-}: TileProps) {
-  const cls = `bento-tile bento-area-${area} group relative flex flex-col justify-between p-6 sm:p-7 overflow-hidden transition-all duration-300 hover:scale-[1.015] hover:shadow-xl`;
+function Tile({ tile }: { tile: BentoTileConfig }) {
+  const { id, icon, iconColor, title, subtitle, description, href, badge, signature, tall } = tile;
+  const IconComponent = ICON_MAP[icon];
+  const cls = `bento-tile bento-area-${id} group relative flex flex-col justify-between p-6 sm:p-7 overflow-hidden transition-all duration-300 hover:scale-[1.015] hover:shadow-xl`;
 
   const children = (
     <>
       <div className="flex items-start justify-between">
         <div className={`bento-icon-blob flex items-center justify-center w-11 h-11 ${iconColor}`}>
-          {icon}
+          {IconComponent && <IconComponent className="w-5 h-5" />}
         </div>
         {href && (
           <ArrowUpRight className="w-4 h-4 text-[#2d2d2d]/30 group-hover:text-[#2d2d2d]/70 transition-colors" />
@@ -109,7 +102,7 @@ export function BentoDashboard() {
         </div>
         <div className="text-left sm:text-right">
           <p className="text-xs font-medium uppercase tracking-[0.2em] text-[#6b6b6b]">
-            <span className="text-[#2d2d2d] text-sm tabular-nums">9</span> Active Artifacts
+            <span className="text-[#2d2d2d] text-sm tabular-nums">{BENTO_TILES.length}</span> Active Artifacts
           </p>
           <p className="font-serif italic text-sm text-[#6b6b6b]/80 mt-0.5">Curated by Sam</p>
         </div>
@@ -117,107 +110,9 @@ export function BentoDashboard() {
 
       {/* ── Bento Grid ────────────────────────────────── */}
       <div className="bento-grid">
-        {/* Row 1-2, Col 1  — TALL PILLAR */}
-        <Tile
-          area="essays"
-          tall
-          icon={<PenLine className="w-5 h-5" />}
-          iconColor="bg-amber-100 text-amber-600"
-          title="Essays"
-          subtitle="Long-form thinking"
-          description="Carefully considered perspectives on design, technology, culture, and the art of intentional living. Each piece is a slow exploration."
-          href="/essays"
-        />
-
-        {/* Row 1, Col 2 */}
-        <Tile
-          area="sidequests"
-          icon={<Compass className="w-5 h-5" />}
-          iconColor="bg-emerald-100 text-emerald-600"
-          title="Sidequests"
-          subtitle="Curiosity trails"
-          description="Short detours into things that caught my attention."
-          href="/sidequests"
-        />
-
-        {/* Row 1, Col 3 */}
-        <Tile
-          area="consumption"
-          icon={<BookOpen className="w-5 h-5" />}
-          iconColor="bg-indigo-100 text-indigo-600"
-          title="Consumption"
-          subtitle="What I'm absorbing"
-          description="Books, films, podcasts, and articles currently in rotation."
-          href="/consumption"
-        />
-
-        {/* Row 2, Col 2 */}
-        <Tile
-          area="skillup"
-          icon={<GraduationCap className="w-5 h-5" />}
-          iconColor="bg-violet-100 text-violet-600"
-          title="Skill Up"
-          subtitle="Active learning"
-          description="Courses, topics, and deliberate practice logs."
-          href="/skills"
-        />
-
-        {/* Row 2, Col 3 */}
-        <Tile
-          area="travellog"
-          icon={<MapPin className="w-5 h-5" />}
-          iconColor="bg-rose-100 text-rose-600"
-          title="Travel Log"
-          subtitle="Places & memories"
-          description="A visual journal of places visited and planned."
-          href="/travel-log"
-        />
-
-        {/* Row 3, Col 1-2  — HORIZONTAL ANCHOR */}
-        <Tile
-          area="studio"
-          signature
-          icon={<Palette className="w-5 h-5" />}
-          iconColor="bg-cyan-100 text-cyan-600"
-          title="The Studio"
-          subtitle="Creative workspace"
-          description="Design experiments, mood boards, and visual research."
-          href="/artifacts"
-        />
-
-        {/* Row 3, Col 3 */}
-        <Tile
-          area="inspiration"
-          icon={<Sparkles className="w-5 h-5" />}
-          iconColor="bg-orange-100 text-orange-600"
-          title="Inspiration"
-          subtitle="Collected beauty"
-          description="A curated feed of aesthetic references and visual sparks."
-          href="/inspiration"
-        />
-
-        {/* Row 4, Col 1 */}
-        <Tile
-          area="wishlist"
-          icon={<Heart className="w-5 h-5" />}
-          iconColor="bg-fuchsia-100 text-fuchsia-600"
-          title="Wishlist"
-          subtitle="Desire archive"
-          description="Things I want. Tracked with intention, not impulse."
-          href="/inventory/wishlist"
-        />
-
-        {/* Row 4, Col 2-3  — FOOTER ANCHOR */}
-        <Tile
-          area="design"
-          icon={<Layers className="w-5 h-5" />}
-          iconColor="bg-sky-100 text-sky-600"
-          title="Design"
-          subtitle="Systems thinking"
-          description="How I approach design — from product interfaces to personal systems. A working philosophy built on clarity, restraint, and purpose."
-          badge="Design Perspective"
-          href="/design-theology"
-        />
+        {BENTO_TILES.map((tile) => (
+          <Tile key={tile.id} tile={tile} />
+        ))}
       </div>
 
       {/* ── Footer ────────────────────────────────────── */}

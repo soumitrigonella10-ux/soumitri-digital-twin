@@ -11,17 +11,16 @@ interface JournalModalProps {
 
 export function JournalModal({ location, onClose }: JournalModalProps) {
   return (
-    <div className="journal-modal-overlay">
-      {/* Close Button */}
-      <button
-        onClick={onClose}
-        className="journal-close-btn"
-        aria-label="Close journal"
-      >
-        <X className="w-5 h-5" />
-      </button>
-
-      <div className="journal-modal-container">
+    <div className="journal-modal-overlay" onClick={onClose}>
+      <div className="journal-modal-container" onClick={(e) => e.stopPropagation()}>
+        {/* Close Button */}
+        <button
+          onClick={onClose}
+          className="journal-close-btn"
+          aria-label="Close journal"
+        >
+          <X className="w-4 h-4" />
+        </button>
         {/* Left Sidebar */}
         <aside className="journal-sidebar">
           <div className="journal-sidebar-section">
@@ -58,7 +57,7 @@ export function JournalModal({ location, onClose }: JournalModalProps) {
 
         {/* PDF Viewer */}
         <div className="journal-viewer">
-          <div className="w-full h-full" style={{ minHeight: "calc(100vh - 5rem)" }}>
+          <div className="w-full h-full">
             <PdfBookViewer
               pdfUrl={location.pdfUrl}
               title={`${location.name} Travel Journal`}

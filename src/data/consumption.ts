@@ -2,22 +2,10 @@
 // Content Consumption Archive Data
 // ========================================
 
-export type ContentType = "book" | "playlist" | "essay" | "video" | "movie" | "series";
-export type ContentStatus = "CURRENTLY READING" | "CURRENTLY WATCHING" | "COMPLETED" | "QUEUED" | "LISTENING";
+import type { ContentItem, ContentType, ContentStatus } from "@/types/editorial";
+export type { ContentItem, ContentType, ContentStatus };
 
-export interface ContentItem {
-  id: string;
-  type: ContentType;
-  title: string;
-  author: string; // Author, artist, director, etc.
-  description: string;
-  metadata: string; // Year, genre, etc.
-  status: ContentStatus;
-  imageUrl?: string; // Optional real image
-  aspectRatio: "3/4" | "1/1" | "2/3" | "16/9" | "4/5";
-}
-
-export const CONTENT_TYPES = ["Books & Essays", "Movies", "Videos", "Playlists"] as const;
+export const CONTENT_TYPES = ["Books & Essays", "Movies & Series", "Videos", "Playlists"] as const;
 export type ContentFilter = typeof CONTENT_TYPES[number];
 
 export const SUB_CHIPS = ["Looking Forward", "Recommendations", "Completed"] as const;
@@ -45,6 +33,9 @@ export const contentItems: ContentItem[] = [
     metadata: "2023 · Creative Process",
     status: "COMPLETED",
     aspectRatio: "3/4",
+    language: "English",
+    genre: "Creative Process",
+    comment: "Creativity is a way of living, not a talent you possess.",
   },
   {
     id: "b-3",
@@ -65,6 +56,48 @@ export const contentItems: ContentItem[] = [
     metadata: "2019 · Cultural Criticism",
     status: "COMPLETED",
     aspectRatio: "3/4",
+    language: "English",
+    genre: "Cultural Criticism",
+    comment: "Doing nothing is an act of political resistance.",
+  },
+  {
+    id: "b-5",
+    type: "book",
+    title: "Sapiens",
+    author: "Yuval Noah Harari",
+    description: "A sweeping history of humankind from the Stone Age to the Silicon Age.",
+    metadata: "2011 · History",
+    status: "COMPLETED",
+    aspectRatio: "3/4",
+    language: "English",
+    genre: "History",
+    comment: "Fiction is the glue that holds civilisation together.",
+  },
+  {
+    id: "b-6",
+    type: "book",
+    title: "Ikigai",
+    author: "Héctor García & Francesc Miralles",
+    description: "The Japanese secret to a long and happy life through purpose.",
+    metadata: "2016 · Philosophy",
+    status: "COMPLETED",
+    aspectRatio: "3/4",
+    language: "English",
+    genre: "Philosophy",
+    comment: "Purpose is found at the intersection of love, skill, need, and reward.",
+  },
+  {
+    id: "b-7",
+    type: "book",
+    title: "Convenience Store Woman",
+    author: "Sayaka Murata",
+    description: "A woman finds comfort and identity working in a convenience store.",
+    metadata: "2016 · Literary Fiction",
+    status: "COMPLETED",
+    aspectRatio: "3/4",
+    language: "Japanese",
+    genre: "Literary Fiction",
+    comment: "Normalcy is the most violent expectation society imposes.",
   },
 
   // Movies
@@ -77,6 +110,9 @@ export const contentItems: ContentItem[] = [
     metadata: "2023 · Drama",
     status: "COMPLETED",
     aspectRatio: "2/3",
+    language: "English / Korean",
+    genre: "Romance",
+    comment: "The quiet ache of lives unlived and paths not taken.",
   },
   {
     id: "m-2",
@@ -97,6 +133,87 @@ export const contentItems: ContentItem[] = [
     metadata: "2022 · Drama",
     status: "COMPLETED",
     aspectRatio: "2/3",
+    language: "English",
+    genre: "Drama",
+    comment: "Memory distorts; love remains.",
+  },
+  {
+    id: "m-4",
+    type: "movie",
+    title: "Dune: Part Two",
+    author: "Denis Villeneuve",
+    description: "An epic continuation of the desert saga, balancing spectacle with political intrigue.",
+    metadata: "2024 · Sci-Fi",
+    status: "COMPLETED",
+    aspectRatio: "2/3",
+    language: "English",
+    genre: "Sci-Fi",
+    comment: "A cinematic triumph of scale and sound.",
+  },
+  {
+    id: "m-5",
+    type: "movie",
+    title: "Perfect Days",
+    author: "Wim Wenders",
+    description: "A Tokyo toilet cleaner finds beauty in routine and the small rhythms of daily life.",
+    metadata: "2023 · Slice of Life",
+    status: "COMPLETED",
+    aspectRatio: "2/3",
+    language: "Japanese",
+    genre: "Slice of Life",
+    comment: "Finding profound beauty in the mundane routines of life.",
+  },
+  {
+    id: "m-6",
+    type: "movie",
+    title: "Anatomy of a Fall",
+    author: "Justine Triet",
+    description: "A writer on trial for her husband's death. Truth becomes a matter of perspective.",
+    metadata: "2023 · Thriller",
+    status: "COMPLETED",
+    aspectRatio: "2/3",
+    language: "French / English",
+    genre: "Thriller",
+    comment: "Truth is elusive, subjective, and easily manipulated.",
+  },
+  {
+    id: "m-7",
+    type: "movie",
+    title: "Decision to Leave",
+    author: "Park Chan-Wook",
+    description: "A detective becomes obsessed with a suspect during a murder investigation.",
+    metadata: "2022 · Mystery",
+    status: "COMPLETED",
+    aspectRatio: "2/3",
+    language: "Korean",
+    genre: "Mystery",
+    comment: "A meticulously crafted detective romance.",
+  },
+  {
+    id: "m-8",
+    type: "movie",
+    title: "Oppenheimer",
+    author: "Christopher Nolan",
+    description: "The story of the man who built the atomic bomb and the moral weight it carried.",
+    metadata: "2023 · Historical Drama",
+    status: "COMPLETED",
+    aspectRatio: "2/3",
+    language: "English",
+    genre: "Historical Drama",
+    comment: "Genius without conscience is humanity's greatest threat.",
+  },
+  {
+    id: "m-9",
+    type: "movie",
+    title: "The Zone of Interest",
+    author: "Jonathan Glazer",
+    description: "The banality of evil, rendered through the domestic life of an Auschwitz commandant.",
+    metadata: "2023 · Drama",
+    status: "COMPLETED",
+    aspectRatio: "2/3",
+    language: "English / German",
+    genre: "Drama",
+    comment: "Horror lives in what you choose not to see.",
   },
 
   // Series
@@ -119,6 +236,22 @@ export const contentItems: ContentItem[] = [
     metadata: "2018-2023 · Drama",
     status: "COMPLETED",
     aspectRatio: "16/9",
+    language: "English",
+    genre: "Drama",
+    comment: "Power doesn't corrupt — it reveals.",
+  },
+  {
+    id: "s-3",
+    type: "series",
+    title: "Fleabag",
+    author: "Phoebe Waller-Bridge",
+    description: "A darkly comedic confession about grief, desire, and self-destruction.",
+    metadata: "2016-2019 · Comedy Drama",
+    status: "COMPLETED",
+    aspectRatio: "16/9",
+    language: "English",
+    genre: "Comedy Drama",
+    comment: "The fourth wall is just another way to hide.",
   },
 
   // Playlists
@@ -153,6 +286,9 @@ export const contentItems: ContentItem[] = [
     metadata: "Culture Analysis · 2023",
     status: "COMPLETED",
     aspectRatio: "4/5",
+    language: "English",
+    genre: "Culture Analysis",
+    comment: "Quiet luxury started on screen before it hit the streets.",
   },
   {
     id: "e-2",
@@ -163,6 +299,9 @@ export const contentItems: ContentItem[] = [
     metadata: "Personal Essay · 2026",
     status: "COMPLETED",
     aspectRatio: "4/5",
+    language: "English",
+    genre: "Personal Essay",
+    comment: "Taste is the residue of a thousand tiny decisions.",
   },
 
   // Videos/Documentaries
@@ -185,6 +324,35 @@ export const contentItems: ContentItem[] = [
     metadata: "2018 · Short Film",
     status: "COMPLETED",
     aspectRatio: "16/9",
+    language: "English / German",
+    genre: "Design",
+    comment: "Less, but better — the only design brief you need.",
+  },
+  {
+    id: "v-3",
+    type: "video",
+    title: "Abstract: The Art of Design",
+    author: "Scott Dadich",
+    description: "Each episode profiles a different designer pushing the boundaries of their craft.",
+    metadata: "2017 · Documentary Series",
+    status: "COMPLETED",
+    aspectRatio: "16/9",
+    language: "English",
+    genre: "Design",
+    comment: "Great design is invisible until you notice it everywhere.",
+  },
+  {
+    id: "v-4",
+    type: "video",
+    title: "Jiro Dreams of Sushi",
+    author: "David Gelb",
+    description: "An 85-year-old sushi master pursues perfection through relentless dedication.",
+    metadata: "2011 · Documentary",
+    status: "COMPLETED",
+    aspectRatio: "16/9",
+    language: "Japanese",
+    genre: "Documentary",
+    comment: "Mastery is the art of repeating the basics forever.",
   },
 ];
 
@@ -192,8 +360,8 @@ export const contentItems: ContentItem[] = [
 export function getItemsByType(type: ContentFilter): ContentItem[] {
   const typeMap: Record<ContentFilter, ContentType[]> = {
     "Books & Essays": ["book", "essay"],
-    Movies: ["movie"],
-    Videos: ["video", "series"],
+    "Movies & Series": ["movie", "series"],
+    Videos: ["video"],
     Playlists: ["playlist"],
   };
   
@@ -219,4 +387,53 @@ export function getItemsBySubChip(
 
 export function getItemById(id: string): ContentItem | undefined {
   return contentItems.find(item => item.id === id);
+}
+
+/** Get all unique languages across completed items (for filter dropdown) */
+export function getCompletedLanguages(type?: ContentFilter): string[] {
+  let items = contentItems.filter(i => i.status === "COMPLETED" && i.language);
+  if (type) {
+    const typeItems = getItemsByType(type);
+    const ids = new Set(typeItems.map(i => i.id));
+    items = items.filter(i => ids.has(i.id));
+  }
+  const langs = new Set(items.map(i => i.language!));
+  return Array.from(langs).sort();
+}
+
+/** Get all unique genres across completed items (for filter dropdown) */
+export function getCompletedGenres(type?: ContentFilter): string[] {
+  let items = contentItems.filter(i => i.status === "COMPLETED" && i.genre);
+  if (type) {
+    const typeItems = getItemsByType(type);
+    const ids = new Set(typeItems.map(i => i.id));
+    items = items.filter(i => ids.has(i.id));
+  }
+  const genres = new Set(items.map(i => i.genre!));
+  return Array.from(genres).sort();
+}
+
+/** Get all completed items, optionally filtered by content-type tab, language, genre, and sub-type */
+export function getCompletedItems(
+  type?: ContentFilter,
+  language?: string,
+  genre?: string,
+  subType?: ContentType
+): ContentItem[] {
+  let items = contentItems.filter(i => i.status === "COMPLETED");
+  if (type) {
+    const typeItems = getItemsByType(type);
+    const ids = new Set(typeItems.map(i => i.id));
+    items = items.filter(i => ids.has(i.id));
+  }
+  if (subType) {
+    items = items.filter(i => i.type === subType);
+  }
+  if (language) {
+    items = items.filter(i => i.language === language);
+  }
+  if (genre) {
+    items = items.filter(i => i.genre === genre);
+  }
+  return items;
 }

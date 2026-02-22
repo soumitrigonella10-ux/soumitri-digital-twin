@@ -10,5 +10,5 @@ export type {
   InspirationFragment,
 } from "./types";
 
-export { artifacts, getArtifactsByMedium, getArtifactsByYear } from "./artifacts";
+export { artifacts, getArtifactsByMedium, getArtifactsByYear } from "./studio";
 export { inspirations } from "./inspirations";

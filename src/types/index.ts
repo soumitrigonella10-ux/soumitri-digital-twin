@@ -54,5 +54,24 @@ export type {
   CompletionMap,
 } from "./planner";
 
+// Editorial (public-facing content types)
+export type {
+  ContentType,
+  ContentStatus,
+  ContentItem,
+  Essay,
+  EssayBlock,
+  EssayCategory,
+  Sidequest,
+  SkillExperiment,
+  TravelLocation,
+  ThoughtCardType,
+  AnnotationType,
+  DesignThought,
+  Topic,
+  SubTab,
+} from "./editorial";
+export { ESSAY_CATEGORIES } from "./editorial";
+
 // Re-export auth module declarations (side-effect: augments next-auth types)
 import "./auth";

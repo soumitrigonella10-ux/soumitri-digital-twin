@@ -402,7 +402,7 @@ describe("Wishlist data", () => {
   });
 
   it("wishlist items have valid category", () => {
-    const validCategories = ["Tops", "Bottoms", "Dresses", "Outerwear", "Shoes", "Jewellery"];
+    const validCategories = ["Tops", "Bottoms", "Dresses", "Outerwear", "Shoes", "Jewellery", "Bags", "Suits"];
     for (const w of wishlist) {
       expect(validCategories).toContain(w.category);
     }
