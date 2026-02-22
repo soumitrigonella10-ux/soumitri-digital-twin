@@ -45,11 +45,10 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // Read the CSP nonce from the middleware-set request header.
-  // This forces dynamic rendering AND tells Next.js to apply the nonce
-  // to all framework-injected inline <script> tags (hydration, chunks, etc.).
-  const hdrs = await headers();
-  const nonce = hdrs.get("x-nonce") ?? undefined;
+  // Force dynamic rendering so the middleware's per-request CSP nonce
+  // is active. Next.js automatically propagates the nonce from the
+  // Content-Security-Policy response header to its inline scripts.
+  await headers();
 
   return (
     <html lang="en" className={`${playfair.variable} ${inter.variable} ${teluguFont.variable} ${scriptFont.variable}`} suppressHydrationWarning>
