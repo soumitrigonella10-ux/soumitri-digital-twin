@@ -1,92 +1,14 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
 import { EditorialNav } from "@/components/EditorialNav";
-import { getCurrentSkills, getAchievedSkills, type SkillExperiment } from "@/data/skills";
+import { skillExperiments } from "@/data/skills";
+import { sidequests } from "@/data/sidequests";
+import { SkillCard } from "@/components/skills";
+import { QuestCard } from "@/components/sidequests";
 
-// ─────────────────────────────────────────────
-// Skill Card Component
-// ─────────────────────────────────────────────
-
-interface SkillCardProps {
-  skill: SkillExperiment;
-}
-
-function SkillCard({ skill }: SkillCardProps) {
-  const [isVisible, setIsVisible] = useState(false);
-  const cardRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry && entry.isIntersecting) {
-          setIsVisible(true);
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.2 }
-    );
-
-    if (cardRef.current) {
-      observer.observe(cardRef.current);
-    }
-
-    return () => observer.disconnect();
-  }, []);
-
-  const cardClass = skill.isInverted
-    ? "skill-card inverted"
-    : "skill-card";
-
-  return (
-    <div ref={cardRef} className={cardClass}>
-      {/* Header */}
-      <div className="skill-card-header">
-        <div className="skill-category">
-          {skill.category}
-        </div>
-      </div>
-
-      {/* Body */}
-      <div className="skill-card-body">
-        <h3 className="skill-name">{skill.name}</h3>
-
-        <div className="skill-tools">
-          {skill.tools.slice(0, 2).map((tool, idx) => (
-            <span key={idx} className="skill-tool">
-              {tool}
-              {idx < Math.min(skill.tools.length - 1, 1) && " · "}
-            </span>
-          ))}
-          {skill.tools.length > 2 && (
-            <span className="skill-tool">+{skill.tools.length - 2} more</span>
-          )}
-        </div>
-
-        {/* Proficiency */}
-        <div className="skill-proficiency">
-          <div className="proficiency-header">
-            <span className="proficiency-value">{skill.proficiency}%</span>
-          </div>
-
-          <div className="proficiency-bar-container">
-            <div
-              className={`proficiency-bar-fill ${isVisible ? "animated" : ""}`}
-              style={
-                {
-                  "--target-width": `${skill.proficiency}%`,
-                  width: isVisible ? `${skill.proficiency}%` : "0%",
-                } as React.CSSProperties
-              }
-            />
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 // ─────────────────────────────────────────────
 // Hero Section
@@ -108,7 +30,7 @@ function HeroSection() {
         </p>
         <h1 className="skills-hero-title">
           Skill
-          <span className="word-acquisition">Acquisition</span>
+          <span className="word-acquisition">/ Side Quests</span>
         </h1>
         <p
           className="font-sans text-lg leading-relaxed mt-6 max-w-2xl"
@@ -122,22 +44,48 @@ function HeroSection() {
 }
 
 // ─────────────────────────────────────────────
+// Filter Pills Component
+// ─────────────────────────────────────────────
+
+type QuestType = "skill" | "sidequest";
+
+interface FilterPillProps {
+  active: boolean;
+  onClick: () => void;
+  label: string;
+  count: number;
+}
+
+function FilterPill({ active, onClick, label, count }: FilterPillProps) {
+  return (
+    <button
+      onClick={onClick}
+      className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
+        active
+          ? "bg-amber-900 text-white"
+          : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+      }`}
+    >
+      {label} ({count})
+    </button>
+  );
+}
+
+
+// ─────────────────────────────────────────────
 // Main Page Content
 // ─────────────────────────────────────────────
 
 function SkillsPageContent() {
   const { data: session, status } = useSession();
   const isAuthenticated = !!session;
-  const [activeTab, setActiveTab] = useState<'current' | 'achieved'>('current');
-
-  const currentSkills = getCurrentSkills();
-  const achievedSkills = getAchievedSkills();
+  const [activeTab, setActiveTab] = useState<QuestType>("sidequest");
 
   // Loading state
   if (status === "loading") {
     return (
-      <div className="skills-bg min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#802626]" />
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-900" />
       </div>
     );
   }
@@ -150,45 +98,51 @@ function SkillsPageContent() {
       {/* Hero Section */}
       <HeroSection />
 
-      {/* Skills Tabs */}
+      {/* Main Content Container */}
       <div className="max-w-7xl mx-auto px-6 md:px-8 lg:px-12 pb-20">
         
-        {/* Tab Navigation */}
-        <div className="skills-tabs-container">
-          <div className="skills-tabs">
-            <button
-              onClick={() => setActiveTab('current')}
-              className={`skills-filter-pill ${activeTab === 'current' ? 'active' : ''}`}
-            >
-              Current ({currentSkills.length})
-            </button>
-            <button
-              onClick={() => setActiveTab('achieved')}
-              className={`skills-filter-pill ${activeTab === 'achieved' ? 'active' : ''}`}
-            >
-              Achieved ({achievedSkills.length})
-            </button>
-          </div>
+        {/* Filter Pills */}
+        <div className="flex gap-3 mb-10 border-b border-gray-200 pb-6">
+          <FilterPill
+            active={activeTab === "sidequest"}
+            onClick={() => setActiveTab("sidequest")}
+            label="Sidequests"
+            count={sidequests.length}
+          />
+          <FilterPill
+            active={activeTab === "skill"}
+            onClick={() => setActiveTab("skill")}
+            label="Skill Quests"
+            count={skillExperiments.length}
+          />
         </div>
 
-        {/* Tab Content */}
-        <div className="skills-tab-content">
-          {activeTab === 'current' && (
-            <div className="skills-grid">
-              {currentSkills.map((skill) => (
+        {/* Skill Quest Grid */}
+        {activeTab === "skill" && (
+          <div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-5">
+              {skillExperiments.map((skill) => (
                 <SkillCard key={skill.id} skill={skill} />
               ))}
             </div>
-          )}
-          
-          {activeTab === 'achieved' && (
-            <div className="skills-grid">
-              {achievedSkills.map((skill) => (
-                <SkillCard key={skill.id} skill={skill} />
+          </div>
+        )}
+
+        {/* Sidequest Grid */}
+        {activeTab === "sidequest" && (
+          <div>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-4 lg:gap-x-6 gap-y-6 lg:gap-y-8">
+              {sidequests.map((quest, index) => (
+                <QuestCard 
+                  key={quest.id} 
+                  quest={quest} 
+                  index={index}
+                  onClick={() => {}} 
+                />
               ))}
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
 
       {/* Footer */}
@@ -211,6 +165,7 @@ function SkillsPageContent() {
 
   return pageContent;
 }
+
 
 // ─────────────────────────────────────────────
 // Export

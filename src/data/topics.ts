@@ -60,7 +60,7 @@ export const topics: Topic[] = [
   },
   {
     slug: "skilling",
-    title: "Skill up",
+    title: "Skill / Side Quests",
     description: "Master of all trades, jack of none.",
     isPublic: true,
     icon: "graduation-cap",
