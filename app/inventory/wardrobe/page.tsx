@@ -2,9 +2,10 @@
 
 import { useState, useMemo } from "react";
 import Image from "next/image";
-import { Shirt } from "lucide-react";
+import { Shirt, Plus } from "lucide-react";
 import { useAppStore } from "@/store/useAppStore";
 import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
+import { AddWardrobeItemPanel } from "@/components/AddWardrobeItemPanel";
 import type { WardrobeItem } from "@/types";
 import { cn } from "@/lib/utils";
 
@@ -20,6 +21,7 @@ const bottomChipMap: Record<string, string[]> = {
 function WardrobePageContent() {
   const { data } = useAppStore();
   const [selectedCategory, setSelectedCategory] = useState<string>("Top");
+  const [showAddPanel, setShowAddPanel] = useState(false);
   const [selectedSubchip, setSelectedSubchip] = useState<string | null>(null);
 
   // Get level-1 sub-chips for the selected category
@@ -106,16 +108,31 @@ function WardrobePageContent() {
     <div className="space-y-8">
       {/* Header */}
       <header className="animate-fade-scale">
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-2xl bg-category-wardrobe flex items-center justify-center">
-            <Shirt className="w-6 h-6 text-orange-500" />
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-2xl bg-category-wardrobe flex items-center justify-center">
+              <Shirt className="w-6 h-6 text-orange-500" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">Wardrobe</h1>
+              <p className="text-gray-500">{data.wardrobe.length} items</p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Wardrobe</h1>
-            <p className="text-gray-500">{data.wardrobe.length} items</p>
-          </div>
+          <button
+            onClick={() => setShowAddPanel(true)}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-orange-500 text-white text-sm font-medium hover:bg-orange-600 transition-colors"
+          >
+            <Plus className="w-4 h-4" />
+            Add Item
+          </button>
         </div>
       </header>
+
+      {/* Add Item Panel */}
+      <AddWardrobeItemPanel
+        open={showAddPanel}
+        onClose={() => setShowAddPanel(false)}
+      />
 
       {/* Category Chips */}
       <div className="flex flex-wrap gap-2">

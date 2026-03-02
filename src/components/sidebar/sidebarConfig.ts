@@ -22,9 +22,9 @@ import {
   Utensils,
   MapPin,
   Palette,
+  Globe,
   Flame,
   StickyNote,
-  Lock,
   type LucideIcon,
 } from "lucide-react";
 import { topics, getTopicHref } from "@/data/topics";
@@ -67,7 +67,6 @@ export const categories: SidebarCategory[] = [
     bgClass: "bg-amber-50",
     borderClass: "border-amber-200",
     group: "Daily Logic",
-    badgeIcon: Lock,
   },
   // Routines
   {
@@ -228,11 +227,13 @@ const TOPIC_ICON_MAP: Record<string, LucideIcon> = {
   utensils: Utensils,
   "map-pin": MapPin,
   palette: Palette,
+  globe: Globe,
 };
 
 // Generate Public Curation categories from topics data (only public topics)
 const publicCurationCategories: SidebarCategory[] = topics
   .filter((topic) => topic.isPublic)
+  .sort((a, b) => a.displayOrder - b.displayOrder)
   .map((topic) => ({
     id: topic.slug,
     name: topic.title,
