@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { devtools, persist, subscribeWithSelector } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 import type { AppState } from "./types";
-import type { WishlistItem } from "@/types";
+import type { WishlistItem, WardrobeItem } from "@/types";
 import { createDataSlice } from "./slices/dataSlice";
 import { createFilterSlice } from "./slices/filterSlice";
 import { createCompletionSlice } from "./slices/completionSlice";
@@ -32,7 +32,7 @@ export const useAppStore = create<AppState>()(
           }),
           {
             name: "routines-wardrobe-app",
-            version: 2, // Bumped to invalidate stale localStorage with old image paths
+            version: 3, // Bumped to include wardrobe in persisted state
 
             // Only persist user-generated data, not seed data
             partialize: (state) => ({
@@ -40,6 +40,7 @@ export const useAppStore = create<AppState>()(
               productCompletions: state.productCompletions,
               data: {
                 wishlist: state.data.wishlist,
+                wardrobe: state.data.wardrobe,
               },
             }),
 
@@ -57,6 +58,17 @@ export const useAppStore = create<AppState>()(
                   productCompletions: persisted.productCompletions ?? {},
                   data: {
                     ...currentState.data,
+                    // Always refresh seed wardrobe items with latest paths from code,
+                    // while preserving any user-added items (uploaded via Blob)
+                    wardrobe: (() => {
+                      const persistedWardrobe = Array.isArray((persisted.data as Partial<AppState["data"]>)?.wardrobe)
+                        ? (persisted.data as Partial<AppState["data"]>)!.wardrobe!
+                        : [];
+                      const seedIds = new Set(currentState.data.wardrobe.map((i) => i.id));
+                      const userAdded = persistedWardrobe.filter((i: WardrobeItem) => !seedIds.has(i.id));
+                      // Use fresh seed data (with correct paths) + any user-added items
+                      return [...currentState.data.wardrobe, ...userAdded];
+                    })(),
                     // Always refresh seed wishlist items with latest paths from code,
                     // while preserving any user-added items
                     wishlist: (() => {

@@ -9,21 +9,21 @@ const ethnicTops: WardrobeItem[] = [
     name: "Ethnic Top 1",
     category: "Ethnic",
     subcategory: "Tops",
-    imageUrl: "/images/products/ethnic/top1.png",
+    imageUrl: "https://sjqe9cuzgdublfeb.public.blob.vercel-storage.com/wardrobe-images/ethnic/top1.png",
   },
   {
     id: "w-ethnic-top-2",
     name: "Ethnic Top 2",
     category: "Ethnic",
     subcategory: "Tops",
-    imageUrl: "/images/products/ethnic/top2.png",
+    imageUrl: "https://sjqe9cuzgdublfeb.public.blob.vercel-storage.com/wardrobe-images/ethnic/top2.png",
   },
   {
     id: "w-ethnic-lehenga-top-1",
     name: "Lehenga Top 1",
     category: "Ethnic",
     subcategory: "Tops",
-    imageUrl: "/images/products/ethnic/lehenga-top1.png",
+    imageUrl: "https://sjqe9cuzgdublfeb.public.blob.vercel-storage.com/wardrobe-images/ethnic/lehenga-top1.png",
   },
 ];
 
@@ -36,35 +36,35 @@ const ethnicBottoms: WardrobeItem[] = [
     name: "Ethnic Bottom 1",
     category: "Ethnic",
     subcategory: "Bottoms",
-    imageUrl: "/images/products/ethnic/bottom1.png",
+    imageUrl: "https://sjqe9cuzgdublfeb.public.blob.vercel-storage.com/wardrobe-images/ethnic/bottom1.png",
   },
   {
     id: "w-ethnic-bottom-2",
     name: "Ethnic Bottom 2",
     category: "Ethnic",
     subcategory: "Bottoms",
-    imageUrl: "/images/products/ethnic/bottom2.png",
+    imageUrl: "https://sjqe9cuzgdublfeb.public.blob.vercel-storage.com/wardrobe-images/ethnic/bottom2.png",
   },
   {
     id: "w-ethnic-bottom-3",
     name: "Ethnic Bottom 3",
     category: "Ethnic",
     subcategory: "Bottoms",
-    imageUrl: "/images/products/ethnic/bottom3.png",
+    imageUrl: "https://sjqe9cuzgdublfeb.public.blob.vercel-storage.com/wardrobe-images/ethnic/bottom3.png",
   },
   {
     id: "w-ethnic-skirt-1",
     name: "Ethnic Skirt 1",
     category: "Ethnic",
     subcategory: "Bottoms",
-    imageUrl: "/images/products/ethnic/skirt1.png",
+    imageUrl: "https://sjqe9cuzgdublfeb.public.blob.vercel-storage.com/wardrobe-images/ethnic/skirt1.png",
   },
   {
     id: "w-ethnic-skirt-2",
     name: "Ethnic Skirt 2",
     category: "Ethnic",
     subcategory: "Bottoms",
-    imageUrl: "/images/products/ethnic/skirt2.png",
+    imageUrl: "https://sjqe9cuzgdublfeb.public.blob.vercel-storage.com/wardrobe-images/ethnic/skirt2.png",
   },
 ];
 
@@ -77,7 +77,7 @@ const ethnicSets: WardrobeItem[] = [
     name: "Ethnic Set 1",
     category: "Ethnic",
     subcategory: "Sets",
-    imageUrl: "/images/products/ethnic/set1.png",
+    imageUrl: "https://sjqe9cuzgdublfeb.public.blob.vercel-storage.com/wardrobe-images/ethnic/set1.png",
   },
 ];
 
@@ -90,7 +90,7 @@ const duppattas: WardrobeItem[] = [
     name: "Duppatta 1",
     category: "Ethnic",
     subcategory: "Duppattas",
-    imageUrl: "/images/products/ethnic/duppatta1.png",
+    imageUrl: "https://sjqe9cuzgdublfeb.public.blob.vercel-storage.com/wardrobe-images/ethnic/duppatta1.png",
   },
 ];
 

@@ -74,8 +74,8 @@ const payloadFields: FormField[] = [
     name: "imageUrl",
     label: "Image URL",
     type: "text",
-    placeholder: "https://... or /images/products/...",
-    description: "Paste an image URL or a local path",
+    placeholder: "https://... (or upload via the inventory page)",
+    description: "Paste an image URL or upload an image",
   },
   {
     name: "websiteUrl",

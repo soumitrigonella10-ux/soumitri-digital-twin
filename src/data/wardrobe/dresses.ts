@@ -10,7 +10,7 @@ export const wardrobeDresses: WardrobeItem[] = [
     category: "Dress",
     subcategory: "Casual",
     occasion: "Casual",
-    imageUrl: "/images/products/dresses/dress-casual1.png",
+    imageUrl: "https://sjqe9cuzgdublfeb.public.blob.vercel-storage.com/wardrobe-images/dresses/dress-casual1.png",
   },
   {
     id: "w-dress-formal-1",
@@ -18,7 +18,7 @@ export const wardrobeDresses: WardrobeItem[] = [
     category: "Dress",
     subcategory: "Formal",
     occasion: "Formal",
-    imageUrl: "/images/products/dresses/dress-formal1.png",
+    imageUrl: "https://sjqe9cuzgdublfeb.public.blob.vercel-storage.com/wardrobe-images/dresses/dress-formal1.png",
   },
   {
     id: "w-dress-formal-2",
@@ -26,7 +26,7 @@ export const wardrobeDresses: WardrobeItem[] = [
     category: "Dress",
     subcategory: "Formal",
     occasion: "Formal",
-    imageUrl: "/images/products/dresses/dress-formal2.png",
+    imageUrl: "https://sjqe9cuzgdublfeb.public.blob.vercel-storage.com/wardrobe-images/dresses/dress-formal2.png",
   },
   {
     id: "w-dress-formal-3",
@@ -34,7 +34,7 @@ export const wardrobeDresses: WardrobeItem[] = [
     category: "Dress",
     subcategory: "Formal",
     occasion: "Formal",
-    imageUrl: "/images/products/dresses/dress-formal3.png",
+    imageUrl: "https://sjqe9cuzgdublfeb.public.blob.vercel-storage.com/wardrobe-images/dresses/dress-formal3.png",
   },
   {
     id: "w-dress-party-1",
@@ -42,7 +42,7 @@ export const wardrobeDresses: WardrobeItem[] = [
     category: "Dress",
     subcategory: "Party",
     occasion: "Party",
-    imageUrl: "/images/products/dresses/dress-party1.png",
+    imageUrl: "https://sjqe9cuzgdublfeb.public.blob.vercel-storage.com/wardrobe-images/dresses/dress-party1.png",
   },
   {
     id: "w-dress-party-2",
@@ -50,7 +50,7 @@ export const wardrobeDresses: WardrobeItem[] = [
     category: "Dress",
     subcategory: "Party",
     occasion: "Party",
-    imageUrl: "/images/products/dresses/dress-party2.png",
+    imageUrl: "https://sjqe9cuzgdublfeb.public.blob.vercel-storage.com/wardrobe-images/dresses/dress-party2.png",
   },
   {
     id: "w-dress-ethnic-1",
@@ -58,7 +58,7 @@ export const wardrobeDresses: WardrobeItem[] = [
     category: "Dress",
     subcategory: "Ethnic",
     occasion: "Ethnic",
-    imageUrl: "/images/products/dresses/dress-ethnic1.png",
+    imageUrl: "https://sjqe9cuzgdublfeb.public.blob.vercel-storage.com/wardrobe-images/dresses/dress-ethnic1.png",
   },
   {
     id: "w-dress-ethnic-2",
@@ -66,7 +66,7 @@ export const wardrobeDresses: WardrobeItem[] = [
     category: "Dress",
     subcategory: "Ethnic",
     occasion: "Ethnic",
-    imageUrl: "/images/products/dresses/dress-ethnic2.png",
+    imageUrl: "https://sjqe9cuzgdublfeb.public.blob.vercel-storage.com/wardrobe-images/dresses/dress-ethnic2.png",
   },
   {
     id: "w-dress-summer-1",
@@ -74,7 +74,7 @@ export const wardrobeDresses: WardrobeItem[] = [
     category: "Dress",
     subcategory: "Summer",
     occasion: "Casual",
-    imageUrl: "/images/products/dresses/dress-summer1.png",
+    imageUrl: "https://sjqe9cuzgdublfeb.public.blob.vercel-storage.com/wardrobe-images/dresses/dress-summer1.png",
   },
   {
     id: "w-dress-summer-2",
@@ -82,7 +82,7 @@ export const wardrobeDresses: WardrobeItem[] = [
     category: "Dress",
     subcategory: "Summer",
     occasion: "Casual",
-    imageUrl: "/images/products/dresses/dress-summer2.png",
+    imageUrl: "https://sjqe9cuzgdublfeb.public.blob.vercel-storage.com/wardrobe-images/dresses/dress-summer2.png",
   },
   {
     id: "w-dress-summer-3",
@@ -90,7 +90,7 @@ export const wardrobeDresses: WardrobeItem[] = [
     category: "Dress",
     subcategory: "Summer",
     occasion: "Casual",
-    imageUrl: "/images/products/dresses/dress-summer3.png",
+    imageUrl: "https://sjqe9cuzgdublfeb.public.blob.vercel-storage.com/wardrobe-images/dresses/dress-summer3.png",
   },
   {
     id: "w-dress-summer-4",
@@ -98,7 +98,7 @@ export const wardrobeDresses: WardrobeItem[] = [
     category: "Dress",
     subcategory: "Summer",
     occasion: "Casual",
-    imageUrl: "/images/products/dresses/dress-summer4.png",
+    imageUrl: "https://sjqe9cuzgdublfeb.public.blob.vercel-storage.com/wardrobe-images/dresses/dress-summer4.png",
   },
   {
     id: "w-dress-summer-5",
@@ -106,6 +106,6 @@ export const wardrobeDresses: WardrobeItem[] = [
     category: "Dress",
     subcategory: "Summer",
     occasion: "Casual",
-    imageUrl: "/images/products/dresses/dress-summer5.png",
+    imageUrl: "https://sjqe9cuzgdublfeb.public.blob.vercel-storage.com/wardrobe-images/dresses/dress-summer5.png",
   },
 ];

@@ -9,49 +9,49 @@ const basicTops: WardrobeItem[] = [
     name: "Tees Cotton Black",
     category: "Top",
     subcategory: "Basics",
-    imageUrl: "/images/products/Basic%20tops/tees-cotton-black.png",
+    imageUrl: "https://sjqe9cuzgdublfeb.public.blob.vercel-storage.com/wardrobe-images/basic-tops/tees-cotton-black.png",
   },
   {
     id: "2",
     name: "Tees Cotton Blue",
     category: "Top",
     subcategory: "Basics",
-    imageUrl: "/images/products/Basic%20tops/tees-cotton-blue.png",
+    imageUrl: "https://sjqe9cuzgdublfeb.public.blob.vercel-storage.com/wardrobe-images/basic-tops/tees-cotton-blue.png",
   },
   {
     id: "3",
     name: "Tees Cotton Gray Full",
     category: "Top",
     subcategory: "Basics",
-    imageUrl: "/images/products/Basic%20tops/tees-cotton-gray-full.png",
+    imageUrl: "https://sjqe9cuzgdublfeb.public.blob.vercel-storage.com/wardrobe-images/basic-tops/tees-cotton-gray-full.png",
   },
   {
     id: "4",
     name: "Tees Cotton White Full",
     category: "Top",
     subcategory: "Basics",
-    imageUrl: "/images/products/Basic%20tops/tees-cotton-white-full.png",
+    imageUrl: "https://sjqe9cuzgdublfeb.public.blob.vercel-storage.com/wardrobe-images/basic-tops/tees-cotton-white-full.png",
   },
   {
     id: "5",
     name: "Tees Sheer Black",
     category: "Top",
     subcategory: "Basics",
-    imageUrl: "/images/products/Basic%20tops/tees-sheer-black.png",
+    imageUrl: "https://sjqe9cuzgdublfeb.public.blob.vercel-storage.com/wardrobe-images/basic-tops/tees-sheer-black.png",
   },
     {
     id: "6",
     name: "Tank Black",
     category: "Top",
     subcategory: "Basics",
-    imageUrl: "/images/products/Basic%20tops/tank-black.png",
+    imageUrl: "https://sjqe9cuzgdublfeb.public.blob.vercel-storage.com/wardrobe-images/basic-tops/tank-black.png",
   },
   {
     id: "7",
     name: "Tees Textured Sheer",
     category: "Top",
     subcategory: "Basics",
-    imageUrl: "/images/products/Basic%20tops/tees-textured-sheer.png",
+    imageUrl: "https://sjqe9cuzgdublfeb.public.blob.vercel-storage.com/wardrobe-images/basic-tops/tees-textured-sheer.png",
   },
 ];
 
@@ -65,7 +65,7 @@ const elevatedBusinessCasual: WardrobeItem[] = [
     category: "Top",
     subcategory: "Elevated tops",
     occasion: "Business Casual",
-    imageUrl: "/images/products/elevated-tops/business-casual1.png",
+    imageUrl: "https://sjqe9cuzgdublfeb.public.blob.vercel-storage.com/wardrobe-images/elevated-tops/business-casual1.png",
   },
   {
     id: "business-casual-2",
@@ -73,7 +73,7 @@ const elevatedBusinessCasual: WardrobeItem[] = [
     category: "Top",
     subcategory: "Elevated tops",
     occasion: "Business Casual",
-    imageUrl: "/images/products/elevated-tops/business-casual2.png",
+    imageUrl: "https://sjqe9cuzgdublfeb.public.blob.vercel-storage.com/wardrobe-images/elevated-tops/business-casual2.png",
   },
   {
     id: "business-casual-3",
@@ -81,7 +81,7 @@ const elevatedBusinessCasual: WardrobeItem[] = [
     category: "Top",
     subcategory: "Elevated tops",
     occasion: "Business Casual",
-    imageUrl: "/images/products/elevated-tops/buiness-casual3.png",
+    imageUrl: "https://sjqe9cuzgdublfeb.public.blob.vercel-storage.com/wardrobe-images/elevated-tops/buiness-casual3.png",
   },
   {
     id: "business-casual-4",
@@ -89,7 +89,7 @@ const elevatedBusinessCasual: WardrobeItem[] = [
     category: "Top",
     subcategory: "Elevated tops",
     occasion: "Business Casual",
-    imageUrl: "/images/products/elevated-tops/business-casual4.png",
+    imageUrl: "https://sjqe9cuzgdublfeb.public.blob.vercel-storage.com/wardrobe-images/elevated-tops/business-casual4.png",
   },
 ];
 
@@ -103,7 +103,7 @@ const elevatedBusinessEthnic: WardrobeItem[] = [
     category: "Top",
     subcategory: "Elevated tops",
     occasion: "Business Ethnic",
-    imageUrl: "/images/products/elevated-tops/business-ethnic1.png",
+    imageUrl: "https://sjqe9cuzgdublfeb.public.blob.vercel-storage.com/wardrobe-images/elevated-tops/business-ethnic1.png",
   },
   {
     id: "business-ethnic-2",
@@ -111,7 +111,7 @@ const elevatedBusinessEthnic: WardrobeItem[] = [
     category: "Top",
     subcategory: "Elevated tops",
     occasion: "Business Ethnic",
-    imageUrl: "/images/products/elevated-tops/business-ethnic2.png",
+    imageUrl: "https://sjqe9cuzgdublfeb.public.blob.vercel-storage.com/wardrobe-images/elevated-tops/business-ethnic2.png",
   },
   {
     id: "business-ethnic-3",
@@ -119,7 +119,7 @@ const elevatedBusinessEthnic: WardrobeItem[] = [
     category: "Top",
     subcategory: "Elevated tops",
     occasion: "Business Ethnic",
-    imageUrl: "/images/products/elevated-tops/business-ethnic3.png",
+    imageUrl: "https://sjqe9cuzgdublfeb.public.blob.vercel-storage.com/wardrobe-images/elevated-tops/business-ethnic3.png",
   },
   {
     id: "business-ethnic-4",
@@ -127,7 +127,7 @@ const elevatedBusinessEthnic: WardrobeItem[] = [
     category: "Top",
     subcategory: "Elevated tops",
     occasion: "Business Ethnic",
-    imageUrl: "/images/products/elevated-tops/business-ethnic4.png",
+    imageUrl: "https://sjqe9cuzgdublfeb.public.blob.vercel-storage.com/wardrobe-images/elevated-tops/business-ethnic4.png",
   },
   {
     id: "business-ethnic-5",
@@ -135,7 +135,7 @@ const elevatedBusinessEthnic: WardrobeItem[] = [
     category: "Top",
     subcategory: "Elevated tops",
     occasion: "Business Ethnic",
-    imageUrl: "/images/products/elevated-tops/business-ethnic5.png",
+    imageUrl: "https://sjqe9cuzgdublfeb.public.blob.vercel-storage.com/wardrobe-images/elevated-tops/business-ethnic5.png",
   },
   {
     id: "business-ethnic-6",
@@ -143,7 +143,7 @@ const elevatedBusinessEthnic: WardrobeItem[] = [
     category: "Top",
     subcategory: "Elevated tops",
     occasion: "Business Ethnic",
-    imageUrl: "/images/products/elevated-tops/business-ethnic6.png",
+    imageUrl: "https://sjqe9cuzgdublfeb.public.blob.vercel-storage.com/wardrobe-images/elevated-tops/business-ethnic6.png",
   },
   {
     id: "business-ethnic-7",
@@ -151,7 +151,7 @@ const elevatedBusinessEthnic: WardrobeItem[] = [
     category: "Top",
     subcategory: "Elevated tops",
     occasion: "Business Ethnic",
-    imageUrl: "/images/products/elevated-tops/business-ethnic7.png",
+    imageUrl: "https://sjqe9cuzgdublfeb.public.blob.vercel-storage.com/wardrobe-images/elevated-tops/business-ethnic7.png",
   },
   {
     id: "business-ethnic-8",
@@ -159,7 +159,7 @@ const elevatedBusinessEthnic: WardrobeItem[] = [
     category: "Top",
     subcategory: "Elevated tops",
     occasion: "Business Ethnic",
-    imageUrl: "/images/products/elevated-tops/business-ethnic8.png",
+    imageUrl: "https://sjqe9cuzgdublfeb.public.blob.vercel-storage.com/wardrobe-images/elevated-tops/business-ethnic8.png",
   },
   {
     id: "business-ethnic-9",
@@ -167,7 +167,7 @@ const elevatedBusinessEthnic: WardrobeItem[] = [
     category: "Top",
     subcategory: "Elevated tops",
     occasion: "Business Ethnic",
-    imageUrl: "/images/products/elevated-tops/business-ethnic9.png",
+    imageUrl: "https://sjqe9cuzgdublfeb.public.blob.vercel-storage.com/wardrobe-images/elevated-tops/business-ethnic9.png",
   },
   {
     id: "business-ethnic-10",
@@ -175,7 +175,7 @@ const elevatedBusinessEthnic: WardrobeItem[] = [
     category: "Top",
     subcategory: "Elevated tops",
     occasion: "Business Ethnic",
-    imageUrl: "/images/products/elevated-tops/business-ethnic10.png",
+    imageUrl: "https://sjqe9cuzgdublfeb.public.blob.vercel-storage.com/wardrobe-images/elevated-tops/business-ethnic10.png",
   },
 ];
 
@@ -189,7 +189,7 @@ const elevatedCasual: WardrobeItem[] = [
     category: "Top",
     subcategory: "Elevated tops",
     occasion: "Casual",
-    imageUrl: "/images/products/elevated-tops/casual1.png",
+    imageUrl: "https://sjqe9cuzgdublfeb.public.blob.vercel-storage.com/wardrobe-images/elevated-tops/casual1.png",
   },
   {
     id: "casual-2",
@@ -197,7 +197,7 @@ const elevatedCasual: WardrobeItem[] = [
     category: "Top",
     subcategory: "Elevated tops",
     occasion: "Casual",
-    imageUrl: "/images/products/elevated-tops/casual2.png",
+    imageUrl: "https://sjqe9cuzgdublfeb.public.blob.vercel-storage.com/wardrobe-images/elevated-tops/casual2.png",
   },
   {
     id: "casual-3",
@@ -205,7 +205,7 @@ const elevatedCasual: WardrobeItem[] = [
     category: "Top",
     subcategory: "Elevated tops",
     occasion: "Casual",
-    imageUrl: "/images/products/elevated-tops/casual3.png",
+    imageUrl: "https://sjqe9cuzgdublfeb.public.blob.vercel-storage.com/wardrobe-images/elevated-tops/casual3.png",
   },
   {
     id: "casual-4",
@@ -213,7 +213,7 @@ const elevatedCasual: WardrobeItem[] = [
     category: "Top",
     subcategory: "Elevated tops",
     occasion: "Casual",
-    imageUrl: "/images/products/elevated-tops/casual4.png",
+    imageUrl: "https://sjqe9cuzgdublfeb.public.blob.vercel-storage.com/wardrobe-images/elevated-tops/casual4.png",
   },
   {
     id: "casual-5",
@@ -221,7 +221,7 @@ const elevatedCasual: WardrobeItem[] = [
     category: "Top",
     subcategory: "Elevated tops",
     occasion: "Casual",
-    imageUrl: "/images/products/elevated-tops/casual5.png",
+    imageUrl: "https://sjqe9cuzgdublfeb.public.blob.vercel-storage.com/wardrobe-images/elevated-tops/casual5.png",
   },
 ];
 
@@ -235,7 +235,7 @@ const elevatedFormal: WardrobeItem[] = [
     category: "Top",
     subcategory: "Elevated tops",
     occasion: "Formal",
-    imageUrl: "/images/products/elevated-tops/formal-1.png",
+    imageUrl: "https://sjqe9cuzgdublfeb.public.blob.vercel-storage.com/wardrobe-images/elevated-tops/formal-1.png",
   },
   {
     id: "formal-2",
@@ -243,7 +243,7 @@ const elevatedFormal: WardrobeItem[] = [
     category: "Top",
     subcategory: "Elevated tops",
     occasion: "Formal",
-    imageUrl: "/images/products/elevated-tops/formal-2.png",
+    imageUrl: "https://sjqe9cuzgdublfeb.public.blob.vercel-storage.com/wardrobe-images/elevated-tops/formal-2.png",
   },
   {
     id: "formal-3",
@@ -251,7 +251,7 @@ const elevatedFormal: WardrobeItem[] = [
     category: "Top",
     subcategory: "Elevated tops",
     occasion: "Formal",
-    imageUrl: "/images/products/elevated-tops/formal-3.png",
+    imageUrl: "https://sjqe9cuzgdublfeb.public.blob.vercel-storage.com/wardrobe-images/elevated-tops/formal-3.png",
   },
   {
     id: "formal-4",
@@ -259,7 +259,7 @@ const elevatedFormal: WardrobeItem[] = [
     category: "Top",
     subcategory: "Elevated tops",
     occasion: "Formal",
-    imageUrl: "/images/products/elevated-tops/formal-4.png",
+    imageUrl: "https://sjqe9cuzgdublfeb.public.blob.vercel-storage.com/wardrobe-images/elevated-tops/formal-4.png",
   },
   {
     id: "formal-5",
@@ -267,7 +267,7 @@ const elevatedFormal: WardrobeItem[] = [
     category: "Top",
     subcategory: "Elevated tops",
     occasion: "Formal",
-    imageUrl: "/images/products/elevated-tops/formal-5.png",
+    imageUrl: "https://sjqe9cuzgdublfeb.public.blob.vercel-storage.com/wardrobe-images/elevated-tops/formal-5.png",
   },
 ];
 
@@ -281,7 +281,7 @@ const elevatedFormalBetter: WardrobeItem[] = [
     category: "Top",
     subcategory: "Elevated tops",
     occasion: "Formal Better",
-    imageUrl: "/images/products/elevated-tops/formal-better1.png",
+    imageUrl: "https://sjqe9cuzgdublfeb.public.blob.vercel-storage.com/wardrobe-images/elevated-tops/formal-better1.png",
   },
   {
     id: "formal-better-2",
@@ -289,7 +289,7 @@ const elevatedFormalBetter: WardrobeItem[] = [
     category: "Top",
     subcategory: "Elevated tops",
     occasion: "Formal Better",
-    imageUrl: "/images/products/elevated-tops/formal-better2.png",
+    imageUrl: "https://sjqe9cuzgdublfeb.public.blob.vercel-storage.com/wardrobe-images/elevated-tops/formal-better2.png",
   },
   {
     id: "formal-better-3",
@@ -297,7 +297,7 @@ const elevatedFormalBetter: WardrobeItem[] = [
     category: "Top",
     subcategory: "Elevated tops",
     occasion: "Formal Better",
-    imageUrl: "/images/products/elevated-tops/formal-better3.png",
+    imageUrl: "https://sjqe9cuzgdublfeb.public.blob.vercel-storage.com/wardrobe-images/elevated-tops/formal-better3.png",
   },
   {
     id: "formal-better-4",
@@ -305,7 +305,7 @@ const elevatedFormalBetter: WardrobeItem[] = [
     category: "Top",
     subcategory: "Elevated tops",
     occasion: "Formal Better",
-    imageUrl: "/images/products/elevated-tops/formal-better4.png",
+    imageUrl: "https://sjqe9cuzgdublfeb.public.blob.vercel-storage.com/wardrobe-images/elevated-tops/formal-better4.png",
   },
   {
     id: "formal-better-5",
@@ -313,7 +313,7 @@ const elevatedFormalBetter: WardrobeItem[] = [
     category: "Top",
     subcategory: "Elevated tops",
     occasion: "Formal Better",
-    imageUrl: "/images/products/elevated-tops/formal-better5.png",
+    imageUrl: "https://sjqe9cuzgdublfeb.public.blob.vercel-storage.com/wardrobe-images/elevated-tops/formal-better5.png",
   },
   {
     id: "formal-better-6",
@@ -321,7 +321,7 @@ const elevatedFormalBetter: WardrobeItem[] = [
     category: "Top",
     subcategory: "Elevated tops",
     occasion: "Formal Better",
-    imageUrl: "/images/products/elevated-tops/formal-better6.png",
+    imageUrl: "https://sjqe9cuzgdublfeb.public.blob.vercel-storage.com/wardrobe-images/elevated-tops/formal-better6.png",
   },
   {
     id: "formal-better-7",
@@ -329,7 +329,7 @@ const elevatedFormalBetter: WardrobeItem[] = [
     category: "Top",
     subcategory: "Elevated tops",
     occasion: "Formal Better",
-    imageUrl: "/images/products/elevated-tops/formal-better7.png",
+    imageUrl: "https://sjqe9cuzgdublfeb.public.blob.vercel-storage.com/wardrobe-images/elevated-tops/formal-better7.png",
   },
   {
     id: "formal-better-8",
@@ -337,7 +337,7 @@ const elevatedFormalBetter: WardrobeItem[] = [
     category: "Top",
     subcategory: "Elevated tops",
     occasion: "Formal Better",
-    imageUrl: "/images/products/elevated-tops/formal-better8.png",
+    imageUrl: "https://sjqe9cuzgdublfeb.public.blob.vercel-storage.com/wardrobe-images/elevated-tops/formal-better8.png",
   },
 ];
 
@@ -351,7 +351,7 @@ const elevatedFormalFancy: WardrobeItem[] = [
     category: "Top",
     subcategory: "Elevated tops",
     occasion: "Formal Fancy",
-    imageUrl: "/images/products/elevated-tops/formal-fancy1.png",
+    imageUrl: "https://sjqe9cuzgdublfeb.public.blob.vercel-storage.com/wardrobe-images/elevated-tops/formal-fancy1.png",
   },
   {
     id: "formal-fancy-2",
@@ -359,7 +359,7 @@ const elevatedFormalFancy: WardrobeItem[] = [
     category: "Top",
     subcategory: "Elevated tops",
     occasion: "Formal Fancy",
-    imageUrl: "/images/products/elevated-tops/formal-fancy2.png",
+    imageUrl: "https://sjqe9cuzgdublfeb.public.blob.vercel-storage.com/wardrobe-images/elevated-tops/formal-fancy2.png",
   },
 ];
 
@@ -373,7 +373,7 @@ const seasonalSummer: WardrobeItem[] = [
     category: "Top",
     subcategory: "Seasonals",
     subType: "Summer",
-    imageUrl: "/images/products/seasonals/summer1.png",
+    imageUrl: "https://sjqe9cuzgdublfeb.public.blob.vercel-storage.com/wardrobe-images/seasonals/summer1.png",
   },
   {
     id: "w-seasonal-summer-2",
@@ -381,7 +381,7 @@ const seasonalSummer: WardrobeItem[] = [
     category: "Top",
     subcategory: "Seasonals",
     subType: "Summer",
-    imageUrl: "/images/products/seasonals/summer2.png",
+    imageUrl: "https://sjqe9cuzgdublfeb.public.blob.vercel-storage.com/wardrobe-images/seasonals/summer2.png",
   },
   {
     id: "w-seasonal-summer-3",
@@ -389,7 +389,7 @@ const seasonalSummer: WardrobeItem[] = [
     category: "Top",
     subcategory: "Seasonals",
     subType: "Summer",
-    imageUrl: "/images/products/seasonals/summer3.png",
+    imageUrl: "https://sjqe9cuzgdublfeb.public.blob.vercel-storage.com/wardrobe-images/seasonals/summer3.png",
   },
   {
     id: "w-seasonal-summer-4",
@@ -397,7 +397,7 @@ const seasonalSummer: WardrobeItem[] = [
     category: "Top",
     subcategory: "Seasonals",
     subType: "Summer",
-    imageUrl: "/images/products/seasonals/summer4.png",
+    imageUrl: "https://sjqe9cuzgdublfeb.public.blob.vercel-storage.com/wardrobe-images/seasonals/summer4.png",
   },
   {
     id: "w-seasonal-summer-5",
@@ -405,7 +405,7 @@ const seasonalSummer: WardrobeItem[] = [
     category: "Top",
     subcategory: "Seasonals",
     subType: "Summer",
-    imageUrl: "/images/products/seasonals/summer5.png",
+    imageUrl: "https://sjqe9cuzgdublfeb.public.blob.vercel-storage.com/wardrobe-images/seasonals/summer5.png",
   },
   {
     id: "w-seasonal-summer-6",
@@ -413,7 +413,7 @@ const seasonalSummer: WardrobeItem[] = [
     category: "Top",
     subcategory: "Seasonals",
     subType: "Summer",
-    imageUrl: "/images/products/seasonals/summer6.png",
+    imageUrl: "https://sjqe9cuzgdublfeb.public.blob.vercel-storage.com/wardrobe-images/seasonals/summer6.png",
   },
 ];
 
@@ -427,7 +427,7 @@ const seasonalWinter: WardrobeItem[] = [
     category: "Top",
     subcategory: "Seasonals",
     subType: "Winter",
-    imageUrl: "/images/products/seasonals/sweater1.png",
+    imageUrl: "https://sjqe9cuzgdublfeb.public.blob.vercel-storage.com/wardrobe-images/seasonals/sweater1.png",
   },
   {
     id: "w-seasonal-winter-2",
@@ -435,7 +435,7 @@ const seasonalWinter: WardrobeItem[] = [
     category: "Top",
     subcategory: "Seasonals",
     subType: "Winter",
-    imageUrl: "/images/products/seasonals/sweater2.png",
+    imageUrl: "https://sjqe9cuzgdublfeb.public.blob.vercel-storage.com/wardrobe-images/seasonals/sweater2.png",
   },
   {
     id: "w-seasonal-winter-3",
@@ -443,7 +443,7 @@ const seasonalWinter: WardrobeItem[] = [
     category: "Top",
     subcategory: "Seasonals",
     subType: "Winter",
-    imageUrl: "/images/products/seasonals/sweater3.png",
+    imageUrl: "https://sjqe9cuzgdublfeb.public.blob.vercel-storage.com/wardrobe-images/seasonals/sweater3.png",
   },
   {
     id: "w-seasonal-winter-4",
@@ -451,7 +451,7 @@ const seasonalWinter: WardrobeItem[] = [
     category: "Top",
     subcategory: "Seasonals",
     subType: "Winter",
-    imageUrl: "/images/products/seasonals/sweater4.png",
+    imageUrl: "https://sjqe9cuzgdublfeb.public.blob.vercel-storage.com/wardrobe-images/seasonals/sweater4.png",
   },
   {
     id: "w-seasonal-winter-5",
@@ -459,7 +459,7 @@ const seasonalWinter: WardrobeItem[] = [
     category: "Top",
     subcategory: "Seasonals",
     subType: "Winter",
-    imageUrl: "/images/products/seasonals/sweater5.png",
+    imageUrl: "https://sjqe9cuzgdublfeb.public.blob.vercel-storage.com/wardrobe-images/seasonals/sweater5.png",
   },
 ];
 

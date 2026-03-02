@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useCallback } from "react";
-import { X, Loader2, Check } from "lucide-react";
+import { useState, useCallback, useRef } from "react";
+import { X, Loader2, Check, ImagePlus, Upload } from "lucide-react";
 import { createContent } from "@/cms/actions";
 
 const CATEGORIES = [
@@ -44,12 +44,36 @@ export function AddWishlistModal({ onClose, onPublished }: AddWishlistModalProps
   const [price, setPrice] = useState("");
   const [currency, setCurrency] = useState("INR");
 
+  // Image upload state
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
   const slugify = (text: string) =>
     text.toLowerCase().trim().replace(/[^\w\s-]/g, "").replace(/[\s_]+/g, "-").replace(/--+/g, "-").replace(/^-+|-+$/g, "");
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const allowed = ["image/png", "image/jpeg", "image/webp", "image/avif"];
+    if (!allowed.includes(file.type)) {
+      setError("Invalid file type. Use PNG, JPEG, WebP, or AVIF");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      setError("File too large. Max 5 MB");
+      return;
+    }
+    setSelectedFile(file);
+    setPreviewUrl(URL.createObjectURL(file));
+    setImageUrl(""); // Clear manual URL when file is selected
+    setError(null);
+  };
 
   const handleSubmit = useCallback(async () => {
     if (!name.trim()) { setError("Name is required"); return; }
@@ -58,6 +82,21 @@ export function AddWishlistModal({ onClose, onPublished }: AddWishlistModalProps
     setError(null);
     setIsSubmitting(true);
     try {
+      // Upload image file to Vercel Blob if one was selected
+      let finalImageUrl = imageUrl.trim();
+      if (selectedFile) {
+        setIsUploading(true);
+        const formData = new FormData();
+        formData.append("file", selectedFile);
+        const uploadRes = await fetch("/api/wardrobe/upload", { method: "POST", body: formData });
+        const uploadData = await uploadRes.json();
+        setIsUploading(false);
+        if (!uploadRes.ok || !uploadData.success) {
+          throw new Error(uploadData.error || "Image upload failed");
+        }
+        finalImageUrl = uploadData.url;
+      }
+
       const parsedTags = tags.split(",").map(t => t.trim()).filter(Boolean);
       const parsedPrice = price ? parseFloat(price) : undefined;
 
@@ -67,7 +106,7 @@ export function AddWishlistModal({ onClose, onPublished }: AddWishlistModalProps
         slug: slugify(name),
         visibility: "published",
         isFeatured: false,
-        coverImage: imageUrl || null,
+        coverImage: finalImageUrl || null,
         metadata: {
           category,
           tags: parsedTags,
@@ -76,7 +115,7 @@ export function AddWishlistModal({ onClose, onPublished }: AddWishlistModalProps
         },
         payload: {
           brand: brand.trim(),
-          imageUrl: imageUrl.trim(),
+          imageUrl: finalImageUrl,
           websiteUrl: websiteUrl.trim(),
           price: parsedPrice,
           currency,
@@ -94,7 +133,7 @@ export function AddWishlistModal({ onClose, onPublished }: AddWishlistModalProps
     } finally {
       setIsSubmitting(false);
     }
-  }, [name, brand, category, priority, tags, imageUrl, websiteUrl, price, currency, onClose, onPublished]);
+  }, [name, brand, category, priority, tags, imageUrl, websiteUrl, price, currency, selectedFile, onClose, onPublished]);
 
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center pt-[3vh] sm:pt-[5vh]">
@@ -134,10 +173,32 @@ export function AddWishlistModal({ onClose, onPublished }: AddWishlistModalProps
             </div>
           </div>
 
-          {/* Image URL */}
+          {/* Image — Upload or URL */}
           <div>
-            <label className="block font-editorial text-[10px] font-semibold uppercase tracking-[0.15em] text-telugu-marigold mb-1.5">Image URL <span className="normal-case tracking-normal text-stone-400 ml-1">(paste a URL)</span></label>
-            <input type="text" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} placeholder="https://... or /images/products/..." className="w-full px-3 py-2 rounded-lg border border-stone-300 bg-white text-sm text-stone-800 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-telugu-marigold/40 focus:border-telugu-marigold font-editorial" />
+            <label className="block font-editorial text-[10px] font-semibold uppercase tracking-[0.15em] text-telugu-marigold mb-1.5">Image</label>
+            <div className="flex gap-3 items-start">
+              {/* Upload area */}
+              <div
+                onClick={() => fileInputRef.current?.click()}
+                className={`relative w-20 h-20 rounded-lg border-2 border-dashed cursor-pointer flex items-center justify-center flex-shrink-0 transition-colors ${
+                  previewUrl ? "border-telugu-marigold bg-orange-50" : "border-stone-300 bg-stone-50 hover:border-telugu-marigold"
+                }`}
+              >
+                {previewUrl ? (
+                  /* eslint-disable-next-line @next/next/no-img-element */
+                  <img src={previewUrl} alt="Preview" className="w-full h-full object-contain rounded-lg" />
+                ) : (
+                  <ImagePlus className="w-5 h-5 text-stone-400" />
+                )}
+              </div>
+              <input ref={fileInputRef} type="file" accept="image/png,image/jpeg,image/webp,image/avif" onChange={handleFileSelect} className="hidden" />
+              {/* Or paste URL */}
+              <div className="flex-1">
+                <input type="text" value={imageUrl} onChange={(e) => { setImageUrl(e.target.value); setSelectedFile(null); setPreviewUrl(null); }} placeholder="…or paste image URL" disabled={!!selectedFile} className="w-full px-3 py-2 rounded-lg border border-stone-300 bg-white text-sm text-stone-800 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-telugu-marigold/40 focus:border-telugu-marigold font-editorial disabled:opacity-50" />
+                {selectedFile && <p className="text-xs text-stone-400 mt-1">{selectedFile.name} · {(selectedFile.size / 1024).toFixed(0)} KB</p>}
+                {isUploading && <p className="text-xs text-telugu-marigold mt-1 flex items-center gap-1"><Upload className="w-3 h-3 animate-bounce" /> Uploading…</p>}
+              </div>
+            </div>
           </div>
 
           {/* Website URL */}
