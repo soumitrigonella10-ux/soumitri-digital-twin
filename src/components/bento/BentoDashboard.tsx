@@ -11,6 +11,7 @@ import {
   Sparkles,
   Heart,
   Layers,
+  Globe,
   ArrowUpRight,
   type LucideIcon,
 } from "lucide-react";
@@ -27,6 +28,7 @@ const ICON_MAP: Record<string, LucideIcon> = {
   Sparkles,
   Heart,
   Layers,
+  Globe,
 };
 
 /* ─── Tile helper ────────────────────────────────────────── */

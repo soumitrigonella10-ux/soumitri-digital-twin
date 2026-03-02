@@ -514,23 +514,23 @@ body {
   grid-template-columns: repeat(3, 1fr);
   grid-template-rows: 240px 240px 240px 240px;
   grid-template-areas:
-    "essays    sidequests   consumption"
-    "essays    skillup      travellog"
-    "studio    studio       inspiration"
-    "wishlist  design       design";
+    "essays    consumption  skillup"
+    "essays    travellog    studio"
+    "inspiration  wishlist  studio"
+    "design    design       internetlore";
   gap: 16px;
 }
 
 /* Tile area placement */
-.bento-area-essays       { grid-area: essays; }
-.bento-area-sidequests   { grid-area: sidequests; }
-.bento-area-consumption  { grid-area: consumption; }
-.bento-area-skillup      { grid-area: skillup; }
-.bento-area-travellog    { grid-area: travellog; }
-.bento-area-studio       { grid-area: studio; }
-.bento-area-inspiration  { grid-area: inspiration; }
-.bento-area-wishlist     { grid-area: wishlist; }
-.bento-area-design       { grid-area: design; }
+.bento-area-essays         { grid-area: essays; }
+.bento-area-consumption    { grid-area: consumption; }
+.bento-area-skillup        { grid-area: skillup; }
+.bento-area-travellog      { grid-area: travellog; }
+.bento-area-studio         { grid-area: studio; }
+.bento-area-inspiration    { grid-area: inspiration; }
+.bento-area-wishlist       { grid-area: wishlist; }
+.bento-area-design         { grid-area: design; }
+.bento-area-internet-lore  { grid-area: internetlore; }
 
 /* Glassmorphism tile */
 .bento-tile {
@@ -563,12 +563,12 @@ a.bento-tile {
     grid-template-columns: repeat(2, 1fr);
     grid-template-rows: 220px 220px 220px 220px 220px 220px;
     grid-template-areas:
-      "essays    sidequests"
       "essays    consumption"
-      "skillup   travellog"
-      "studio    studio"
-      "inspiration wishlist"
-      "design    design";
+      "essays    skillup"
+      "travellog studio"
+      "inspiration studio"
+      "wishlist  design"
+      "internetlore design";
     gap: 14px;
   }
 }
@@ -582,14 +582,14 @@ a.bento-tile {
   }
   /* Reset all area placements so tiles just stack */
   .bento-area-essays,
-  .bento-area-sidequests,
   .bento-area-consumption,
   .bento-area-skillup,
   .bento-area-travellog,
   .bento-area-studio,
   .bento-area-inspiration,
   .bento-area-wishlist,
-  .bento-area-design {
+  .bento-area-design,
+  .bento-area-internet-lore {
     grid-area: auto;
   }
   .bento-tile {

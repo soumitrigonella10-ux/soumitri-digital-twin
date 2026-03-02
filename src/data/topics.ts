@@ -24,7 +24,7 @@ export const topics: Topic[] = [
     icon: "globe",
     iconColor: "text-teal-600",
     iconBg: "bg-teal-50",
-    displayOrder: 2,
+    displayOrder: 10,
   },
   {
     slug: "travel-log",

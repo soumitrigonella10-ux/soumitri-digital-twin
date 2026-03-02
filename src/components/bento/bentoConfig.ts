@@ -47,15 +47,6 @@ export const BENTO_TILES: BentoTileConfig[] = [
     tall: true,
   },
   {
-    id: "internet-lore",
-    title: "Internet Lore",
-    subtitle: "Found in the wild",
-    description: "Fragments from the deep web, screenshots nobody asked for, and the kind of posts you send to exactly one person at 2 a.m.",
-    icon: "Globe",
-    iconColor: ICON_COLORS.emerald,
-    href: "/sidequests",
-  },
-  {
     id: "consumption",
     title: "WatchList & Reccs List",
     subtitle: "Brainful consumption",
@@ -119,5 +110,14 @@ export const BENTO_TILES: BentoTileConfig[] = [
     icon: "Layers",
     iconColor: ICON_COLORS.sky,
     href: "/design-theology",
+  },
+  {
+    id: "internet-lore",
+    title: "Internet Lore",
+    subtitle: "Found in the wild",
+    description: "Fragments from the deep web, screenshots nobody asked for, and the kind of posts you send to exactly one person at 2 a.m.",
+    icon: "Globe",
+    iconColor: ICON_COLORS.emerald,
+    href: "/sidequests",
   },
 ];

@@ -71,6 +71,7 @@ export const config = {
       "/design-theology",
       "/inspiration",
       "/inventory/wishlist",
+      "/sidequests",
       "/api/auth",
       "/auth/signin",
       "/_next",
