@@ -184,6 +184,8 @@ body {
 .bg-category-wellness { background-color: rgba(20, 184, 166, 0.1); }
 .bg-category-fitness { background-color: rgba(239, 68, 68, 0.1); }
 .bg-category-wishlist { background-color: rgba(219, 39, 119, 0.1); }
+.bg-category-affirmations { background-color: rgba(217, 70, 239, 0.1); }
+.bg-category-makeup { background-color: rgba(236, 72, 153, 0.15); }
 
 /* Border colors for categories */
 .border-category-today { border-color: rgba(139, 35, 35, 0.3); }
@@ -200,6 +202,8 @@ body {
 .border-category-wellness { border-color: rgba(20, 184, 166, 0.3); }
 .border-category-fitness { border-color: rgba(239, 68, 68, 0.3); }
 .border-category-wishlist { border-color: rgba(219, 39, 119, 0.3); }
+.border-category-affirmations { border-color: rgba(217, 70, 239, 0.3); }
+.border-category-makeup { border-color: rgba(236, 72, 153, 0.3); }
 
 /* Floating Action Button */
 .fab-menu {

@@ -1,85 +1,83 @@
 'use client';
 
-import { useState, useMemo, useCallback, useEffect } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
-import { AnimatePresence } from 'framer-motion';
-import { Plus, Pencil, Trash2 } from 'lucide-react';
-import { sidequests as staticSidequests, type Sidequest } from '@/data/sidequests';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Plus, Trash2, Pencil } from 'lucide-react';
 import { EditorialNav } from '@/components/EditorialNav';
 import { AuthenticatedLayout } from '@/components/AuthenticatedLayout';
-import { QuestCard } from '@/components/sidequests';
-import { ContentRenderer } from '@/components/content-renderer';
-import { sidequestToContentData } from '@/lib/content-adapters';
+import { LoreCard, UploadLoreModal, EditLoreModal } from '@/components/internet-lore';
+import { loreItems as staticLoreItems, type LoreCategory, type LoreItem } from '@/data/internetLore';
 import { getContentByType, deleteContent } from '@/cms/actions';
-import type { ContentItem } from '@/cms/types';
-import { UploadSidequestModal } from '@/components/sidequests/UploadSidequestModal';
-import { EditSidequestModal } from '@/components/sidequests/EditSidequestModal';
-
-function cmsItemToSidequest(item: ContentItem): Sidequest {
-  const meta = item.metadata as Record<string, unknown>;
-  const payload = item.payload as Record<string, unknown>;
-  return {
-    id: item.id,
-    entryId: `SQ-${item.slug}`,
-    title: item.title,
-    description: (payload.description as string) || "",
-    category: (meta.category as string) || "",
-    difficulty: (meta.difficulty as Sidequest["difficulty"]) || "Medium",
-    xp: 0,
-    completed: false,
-    imageUrl: (payload.imageUrl as string) || item.coverImage || "",
-    questLog: (payload.questLog as string) || "",
-  };
-}
+import { cmsItemToLoreItem } from '@/cms/queries';
 
 // ─────────────────────────────────────────────
-// Main Page Content
+// Internet Lore — chaotic scrapbook archive
 // ─────────────────────────────────────────────
 
-function ArchivePageContent() {
+const TABS: { id: LoreCategory; label: string }[] = [
+  { id: 'pop-internet-core', label: 'Pop Internet Core' },
+  { id: 'lobotomy-core', label: 'Lobotomy Core' },
+  { id: 'hood-classics', label: 'Hood Classics' },
+];
+
+const EMPTY_MESSAGES: Record<LoreCategory, { title: string; subtitle: string }> = {
+  'pop-internet-core': { title: 'Pop Internet Core', subtitle: 'The lore is being gathered.' },
+  'lobotomy-core': { title: 'Lobotomy Core', subtitle: 'Brain cells not found.' },
+  'hood-classics': { title: 'Hood Classics', subtitle: 'If you know, you know.' },
+};
+
+function InternetLorePageContent() {
   const { data: session, status } = useSession();
-  const [selectedQuest, setSelectedQuest] = useState<Sidequest | null>(null);
-
-  const isAuthenticated = !!session;
-  const isAdmin = (session?.user as { role?: string } | undefined)?.role === "admin";
+  const [activeTab, setActiveTab] = useState<LoreCategory>('pop-internet-core');
 
   // CMS state
-  const [cmsSidequests, setCmsSidequests] = useState<Sidequest[]>([]);
+  const [cmsItems, setCmsItems] = useState<LoreItem[]>([]);
   const [showUploadModal, setShowUploadModal] = useState(false);
-  const [editingQuest, setEditingQuest] = useState<Sidequest | null>(null);
-  const [deletingQuest, setDeletingQuest] = useState<Sidequest | null>(null);
+  const [editingItem, setEditingItem] = useState<LoreItem | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const fetchCmsSidequests = useCallback(async () => {
+  const isAuthenticated = !!session;
+  const isAdmin = session?.user?.role === 'admin';
+
+  // Fetch CMS items
+  const fetchCmsItems = useCallback(async () => {
     try {
-      const items = await getContentByType("sidequest", { visibility: "published" });
-      setCmsSidequests(items.map(cmsItemToSidequest));
-    } catch (err) { console.error("Failed to load CMS sidequests:", err); }
+      const items = await getContentByType('internet-lore', { visibility: 'published' });
+      setCmsItems(items.map((item, i) => cmsItemToLoreItem(item, i)));
+    } catch {
+      // silently fail — static items still show
+    }
   }, []);
 
-  useEffect(() => { fetchCmsSidequests(); }, [fetchCmsSidequests]);
+  useEffect(() => {
+    fetchCmsItems();
+  }, [fetchCmsItems]);
 
-  // Merge static + CMS (CMS wins)
-  const allSidequests = useMemo(() => {
-    const cmsIds = new Set(cmsSidequests.map((s) => s.id));
-    const dedupedStatic = staticSidequests.filter((s) => !cmsIds.has(s.id));
-    return [...cmsSidequests, ...dedupedStatic];
-  }, [cmsSidequests]);
+  // Merge static + CMS items, filter by active tab
+  const filteredItems = useMemo(() => {
+    const all = [...staticLoreItems, ...cmsItems];
+    return all.filter((item) => item.category === activeTab);
+  }, [activeTab, cmsItems]);
 
-  const isCmsItem = useCallback((id: string) => id.startsWith("ci_"), []);
-
-  const handleDeleteConfirm = useCallback(async () => {
-    if (!deletingQuest) return;
+  // Delete handler
+  const handleDelete = async () => {
+    if (!deletingId) return;
     setIsDeleting(true);
     try {
-      const result = await deleteContent(deletingQuest.id);
-      if (result.success) { setDeletingQuest(null); fetchCmsSidequests(); }
-      else alert(result.error || "Failed to delete sidequest");
-    } catch { alert("Failed to delete sidequest"); }
-    finally { setIsDeleting(false); }
-  }, [deletingQuest, fetchCmsSidequests]);
+      const result = await deleteContent(deletingId);
+      if (result.success) {
+        await fetchCmsItems();
+      }
+    } catch {
+      // silently fail
+    } finally {
+      setIsDeleting(false);
+      setDeletingId(null);
+    }
+  };
 
-  // Loading state
   if (status === "loading") {
     return (
       <div className="muggu-bg min-h-screen flex items-center justify-center">
@@ -91,16 +89,16 @@ function ArchivePageContent() {
   const pageContent = (
     <div className="muggu-bg min-h-screen relative">
       {/* Fixed Navigation for public users */}
-      {!isAuthenticated && <EditorialNav currentSlug="sidequests" />}
-      
-      {/* Fixed Watermark - positioned to account for sidebar when authenticated */}
+      {!isAuthenticated && <EditorialNav currentSlug="internet-lore" />}
+
+      {/* Fixed Watermark */}
       {!isAuthenticated && (
-        <div 
+        <div
           className="fixed bottom-8 left-4 text-[#4A2C2A] text-sm font-light tracking-[0.3em] opacity-40 z-10"
-          style={{ 
-            writingMode: 'vertical-rl', 
+          style={{
+            writingMode: 'vertical-rl',
             transform: 'rotate(-180deg)',
-            textOrientation: 'mixed'
+            textOrientation: 'mixed',
           }}
         >
           DIGITAL TWIN // 2026
@@ -111,92 +109,182 @@ function ArchivePageContent() {
       <div className="relative z-[1] max-w-7xl mx-auto px-6 lg:px-12 py-10 lg:py-16">
         {/* Hero Header */}
         <header className="mb-10 lg:mb-16">
-          <div className="space-y-2 mb-4">
-            <h1 
-              className="text-6xl lg:text-8xl font-serif font-normal text-[#4A2C2A] tracking-tight leading-none"
-              style={{ fontFamily: "'Playfair Display', Georgia, serif" }}
+          <div className="space-y-0 mb-5">
+            <h1
+              className="text-7xl lg:text-9xl font-normal text-[#3A2018] tracking-tight leading-[0.9]"
+              style={{ fontFamily: "var(--font-instrument), 'Playfair Display', Georgia, serif" }}
             >
-              Side
+              Internet
             </h1>
-            <h1 
-              className="text-6xl lg:text-8xl font-serif italic text-[#8A2424] tracking-tight leading-none ml-16 lg:ml-32"
-              style={{ fontFamily: "'Playfair Display', Georgia, serif" }}
+            <h1
+              className="text-6xl lg:text-8xl italic text-[#8A2424] tracking-tight leading-[0.95] ml-4 lg:ml-8 -mt-1"
+              style={{ fontFamily: "var(--font-dancing), cursive" }}
             >
-              Quests
+              Lore
             </h1>
           </div>
-          <p 
-            className="max-w-xl text-[#4A2C2A] text-base lg:text-lg font-light tracking-wide leading-relaxed ml-0 lg:ml-8"
-            style={{ fontFamily: "'Inter', system-ui, sans-serif", letterSpacing: '0.05em' }}
+          <p
+            className="max-w-md text-[#4A2C2A]/70 text-sm lg:text-base font-light italic leading-relaxed ml-0 lg:ml-2"
+            style={{ fontFamily: "var(--font-inter), system-ui, sans-serif", letterSpacing: '0.02em' }}
           >
-            I am just a girl standing in front of a hobby asking it to become her whole brand. (knowing damn well this is a three-week phase.)
+            A digital archive of things we shouldn&apos;t remember,<br />
+            but can&apos;t forget.
           </p>
+        </header>
+
+        {/* Toolbar: Tabs + Admin add button */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+          {/* Tabs */}
+          <nav className="flex gap-0.5 border-b border-[#4A2C2A]/10">
+            {TABS.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`
+                  px-4 py-2.5 text-[10px] sm:text-xs font-semibold uppercase tracking-[0.15em] transition-all relative whitespace-nowrap
+                  ${activeTab === tab.id
+                    ? 'text-[#802626]'
+                    : 'text-[#4A2C2A]/35 hover:text-[#4A2C2A]/60'
+                  }
+                `}
+                style={{ fontFamily: "var(--font-inter), system-ui, sans-serif" }}
+              >
+                {tab.label}
+                {activeTab === tab.id && (
+                  <motion.span
+                    layoutId="lore-tab-indicator"
+                    className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#802626]"
+                    transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                  />
+                )}
+              </button>
+            ))}
+          </nav>
+
+          {/* Admin: Add Content */}
           {isAdmin && (
             <button
               onClick={() => setShowUploadModal(true)}
-              className="mt-4 ml-0 lg:ml-8 flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium bg-[#802626] text-white hover:bg-[#6b1f1f] transition-colors"
+              className="flex items-center gap-1.5 px-4 py-2 rounded-full text-[10px] font-semibold uppercase tracking-[0.12em] bg-[#802626] text-white hover:bg-[#6b1f1f] transition-colors shadow-sm"
+              style={{ fontFamily: "var(--font-inter), system-ui, sans-serif" }}
             >
-              <Plus className="h-4 w-4" />
-              Add Sidequest
+              <Plus className="w-3.5 h-3.5" />
+              Add Lore
             </button>
           )}
-        </header>
-
-        {/* Editorial Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-4 lg:gap-x-6 gap-y-6 lg:gap-y-8">
-          {allSidequests.map((quest, index) => (
-            <div key={quest.id} className="relative group">
-              <QuestCard 
-                quest={quest} 
-                index={index}
-                onClick={() => setSelectedQuest(quest)} 
-              />
-              {isAdmin && isCmsItem(quest.id) && (
-                <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-10">
-                  <button onClick={(e) => { e.stopPropagation(); setEditingQuest(quest); }} className="p-1.5 rounded-full bg-white/90 text-gray-700 hover:bg-white shadow-sm"><Pencil className="h-3.5 w-3.5" /></button>
-                  <button onClick={(e) => { e.stopPropagation(); setDeletingQuest(quest); }} className="p-1.5 rounded-full bg-white/90 text-red-600 hover:bg-white shadow-sm"><Trash2 className="h-3.5 w-3.5" /></button>
-                </div>
-              )}
-            </div>
-          ))}
         </div>
+
+        {/* Masonry Grid */}
+        <AnimatePresence mode="wait">
+          {filteredItems.length === 0 ? (
+            <motion.div
+              key="empty"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="text-center py-20"
+            >
+              <p
+                className="text-2xl text-[#4A2C2A]/25 mb-2"
+                style={{ fontFamily: "var(--font-instrument), 'Playfair Display', Georgia, serif" }}
+              >
+                {EMPTY_MESSAGES[activeTab].title}
+              </p>
+              <p className="text-sm text-[#4A2C2A]/30">
+                {EMPTY_MESSAGES[activeTab].subtitle}
+              </p>
+            </motion.div>
+          ) : (
+            <motion.div
+              key={activeTab}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.3 }}
+              className="columns-2 md:columns-3 lg:columns-4 gap-4 lg:gap-5"
+            >
+              {filteredItems.map((item, index) => (
+                <div key={item.id} className="relative group/card">
+                  <LoreCard
+                    item={item}
+                    index={index}
+                    chaosMode={false}
+                  />
+                  {/* Admin edit/delete overlay for CMS items */}
+                  {isAdmin && item._cmsId && (
+                    <div className="absolute top-3 left-3 z-20 flex gap-1.5 opacity-0 group-hover/card:opacity-100 transition-opacity duration-200">
+                      <button
+                        onClick={(e) => { e.stopPropagation(); setEditingItem(item); }}
+                        className="p-1.5 bg-white/90 backdrop-blur-sm rounded-md shadow-sm border border-[#D4C4B0]/30 hover:bg-[#802626] hover:text-white text-[#4A2C2A]/60 transition-colors"
+                        title="Edit"
+                      >
+                        <Pencil className="w-3 h-3" />
+                      </button>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); setDeletingId(item._cmsId!); }}
+                        className="p-1.5 bg-white/90 backdrop-blur-sm rounded-md shadow-sm border border-[#D4C4B0]/30 hover:bg-red-600 hover:text-white text-[#4A2C2A]/60 transition-colors"
+                        title="Delete"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Footer count */}
+        {filteredItems.length > 0 && (
+          <div className="mt-12 text-center">
+            <p
+              className="text-[10px] uppercase tracking-[0.2em] text-[#4A2C2A]/25"
+              style={{ fontFamily: "var(--font-inter), system-ui, sans-serif" }}
+            >
+              {filteredItems.length} artifact{filteredItems.length !== 1 ? 's' : ''} catalogued
+            </p>
+          </div>
+        )}
       </div>
 
-      {/* Modal */}
-      <AnimatePresence>
-        {selectedQuest && (
-          <ContentRenderer
-            type="split-detail"
-            data={sidequestToContentData(selectedQuest)}
-            onClose={() => setSelectedQuest(null)} 
-            layoutVariant="default"
-          />
-        )}
-      </AnimatePresence>
-
-      {/* Admin: Upload/Edit/Delete Sidequest Modals */}
+      {/* Upload Modal */}
       {showUploadModal && (
-        <UploadSidequestModal
+        <UploadLoreModal
           onClose={() => setShowUploadModal(false)}
-          onSuccess={() => { setShowUploadModal(false); fetchCmsSidequests(); }}
+          onSuccess={fetchCmsItems}
         />
       )}
-      {editingQuest && (
-        <EditSidequestModal
-          sidequest={editingQuest}
-          onClose={() => setEditingQuest(null)}
-          onSuccess={() => { setEditingQuest(null); fetchCmsSidequests(); }}
+
+      {/* Edit Modal */}
+      {editingItem && (
+        <EditLoreModal
+          item={editingItem}
+          onClose={() => setEditingItem(null)}
+          onSuccess={fetchCmsItems}
         />
       )}
-      {deletingQuest && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl p-6 max-w-sm w-full space-y-4">
-            <h3 className="text-lg font-semibold">Delete Sidequest</h3>
-            <p className="text-sm text-gray-600">Are you sure you want to delete &ldquo;{deletingQuest.title}&rdquo;? This cannot be undone.</p>
-            <div className="flex gap-2 justify-end">
-              <button onClick={() => setDeletingQuest(null)} className="px-4 py-2 text-sm rounded-lg border border-gray-200 hover:bg-gray-50">Cancel</button>
-              <button onClick={handleDeleteConfirm} disabled={isDeleting} className="px-4 py-2 text-sm rounded-lg bg-red-600 text-white hover:bg-red-700 disabled:opacity-50">
-                {isDeleting ? "Deleting..." : "Delete"}
+
+      {/* Delete Confirmation */}
+      {deletingId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setDeletingId(null)} />
+          <div className="relative bg-white rounded-xl shadow-2xl w-full max-w-sm mx-4 p-6 border border-gray-200">
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Delete Lore Entry?</h3>
+            <p className="text-sm text-gray-500 mb-5">This action cannot be undone. The entry will be permanently removed.</p>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setDeletingId(null)}
+                className="px-4 py-2 text-sm rounded-lg border border-gray-200 hover:bg-gray-50 text-gray-600"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDelete}
+                disabled={isDeleting}
+                className="px-4 py-2 text-sm rounded-lg bg-red-600 text-white hover:bg-red-700 disabled:opacity-50"
+              >
+                {isDeleting ? 'Deleting...' : 'Delete'}
               </button>
             </div>
           </div>
@@ -216,6 +304,6 @@ function ArchivePageContent() {
 // Export
 // ─────────────────────────────────────────────
 
-export default function ArchivePage() {
-  return <ArchivePageContent />;
+export default function InternetLorePage() {
+  return <InternetLorePageContent />;
 }

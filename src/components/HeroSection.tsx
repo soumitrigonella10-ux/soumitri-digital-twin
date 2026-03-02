@@ -76,7 +76,7 @@ export function HeroSection() {
 
       {/* Scroll indicator */}
       <a 
-        href="#sidequests"
+        href="#internet-lore"
         className="absolute bottom-8 left-8 flex items-center gap-2 text-xs tracking-widest uppercase animate-bounce hover:opacity-80 transition-opacity cursor-pointer"
         style={{ color: '#FFB300' }}
       >

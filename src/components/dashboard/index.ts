@@ -4,6 +4,7 @@ export { DashboardRoutineColumn } from "./DashboardRoutineColumn";
 export { RoutinesSection } from "./RoutinesSection";
 export { FitnessSection } from "./FitnessSection";
 export { WellnessSection } from "./WellnessSection";
+export { AffirmationsSection } from "./AffirmationsSection";
 export { TimeSectionTabs } from "./TimeSectionTabs";
 export { TimeSection } from "./TimeSection";
 export { BODY_AREAS, MEAL_THEMES, getTodayProducts } from "./constants";

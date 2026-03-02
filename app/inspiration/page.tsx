@@ -1,16 +1,77 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import type { InspirationFragment } from '@/data/artifacts';
-import { inspirations } from '@/data/artifacts';
+import { inspirations as staticInspirations } from '@/data/artifacts';
 import { EditorialNav } from '@/components/EditorialNav';
 import { AuthenticatedLayout } from '@/components/AuthenticatedLayout';
-import { Play } from 'lucide-react';
+import { AddInspirationModal } from '@/components/inspiration/AddInspirationModal';
+import { EditInspirationModal } from '@/components/inspiration/EditInspirationModal';
+import { getContentByType, deleteContent } from '@/cms/actions';
+import type { ContentItem as CmsContentItem } from '@/cms/types';
+import { Play, Pencil, Trash2 } from 'lucide-react';
+
+function cmsToInspiration(item: CmsContentItem): InspirationFragment {
+  const meta = item.metadata as Record<string, unknown>;
+  const payload = item.payload as Record<string, unknown>;
+  const result: InspirationFragment = {
+    id: item.id,
+    type: (meta.inspirationType as InspirationFragment['type']) || 'image',
+    content: (payload.content as string) || item.title,
+  };
+  const source = payload.source as string;
+  if (source) result.source = source;
+  const subtitle = payload.subtitle as string;
+  if (subtitle) result.subtitle = subtitle;
+  const bg = payload.backgroundColor as string;
+  if (bg) result.backgroundColor = bg;
+  const accent = payload.accentColor as string;
+  if (accent) result.accentColor = accent;
+  return result;
+}
 
 function InspirationPageContent() {
   const { data: session, status } = useSession();
   const isAuthenticated = !!session;
+  const isAdmin = (session?.user as { role?: string } | undefined)?.role === 'admin';
+
+  // CMS CRUD state
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [editingItem, setEditingItem] = useState<InspirationFragment | null>(null);
+  const [deletingItem, setDeletingItem] = useState<InspirationFragment | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [cmsItems, setCmsItems] = useState<InspirationFragment[]>([]);
+
+  const isCmsItem = useCallback((item: InspirationFragment) => item.id.startsWith('ci_'), []);
+
+  const fetchCmsItems = useCallback(async () => {
+    try {
+      const items = await getContentByType('inspiration', { visibility: 'published' });
+      setCmsItems(items.map(cmsToInspiration));
+    } catch (err) {
+      console.error('Failed to load CMS inspiration items:', err);
+    }
+  }, []);
+
+  useEffect(() => { fetchCmsItems(); }, [fetchCmsItems]);
+
+  const handleDeleteConfirm = useCallback(async () => {
+    if (!deletingItem) return;
+    setIsDeleting(true);
+    try {
+      const result = await deleteContent(deletingItem.id);
+      if (result.success) { setDeletingItem(null); fetchCmsItems(); }
+      else { alert(result.error || 'Failed to delete'); }
+    } catch { alert('Failed to delete'); } finally { setIsDeleting(false); }
+  }, [deletingItem, fetchCmsItems]);
+
+  // Merge: CMS wins on matching content text
+  const inspirations = useMemo(() => {
+    const cmsContentSet = new Set(cmsItems.map(i => i.content.toLowerCase()));
+    const filtered = staticInspirations.filter(i => !cmsContentSet.has(i.content.toLowerCase()));
+    return [...cmsItems, ...filtered];
+  }, [cmsItems]);
 
   // Loading state
   if (status === "loading") {
@@ -26,7 +87,7 @@ function InspirationPageContent() {
       {!isAuthenticated && <EditorialNav currentSlug="inspiration" />}
       
       {/* Inspiration Board Section */}
-      <section className="inspiration-section">
+      <section className="inspiration-section relative">
         <div className="inspiration-header">
           <h2 className="inspiration-title">Inspiration Board</h2>
           <p className="inspiration-subtitle">Small fragments of influence—tacked on, torn out, and treasured</p>
@@ -34,13 +95,71 @@ function InspirationPageContent() {
             <span>{inspirations.length} Fragments</span>
           </div>
         </div>
+        {isAdmin && (
+          <div className="absolute top-6 right-6 md:top-8 md:right-8 z-10">
+            <button
+              onClick={() => setShowAddModal(true)}
+              className="font-editorial text-[11px] font-semibold uppercase tracking-[0.12em] text-white bg-[#802626] hover:bg-[#6b1f1f] px-5 py-2.5 rounded-md shadow-md transition-colors"
+            >
+              Add Content
+            </button>
+          </div>
+        )}
         
         <div className="inspiration-masonry">
-          {inspirations.map((inspiration) => (
-            <InspirationCard key={inspiration.id} inspiration={inspiration} />
-          ))}
+          {inspirations.length === 0 ? (
+            <div className="col-span-full w-full text-center py-20" style={{ columnSpan: 'all' }}>
+              <p className="font-serif text-2xl text-[#802626]/40 mb-2">No fragments yet</p>
+              <p className="text-sm text-[#C4B6A6]">
+                {isAdmin ? 'Tap "Add Content" to pin your first inspiration.' : 'Check back soon for curated inspirations.'}
+              </p>
+            </div>
+          ) : (
+            inspirations.map((inspiration) => (
+              <InspirationCard
+                key={inspiration.id}
+                inspiration={inspiration}
+                isAdmin={isAdmin}
+                isCms={isCmsItem(inspiration)}
+                onEdit={setEditingItem}
+                onDelete={setDeletingItem}
+              />
+            ))
+          )}
         </div>
       </section>
+
+
+
+      {showAddModal && (
+        <AddInspirationModal
+          onClose={() => setShowAddModal(false)}
+          onPublished={() => { setShowAddModal(false); fetchCmsItems(); }}
+        />
+      )}
+
+      {editingItem && (
+        <EditInspirationModal
+          item={editingItem}
+          onClose={() => setEditingItem(null)}
+          onSaved={() => { setEditingItem(null); fetchCmsItems(); }}
+        />
+      )}
+
+      {deletingItem && (
+        <div className="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg p-6 max-w-sm w-full shadow-xl">
+            <h3 className="font-serif text-lg text-gray-900 mb-2">Delete this inspiration?</h3>
+            <p className="text-sm text-gray-500 mb-6">This action cannot be undone.</p>
+            <div className="flex gap-3 justify-end">
+              <button onClick={() => setDeletingItem(null)} className="px-4 py-2 text-sm text-gray-600 hover:text-gray-800">Cancel</button>
+              <button onClick={handleDeleteConfirm} disabled={isDeleting} className="px-4 py-2 text-sm bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-50">
+                {isDeleting ? 'Deleting...' : 'Delete'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 
@@ -61,9 +180,13 @@ export default function InspirationPage() {
 
 interface InspirationCardProps {
   inspiration: InspirationFragment;
+  isAdmin?: boolean;
+  isCms?: boolean;
+  onEdit?: (item: InspirationFragment) => void;
+  onDelete?: (item: InspirationFragment) => void;
 }
 
-function InspirationCard({ inspiration }: InspirationCardProps) {
+function InspirationCard({ inspiration, isAdmin, isCms, onEdit, onDelete }: InspirationCardProps) {
   const [isHovered, setIsHovered] = useState(false);
 
   // Generate semi-random rotation based on ID for consistency
@@ -171,6 +294,13 @@ function InspirationCard({ inspiration }: InspirationCardProps) {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
+      {/* Admin controls */}
+      {isAdmin && isCms && isHovered && (
+        <div className="absolute top-2 right-2 z-10 flex gap-1">
+          <button onClick={(e) => { e.stopPropagation(); onEdit?.(inspiration); }} className="p-1.5 bg-white/90 rounded-full shadow hover:bg-white"><Pencil className="w-3.5 h-3.5 text-gray-600" /></button>
+          <button onClick={(e) => { e.stopPropagation(); onDelete?.(inspiration); }} className="p-1.5 bg-white/90 rounded-full shadow hover:bg-white"><Trash2 className="w-3.5 h-3.5 text-red-500" /></button>
+        </div>
+      )}
       {renderContent()}
     </div>
   );

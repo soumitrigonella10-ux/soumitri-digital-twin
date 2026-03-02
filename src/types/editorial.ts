@@ -44,6 +44,8 @@ export interface ContentItem {
   comment?: string;
   /** URL for watching (films, shows, etc.) */
   watchUrl?: string;
+  /** Highlight this item as a top pick */
+  topPick?: boolean;
 }
 
 // ── Essays ───────────────────────────────

@@ -41,4 +41,12 @@ export {
   skillMetadataSchema,
   sidequestPayloadSchema,
   sidequestMetadataSchema,
+  consumptionPayloadSchema,
+  consumptionMetadataSchema,
+  inspirationPayloadSchema,
+  inspirationMetadataSchema,
+  wishlistPayloadSchema,
+  wishlistMetadataSchema,
+  designThoughtPayloadSchema,
+  designThoughtMetadataSchema,
 } from "./schemas";

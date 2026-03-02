@@ -1,6 +1,6 @@
 "use client";
 
-import { Coffee, UtensilsCrossed, Moon, Dumbbell, Sparkles, Heart } from "lucide-react";
+import { Coffee, UtensilsCrossed, Moon, Dumbbell, Sparkles, Heart, Flame } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { TimeOfDay } from "@/types";
 
@@ -15,15 +15,18 @@ const TAB_DEFINITIONS: Record<TimeOfDay, { id: string; label: string; icon: Reac
     { id: "breakfast", label: "Food", icon: <Coffee className="w-4 h-4" /> },
     { id: "fitness", label: "Fitness", icon: <Dumbbell className="w-4 h-4" /> },
     { id: "routines", label: "Routines", icon: <Sparkles className="w-4 h-4" /> },
+    { id: "affirmations", label: "Affirmations", icon: <Flame className="w-4 h-4" /> },
     { id: "wellness", label: "Wellness", icon: <Heart className="w-4 h-4" /> },
   ],
   MIDDAY: [
     { id: "lunch", label: "Food", icon: <UtensilsCrossed className="w-4 h-4" /> },
+    { id: "affirmations", label: "Affirmations", icon: <Flame className="w-4 h-4" /> },
     { id: "wellness", label: "Wellness", icon: <Heart className="w-4 h-4" /> },
   ],
   PM: [
     { id: "dinner", label: "Food", icon: <Moon className="w-4 h-4" /> },
     { id: "routines", label: "Routines", icon: <Sparkles className="w-4 h-4" /> },
+    { id: "affirmations", label: "Affirmations", icon: <Flame className="w-4 h-4" /> },
     { id: "wellness", label: "Wellness", icon: <Heart className="w-4 h-4" /> },
   ],
   ANY: [],

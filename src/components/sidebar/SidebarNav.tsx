@@ -128,6 +128,8 @@ export function Sidebar() {
                               <ChevronRight className="w-4 h-4 text-gray-400" />
                             )}
                           </button>
+                        ) : cat.badgeIcon ? (
+                          <cat.badgeIcon className="w-3.5 h-3.5 text-gray-400 ml-auto" />
                         ) : isActive ? (
                           <ChevronRight className="w-4 h-4 text-gray-400 ml-auto" />
                         ) : null}

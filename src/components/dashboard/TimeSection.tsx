@@ -8,6 +8,7 @@ import { MealSection } from "./MealSection";
 import { FitnessSection } from "./FitnessSection";
 import { RoutinesSection } from "./RoutinesSection";
 import { WellnessSection } from "./WellnessSection";
+import { AffirmationsSection } from "./AffirmationsSection";
 
 // ─── Config per time period ───
 
@@ -94,6 +95,16 @@ function TabContent({
       return (
         <WellnessSection
           products={products}
+          dayOfWeek={dayOfWeek}
+          timeOfDay={timeOfDay}
+          dateKey={dateKey}
+          getProductCompletion={getProductCompletion}
+          toggleProductCompletion={toggleProductCompletion}
+        />
+      );
+    case "affirmations":
+      return (
+        <AffirmationsSection
           dayOfWeek={dayOfWeek}
           timeOfDay={timeOfDay}
           dateKey={dateKey}

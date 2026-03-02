@@ -2,7 +2,6 @@
 
 import { Suspense, useState, useMemo, useCallback, useEffect } from "react";
 import { useSession } from "next-auth/react";
-import { Plus } from "lucide-react";
 import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
 import { EditorialNav } from "@/components/EditorialNav";
 import { ContentRenderer } from "@/components/content-renderer";
@@ -162,13 +161,12 @@ function EssaysPageContent() {
       <div className="relative">
         <EssaysHeroSection />
         {isAdmin && (
-          <div className="absolute top-12 right-6 md:top-16 md:right-8 lg:right-[calc((100%-1200px)/2+2rem)]">
+          <div className="absolute top-6 right-6 md:top-8 md:right-8 z-10">
             <button
               onClick={() => setShowUploadModal(true)}
-              className="flex items-center gap-1.5 font-editorial text-[11px] font-semibold uppercase tracking-[0.12em] text-white bg-stone-900 hover:bg-stone-800 px-4 py-2 rounded-full shadow-md transition-colors"
+              className="font-editorial text-[11px] font-semibold uppercase tracking-[0.12em] text-white bg-[#802626] hover:bg-[#6b1f1f] px-5 py-2.5 rounded-md shadow-md transition-colors"
             >
-              <Plus className="h-3.5 w-3.5" />
-              Essay
+              Add Content
             </button>
           </div>
         )}

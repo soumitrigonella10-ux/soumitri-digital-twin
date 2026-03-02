@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { Heart, Check, ExternalLink } from "lucide-react";
+import { Heart, Check, ExternalLink, Pencil, Trash2 } from "lucide-react";
 import type { WishlistItem } from "@/types";
 import { cn } from "@/lib/utils";
 
@@ -9,9 +9,13 @@ interface WishlistItemCardProps {
   item: WishlistItem;
   isSelected: boolean;
   onSelect: (item: WishlistItem) => void;
+  isAdmin?: boolean | undefined;
+  isCms?: boolean | undefined;
+  onEdit?: ((item: WishlistItem) => void) | undefined;
+  onDelete?: ((item: WishlistItem) => void) | undefined;
 }
 
-export function WishlistItemCard({ item, isSelected, onSelect }: WishlistItemCardProps) {
+export function WishlistItemCard({ item, isSelected, onSelect, isAdmin, isCms, onEdit, onDelete }: WishlistItemCardProps) {
   return (
     <div
       className={cn(
@@ -23,6 +27,13 @@ export function WishlistItemCard({ item, isSelected, onSelect }: WishlistItemCar
     >
       {/* Image area with priority badge */}
       <div className="relative bg-gradient-to-br from-[#FDF5E6] to-[#FAF0E0]">
+        {/* Admin controls */}
+        {isAdmin && isCms && (
+          <div className="absolute top-3 right-3 z-20 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
+            <button onClick={(e) => { e.stopPropagation(); onEdit?.(item); }} className="p-1.5 bg-white/90 rounded-full shadow hover:bg-white"><Pencil className="w-3.5 h-3.5 text-gray-600" /></button>
+            <button onClick={(e) => { e.stopPropagation(); onDelete?.(item); }} className="p-1.5 bg-white/90 rounded-full shadow hover:bg-white"><Trash2 className="w-3.5 h-3.5 text-red-500" /></button>
+          </div>
+        )}
         {item.priority && (
           <div className="absolute top-3 left-3 z-10">
             <span

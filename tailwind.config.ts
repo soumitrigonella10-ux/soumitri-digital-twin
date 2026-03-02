@@ -31,6 +31,7 @@ const config: Config = {
           dinner: "#4338ca",     // Dark Indigo
           grocery: "#64748b",    // Slate
           fitness: "#ef4444",    // Red
+          affirmations: "#d946ef", // Fuchsia
         },
         brand: {
           DEFAULT: "#111827",

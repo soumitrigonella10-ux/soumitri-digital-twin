@@ -1,10 +1,14 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import { useSession } from "next-auth/react";
-import { Play, Film, BookOpen, ChevronDown } from "lucide-react";
+import { Play, Film, BookOpen, ChevronDown, Star, Search, ArrowUpRight, Pencil, Trash2 } from "lucide-react";
 import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
 import { EditorialNav } from "@/components/EditorialNav";
+import { AddConsumptionModal } from "@/components/consumption/AddConsumptionModal";
+import { EditConsumptionModal } from "@/components/consumption/EditConsumptionModal";
+import { getContentByType, deleteContent } from "@/cms/actions";
+import type { ContentItem as CmsContentItem } from "@/cms/types";
 import {
   getItemsBySubChip,
   getItemsByType,
@@ -14,10 +18,37 @@ import {
   CONTENT_TYPES,
   SUB_CHIPS,
   type ContentItem,
-  type ContentType,
   type ContentFilter,
   type ContentSubChip,
 } from "@/data/consumption";
+
+// Convert CMS item → editorial ContentItem
+function cmsToContentItem(item: CmsContentItem): ContentItem {
+  const meta = item.metadata as Record<string, unknown>;
+  const payload = item.payload as Record<string, unknown>;
+  const result: ContentItem = {
+    id: item.id,
+    type: (meta.contentType as ContentItem["type"]) || "book",
+    title: item.title,
+    author: (payload.author as string) || "",
+    description: (payload.description as string) || "",
+    metadata: (meta.metadataText as string) || "",
+    status: (meta.status as ContentItem["status"]) || "QUEUED",
+    aspectRatio: (payload.aspectRatio as ContentItem["aspectRatio"]) || "3/4",
+  };
+  const imageUrl = (payload.imageUrl as string) || (item.coverImage as string);
+  if (imageUrl) result.imageUrl = imageUrl;
+  const language = meta.language as string;
+  if (language) result.language = language;
+  const genre = meta.genre as string;
+  if (genre) result.genre = genre;
+  const comment = payload.comment as string;
+  if (comment) result.comment = comment;
+  const watchUrl = payload.watchUrl as string;
+  if (watchUrl) result.watchUrl = watchUrl;
+  if (meta.topPick === true) result.topPick = true;
+  return result;
+}
 
 // ─────────────────────────────────────────────
 // Sub-components
@@ -80,21 +111,32 @@ function SubChipBar({
   onChange: (chip: ContentSubChip) => void;
 }) {
   return (
-    <div className="max-w-7xl mx-auto px-6 md:px-8 lg:px-12 pb-4">
-      <div className="flex flex-wrap gap-2">
-        {SUB_CHIPS.map((chip) => (
-          <button
-            key={chip}
-            onClick={() => onChange(chip)}
-            className={`px-3 py-1.5 rounded-full text-xs font-medium tracking-wide transition-all border ${
-              active === chip
-                ? "bg-[#802626] text-white border-[#802626]"
-                : "bg-transparent text-gray-500 border-gray-300 hover:border-gray-400 hover:text-gray-700"
-            }`}
-          >
-            {chip}
-          </button>
-        ))}
+    <div className="max-w-7xl mx-auto px-6 md:px-8 lg:px-12 pb-0">
+      <div className="flex items-center justify-between border-b border-gray-200">
+        {/* Tabs */}
+        <div className="flex gap-8">
+          {SUB_CHIPS.map((chip) => (
+            <button
+              key={chip}
+              onClick={() => onChange(chip)}
+              className={`pb-3 text-[11px] font-semibold tracking-[0.12em] uppercase transition-all relative ${
+                active === chip
+                  ? "text-gray-900"
+                  : "text-gray-400 hover:text-gray-600"
+              }`}
+            >
+              {chip}
+              {active === chip && (
+                <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-gray-900 rounded-full" />
+              )}
+            </button>
+          ))}
+        </div>
+        {/* Decorative icons */}
+        <div className="flex items-center gap-3 pb-3 text-gray-300">
+          <Search className="w-3.5 h-3.5" />
+          <ArrowUpRight className="w-3.5 h-3.5" />
+        </div>
       </div>
     </div>
   );
@@ -185,18 +227,42 @@ function EssayCard({ item }: { item: ContentItem }) {
   );
 }
 
-function ContentCard({ item }: { item: ContentItem }) {
+function ContentCard({ item, isAdmin, isCms, onEdit, onDelete }: {
+  item: ContentItem;
+  isAdmin?: boolean;
+  isCms?: boolean;
+  onEdit?: (item: ContentItem) => void;
+  onDelete?: (item: ContentItem) => void;
+}) {
   if (item.type === "essay") {
-    return <EssayCard item={item} />;
+    return (
+      <div className="relative group">
+        <EssayCard item={item} />
+        {isAdmin && isCms && (
+          <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
+            <button onClick={() => onEdit?.(item)} className="p-1.5 bg-white/90 rounded-full shadow hover:bg-white"><Pencil className="w-3.5 h-3.5 text-gray-600" /></button>
+            <button onClick={() => onDelete?.(item)} className="p-1.5 bg-white/90 rounded-full shadow hover:bg-white"><Trash2 className="w-3.5 h-3.5 text-red-500" /></button>
+          </div>
+        )}
+      </div>
+    );
   }
 
   return (
-    <article className="consumption-card">
+    <article className="consumption-card relative group">
       {/* Visual Container with Status Badge */}
       <div className="relative">
         <ContentCardVisual item={item} />
         <div className="consumption-badge">{item.status}</div>
       </div>
+
+      {/* Admin hover controls */}
+      {isAdmin && isCms && (
+        <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1 z-10">
+          <button onClick={() => onEdit?.(item)} className="p-1.5 bg-white/90 rounded-full shadow hover:bg-white"><Pencil className="w-3.5 h-3.5 text-gray-600" /></button>
+          <button onClick={() => onDelete?.(item)} className="p-1.5 bg-white/90 rounded-full shadow hover:bg-white"><Trash2 className="w-3.5 h-3.5 text-red-500" /></button>
+        </div>
+      )}
 
       {/* Typography Section */}
       <div>
@@ -214,76 +280,43 @@ function SideDecoration() {
 }
 
 // ─────────────────────────────────────────────
-// Completed — compact filterable list view
+// Library — filterable list (all non-queued items)
 // ─────────────────────────────────────────────
 
 const TYPE_ICON: Record<string, React.ReactNode> = {
-  book: <BookOpen className="w-3.5 h-3.5" />,
-  essay: <BookOpen className="w-3.5 h-3.5" />,
-  movie: <Film className="w-3.5 h-3.5" />,
-  series: <Film className="w-3.5 h-3.5" />,
-  video: <Play className="w-3.5 h-3.5" />,
-  playlist: <Play className="w-3.5 h-3.5" />,
+  book: <BookOpen className="w-4 h-4" />,
+  essay: <BookOpen className="w-4 h-4" />,
+  movie: <Film className="w-4 h-4" />,
+  series: <Film className="w-4 h-4" />,
+  video: <Play className="w-4 h-4" />,
+  playlist: <Play className="w-4 h-4" />,
 };
 
-function CompletedListView({ activeFilter }: { activeFilter: ContentFilter }) {
+const STATUS_LABEL: Partial<Record<string, string>> = {
+  "CURRENTLY READING": "Reading",
+  "CURRENTLY WATCHING": "Watching",
+  "LISTENING": "Listening",
+};
+
+function LibraryListView({ activeFilter }: { activeFilter: ContentFilter }) {
   const [langFilter, setLangFilter] = useState<string | null>(null);
   const [genreFilter, setGenreFilter] = useState<string | null>(null);
-  const [subTypeFilter, setSubTypeFilter] = useState<ContentType | null>(null);
 
   const filterType = activeFilter === "Playlists" ? undefined : activeFilter;
 
   const languages = useMemo(() => getCompletedLanguages(filterType), [filterType]);
   const genres = useMemo(() => getCompletedGenres(filterType), [filterType]);
   const items = useMemo(
-    () => getCompletedItems(
-      filterType,
-      langFilter ?? undefined,
-      genreFilter ?? undefined,
-      subTypeFilter ?? undefined
-    ),
-    [filterType, langFilter, genreFilter, subTypeFilter]
+    () => getCompletedItems(filterType, langFilter ?? undefined, genreFilter ?? undefined),
+    [filterType, langFilter, genreFilter]
   );
 
-  // Determine which dropdowns to show based on active tab
-  const showTypeDropdown = activeFilter === "Books & Essays" || activeFilter === "Movies & Series";
-  const showLangDropdown = activeFilter !== "Books & Essays"; // hide lang for Books & Essays
-
-  // Type dropdown options per tab
-  const typeOptions: { value: ContentType; label: string }[] = useMemo(() => {
-    if (activeFilter === "Books & Essays") return [
-      { value: "book", label: "Books" },
-      { value: "essay", label: "Essays" },
-    ];
-    if (activeFilter === "Movies & Series") return [
-      { value: "movie", label: "Movies" },
-      { value: "series", label: "Series" },
-    ];
-    return [];
-  }, [activeFilter]);
+  const showLangDropdown = activeFilter !== "Books" && activeFilter !== "Essays";
 
   return (
-    <div className="max-w-7xl mx-auto px-6 md:px-8 lg:px-12 pb-20">
-      {/* Filter bar: dropdowns right-aligned */}
-      <div className="flex items-center justify-end gap-3 mb-5">
-        {/* Type dropdown (Books & Essays / Movies & Series) */}
-        {showTypeDropdown && (
-          <div className="relative">
-            <select
-              value={subTypeFilter ?? ""}
-              onChange={(e) => setSubTypeFilter((e.target.value || null) as ContentType | null)}
-              className="completed-dropdown"
-            >
-              <option value="">All Types</option>
-              {typeOptions.map((opt) => (
-                <option key={opt.value} value={opt.value}>{opt.label}</option>
-              ))}
-            </select>
-            <ChevronDown className="completed-dropdown-icon" />
-          </div>
-        )}
-
-        {/* Language dropdown (hidden for Books & Essays) */}
+    <div className="max-w-7xl mx-auto px-6 md:px-8 lg:px-12 pb-20 pt-6">
+      {/* Filter controls */}
+      <div className="flex items-center justify-end gap-3 mb-8">
         {showLangDropdown && (
           <div className="relative">
             <select
@@ -299,8 +332,6 @@ function CompletedListView({ activeFilter }: { activeFilter: ContentFilter }) {
             <ChevronDown className="completed-dropdown-icon" />
           </div>
         )}
-
-        {/* Genre dropdown */}
         <div className="relative">
           <select
             value={genreFilter ?? ""}
@@ -316,44 +347,76 @@ function CompletedListView({ activeFilter }: { activeFilter: ContentFilter }) {
         </div>
       </div>
 
-      {/* Compact list */}
       {items.length > 0 ? (
-        <ul className="completed-list">
-          {items.map((item) => (
-            <li key={item.id} className="completed-row">
-              {/* Tiny type icon tile */}
-              <span className="completed-tile">
-                {TYPE_ICON[item.type] ?? <BookOpen className="w-3.5 h-3.5" />}
-              </span>
+        <ul className="divide-y divide-gray-100">
+          {items.map((item) => {
+            const inProgress = STATUS_LABEL[item.status];
+            return (
+              <li key={item.id} className="flex items-start gap-5 py-5 group">
+                {/* Icon tile */}
+                <div className={`mt-0.5 flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
+                  item.topPick
+                    ? "bg-[#802626] text-white"
+                    : "bg-gray-100 text-gray-400 group-hover:bg-gray-200"
+                }`}>
+                  {item.topPick
+                    ? <Star className="w-3.5 h-3.5" fill="currentColor" />
+                    : (TYPE_ICON[item.type] ?? <BookOpen className="w-4 h-4" />)
+                  }
+                </div>
 
-              {/* Title + author */}
-              <div className="completed-info">
-                <span className="completed-title">{item.title}</span>
-                <span className="completed-author">{item.author}</span>
-              </div>
+                {/* Title + author */}
+                <div className="flex-shrink-0 w-52">
+                  <p className="font-serif text-base text-gray-900 leading-snug">{item.title}</p>
+                  <p className="font-sans text-[11px] text-gray-400 tracking-wide uppercase mt-0.5">{item.author}</p>
+                </div>
 
-              {/* One-liner comment */}
-              {item.comment && (
-                <span className="completed-comment">{item.comment}</span>
-              )}
+                {/* Separator */}
+                <div className="self-stretch w-px bg-gray-200 flex-shrink-0 mx-1" />
 
-              {/* Right-side badges */}
-              <div className="completed-badges">
-                {item.genre && (
-                  <span className="completed-genre-badge">{item.genre}</span>
-                )}
-                {item.language && (
-                  <span className="completed-lang-badge">{item.language}</span>
-                )}
-              </div>
-            </li>
-          ))}
+                {/* Quote */}
+                <div className="flex-1 min-w-0">
+                  {item.comment ? (
+                    <p className="font-serif italic text-sm text-gray-500 leading-relaxed">
+                      &ldquo;{item.comment}&rdquo;
+                    </p>
+                  ) : (
+                    <p className="font-serif italic text-sm text-gray-300 leading-relaxed">
+                      {item.description.slice(0, 90)}&hellip;
+                    </p>
+                  )}
+                </div>
+
+                {/* Right badges */}
+                <div className="flex flex-shrink-0 items-center gap-2 flex-wrap justify-end">
+                  {item.topPick && (
+                    <span className="bg-[#802626] text-white text-[9px] font-bold tracking-[0.12em] uppercase px-2 py-0.5 rounded-sm">
+                      Top Pick
+                    </span>
+                  )}
+                  {inProgress && (
+                    <span className="border border-[#802626] text-[#802626] text-[9px] font-semibold tracking-[0.1em] uppercase px-2 py-0.5 rounded-sm">
+                      {inProgress}
+                    </span>
+                  )}
+                  {item.genre && (
+                    <span className="border border-gray-300 text-gray-500 text-[9px] font-medium tracking-[0.1em] uppercase px-2 py-0.5 rounded-sm">
+                      {item.genre}
+                    </span>
+                  )}
+                  {item.language && (
+                    <span className="border border-gray-200 text-gray-400 text-[9px] font-medium tracking-[0.1em] uppercase px-2 py-0.5 rounded-sm">
+                      {item.language}
+                    </span>
+                  )}
+                </div>
+              </li>
+            );
+          })}
         </ul>
       ) : (
         <div className="text-center py-20">
-          <p className="font-serif text-lg text-gray-500 italic">
-            Nothing completed here yet.
-          </p>
+          <p className="font-serif text-lg text-gray-500 italic">Nothing here yet.</p>
         </div>
       )}
     </div>
@@ -366,16 +429,75 @@ function CompletedListView({ activeFilter }: { activeFilter: ContentFilter }) {
 
 function ConsumptionPageContent() {
   const { data: session, status } = useSession();
-  const [activeFilter, setActiveFilter] = useState<ContentFilter>("Books & Essays");
+  const [activeFilter, setActiveFilter] = useState<ContentFilter>("Books");
   const [activeSubChip, setActiveSubChip] = useState<ContentSubChip>("Looking Forward");
+
+  // CMS CRUD state
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [editingItem, setEditingItem] = useState<ContentItem | null>(null);
+  const [deletingItem, setDeletingItem] = useState<ContentItem | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [cmsItems, setCmsItems] = useState<ContentItem[]>([]);
+
+  const isAdmin = (session?.user as { role?: string } | undefined)?.role === "admin";
+  const isCmsItem = useCallback((item: ContentItem) => item.id.startsWith("ci_"), []);
+
+  const fetchCmsItems = useCallback(async () => {
+    try {
+      const items = await getContentByType("consumption", { visibility: "published" });
+      setCmsItems(items.map(cmsToContentItem));
+    } catch (err) {
+      console.error("Failed to load CMS consumption items:", err);
+    }
+  }, []);
+
+  useEffect(() => { fetchCmsItems(); }, [fetchCmsItems]);
+
+  const handleDeleteConfirm = useCallback(async () => {
+    if (!deletingItem) return;
+    setIsDeleting(true);
+    try {
+      const result = await deleteContent(deletingItem.id);
+      if (result.success) { setDeletingItem(null); fetchCmsItems(); }
+      else { alert(result.error || "Failed to delete"); }
+    } catch { alert("Failed to delete"); } finally { setIsDeleting(false); }
+  }, [deletingItem, fetchCmsItems]);
 
   const isAuthenticated = !!session;
 
+  // Merge static + CMS items, CMS wins on title
+  const allItems = useMemo(() => {
+    const cmsTitles = new Set(cmsItems.map(i => i.title.toLowerCase()));
+    const staticFiltered = getItemsByType(activeFilter).filter(i => !cmsTitles.has(i.title.toLowerCase()));
+    const typeMap: Record<ContentFilter, string[]> = {
+      Books: ["book"], Essays: ["essay"], Movies: ["movie"], Series: ["series"], Videos: ["video"], Playlists: ["playlist"],
+    };
+    const targets = typeMap[activeFilter] || [];
+    const cmsFiltered = cmsItems.filter(i => targets.includes(i.type));
+    return [...cmsFiltered, ...staticFiltered];
+  }, [cmsItems, activeFilter]);
+
   const filteredItems = useMemo(
-    () => activeFilter === "Playlists"
-      ? getItemsByType(activeFilter)
-      : getItemsBySubChip(activeFilter, activeSubChip),
-    [activeFilter, activeSubChip]
+    () => {
+      if (activeFilter === "Playlists") return allItems;
+      const staticItems = getItemsBySubChip(activeFilter, activeSubChip);
+      // also filter CMS items by sub-chip status
+      const libraryStatuses: ContentItem["status"][] = ["CURRENTLY READING", "CURRENTLY WATCHING", "LISTENING", "COMPLETED"];
+      const subChipStatuses: Record<ContentSubChip, ContentItem["status"][]> = {
+        "Looking Forward": ["QUEUED"],
+        "Library": libraryStatuses,
+      };
+      const allowed = subChipStatuses[activeSubChip];
+      const typeMap: Record<ContentFilter, string[]> = {
+        Books: ["book"], Essays: ["essay"], Movies: ["movie"], Series: ["series"], Videos: ["video"], Playlists: ["playlist"],
+      };
+      const targets = typeMap[activeFilter] || [];
+      const cmsFiltered = cmsItems.filter(i => targets.includes(i.type) && allowed.includes(i.status));
+      const cmsTitles = new Set(cmsFiltered.map(i => i.title.toLowerCase()));
+      const dedupedStatic = staticItems.filter(i => !cmsTitles.has(i.title.toLowerCase()));
+      return [...cmsFiltered, ...dedupedStatic];
+    },
+    [activeFilter, activeSubChip, cmsItems, allItems]
   );
 
   // Loading state
@@ -396,7 +518,19 @@ function ConsumptionPageContent() {
       <SideDecoration />
 
       {/* Hero Section */}
-      <HeroSection />
+      <div className="relative">
+        <HeroSection />
+        {isAdmin && (
+          <div className="absolute top-6 right-6 md:top-8 md:right-8 z-10">
+            <button
+              onClick={() => setShowAddModal(true)}
+              className="font-editorial text-[11px] font-semibold uppercase tracking-[0.12em] text-white bg-[#802626] hover:bg-[#6b1f1f] px-5 py-2.5 rounded-md shadow-md transition-colors"
+            >
+              Add Content
+            </button>
+          </div>
+        )}
+      </div>
 
       {/* Filter Bar */}
       <FilterBar active={activeFilter} onChange={setActiveFilter} />
@@ -407,14 +541,21 @@ function ConsumptionPageContent() {
       )}
 
       {/* Content area */}
-      {activeSubChip === "Completed" && activeFilter !== "Playlists" ? (
-        <CompletedListView activeFilter={activeFilter} />
+      {activeSubChip === "Library" && activeFilter !== "Playlists" ? (
+        <LibraryListView activeFilter={activeFilter} />
       ) : (
         <div className="max-w-7xl mx-auto px-6 md:px-8 lg:px-12 pb-20">
           {filteredItems.length > 0 ? (
             <div className="consumption-grid">
               {filteredItems.map((item) => (
-                <ContentCard key={item.id} item={item} />
+                <ContentCard
+                  key={item.id}
+                  item={item}
+                  isAdmin={isAdmin}
+                  isCms={isCmsItem(item)}
+                  onEdit={setEditingItem}
+                  onDelete={setDeletingItem}
+                />
               ))}
             </div>
           ) : (
@@ -438,6 +579,41 @@ function ConsumptionPageContent() {
           </p>
         </div>
       </footer>
+
+
+
+      {/* Add Modal */}
+      {showAddModal && (
+        <AddConsumptionModal
+          onClose={() => setShowAddModal(false)}
+          onPublished={() => { setShowAddModal(false); fetchCmsItems(); }}
+        />
+      )}
+
+      {/* Edit Modal */}
+      {editingItem && (
+        <EditConsumptionModal
+          item={editingItem}
+          onClose={() => setEditingItem(null)}
+          onSaved={() => { setEditingItem(null); fetchCmsItems(); }}
+        />
+      )}
+
+      {/* Delete Confirmation */}
+      {deletingItem && (
+        <div className="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg p-6 max-w-sm w-full shadow-xl">
+            <h3 className="font-serif text-lg text-gray-900 mb-2">Delete &ldquo;{deletingItem.title}&rdquo;?</h3>
+            <p className="text-sm text-gray-500 mb-6">This action cannot be undone.</p>
+            <div className="flex gap-3 justify-end">
+              <button onClick={() => setDeletingItem(null)} className="px-4 py-2 text-sm text-gray-600 hover:text-gray-800">Cancel</button>
+              <button onClick={handleDeleteConfirm} disabled={isDeleting} className="px-4 py-2 text-sm bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-50">
+                {isDeleting ? "Deleting..." : "Delete"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 

@@ -1,19 +1,81 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback, useEffect, useMemo } from 'react';
 import { useSession } from 'next-auth/react';
 import { AnimatePresence } from 'framer-motion';
 import type { DesignThought } from '@/data/designThoughts';
-import { designThoughts } from '@/data/designThoughts';
+import { designThoughts as staticDesignThoughts } from '@/data/designThoughts';
 import { EditorialNav } from '@/components/EditorialNav';
 import { AuthenticatedLayout } from '@/components/AuthenticatedLayout';
 import { ContentRenderer } from '@/components/content-renderer';
 import { thoughtToContentData } from '@/lib/content-adapters';
+import { AddDesignThoughtModal } from '@/components/design-thoughts/AddDesignThoughtModal';
+import { EditDesignThoughtModal } from '@/components/design-thoughts/EditDesignThoughtModal';
+import { getContentByType, deleteContent } from '@/cms/actions';
+import type { ContentItem as CmsContentItem } from '@/cms/types';
+import { Pencil, Trash2 } from 'lucide-react';
+
+function cmsToDesignThought(item: CmsContentItem): DesignThought {
+  const meta = item.metadata as Record<string, unknown>;
+  const payload = item.payload as Record<string, unknown>;
+  const result: DesignThought = {
+    id: item.id,
+    title: item.title,
+    category: (meta.category as string) || 'UX Philosophy',
+    date: (meta.date as string) || new Date().toISOString().slice(0, 10),
+    cardType: (meta.cardType as DesignThought['cardType']) || 'standard',
+    annotationType: (meta.annotationType as DesignThought['annotationType']) || 'none',
+  };
+  const subtitle = payload.subtitle as string;
+  if (subtitle) result.subtitle = subtitle;
+  if (payload.hasTechnicalPattern === true) result.hasTechnicalPattern = true;
+  const pdfUrl = payload.pdfUrl as string;
+  if (pdfUrl) result.pdfUrl = pdfUrl;
+  return result;
+}
 
 function DesignTheologyPageContent() {
   const { data: session, status } = useSession();
   const [selectedThought, setSelectedThought] = useState<DesignThought | null>(null);
   const isAuthenticated = !!session;
+  const isAdmin = (session?.user as { role?: string } | undefined)?.role === 'admin';
+
+  // CMS CRUD state
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [editingItem, setEditingItem] = useState<DesignThought | null>(null);
+  const [deletingItem, setDeletingItem] = useState<DesignThought | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [cmsItems, setCmsItems] = useState<DesignThought[]>([]);
+
+  const isCmsItem = useCallback((item: DesignThought) => item.id.startsWith('ci_'), []);
+
+  const fetchCmsItems = useCallback(async () => {
+    try {
+      const items = await getContentByType('design-thought', { visibility: 'published' });
+      setCmsItems(items.map(cmsToDesignThought));
+    } catch (err) {
+      console.error('Failed to load CMS design thoughts:', err);
+    }
+  }, []);
+
+  useEffect(() => { fetchCmsItems(); }, [fetchCmsItems]);
+
+  const handleDeleteConfirm = useCallback(async () => {
+    if (!deletingItem) return;
+    setIsDeleting(true);
+    try {
+      const result = await deleteContent(deletingItem.id);
+      if (result.success) { setDeletingItem(null); fetchCmsItems(); }
+      else { alert(result.error || 'Failed to delete'); }
+    } catch { alert('Failed to delete'); } finally { setIsDeleting(false); }
+  }, [deletingItem, fetchCmsItems]);
+
+  // Merge static + CMS thoughts
+  const designThoughts = useMemo(() => {
+    const cmsTitles = new Set(cmsItems.map(i => i.title.toLowerCase()));
+    const filtered = staticDesignThoughts.filter(i => !cmsTitles.has(i.title.toLowerCase()));
+    return [...cmsItems, ...filtered];
+  }, [cmsItems]);
 
   const handleOpenModal = (thought: DesignThought) => {
     if (thought.pdfUrl) setSelectedThought(thought);
@@ -38,7 +100,7 @@ function DesignTheologyPageContent() {
       <div className="grid-paper-overlay" />
 
       {/* Hero Section */}
-      <section className="theology-hero">
+      <section className="theology-hero relative">
         <div className="hero-content">
           <h1 className="theology-title">
             Design <span className="theology-title-italic">Theology</span>
@@ -54,19 +116,42 @@ function DesignTheologyPageContent() {
             <span>Updated Feb 2026</span>
           </div>
         </div>
+        {isAdmin && (
+          <div className="absolute top-6 right-6 md:top-8 md:right-8 z-10">
+            <button
+              onClick={() => setShowAddModal(true)}
+              className="font-editorial text-[11px] font-semibold uppercase tracking-[0.12em] text-white bg-[#802626] hover:bg-[#6b1f1f] px-5 py-2.5 rounded-md shadow-md transition-colors"
+            >
+              Add Content
+            </button>
+          </div>
+        )}
       </section>
 
       {/* Thought Cards Grid */}
       <section className="theology-grid-container">
-        <div className="theology-thought-grid">
-          {designThoughts.map((thought) => (
-            <ThoughtCard 
-              key={thought.id} 
-              thought={thought} 
-              onClick={() => handleOpenModal(thought)}
-            />
-          ))}
-        </div>
+        {designThoughts.length === 0 ? (
+          <div className="text-center py-20">
+            <p className="font-serif text-2xl text-gray-300 mb-2">No design thoughts yet</p>
+            <p className="text-sm text-gray-400">
+              {isAdmin ? 'Add your first design thought to start the collection.' : 'Check back soon for design reflections.'}
+            </p>
+          </div>
+        ) : (
+          <div className="theology-thought-grid">
+            {designThoughts.map((thought) => (
+              <ThoughtCard
+                key={thought.id}
+                thought={thought}
+                onClick={() => handleOpenModal(thought)}
+                isAdmin={isAdmin}
+                isCms={isCmsItem(thought)}
+                onEdit={setEditingItem}
+                onDelete={setDeletingItem}
+              />
+            ))}
+          </div>
+        )}
       </section>
 
       {/* PDF Modal */}
@@ -80,6 +165,38 @@ function DesignTheologyPageContent() {
           />
         )}
       </AnimatePresence>
+
+
+
+      {showAddModal && (
+        <AddDesignThoughtModal
+          onClose={() => setShowAddModal(false)}
+          onPublished={() => { setShowAddModal(false); fetchCmsItems(); }}
+        />
+      )}
+
+      {editingItem && (
+        <EditDesignThoughtModal
+          thought={editingItem}
+          onClose={() => setEditingItem(null)}
+          onSaved={() => { setEditingItem(null); fetchCmsItems(); }}
+        />
+      )}
+
+      {deletingItem && (
+        <div className="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg p-6 max-w-sm w-full shadow-xl">
+            <h3 className="font-serif text-lg text-gray-900 mb-2">Delete &ldquo;{deletingItem.title}&rdquo;?</h3>
+            <p className="text-sm text-gray-500 mb-6">This action cannot be undone.</p>
+            <div className="flex gap-3 justify-end">
+              <button onClick={() => setDeletingItem(null)} className="px-4 py-2 text-sm text-gray-600 hover:text-gray-800">Cancel</button>
+              <button onClick={handleDeleteConfirm} disabled={isDeleting} className="px-4 py-2 text-sm bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-50">
+                {isDeleting ? 'Deleting...' : 'Delete'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 
@@ -101,9 +218,13 @@ export default function DesignTheologyPage() {
 interface ThoughtCardProps {
   thought: DesignThought;
   onClick?: () => void;
+  isAdmin?: boolean;
+  isCms?: boolean;
+  onEdit?: (item: DesignThought) => void;
+  onDelete?: (item: DesignThought) => void;
 }
 
-function ThoughtCard({ thought, onClick }: ThoughtCardProps) {
+function ThoughtCard({ thought, onClick, isAdmin, isCms, onEdit, onDelete }: ThoughtCardProps) {
   // Construct card type class
   const cardTypeClass = `thought-card-${thought.cardType}`;
   const patternClass = thought.hasTechnicalPattern ? 'has-technical-pattern' : '';
@@ -111,10 +232,17 @@ function ThoughtCard({ thought, onClick }: ThoughtCardProps) {
 
   return (
     <div
-      className={`thought-card ${cardTypeClass} ${patternClass} ${clickableClass}`}
+      className={`thought-card ${cardTypeClass} ${patternClass} ${clickableClass} relative group`}
       onClick={onClick}
       style={{ cursor: thought.pdfUrl ? 'pointer' : 'default' }}
     >
+      {/* Admin controls */}
+      {isAdmin && isCms && (
+        <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1 z-10">
+          <button onClick={(e) => { e.stopPropagation(); onEdit?.(thought); }} className="p-1.5 bg-white/90 rounded-full shadow hover:bg-white"><Pencil className="w-3.5 h-3.5 text-gray-600" /></button>
+          <button onClick={(e) => { e.stopPropagation(); onDelete?.(thought); }} className="p-1.5 bg-white/90 rounded-full shadow hover:bg-white"><Trash2 className="w-3.5 h-3.5 text-red-500" /></button>
+        </div>
+      )}
       {/* Technical Pattern Background */}
       {thought.hasTechnicalPattern && (
         <div className="technical-pattern-bg" />

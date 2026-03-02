@@ -4,7 +4,10 @@
 import "./essay";
 import "./skill";
 import "./sidequest";
-
-// Future types:
-// import "./travel";
-// import "./design-thought";
+import "./artifact";
+import "./consumption";
+import "./inspiration";
+import "./wishlist";
+import "./design-thought";
+import "./travel";
+import "./internet-lore";

@@ -11,6 +11,10 @@ interface WishlistGridProps {
   selectedItem: WishlistItem | null;
   onSelectItem: (item: WishlistItem) => void;
   emptyMessage?: string;
+  isAdmin?: boolean | undefined;
+  isCmsItem?: ((item: WishlistItem) => boolean) | undefined;
+  onEditItem?: ((item: WishlistItem) => void) | undefined;
+  onDeleteItem?: ((item: WishlistItem) => void) | undefined;
 }
 
 export function WishlistGrid({
@@ -20,6 +24,10 @@ export function WishlistGrid({
   selectedItem,
   onSelectItem,
   emptyMessage = "No wishlist items available yet.",
+  isAdmin,
+  isCmsItem,
+  onEditItem,
+  onDeleteItem,
 }: WishlistGridProps) {
   if (filteredItems.length === 0) {
     return (
@@ -47,6 +55,10 @@ export function WishlistGrid({
               item={item}
               isSelected={selectedItem?.id === item.id}
               onSelect={onSelectItem}
+              isAdmin={isAdmin}
+              isCms={isCmsItem?.(item)}
+              onEdit={onEditItem}
+              onDelete={onDeleteItem}
             />
           ))}
         </div>
@@ -71,6 +83,10 @@ export function WishlistGrid({
                 item={item}
                 isSelected={selectedItem?.id === item.id}
                 onSelect={onSelectItem}
+                isAdmin={isAdmin}
+                isCms={isCmsItem?.(item)}
+                onEdit={onEditItem}
+                onDelete={onDeleteItem}
               />
             ))}
           </div>

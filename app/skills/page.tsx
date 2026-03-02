@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useCallback, useEffect } from "react";
 import { useSession } from "next-auth/react";
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import { Pencil, Trash2 } from "lucide-react";
 import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
 import { EditorialNav } from "@/components/EditorialNav";
 import { skillExperiments } from "@/data/skills";
@@ -206,7 +206,19 @@ function SkillsPageContent() {
       {!isAuthenticated && <EditorialNav currentSlug="skilling" />}
 
       {/* Hero Section */}
-      <HeroSection />
+      <div className="relative">
+        <HeroSection />
+        {isAdmin && (
+          <div className="absolute top-6 right-6 md:top-8 md:right-8 z-10">
+            <button
+              onClick={() => activeTab === "skill" ? setShowUploadSkill(true) : setShowUploadSidequest(true)}
+              className="font-editorial text-[11px] font-semibold uppercase tracking-[0.12em] text-white bg-[#802626] hover:bg-[#6b1f1f] px-5 py-2.5 rounded-md shadow-md transition-colors"
+            >
+              Add Content
+            </button>
+          </div>
+        )}
+      </div>
 
       {/* Main Content Container */}
       <div className="max-w-7xl mx-auto px-6 md:px-8 lg:px-12 pb-20">
@@ -225,56 +237,66 @@ function SkillsPageContent() {
             label="Skill Quests"
             count={allSkills.length}
           />
-          {isAdmin && (
-            <button
-              onClick={() => activeTab === "skill" ? setShowUploadSkill(true) : setShowUploadSidequest(true)}
-              className="ml-auto flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium bg-amber-900 text-white hover:bg-amber-800 transition-colors"
-            >
-              <Plus className="h-4 w-4" />
-              Add {activeTab === "skill" ? "Skill Quest" : "Sidequest"}
-            </button>
-          )}
+          {/* Removed inline admin button — now at top right */}
         </div>
 
         {/* Skill Quest Grid */}
         {activeTab === "skill" && (
           <div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-5">
-              {allSkills.map((skill) => (
-                <div key={skill.id} className="relative group">
-                  <SkillCard skill={skill} />
-                  {isAdmin && isCmsItem(skill.id) && (
-                    <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-10">
-                      <button onClick={() => setEditingSkill(skill)} className="p-1.5 rounded-full bg-white/90 text-gray-700 hover:bg-white shadow-sm"><Pencil className="h-3.5 w-3.5" /></button>
-                      <button onClick={() => setDeletingSkill(skill)} className="p-1.5 rounded-full bg-white/90 text-red-600 hover:bg-white shadow-sm"><Trash2 className="h-3.5 w-3.5" /></button>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
+            {allSkills.length === 0 ? (
+              <div className="text-center py-20">
+                <p className="font-serif text-2xl text-gray-300 mb-2">No skill experiments yet</p>
+                <p className="text-sm text-gray-400">
+                  {isAdmin ? 'Add your first skill experiment to start tracking.' : 'Check back soon for skill experiments.'}
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-5">
+                {allSkills.map((skill) => (
+                  <div key={skill.id} className="relative group">
+                    <SkillCard skill={skill} />
+                    {isAdmin && isCmsItem(skill.id) && (
+                      <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                        <button onClick={() => setEditingSkill(skill)} className="p-1.5 rounded-full bg-white/90 text-gray-700 hover:bg-white shadow-sm"><Pencil className="h-3.5 w-3.5" /></button>
+                        <button onClick={() => setDeletingSkill(skill)} className="p-1.5 rounded-full bg-white/90 text-red-600 hover:bg-white shadow-sm"><Trash2 className="h-3.5 w-3.5" /></button>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
 
         {/* Sidequest Grid */}
         {activeTab === "sidequest" && (
           <div>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-4 lg:gap-x-6 gap-y-6 lg:gap-y-8">
-              {allSidequests.map((quest, index) => (
-                <div key={quest.id} className="relative group">
-                  <QuestCard 
-                    quest={quest} 
-                    index={index}
-                    onClick={() => setSelectedQuest(quest)} 
-                  />
-                  {isAdmin && isCmsItem(quest.id) && (
-                    <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-10">
-                      <button onClick={() => setEditingSidequest(quest)} className="p-1.5 rounded-full bg-white/90 text-gray-700 hover:bg-white shadow-sm"><Pencil className="h-3.5 w-3.5" /></button>
-                      <button onClick={() => setDeletingSidequest(quest)} className="p-1.5 rounded-full bg-white/90 text-red-600 hover:bg-white shadow-sm"><Trash2 className="h-3.5 w-3.5" /></button>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
+            {allSidequests.length === 0 ? (
+              <div className="text-center py-20">
+                <p className="font-serif text-2xl text-gray-300 mb-2">No sidequests yet</p>
+                <p className="text-sm text-gray-400">
+                  {isAdmin ? 'Add your first sidequest to begin.' : 'Check back soon for new quests.'}
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-4 lg:gap-x-6 gap-y-6 lg:gap-y-8">
+                {allSidequests.map((quest, index) => (
+                  <div key={quest.id} className="relative group">
+                    <QuestCard 
+                      quest={quest} 
+                      index={index}
+                      onClick={() => setSelectedQuest(quest)} 
+                    />
+                    {isAdmin && isCmsItem(quest.id) && (
+                      <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                        <button onClick={() => setEditingSidequest(quest)} className="p-1.5 rounded-full bg-white/90 text-gray-700 hover:bg-white shadow-sm"><Pencil className="h-3.5 w-3.5" /></button>
+                        <button onClick={() => setDeletingSidequest(quest)} className="p-1.5 rounded-full bg-white/90 text-red-600 hover:bg-white shadow-sm"><Trash2 className="h-3.5 w-3.5" /></button>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
       </div>

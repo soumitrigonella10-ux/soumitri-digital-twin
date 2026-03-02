@@ -34,5 +34,8 @@ export {
 // Artifacts & Inspirations
 export { artifacts, inspirations } from './artifacts'
 
+// Notes — Admin task matrix & ideation scrapbook
+export { notes } from './notes'
+
 // CMS — Universal content management
 export { contentItems } from './content'
