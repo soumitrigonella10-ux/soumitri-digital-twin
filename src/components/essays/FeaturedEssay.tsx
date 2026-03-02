@@ -1,20 +1,44 @@
-import { Clock, ArrowUpRight } from "lucide-react";
+import { Clock, ArrowUpRight, Pencil, Trash2 } from "lucide-react";
 import type { Essay } from "@/data/essays";
 
 interface FeaturedEssayProps {
   essay: Essay;
   onOpen: (essay: Essay) => void;
+  isAdmin?: boolean;
+  isCmsEssay?: boolean;
+  onEdit?: (essay: Essay) => void;
+  onDelete?: (essay: Essay) => void;
 }
 
-export function FeaturedEssay({ essay, onOpen }: FeaturedEssayProps) {
+export function FeaturedEssay({ essay, onOpen, isAdmin, isCmsEssay, onEdit, onDelete }: FeaturedEssayProps) {
   return (
     <article
-      className="editorial-card editorial-image-wrapper group cursor-pointer rounded-sm overflow-hidden"
+      className="editorial-card editorial-image-wrapper group cursor-pointer rounded-sm overflow-hidden relative"
       onClick={() => onOpen(essay)}
       role="button"
       tabIndex={0}
       onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") onOpen(essay); }}
     >
+      {/* Admin actions — only for CMS-managed essays */}
+      {isAdmin && isCmsEssay && (
+        <div className="absolute top-4 right-4 flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+          <button
+            onClick={(e) => { e.stopPropagation(); onEdit?.(essay); }}
+            className="p-2 rounded-md bg-white/95 border border-stone-200 text-stone-500 hover:text-telugu-kavi hover:border-telugu-kavi/30 transition-colors shadow-sm"
+            title="Edit essay"
+          >
+            <Pencil className="h-4 w-4" />
+          </button>
+          <button
+            onClick={(e) => { e.stopPropagation(); onDelete?.(essay); }}
+            className="p-2 rounded-md bg-white/95 border border-stone-200 text-stone-500 hover:text-red-600 hover:border-red-200 transition-colors shadow-sm"
+            title="Delete essay"
+          >
+            <Trash2 className="h-4 w-4" />
+          </button>
+        </div>
+      )}
+
       <div className="p-6 md:p-8 lg:p-10 flex flex-col justify-center bg-white border border-stone-100">
           <span className="font-editorial text-[10px] font-bold uppercase tracking-[0.2em] editorial-accent mb-3">
             {essay.category}

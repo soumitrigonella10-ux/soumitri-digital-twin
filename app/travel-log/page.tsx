@@ -4,7 +4,9 @@ import { useState } from "react";
 import { useSession } from "next-auth/react";
 import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
 import { EditorialNav } from "@/components/EditorialNav";
-import { LocationCard, JournalModal, TravelHeroSection } from "@/components/travel";
+import { LocationCard, TravelHeroSection } from "@/components/travel";
+import { ContentRenderer } from "@/components/content-renderer";
+import { locationToContentData } from "@/lib/content-adapters";
 import {
   travelLocations,
   type TravelLocation,
@@ -22,12 +24,10 @@ function TravelLogPageContent() {
 
   const handleOpenJournal = (location: TravelLocation) => {
     setSelectedLocation(location);
-    document.body.style.overflow = "hidden";
   };
 
   const handleCloseJournal = () => {
     setSelectedLocation(null);
-    document.body.style.overflow = "";
   };
 
   // Loading state
@@ -74,7 +74,12 @@ function TravelLogPageContent() {
 
       {/* Journal Modal */}
       {selectedLocation && (
-        <JournalModal location={selectedLocation} onClose={handleCloseJournal} />
+        <ContentRenderer
+          type="pdf-flipbook"
+          data={locationToContentData(selectedLocation)}
+          onClose={handleCloseJournal}
+          layoutVariant="default"
+        />
       )}
     </div>
   );

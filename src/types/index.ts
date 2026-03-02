@@ -56,6 +56,8 @@ export type {
 
 // Editorial (public-facing content types)
 export type {
+  EditorialMedia,
+  EditorialMeta,
   ContentType,
   ContentStatus,
   ContentItem,

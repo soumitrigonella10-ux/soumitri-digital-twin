@@ -1,10 +1,12 @@
 "use client";
 
-import { Suspense, useState, useMemo, useCallback } from "react";
+import { Suspense, useState, useMemo, useCallback, useEffect } from "react";
 import { useSession } from "next-auth/react";
+import { Plus } from "lucide-react";
 import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
-import { EssayModal } from "@/components/EssayModal";
 import { EditorialNav } from "@/components/EditorialNav";
+import { ContentRenderer } from "@/components/content-renderer";
+import { essayToContentData } from "@/lib/content-adapters";
 import {
   EssaysHeroSection,
   CategoryFilter,
@@ -13,12 +15,37 @@ import {
   SubscribeCTA,
   EditorialFooter,
 } from "@/components/essays";
-import {
-  getEssaysByCategory,
-  getFeaturedEssays,
-  type Essay,
-  type EssayCategory,
-} from "@/data/essays";
+import { UploadEssayModal } from "@/components/essays/UploadEssayModal";
+import { EditEssayModal } from "@/components/essays/EditEssayModal";
+import { getContentByType, deleteContent } from "@/cms/actions";
+import type { ContentItem } from "@/cms/types";
+import { essays as staticEssays } from "@/data/essays";
+import type { Essay, EssayCategory } from "@/types/editorial";
+
+// ─────────────────────────────────────────────
+// Convert a CMS ContentItem → Essay interface
+// (same logic as cmsEssayToEssay in queries.ts,
+//  duplicated here to avoid server-only imports)
+// ─────────────────────────────────────────────
+function cmsItemToEssay(item: ContentItem): Essay {
+  const meta = item.metadata;
+  const payload = item.payload;
+  return {
+    id: item.id,
+    slug: item.slug,
+    title: item.title,
+    excerpt: (payload.excerpt as string) || "",
+    category: (meta.category as string) || "",
+    date: (meta.date as string) || "",
+    readingTime: (payload.readingTime as string) || "",
+    imageUrl: item.coverImage || "",
+    isFeatured: item.isFeatured,
+    tags: (meta.tags as string[]) || [],
+    pdfUrl: (payload.pdfUrl as string) || "",
+    media: (payload.media as Essay["media"]) ?? [],
+    contentMeta: (payload.contentMeta as Essay["contentMeta"]) ?? [],
+  };
+}
 
 // ─────────────────────────────────────────────
 // Main Essays Page Content
@@ -28,9 +55,65 @@ function EssaysPageContent() {
   const { data: session, status } = useSession();
   const [activeCategory, setActiveCategory] = useState<EssayCategory>("All");
   const [selectedEssay, setSelectedEssay] = useState<Essay | null>(null);
+  const [showUploadModal, setShowUploadModal] = useState(false);
+  const [editingEssay, setEditingEssay] = useState<Essay | null>(null);
+  const [deletingEssay, setDeletingEssay] = useState<Essay | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  // CMS data
+  const [cmsEssays, setCmsEssays] = useState<Essay[]>([]);
+  const [isLoadingCms, setIsLoadingCms] = useState(true);
 
   const isAuthenticated = !!session;
+  const isAdmin = (session?.user as { role?: string } | undefined)?.role === "admin";
 
+  // ── Fetch CMS essays ──────────────────────────────────────
+  const fetchCmsEssays = useCallback(async () => {
+    try {
+      const items = await getContentByType("essay", { visibility: "published" });
+      setCmsEssays(items.map(cmsItemToEssay));
+    } catch (err) {
+      console.error("Failed to load CMS essays:", err);
+    } finally {
+      setIsLoadingCms(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchCmsEssays();
+  }, [fetchCmsEssays]);
+
+  // ── Merge static + CMS essays (CMS wins on slug conflict) ─
+  const allEssays = useMemo(() => {
+    const cmsSlugs = new Set(cmsEssays.map((e) => e.slug));
+    const dedupedStatic = staticEssays.filter((e) => !cmsSlugs.has(e.slug));
+    return [...cmsEssays, ...dedupedStatic];
+  }, [cmsEssays]);
+
+  // Check if an essay came from the CMS (editable / deletable)
+  const isCmsEssay = useCallback(
+    (essay: Essay) => essay.id.startsWith("ci_"),
+    []
+  );
+
+  // ── Derived data ──────────────────────────────────────────
+  const featured = useMemo(
+    () => allEssays.filter((e) => e.isFeatured),
+    [allEssays]
+  );
+
+  const filteredEssays = useMemo(() => {
+    if (activeCategory === "All") return allEssays;
+    return allEssays.filter((e) => e.category === activeCategory);
+  }, [allEssays, activeCategory]);
+
+  // Remove featured from the secondary grid to avoid duplication
+  const secondaryEssays = useMemo(() => {
+    const featuredIds = new Set(featured.map((f) => f.id));
+    return filteredEssays.filter((e) => !featuredIds.has(e.id));
+  }, [filteredEssays, featured]);
+
+  // ── Handlers ──────────────────────────────────────────────
   const handleOpenEssay = useCallback((essay: Essay) => {
     setSelectedEssay(essay);
   }, []);
@@ -39,17 +122,27 @@ function EssaysPageContent() {
     setSelectedEssay(null);
   }, []);
 
-  const featured = useMemo(() => getFeaturedEssays(), []);
-  const filteredEssays = useMemo(
-    () => getEssaysByCategory(activeCategory),
-    [activeCategory]
-  );
+  const handleEdit = useCallback((essay: Essay) => {
+    setEditingEssay(essay);
+  }, []);
 
-  // Remove featured from the secondary grid to avoid duplication
-  const secondaryEssays = useMemo(() => {
-    const featuredIds = new Set(featured.map((f) => f.id));
-    return filteredEssays.filter((e) => !featuredIds.has(e.id));
-  }, [filteredEssays, featured]);
+  const handleDeleteConfirm = useCallback(async () => {
+    if (!deletingEssay) return;
+    setIsDeleting(true);
+    try {
+      const result = await deleteContent(deletingEssay.id);
+      if (result.success) {
+        setDeletingEssay(null);
+        fetchCmsEssays();
+      } else {
+        alert(result.error || "Failed to delete essay");
+      }
+    } catch {
+      alert("Failed to delete essay");
+    } finally {
+      setIsDeleting(false);
+    }
+  }, [deletingEssay, fetchCmsEssays]);
 
   // Loading
   if (status === "loading") {
@@ -64,7 +157,22 @@ function EssaysPageContent() {
   const pageContent = (
     <div className="muggu-bg min-h-screen font-editorial">
       {!isAuthenticated && <EditorialNav currentSlug="essays" />}
-      <EssaysHeroSection />
+
+      {/* Hero + Admin Add Button */}
+      <div className="relative">
+        <EssaysHeroSection />
+        {isAdmin && (
+          <div className="absolute top-12 right-6 md:top-16 md:right-8 lg:right-[calc((100%-1200px)/2+2rem)]">
+            <button
+              onClick={() => setShowUploadModal(true)}
+              className="flex items-center gap-1.5 font-editorial text-[11px] font-semibold uppercase tracking-[0.12em] text-white bg-stone-900 hover:bg-stone-800 px-4 py-2 rounded-full shadow-md transition-colors"
+            >
+              <Plus className="h-3.5 w-3.5" />
+              Essay
+            </button>
+          </div>
+        )}
+      </div>
 
       <hr className="editorial-rule max-w-[1200px] mx-auto" />
 
@@ -73,12 +181,30 @@ function EssaysPageContent() {
         <CategoryFilter active={activeCategory} onChange={setActiveCategory} />
       </div>
 
+      {/* Loading indicator for CMS data */}
+      {isLoadingCms && (
+        <div className="max-w-[1200px] mx-auto px-6 md:px-8 py-4">
+          <div className="flex items-center gap-2 text-stone-400 text-sm font-editorial">
+            <div className="animate-spin rounded-full h-3.5 w-3.5 border-b border-stone-400" />
+            Loading essays…
+          </div>
+        </div>
+      )}
+
       {/* Featured section — only show when "All" or when featured matches category */}
       {activeCategory === "All" && featured.length > 0 && (
         <section className="max-w-[1200px] mx-auto px-6 md:px-8 mb-12">
           <div className="space-y-8">
             {featured.map((essay) => (
-              <FeaturedEssay key={essay.id} essay={essay} onOpen={handleOpenEssay} />
+              <FeaturedEssay
+                key={essay.id}
+                essay={essay}
+                onOpen={handleOpenEssay}
+                isAdmin={isAdmin}
+                isCmsEssay={isCmsEssay(essay)}
+                onEdit={handleEdit}
+                onDelete={(e) => setDeletingEssay(e)}
+              />
             ))}
           </div>
         </section>
@@ -106,7 +232,16 @@ function EssaysPageContent() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-8">
             {(activeCategory !== "All" ? filteredEssays : secondaryEssays).map(
               (essay, i) => (
-                <EssayCard key={essay.id} essay={essay} index={i} onOpen={handleOpenEssay} />
+                <EssayCard
+                  key={essay.id}
+                  essay={essay}
+                  index={i}
+                  onOpen={handleOpenEssay}
+                  isAdmin={isAdmin}
+                  isCmsEssay={isCmsEssay(essay)}
+                  onEdit={handleEdit}
+                  onDelete={(e) => setDeletingEssay(e)}
+                />
               )
             )}
           </div>
@@ -115,7 +250,8 @@ function EssaysPageContent() {
 
       {/* Empty state */}
       {(activeCategory !== "All" ? filteredEssays : secondaryEssays).length === 0 &&
-        !(activeCategory === "All" && featured.length > 0) && (
+        !(activeCategory === "All" && featured.length > 0) &&
+        !isLoadingCms && (
           <section className="max-w-[1200px] mx-auto px-6 md:px-8 py-20 text-center">
             <p className="font-editorial text-sm text-stone-400">
               No essays in this category yet.
@@ -128,7 +264,73 @@ function EssaysPageContent() {
 
       {/* ── Immersive Essay Modal ── */}
       {selectedEssay && (
-        <EssayModal essay={selectedEssay} onClose={handleCloseEssay} />
+        <ContentRenderer
+          type="pdf-single"
+          data={essayToContentData(selectedEssay)}
+          onClose={handleCloseEssay}
+          layoutVariant="default"
+        />
+      )}
+
+      {/* ── Upload Essay Modal (admin only) ── */}
+      {showUploadModal && (
+        <UploadEssayModal
+          onClose={() => setShowUploadModal(false)}
+          onPublished={() => {
+            setShowUploadModal(false);
+            fetchCmsEssays();
+          }}
+        />
+      )}
+
+      {/* ── Edit Essay Modal (admin only, CMS essays) ── */}
+      {editingEssay && (
+        <EditEssayModal
+          essay={editingEssay}
+          onClose={() => setEditingEssay(null)}
+          onSaved={() => {
+            setEditingEssay(null);
+            fetchCmsEssays();
+          }}
+        />
+      )}
+
+      {/* ── Delete Confirmation Modal ── */}
+      {deletingEssay && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div
+            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+            onClick={() => !isDeleting && setDeletingEssay(null)}
+          />
+          <div className="relative bg-[#FFF8F0] rounded-xl shadow-2xl w-full max-w-sm mx-4 p-6 border border-stone-200">
+            <h3 className="font-serif italic text-lg font-bold text-stone-900 mb-2">
+              Delete Essay
+            </h3>
+            <p className="font-editorial text-sm text-stone-600 mb-5">
+              Are you sure you want to delete &ldquo;{deletingEssay.title}&rdquo;?
+              This action cannot be undone.
+            </p>
+            <div className="flex items-center justify-end gap-3">
+              <button
+                onClick={() => setDeletingEssay(null)}
+                disabled={isDeleting}
+                className="font-editorial text-[11px] font-semibold uppercase tracking-[0.15em] text-stone-500 hover:text-stone-700 px-4 py-2 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDeleteConfirm}
+                disabled={isDeleting}
+                className="font-editorial text-[11px] font-semibold uppercase tracking-[0.12em] text-white bg-red-600 hover:bg-red-700 disabled:bg-stone-300 px-5 py-2.5 rounded-lg transition-colors flex items-center gap-2"
+              >
+                {isDeleting && (
+                  <div className="animate-spin rounded-full h-3.5 w-3.5 border-b-2 border-white" />
+                )}
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

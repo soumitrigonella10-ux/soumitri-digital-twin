@@ -311,6 +311,8 @@ async function seed() {
     inventory:   t.inventory ?? null,
     notes:       t.notes ?? null,
     pdfUrl:      t.pdfUrl ?? null,
+    media:       t.media ?? null,
+    contentMeta: t.contentMeta ?? null,
   })))
 
   // ── 10. Essays ─────────────────────────────────────────────
@@ -326,6 +328,8 @@ async function seed() {
     pdfUrl:      e.pdfUrl ?? null,
     imageUrl:    e.imageUrl ?? null,
     isFeatured:  e.isFeatured ?? false,
+    media:       e.media ?? null,
+    contentMeta: e.contentMeta ?? null,
   })))
 
   // ── 11. Sidequests ─────────────────────────────────────────
@@ -340,6 +344,8 @@ async function seed() {
     completed:   s.completed,
     imageUrl:    s.imageUrl ?? null,
     questLog:    s.questLog ?? null,
+    media:       s.media ?? null,
+    contentMeta: s.contentMeta ?? null,
   })))
 
   // ── 12. Skill Experiments ──────────────────────────────────
@@ -352,6 +358,8 @@ async function seed() {
     proficiency:      s.proficiency,
     tools:            s.tools ?? null,
     isInverted:       s.isInverted ?? false,
+    media:            s.media ?? null,
+    contentMeta:      s.contentMeta ?? null,
   })))
 
   // ── 13. Design Thoughts ────────────────────────────────────
@@ -365,6 +373,8 @@ async function seed() {
     annotationType:      d.annotationType,
     hasTechnicalPattern: d.hasTechnicalPattern ?? false,
     pdfUrl:              d.pdfUrl ?? null,
+    media:               d.media ?? null,
+    contentMeta:         d.contentMeta ?? null,
   })))
 
   // ── 14. Topics ─────────────────────────────────────────────

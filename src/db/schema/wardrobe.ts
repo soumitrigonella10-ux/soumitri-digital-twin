@@ -2,7 +2,7 @@
 // Wardrobe, Wishlist, Jewellery tables
 // Maps to: src/types/wardrobe.ts → WardrobeItem, WishlistItem, JewelleryItem
 // ─────────────────────────────────────────────────────────────
-import { pgTable, text, integer, boolean, real } from 'drizzle-orm/pg-core'
+import { pgTable, text, boolean, real } from 'drizzle-orm/pg-core'
 
 // ── Wardrobe Items ───────────────────────────────────────────
 export const wardrobeItems = pgTable('wardrobe_items', {

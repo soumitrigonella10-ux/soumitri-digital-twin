@@ -33,3 +33,6 @@ export {
 
 // Artifacts & Inspirations
 export { artifacts, inspirations } from './artifacts'
+
+// CMS — Universal content management
+export { contentItems } from './content'

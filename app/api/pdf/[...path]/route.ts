@@ -4,10 +4,11 @@ import { readFile } from "fs/promises";
 import path from "path";
 
 /**
- * Serves PDF files from public/pdfs/ without frame-blocking headers.
+ * Serves PDF files from public/pdfs/ or public/uploads/ without frame-blocking headers.
  * This allows the PdfViewer component to embed them via <iframe>.
  *
- * GET /api/pdf/travel/kyoto-2025.pdf  →  public/pdfs/travel/kyoto-2025.pdf
+ * GET /api/pdf/travel/kyoto-2025.pdf           →  public/pdfs/travel/kyoto-2025.pdf
+ * GET /api/pdf/uploads/essays/my-essay.pdf     →  public/uploads/essays/my-essay.pdf
  */
 export async function GET(
   _request: NextRequest,
@@ -23,11 +24,22 @@ export async function GET(
 
   // Prevent directory traversal
   const safePath = segments.join("/").replace(/\.\./g, "");
-  const filePath = path.join(process.cwd(), "public", "pdfs", safePath);
 
-  // Ensure the resolved path stays within public/pdfs/
+  // Determine base directory: if path starts with "uploads/", serve from public/uploads/
+  // Otherwise serve from public/pdfs/ (original behaviour)
+  let filePath: string;
+  let allowedDir: string;
+
+  if (safePath.startsWith("uploads/")) {
+    filePath = path.join(process.cwd(), "public", safePath);
+    allowedDir = path.resolve(path.join(process.cwd(), "public", "uploads"));
+  } else {
+    filePath = path.join(process.cwd(), "public", "pdfs", safePath);
+    allowedDir = path.resolve(path.join(process.cwd(), "public", "pdfs"));
+  }
+
+  // Ensure the resolved path stays within the allowed directory
   const resolvedPath = path.resolve(filePath);
-  const allowedDir = path.resolve(path.join(process.cwd(), "public", "pdfs"));
   if (!resolvedPath.startsWith(allowedDir)) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }

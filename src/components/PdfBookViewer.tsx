@@ -21,9 +21,12 @@ interface PdfBookViewerProps {
 /**
  * Converts a public PDF path to an API route path
  * so the file is served without frame-blocking headers.
+ * Handles both /pdfs/... and /uploads/... paths.
  */
 function toApiUrl(pdfUrl: string): string {
-  const stripped = pdfUrl.replace(/^\/pdfs\//, "");
+  const stripped = pdfUrl.startsWith("/uploads/")
+    ? pdfUrl.replace(/^\//, "")
+    : pdfUrl.replace(/^\/pdfs\//, "");
   return `/api/pdf/${stripped}`;
 }
 

@@ -5,6 +5,17 @@
 // ─────────────────────────────────────────────────────────────
 import { pgTable, text, integer, boolean, jsonb } from 'drizzle-orm/pg-core'
 
+// ── Shared JSONB shapes (media, content metadata) ────────────
+// These match ContentData from content-renderer/types.ts so adapters
+// can pass them straight through instead of rebuilding manually.
+export type DbMediaItem = {
+  src: string
+  type?: 'image' | 'video'
+  alt: string
+  aspectRatio?: string
+}
+export type DbMetaEntry = { label: string; value: string }
+
 // ── Essays ───────────────────────────────────────────────────
 export const essays = pgTable('essays', {
   id:          text('id').primaryKey(),
@@ -18,6 +29,9 @@ export const essays = pgTable('essays', {
   pdfUrl:      text('pdf_url'),
   imageUrl:    text('image_url'),
   isFeatured:  boolean('is_featured').default(false),
+  // ── Flexible JSONB columns ──
+  media:       jsonb('media').$type<DbMediaItem[]>(),      // Multi-media gallery
+  contentMeta: jsonb('content_meta').$type<DbMetaEntry[]>(), // Structured metadata for ContentRenderer
 })
 
 // ── Consumption (books, movies, series, videos, playlists) ──
@@ -49,6 +63,9 @@ export const sidequests = pgTable('sidequests', {
   completed:   boolean('completed').default(false),
   imageUrl:    text('image_url'),
   questLog:    text('quest_log'),                           // Long prose text
+  // ── Flexible JSONB columns ──
+  media:       jsonb('media').$type<DbMediaItem[]>(),
+  contentMeta: jsonb('content_meta').$type<DbMetaEntry[]>(),
 })
 
 // ── Skill Experiments ────────────────────────────────────────
@@ -61,6 +78,9 @@ export const skillExperiments = pgTable('skill_experiments', {
   proficiency:      integer('proficiency').notNull(),       // 0–100
   tools:            jsonb('tools').$type<string[]>(),
   isInverted:       boolean('is_inverted').default(false),
+  // ── Flexible JSONB columns ──
+  media:            jsonb('media').$type<DbMediaItem[]>(),
+  contentMeta:      jsonb('content_meta').$type<DbMetaEntry[]>(),
 })
 
 // ── Travel Locations ─────────────────────────────────────────
@@ -78,6 +98,9 @@ export const travelLocations = pgTable('travel_locations', {
   inventory:   jsonb('inventory').$type<string[]>(),       // ["Leica M10 with 35mm", ...]
   notes:       text('notes'),
   pdfUrl:      text('pdf_url'),
+  // ── Flexible JSONB columns ──
+  media:       jsonb('media').$type<DbMediaItem[]>(),
+  contentMeta: jsonb('content_meta').$type<DbMetaEntry[]>(),
 })
 
 // ── Design Thoughts ──────────────────────────────────────────
@@ -91,6 +114,9 @@ export const designThoughts = pgTable('design_thoughts', {
   annotationType:      text('annotation_type').notNull(),   // "measurement" | "redline" | "stamp" | "none"
   hasTechnicalPattern: boolean('has_technical_pattern').default(false),
   pdfUrl:              text('pdf_url'),
+  // ── Flexible JSONB columns ──
+  media:               jsonb('media').$type<DbMediaItem[]>(),
+  contentMeta:         jsonb('content_meta').$type<DbMetaEntry[]>(),
 })
 
 // ── Topics (navigation/routing configuration) ────────────────

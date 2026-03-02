@@ -5,6 +5,22 @@
 // consumption, essays, sidequests, skills, travel, design thoughts, topics.
 // ========================================
 
+// ── Shared Structured Shapes ─────────────
+// These mirror the JSONB shapes in the DB schema and align with
+// ContentData from content-renderer so adapters can pass through.
+
+export interface EditorialMedia {
+  src: string;
+  type?: "image" | "video";
+  alt: string;
+  aspectRatio?: string;
+}
+
+export interface EditorialMeta {
+  label: string;
+  value: string;
+}
+
 // ── Content Consumption ──────────────────
 
 export type ContentType = "book" | "playlist" | "essay" | "video" | "movie" | "series";
@@ -26,6 +42,8 @@ export interface ContentItem {
   genre?: string;
   /** One-liner takeaway — shown on the Completed list view */
   comment?: string;
+  /** URL for watching (films, shows, etc.) */
+  watchUrl?: string;
 }
 
 // ── Essays ───────────────────────────────
@@ -45,6 +63,10 @@ export interface Essay {
   pdfUrl?: string;
   /** @deprecated Legacy essay body content - now using PDFs for display */
   body?: EssayBlock[];
+  /** Multi-media gallery — passed through to ContentRenderer when present */
+  media?: EditorialMedia[];
+  /** Structured metadata — passed through to ContentRenderer when present */
+  contentMeta?: EditorialMeta[];
 }
 
 /** Content block types for structured essay rendering (legacy - now using PDFs) */
@@ -78,6 +100,10 @@ export interface Sidequest {
   imageUrl: string;
   questLog: string;
   entryId: string;
+  /** Multi-media gallery — passed through to ContentRenderer when present */
+  media?: EditorialMedia[];
+  /** Structured metadata — passed through to ContentRenderer when present */
+  contentMeta?: EditorialMeta[];
 }
 
 // ── Skills ───────────────────────────────
@@ -91,6 +117,10 @@ export interface SkillExperiment {
   description: string;
   category: "Technical" | "Design" | "Strategy" | "Craft" | "Language";
   isInverted?: boolean; // Dark card styling
+  /** Multi-media gallery — passed through to ContentRenderer when present */
+  media?: EditorialMedia[];
+  /** Structured metadata — passed through to ContentRenderer when present */
+  contentMeta?: EditorialMeta[];
 }
 
 // ── Travel ───────────────────────────────
@@ -110,6 +140,10 @@ export interface TravelLocation {
   notes: string;
   /** Path to PDF journal in public/pdfs/travel/ */
   pdfUrl: string;
+  /** Multi-media gallery — passed through to ContentRenderer when present */
+  media?: EditorialMedia[];
+  /** Structured metadata — passed through to ContentRenderer when present */
+  contentMeta?: EditorialMeta[];
 }
 
 // ── Design Thoughts ──────────────────────
@@ -127,6 +161,10 @@ export interface DesignThought {
   annotationType: AnnotationType;
   hasTechnicalPattern?: boolean;
   pdfUrl?: string;
+  /** Multi-media gallery — passed through to ContentRenderer when present */
+  media?: EditorialMedia[];
+  /** Structured metadata — passed through to ContentRenderer when present */
+  contentMeta?: EditorialMeta[];
 }
 
 // ── Topics (Navigation) ─────────────────

@@ -24,12 +24,16 @@ interface PdfViewerProps {
 
 /**
  * Converts a public PDF path like "/pdfs/travel/kyoto-2025.pdf"
- * into an API route path "/api/pdf/travel/kyoto-2025.pdf"
- * so the file is served without frame-blocking headers.
+ * into an API route path "/api/pdf/travel/kyoto-2025.pdf".
+ * Also handles uploaded PDFs at "/uploads/essays/file.pdf"
+ * → "/api/pdf/uploads/essays/file.pdf".
  */
 function toApiUrl(pdfUrl: string): string {
-  // Strip leading "/pdfs/" and route through the API
-  const stripped = pdfUrl.replace(/^\/pdfs\//, "");
+  // /uploads/... paths keep their prefix (route handles both roots)
+  // /pdfs/... paths strip the prefix (legacy behaviour)
+  const stripped = pdfUrl.startsWith("/uploads/")
+    ? pdfUrl.replace(/^\//, "")
+    : pdfUrl.replace(/^\/pdfs\//, "");
   return `/api/pdf/${stripped}`;
 }
 

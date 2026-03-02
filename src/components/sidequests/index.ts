@@ -1,2 +1,3 @@
 export { QuestCard } from "./QuestCard";
-export { QuestModal } from "./QuestModal";
+export { UploadSidequestModal } from "./UploadSidequestModal";
+export { EditSidequestModal } from "./EditSidequestModal";

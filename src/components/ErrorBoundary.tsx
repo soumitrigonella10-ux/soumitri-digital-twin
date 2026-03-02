@@ -39,8 +39,14 @@ export function reportError(error: Error, context?: Record<string, unknown>) {
 // ========================================
 export function GlobalErrorListener() {
   useEffect(() => {
-    const handleError = (event: ErrorEvent) => {
-      reportError(event.error ?? new Error(event.message), {
+    const handleError = (event: Event) => {
+      // Resource-loading errors (broken <img>, <script>, etc.) fire a
+      // generic Event, NOT an ErrorEvent.  Ignore them — they are not
+      // actionable JS errors and would otherwise surface as the cryptic
+      // "[object Event]" in the dev overlay.
+      if (!(event instanceof ErrorEvent)) return;
+
+      reportError(event.error ?? new Error(event.message || "Unknown error"), {
         source: "window.onerror",
         filename: event.filename,
         lineno: event.lineno,
@@ -49,11 +55,17 @@ export function GlobalErrorListener() {
     };
 
     const handleRejection = (event: PromiseRejectionEvent) => {
-      const error =
-        event.reason instanceof Error
-          ? event.reason
-          : new Error(String(event.reason));
-      reportError(error, { source: "unhandledrejection" });
+      const reason = event.reason;
+      // Guard against non-Error rejection reasons (e.g. Event objects,
+      // strings, or undefined) so we never surface "[object Event]".
+      if (reason instanceof Error) {
+        reportError(reason, { source: "unhandledrejection" });
+      } else if (reason !== undefined && reason !== null) {
+        reportError(new Error(String(reason)), {
+          source: "unhandledrejection",
+        });
+      }
+      // undefined/null rejections are silently ignored
     };
 
     window.addEventListener("error", handleError);
