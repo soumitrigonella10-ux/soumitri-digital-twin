@@ -29,7 +29,7 @@ export async function getPublicWishlistItems(): Promise<WishlistItem[]> {
     if (row.websiteUrl) item.websiteUrl = row.websiteUrl;
     if (row.price != null) item.price = row.price;
     if (row.currency) item.currency = row.currency;
-    if (row.priority) item.priority = row.priority as WishlistItem["priority"];
+    if (row.priority) item.priority = row.priority as "Medium" | "Low" | "High";
     if (row.purchased) item.purchased = true;
 
     return item;
