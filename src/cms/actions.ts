@@ -17,6 +17,7 @@ import { db } from "@/db";
 import { contentItems } from "@/db/schema/content";
 import { requireAdmin } from "@/lib/admin-auth";
 import { createLogger } from "@/lib/logger";
+import { revalidateCmsCache, cachedContentByType, cachedContentBySlug, cachedContentById, cachedAdminQuery } from "./cache";
 import type { CmsActionResult, ContentItem, ContentVisibility } from "./types";
 import { createContentSchema, updateContentSchema } from "./schemas";
 
@@ -35,7 +36,7 @@ async function getContentTypeConfig(type: string) {
 // ── Helpers ──────────────────────────────────────────────────
 
 function generateId(): string {
-  return `ci_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
+  return `ci_${crypto.randomUUID()}`;
 }
 
 function rowToContentItem(row: typeof contentItems.$inferSelect): ContentItem {
@@ -125,6 +126,8 @@ export async function createContent(
     if (!row) return { success: false, error: "Insert returned no rows" };
 
     log.info(`✅ Created ${type} "${title}" (${id}) by ${admin.email}`);
+
+    revalidateCmsCache(type, slug);
 
     return { success: true, data: rowToContentItem(row) };
   } catch (error) {
@@ -232,6 +235,8 @@ export async function updateContent(
 
     log.info(`✅ Updated ${existing.type} "${row.title}" (${id}) by ${admin.email}`);
 
+    revalidateCmsCache(existing.type, row.slug, id);
+
     return { success: true, data: rowToContentItem(row) };
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unknown error";
@@ -273,6 +278,8 @@ export async function deleteContent(id: string): Promise<CmsActionResult<{ id: s
 
     log.info(`🗑️ Deleted ${existing.type} "${existing.title}" (${id}) by ${admin.email}`);
 
+    revalidateCmsCache(existing.type, undefined, id);
+
     return { success: true, data: { id } };
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unknown error";
@@ -290,45 +297,77 @@ export async function deleteContent(id: string): Promise<CmsActionResult<{ id: s
 
 export async function getContentByType(
   type: string,
-  options?: { visibility?: ContentVisibility; limit?: number }
-): Promise<ContentItem[]> {
-  const conditions = [eq(contentItems.type, type)];
+  options?: { visibility?: ContentVisibility; limit?: number; offset?: number }
+): Promise<{ items: ContentItem[]; total: number }> {
+  const limit = Math.min(options?.limit ?? 50, 200);
+  const offset = Math.max(options?.offset ?? 0, 0);
 
-  if (options?.visibility) {
-    conditions.push(eq(contentItems.visibility, options.visibility));
-  }
+  const fetch = cachedContentByType(
+    async () => {
+      const conditions = [eq(contentItems.type, type)];
+      if (options?.visibility) {
+        conditions.push(eq(contentItems.visibility, options.visibility));
+      }
 
-  const rows = await db
-    .select()
-    .from(contentItems)
-    .where(and(...conditions))
-    .orderBy(desc(contentItems.publishedAt), desc(contentItems.createdAt))
-    .limit(options?.limit ?? 100);
+      const [rows, [{ total }]] = await Promise.all([
+        db
+          .select()
+          .from(contentItems)
+          .where(and(...conditions))
+          .orderBy(desc(contentItems.publishedAt), desc(contentItems.createdAt))
+          .limit(limit)
+          .offset(offset),
+        db
+          .select({ total: sql<number>`count(*)::int` })
+          .from(contentItems)
+          .where(and(...conditions)),
+      ]);
 
-  return rows.map(rowToContentItem);
+      return { items: rows.map(rowToContentItem), total };
+    },
+    type,
+    [options?.visibility ?? "all", String(limit), String(offset)]
+  );
+
+  return fetch();
 }
 
 export async function getContentBySlug(
   type: string,
   slug: string
 ): Promise<ContentItem | null> {
-  const [row] = await db
-    .select()
-    .from(contentItems)
-    .where(and(eq(contentItems.type, type), eq(contentItems.slug, slug)))
-    .limit(1);
+  const fetch = cachedContentBySlug(
+    async () => {
+      const [row] = await db
+        .select()
+        .from(contentItems)
+        .where(and(eq(contentItems.type, type), eq(contentItems.slug, slug)))
+        .limit(1);
 
-  return row ? rowToContentItem(row) : null;
+      return row ? rowToContentItem(row) : null;
+    },
+    type,
+    slug
+  );
+
+  return fetch();
 }
 
 export async function getContentById(id: string): Promise<ContentItem | null> {
-  const [row] = await db
-    .select()
-    .from(contentItems)
-    .where(eq(contentItems.id, id))
-    .limit(1);
+  const fetch = cachedContentById(
+    async () => {
+      const [row] = await db
+        .select()
+        .from(contentItems)
+        .where(eq(contentItems.id, id))
+        .limit(1);
 
-  return row ? rowToContentItem(row) : null;
+      return row ? rowToContentItem(row) : null;
+    },
+    id
+  );
+
+  return fetch();
 }
 
 /**
@@ -336,27 +375,45 @@ export async function getContentById(id: string): Promise<ContentItem | null> {
  * Used by the CMS admin dashboard.
  */
 export async function listAllContent(
-  options?: { type?: string; limit?: number }
-): Promise<ContentItem[]> {
+  options?: { type?: string; limit?: number; offset?: number }
+): Promise<{ items: ContentItem[]; total: number }> {
   await requireAdmin();
 
+  const limit = Math.min(options?.limit ?? 50, 200);
+  const offset = Math.max(options?.offset ?? 0, 0);
+
+  const fetch = cachedAdminQuery(
+    async () => {
+      const conditions = options?.type ? [eq(contentItems.type, options.type)] : [];
+      const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+
+      const [rows, [{ total }]] = await Promise.all([
+        db
+          .select()
+          .from(contentItems)
+          .where(whereClause)
+          .orderBy(desc(contentItems.updatedAt))
+          .limit(limit)
+          .offset(offset),
+        db
+          .select({ total: sql<number>`count(*)::int` })
+          .from(contentItems)
+          .where(whereClause),
+      ]);
+
+      return { items: rows.map(rowToContentItem), total };
+    },
+    ["list", options?.type ?? "all", String(limit), String(offset)]
+  );
+
   try {
-    const conditions = options?.type ? [eq(contentItems.type, options.type)] : [];
-
-    const rows = await db
-      .select()
-      .from(contentItems)
-      .where(conditions.length > 0 ? and(...conditions) : undefined)
-      .orderBy(desc(contentItems.updatedAt))
-      .limit(options?.limit ?? 200);
-
-    return rows.map(rowToContentItem);
+    return await fetch();
   } catch (error) {
     // Gracefully handle missing table (migration not yet run)
     const message = error instanceof Error ? error.message : "";
     if (message.includes("does not exist") || message.includes("relation")) {
       log.warn("content_items table not found — run the migration first");
-      return [];
+      return { items: [], total: 0 };
     }
     throw error;
   }
@@ -370,18 +427,25 @@ export async function getContentStats(): Promise<
 > {
   await requireAdmin();
 
-  try {
-    const rows = await db
-      .select({
-        type: contentItems.type,
-        total: sql<number>`count(*)::int`,
-        published: sql<number>`count(*) filter (where ${contentItems.visibility} = 'published')::int`,
-        drafts: sql<number>`count(*) filter (where ${contentItems.visibility} = 'draft')::int`,
-      })
-      .from(contentItems)
-      .groupBy(contentItems.type);
+  const fetch = cachedAdminQuery(
+    async () => {
+      const rows = await db
+        .select({
+          type: contentItems.type,
+          total: sql<number>`count(*)::int`,
+          published: sql<number>`count(*) filter (where ${contentItems.visibility} = 'published')::int`,
+          drafts: sql<number>`count(*) filter (where ${contentItems.visibility} = 'draft')::int`,
+        })
+        .from(contentItems)
+        .groupBy(contentItems.type);
 
-    return rows;
+      return rows;
+    },
+    ["stats"]
+  );
+
+  try {
+    return await fetch();
   } catch (error) {
     // Gracefully handle missing table (migration not yet run)
     const message = error instanceof Error ? error.message : "";

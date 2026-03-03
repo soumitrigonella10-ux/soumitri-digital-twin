@@ -1,6 +1,7 @@
-import type { NextRequest} from "next/server";
+import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
-import { readFile } from "fs/promises";
+import { stat } from "fs/promises";
+import { createReadStream } from "fs";
 import path from "path";
 
 /**
@@ -45,12 +46,29 @@ export async function GET(
   }
 
   try {
-    const fileBuffer = await readFile(resolvedPath);
+    // Use stat to verify existence + get size, then stream the file
+    // instead of reading the entire PDF into a memory buffer.
+    const fileStat = await stat(resolvedPath);
+    const nodeStream = createReadStream(resolvedPath);
 
-    return new NextResponse(fileBuffer, {
+    const readable = new ReadableStream({
+      start(controller) {
+        nodeStream.on("data", (chunk: Buffer) => {
+          controller.enqueue(new Uint8Array(chunk));
+        });
+        nodeStream.on("end", () => controller.close());
+        nodeStream.on("error", (err) => controller.error(err));
+      },
+      cancel() {
+        nodeStream.destroy();
+      },
+    });
+
+    return new NextResponse(readable, {
       status: 200,
       headers: {
         "Content-Type": "application/pdf",
+        "Content-Length": String(fileStat.size),
         "Content-Disposition": `inline; filename="${fileName}"`,
         // Allow this response to be framed by our own origin
         "X-Frame-Options": "SAMEORIGIN",

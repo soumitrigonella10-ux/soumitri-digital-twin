@@ -4,8 +4,7 @@
 // Every CMS mutation MUST call requireAdmin() before doing any work.
 // This is the single chokepoint for authorization, never bypassed.
 // ─────────────────────────────────────────────────────────────
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { auth } from "@/lib/auth";
 import { createLogger } from "@/lib/logger";
 
 const log = createLogger("cms-auth");
@@ -25,7 +24,7 @@ export interface AdminSession {
  * Returns the validated admin session for audit logging.
  */
 export async function requireAdmin(): Promise<AdminSession> {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
 
   if (!session?.user?.email) {
     log.warn("⛔ CMS mutation attempted without authentication");

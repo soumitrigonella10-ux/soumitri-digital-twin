@@ -1,7 +1,6 @@
 'use client';
 
-import { useState, useCallback, useEffect, useMemo } from 'react';
-import { useSession } from 'next-auth/react';
+import { useState, useCallback } from 'react';
 import { Pencil, Trash2 } from 'lucide-react';
 import Image from 'next/image';
 import type { Artifact } from '@/data/artifacts';
@@ -10,7 +9,7 @@ import { EditorialNav } from '@/components/EditorialNav';
 import { AuthenticatedLayout } from '@/components/AuthenticatedLayout';
 import { UploadArtifactModal } from '@/components/artifacts/UploadArtifactModal';
 import { EditArtifactModal } from '@/components/artifacts/EditArtifactModal';
-import { getContentByType, deleteContent } from '@/cms/actions';
+import { useCmsPage } from '@/hooks/useCmsPage';
 import type { ContentItem } from '@/cms/types';
 
 // ─────────────────────────────────────────────
@@ -63,72 +62,28 @@ function cmsItemToArtifact(item: ContentItem): Artifact {
 // ─────────────────────────────────────────────
 
 function ArtifactsPageContent() {
-  const { data: session, status } = useSession();
+  const {
+    status, isAuthenticated, isAdmin,
+    items: allArtifacts, isLoadingCms,
+    fetchCmsItems: fetchCmsArtifacts,
+    isCmsItem: isCmsArtifact,
+    deletingItem: deletingArtifact,
+    setDeletingItem: setDeletingArtifact,
+    isDeleting, handleDeleteConfirm,
+  } = useCmsPage({
+    contentType: "artifact",
+    converter: cmsItemToArtifact,
+    staticItems: staticArtifacts,
+    dedupeKey: (a) => a.title.toLowerCase(),
+  });
+
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [editingArtifact, setEditingArtifact] = useState<Artifact | null>(null);
-  const [deletingArtifact, setDeletingArtifact] = useState<Artifact | null>(null);
-  const [isDeleting, setIsDeleting] = useState(false);
-
-  // CMS data
-  const [cmsArtifacts, setCmsArtifacts] = useState<Artifact[]>([]);
-  const [isLoadingCms, setIsLoadingCms] = useState(true);
-
-  const isAuthenticated = !!session;
-  const isAdmin = (session?.user as { role?: string } | undefined)?.role === "admin";
-
-  // ── Fetch CMS artifacts ───────────────────────────────────
-  const fetchCmsArtifacts = useCallback(async () => {
-    try {
-      const items = await getContentByType("artifact", { visibility: "published" });
-      setCmsArtifacts(items.map(cmsItemToArtifact));
-    } catch (err) {
-      console.error("Failed to load CMS artifacts:", err);
-    } finally {
-      setIsLoadingCms(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchCmsArtifacts();
-  }, [fetchCmsArtifacts]);
-
-  // ── Merge static + CMS artifacts (CMS wins on title conflict) ─
-  const allArtifacts = useMemo(() => {
-    const cmsTitles = new Set(cmsArtifacts.map((a) => a.title.toLowerCase()));
-    const dedupedStatic = staticArtifacts.filter(
-      (a) => !cmsTitles.has(a.title.toLowerCase())
-    );
-    return [...cmsArtifacts, ...dedupedStatic];
-  }, [cmsArtifacts]);
-
-  // Check if an artifact came from the CMS (editable / deletable)
-  const isCmsArtifact = useCallback(
-    (artifact: Artifact) => artifact.id.startsWith("ci_"),
-    []
-  );
 
   // ── Handlers ──────────────────────────────────────────────
   const handleEdit = useCallback((artifact: Artifact) => {
     setEditingArtifact(artifact);
   }, []);
-
-  const handleDeleteConfirm = useCallback(async () => {
-    if (!deletingArtifact) return;
-    setIsDeleting(true);
-    try {
-      const result = await deleteContent(deletingArtifact.id);
-      if (result.success) {
-        setDeletingArtifact(null);
-        fetchCmsArtifacts();
-      } else {
-        alert(result.error || "Failed to delete artifact");
-      }
-    } catch {
-      alert("Failed to delete artifact");
-    } finally {
-      setIsDeleting(false);
-    }
-  }, [deletingArtifact, fetchCmsArtifacts]);
 
   // Loading
   if (status === "loading") {

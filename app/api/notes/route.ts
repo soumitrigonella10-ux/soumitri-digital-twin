@@ -10,7 +10,7 @@
 // ─────────────────────────────────────────────────────────────
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
-import { eq, desc, asc } from "drizzle-orm";
+import { eq, desc, asc, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { notes } from "@/db/schema/notes";
 import { requireAdmin } from "@/lib/admin-auth";
@@ -18,7 +18,21 @@ import { requireAdmin } from "@/lib/admin-auth";
 // ── Helpers ──────────────────────────────────────────────────
 
 function generateId(): string {
-  return `note_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
+  return `note_${crypto.randomUUID()}`;
+}
+
+// ── Pagination helpers ───────────────────────────────────────
+
+const DEFAULT_LIMIT = 50;
+const MAX_LIMIT = 200;
+
+function parsePagination(params: URLSearchParams) {
+  const rawLimit = Number(params.get("limit") ?? DEFAULT_LIMIT);
+  const rawOffset = Number(params.get("offset") ?? 0);
+  return {
+    limit: Math.min(Math.max(1, rawLimit || DEFAULT_LIMIT), MAX_LIMIT),
+    offset: Math.max(0, rawOffset || 0),
+  };
 }
 
 // ── GET — list notes ─────────────────────────────────────────
@@ -29,16 +43,29 @@ export async function GET(req: NextRequest) {
 
     const { searchParams } = new URL(req.url);
     const type = searchParams.get("type"); // "task" | "idea" | null
+    const { limit, offset } = parsePagination(searchParams);
 
     const conditions = type ? eq(notes.type, type) : undefined;
 
-    const rows = await db
-      .select()
-      .from(notes)
-      .where(conditions)
-      .orderBy(asc(notes.sortOrder), desc(notes.createdAt));
+    const [rows, [{ total }]] = await Promise.all([
+      db
+        .select()
+        .from(notes)
+        .where(conditions)
+        .orderBy(asc(notes.sortOrder), desc(notes.createdAt))
+        .limit(limit)
+        .offset(offset),
+      db
+        .select({ total: sql<number>`count(*)::int` })
+        .from(notes)
+        .where(conditions),
+    ]);
 
-    return NextResponse.json({ success: true, data: rows });
+    return NextResponse.json({
+      success: true,
+      data: rows,
+      pagination: { limit, offset, total, hasMore: offset + rows.length < total },
+    });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Internal error";
     const status = message.includes("Authentication") || message.includes("Admin") ? 401 : 500;

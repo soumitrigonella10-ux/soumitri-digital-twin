@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { headers } from "next/headers";
-import { Playfair_Display, Inter, Noto_Sans_Telugu, Mrs_Saint_Delafield, Instrument_Serif, Dancing_Script } from "next/font/google";
+import { Playfair_Display, Inter, Mrs_Saint_Delafield } from "next/font/google";
 import "./globals.css";
 import { ToastProvider } from "@/components/ToastProvider";
 import { SessionProvider } from "@/components/SessionProvider";
@@ -21,33 +21,11 @@ const inter = Inter({
   variable: "--font-inter",
 });
 
-const teluguFont = Noto_Sans_Telugu({
-  subsets: ["telugu"],
-  weight: ["400", "500", "600", "700"],
-  display: "swap",
-  variable: "--font-telugu",
-});
-
 const scriptFont = Mrs_Saint_Delafield({
   subsets: ["latin"],
   weight: "400",
   display: "swap",
   variable: "--font-script",
-});
-
-const instrumentSerif = Instrument_Serif({
-  subsets: ["latin"],
-  weight: "400",
-  style: ["normal", "italic"],
-  display: "swap",
-  variable: "--font-instrument",
-});
-
-const dancingScript = Dancing_Script({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  display: "swap",
-  variable: "--font-dancing",
 });
 
 export const metadata: Metadata = {
@@ -66,7 +44,7 @@ export default async function RootLayout({
   await headers();
 
   return (
-    <html lang="en" className={`${playfair.variable} ${inter.variable} ${teluguFont.variable} ${scriptFont.variable} ${instrumentSerif.variable} ${dancingScript.variable}`} suppressHydrationWarning>
+    <html lang="en" className={`${playfair.variable} ${inter.variable} ${scriptFont.variable}`} suppressHydrationWarning>
       <body className="bg-telugu-sandstone min-h-screen" suppressHydrationWarning>
         <SessionProvider>
           <ToastProvider>

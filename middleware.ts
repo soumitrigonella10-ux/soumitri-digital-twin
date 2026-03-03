@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
-import { getToken } from "next-auth/jwt"
+import { auth } from "@/lib/auth"
 import { getPublicTopicSlugs } from "@/data/topics"
 import { config as appConfig } from "@/lib/config"
 
@@ -12,8 +12,17 @@ const PUBLIC_TOPIC_SLUGS = getPublicTopicSlugs()
 
 // ========================================
 // Rate limiting for magic link endpoint (#7)
-// In-memory map — resets on cold start. Sufficient for a single-allowed-email
-// app; for multi-tenant use, swap for a Redis/KV-backed counter.
+//
+// ⚠ LIMITATION: In-memory — resets on every cold start and is not
+// shared across serverless function instances. An attacker could
+// bypass by triggering concurrent cold starts. This is acceptable
+// for a single-allowed-email personal app where the email allowlist
+// is the real security boundary.
+//
+// To scale beyond single-user:
+//   1. Replace this Map with Vercel KV (Redis) or Upstash via
+//      `@upstash/ratelimit` (sliding-window, no cold-start gaps).
+//   2. Or use Next.js Edge Config for a lightweight counter.
 // ========================================
 const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
 const RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000; // 15 minutes
@@ -159,23 +168,11 @@ export async function middleware(request: NextRequest) {
       return response;
     }
 
-    // Get the JWT token from the request
-    // Fail loudly if NEXTAUTH_SECRET is missing — empty string silently degrades auth
-    const secret = process.env.NEXTAUTH_SECRET
-    if (!secret) {
-      console.error("[Middleware] NEXTAUTH_SECRET is not set — cannot verify JWT")
-      const loginUrl = new URL("/auth/signin", request.url)
-      loginUrl.searchParams.set("next", pathname)
-      return NextResponse.redirect(loginUrl)
-    }
+    // Get the session using Auth.js v5
+    const session = await auth();
 
-    const token = await getToken({
-      req: request,
-      secret,
-    })
-
-    // If no token (not authenticated), redirect to login with next param
-    if (!token) {
+    // If no session (not authenticated), redirect to login with next param
+    if (!session) {
       const loginUrl = new URL("/auth/signin", request.url)
       loginUrl.searchParams.set("next", pathname)
       return NextResponse.redirect(loginUrl)

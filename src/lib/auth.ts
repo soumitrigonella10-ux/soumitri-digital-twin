@@ -1,31 +1,42 @@
 // ========================================
-// Auth Configuration — Shared NextAuth Options
+// Auth Configuration — Auth.js v5
 //
-// Extracted from the API route so authOptions can be reused in:
-// - API route handler (app/api/auth/[...nextauth]/route.ts)
-// - Server components via getServerSession(authOptions)
-// - Other API routes that need session access
+// Single-file setup that exports:
+//   handlers  → re-exported in app/api/auth/[...nextauth]/route.ts
+//   auth      → server-side session access (replaces getServerSession)
+//   signIn    → server action for sign-in
+//   signOut   → server action for sign-out
 //
-// This follows Next.js best practice for NextAuth v4:
-// https://next-auth.js.org/configuration/nextauth#in-app-router
+// https://authjs.dev/getting-started/migrating-to-v5
 // ========================================
 
-import type { NextAuthOptions } from "next-auth";
-import EmailProvider from "next-auth/providers/email";
+import NextAuth from "next-auth";
+import Nodemailer from "next-auth/providers/nodemailer";
 import CustomPgAdapter from "@/lib/pg-adapter";
 import { JsonAdapter } from "@/lib/json-adapter";
 import { pool } from "@/lib/db";
 import { createLogger } from "@/lib/logger";
+
+import type { NextAuthConfig } from "next-auth";
+import type { Provider } from "next-auth/providers";
 
 const log = createLogger("auth");
 
 // ========================================
 // Security: Email allowlisting
 // ========================================
-const ALLOWED_EMAIL = "soumitri.gonella10@gmail.com";
+const ALLOWED_EMAIL = (() => {
+  const email = process.env.ALLOWED_EMAIL;
+  if (!email) {
+    throw new Error(
+      "Missing environment variable ALLOWED_EMAIL — set it to the single email permitted to sign in."
+    );
+  }
+  return email.toLowerCase();
+})();
 
 function isAllowedEmail(email: string): boolean {
-  return email.toLowerCase() === ALLOWED_EMAIL.toLowerCase();
+  return email.toLowerCase() === ALLOWED_EMAIL;
 }
 
 function getAdminEmails(): string[] {
@@ -47,12 +58,9 @@ function isAdmin(email: string): boolean {
 function validateEnvironment() {
   const issues: string[] = [];
 
-  if (!process.env.NEXTAUTH_SECRET) {
-    issues.push("NEXTAUTH_SECRET is not set");
-  }
-
-  if (!process.env.NEXTAUTH_URL) {
-    issues.push("NEXTAUTH_URL is not set");
+  // Auth.js v5 accepts both AUTH_SECRET and NEXTAUTH_SECRET
+  if (!process.env.AUTH_SECRET && !process.env.NEXTAUTH_SECRET) {
+    issues.push("AUTH_SECRET (or NEXTAUTH_SECRET) is not set");
   }
 
   if (process.env.DEMO_MODE !== "true") {
@@ -102,12 +110,12 @@ function getAdapter() {
 }
 
 // ========================================
-// Exported auth configuration
+// Auth.js v5 configuration
 // ========================================
-export const authOptions: NextAuthOptions = {
+const authConfig: NextAuthConfig = {
   adapter: getAdapter(),
   providers: [
-    EmailProvider({
+    Nodemailer({
       server:
         process.env.DEMO_MODE === "true"
           ? ""
@@ -169,7 +177,7 @@ export const authOptions: NextAuthOptions = {
                 throw error;
               }
             },
-    }),
+    }) as Provider,
   ],
   session: {
     strategy: "jwt",
@@ -181,15 +189,14 @@ export const authOptions: NextAuthOptions = {
   },
   debug: process.env.NODE_ENV === "development",
   logger: {
-    error(code, metadata) {
-      log.error(
-        "[next-auth]",
-        code,
-        JSON.stringify(metadata, null, 2)
-      );
+    error(error: Error) {
+      log.error("[next-auth]", error.message, error.stack);
     },
-    warn(code) {
+    warn(code: string) {
       log.warn("[next-auth]", code);
+    },
+    debug(message: string, metadata?: unknown) {
+      log.info("[next-auth:debug]", message, metadata);
     },
   },
   callbacks: {
@@ -224,3 +231,5 @@ export const authOptions: NextAuthOptions = {
     },
   },
 };
+
+export const { handlers, auth, signIn: serverSignIn, signOut: serverSignOut } = NextAuth(authConfig);

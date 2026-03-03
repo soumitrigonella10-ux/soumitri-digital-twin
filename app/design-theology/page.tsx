@@ -1,7 +1,6 @@
 'use client';
 
-import { useState, useCallback, useEffect, useMemo } from 'react';
-import { useSession } from 'next-auth/react';
+import { useState, useCallback } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import type { DesignThought } from '@/data/designThoughts';
 import { designThoughts as staticDesignThoughts } from '@/data/designThoughts';
@@ -11,7 +10,7 @@ import { ContentRenderer } from '@/components/content-renderer';
 import { thoughtToContentData } from '@/lib/content-adapters';
 import { AddDesignThoughtModal } from '@/components/design-thoughts/AddDesignThoughtModal';
 import { EditDesignThoughtModal } from '@/components/design-thoughts/EditDesignThoughtModal';
-import { getContentByType, deleteContent } from '@/cms/actions';
+import { useCmsPage } from '@/hooks/useCmsPage';
 import type { ContentItem as CmsContentItem } from '@/cms/types';
 import { Pencil, Trash2 } from 'lucide-react';
 
@@ -35,47 +34,25 @@ function cmsToDesignThought(item: CmsContentItem): DesignThought {
 }
 
 function DesignTheologyPageContent() {
-  const { data: session, status } = useSession();
+  const {
+    status, isAuthenticated, isAdmin,
+    items: designThoughts,
+    fetchCmsItems,
+    isCmsItem,
+    deletingItem, setDeletingItem,
+    isDeleting, handleDeleteConfirm,
+  } = useCmsPage({
+    contentType: 'design-thought',
+    converter: cmsToDesignThought,
+    staticItems: staticDesignThoughts,
+    dedupeKey: (i) => i.title.toLowerCase(),
+  });
+
   const [selectedThought, setSelectedThought] = useState<DesignThought | null>(null);
-  const isAuthenticated = !!session;
-  const isAdmin = (session?.user as { role?: string } | undefined)?.role === 'admin';
 
   // CMS CRUD state
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingItem, setEditingItem] = useState<DesignThought | null>(null);
-  const [deletingItem, setDeletingItem] = useState<DesignThought | null>(null);
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [cmsItems, setCmsItems] = useState<DesignThought[]>([]);
-
-  const isCmsItem = useCallback((item: DesignThought) => item.id.startsWith('ci_'), []);
-
-  const fetchCmsItems = useCallback(async () => {
-    try {
-      const items = await getContentByType('design-thought', { visibility: 'published' });
-      setCmsItems(items.map(cmsToDesignThought));
-    } catch (err) {
-      console.error('Failed to load CMS design thoughts:', err);
-    }
-  }, []);
-
-  useEffect(() => { fetchCmsItems(); }, [fetchCmsItems]);
-
-  const handleDeleteConfirm = useCallback(async () => {
-    if (!deletingItem) return;
-    setIsDeleting(true);
-    try {
-      const result = await deleteContent(deletingItem.id);
-      if (result.success) { setDeletingItem(null); fetchCmsItems(); }
-      else { alert(result.error || 'Failed to delete'); }
-    } catch { alert('Failed to delete'); } finally { setIsDeleting(false); }
-  }, [deletingItem, fetchCmsItems]);
-
-  // Merge static + CMS thoughts
-  const designThoughts = useMemo(() => {
-    const cmsTitles = new Set(cmsItems.map(i => i.title.toLowerCase()));
-    const filtered = staticDesignThoughts.filter(i => !cmsTitles.has(i.title.toLowerCase()));
-    return [...cmsItems, ...filtered];
-  }, [cmsItems]);
 
   const handleOpenModal = (thought: DesignThought) => {
     if (thought.pdfUrl) setSelectedThought(thought);

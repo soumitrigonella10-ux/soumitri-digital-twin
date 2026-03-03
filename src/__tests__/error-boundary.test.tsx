@@ -51,15 +51,13 @@ function ThrowingComponent({ shouldThrow = true }: { shouldThrow?: boolean }) {
 // reportError utility
 // ========================================
 describe("reportError", () => {
-  const originalEnv = process.env.NODE_ENV;
-
   beforeEach(() => {
-    process.env.NODE_ENV = "development";
+    vi.stubEnv("NODE_ENV", "development");
     mockCaptureException.mockClear();
   });
 
   afterEach(() => {
-    process.env.NODE_ENV = originalEnv;
+    vi.unstubAllEnvs();
   });
 
   it("logs error payload in development", () => {
@@ -124,17 +122,16 @@ describe("reportError", () => {
 describe("GlobalErrorListener", () => {
   let addSpy: ReturnType<typeof vi.spyOn>;
   let removeSpy: ReturnType<typeof vi.spyOn>;
-  const originalEnv = process.env.NODE_ENV;
 
   beforeEach(() => {
-    process.env.NODE_ENV = "development";
+    vi.stubEnv("NODE_ENV", "development");
     addSpy = vi.spyOn(window, "addEventListener");
     removeSpy = vi.spyOn(window, "removeEventListener");
     mockCaptureException.mockClear();
   });
 
   afterEach(() => {
-    process.env.NODE_ENV = originalEnv;
+    vi.unstubAllEnvs();
     addSpy.mockRestore();
     removeSpy.mockRestore();
     cleanup();

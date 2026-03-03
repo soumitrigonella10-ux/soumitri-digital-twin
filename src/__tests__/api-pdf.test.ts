@@ -7,13 +7,20 @@
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import type { NextRequest } from "next/server";
+import { Readable } from "stream";
 
 // ── Mocks ────────────────────────────────────────────────────
 
-const mockReadFile = vi.fn();
+const mockStat = vi.fn();
 vi.mock("fs/promises", () => ({
-  default: { readFile: (...args: unknown[]) => mockReadFile(...args) },
-  readFile: (...args: unknown[]) => mockReadFile(...args),
+  default: { stat: (...args: unknown[]) => mockStat(...args) },
+  stat: (...args: unknown[]) => mockStat(...args),
+}));
+
+const mockCreateReadStream = vi.fn();
+vi.mock("fs", () => ({
+  default: { createReadStream: (...args: unknown[]) => mockCreateReadStream(...args) },
+  createReadStream: (...args: unknown[]) => mockCreateReadStream(...args),
 }));
 
 // ── Dynamic import ───────────────────────────────────────────
@@ -25,7 +32,9 @@ let GET: (
 
 beforeEach(async () => {
   vi.clearAllMocks();
-  mockReadFile.mockResolvedValue(Buffer.from("%PDF-1.4 fake content"));
+  const pdfContent = Buffer.from("%PDF-1.4 fake content");
+  mockStat.mockResolvedValue({ size: pdfContent.length });
+  mockCreateReadStream.mockImplementation(() => Readable.from([pdfContent]));
 
   const mod = await import("../../app/api/pdf/[...path]/route");
   GET = mod.GET;
@@ -74,7 +83,7 @@ describe("PDF API — Directory traversal", () => {
     // normalises into the allowed directory. The defence works — the
     // traversal is neutralised; verify readFile never receives ".."
     if (res.status === 200) {
-      const calledPath = mockReadFile.mock.calls[0]?.[0] as string;
+      const calledPath = mockCreateReadStream.mock.calls[0]?.[0] as string;
       expect(calledPath).not.toContain("..");
     } else {
       // 403 or 404 are also acceptable outcomes
@@ -83,7 +92,7 @@ describe("PDF API — Directory traversal", () => {
   });
 
   it("blocks resolved paths outside allowed directory", async () => {
-    mockReadFile.mockRejectedValue(new Error("ENOENT"));
+    mockStat.mockRejectedValue(new Error("ENOENT"));
     const [req, ctx] = createPdfRequest(["..%2F..%2Fetc", "passwd.pdf"]);
     const res = await GET(req, ctx);
     expect([403, 404]).toContain(res.status);
@@ -125,7 +134,7 @@ describe("PDF API — Response headers", () => {
 // ========================================
 describe("PDF API — Not found", () => {
   it("returns 404 when PDF file does not exist", async () => {
-    mockReadFile.mockRejectedValue(new Error("ENOENT: no such file"));
+    mockStat.mockRejectedValue(new Error("ENOENT: no such file"));
     const [req, ctx] = createPdfRequest(["essays", "nonexistent.pdf"]);
     const res = await GET(req, ctx);
     expect(res.status).toBe(404);
@@ -141,7 +150,7 @@ describe("PDF API — Path routing", () => {
     const res = await GET(req, ctx);
     expect(res.status).toBe(200);
     // Verify readFile was called with a path containing "uploads"
-    const calledPath = mockReadFile.mock.calls[0]?.[0] as string;
+    const calledPath = mockCreateReadStream.mock.calls[0]?.[0] as string;
     expect(calledPath).toContain("uploads");
   });
 
@@ -149,7 +158,7 @@ describe("PDF API — Path routing", () => {
     const [req, ctx] = createPdfRequest(["travel", "kyoto.pdf"]);
     const res = await GET(req, ctx);
     expect(res.status).toBe(200);
-    const calledPath = mockReadFile.mock.calls[0]?.[0] as string;
+    const calledPath = mockCreateReadStream.mock.calls[0]?.[0] as string;
     expect(calledPath).toContain("pdfs");
   });
 });

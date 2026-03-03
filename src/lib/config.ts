@@ -33,7 +33,7 @@ export const config = {
     isDemoMode: isDemo,
     sessionMaxAge: 7 * 24 * 60 * 60, // 7 days in seconds
     magicLinkMaxAge: 10 * 60, // 10 minutes in seconds
-    allowedEmail: "soumitri.gonella10@gmail.com",
+    allowedEmail: process.env.ALLOWED_EMAIL ?? "",
   },
 
   /** Database settings */

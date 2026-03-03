@@ -20,9 +20,9 @@ function SignInForm() {
     if (!email) return;
 
     try {
-      const result = await signIn("email", {
+      const result = await signIn("nodemailer", {
         email,
-        callbackUrl: next,
+        redirectTo: next,
         redirect: false,
       });
 

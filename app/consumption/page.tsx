@@ -1,13 +1,12 @@
 "use client";
 
-import { useState, useMemo, useCallback, useEffect } from "react";
-import { useSession } from "next-auth/react";
+import { useState, useMemo, useCallback } from "react";
 import { Play, Film, BookOpen, ChevronDown, Star, Search, ArrowUpRight, Pencil, Trash2 } from "lucide-react";
 import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
 import { EditorialNav } from "@/components/EditorialNav";
 import { AddConsumptionModal } from "@/components/consumption/AddConsumptionModal";
 import { EditConsumptionModal } from "@/components/consumption/EditConsumptionModal";
-import { getContentByType, deleteContent } from "@/cms/actions";
+import { useCmsPage } from "@/hooks/useCmsPage";
 import type { ContentItem as CmsContentItem } from "@/cms/types";
 import {
   getItemsBySubChip,
@@ -428,42 +427,23 @@ function LibraryListView({ activeFilter }: { activeFilter: ContentFilter }) {
 // ─────────────────────────────────────────────
 
 function ConsumptionPageContent() {
-  const { data: session, status } = useSession();
+  const {
+    status, isAuthenticated, isAdmin,
+    cmsItems, fetchCmsItems, isCmsItem,
+    deletingItem, setDeletingItem,
+    isDeleting, handleDeleteConfirm,
+  } = useCmsPage({
+    contentType: "consumption",
+    converter: cmsToContentItem,
+    staticItems: [],
+  });
+
   const [activeFilter, setActiveFilter] = useState<ContentFilter>("Books");
   const [activeSubChip, setActiveSubChip] = useState<ContentSubChip>("Looking Forward");
 
   // CMS CRUD state
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingItem, setEditingItem] = useState<ContentItem | null>(null);
-  const [deletingItem, setDeletingItem] = useState<ContentItem | null>(null);
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [cmsItems, setCmsItems] = useState<ContentItem[]>([]);
-
-  const isAdmin = (session?.user as { role?: string } | undefined)?.role === "admin";
-  const isCmsItem = useCallback((item: ContentItem) => item.id.startsWith("ci_"), []);
-
-  const fetchCmsItems = useCallback(async () => {
-    try {
-      const items = await getContentByType("consumption", { visibility: "published" });
-      setCmsItems(items.map(cmsToContentItem));
-    } catch (err) {
-      console.error("Failed to load CMS consumption items:", err);
-    }
-  }, []);
-
-  useEffect(() => { fetchCmsItems(); }, [fetchCmsItems]);
-
-  const handleDeleteConfirm = useCallback(async () => {
-    if (!deletingItem) return;
-    setIsDeleting(true);
-    try {
-      const result = await deleteContent(deletingItem.id);
-      if (result.success) { setDeletingItem(null); fetchCmsItems(); }
-      else { alert(result.error || "Failed to delete"); }
-    } catch { alert("Failed to delete"); } finally { setIsDeleting(false); }
-  }, [deletingItem, fetchCmsItems]);
-
-  const isAuthenticated = !!session;
 
   // Merge static + CMS items, CMS wins on title
   const allItems = useMemo(() => {

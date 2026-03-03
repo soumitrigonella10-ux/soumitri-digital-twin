@@ -64,7 +64,7 @@ export function ContentManager() {
     if (!activeType) return;
     setIsLoading(true);
     try {
-      const [itemsResult, statsResult] = await Promise.all([
+      const [{ items: itemsResult }, statsResult] = await Promise.all([
         listAllContent({ type: activeType }),
         getContentStats(),
       ]);

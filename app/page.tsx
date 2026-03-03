@@ -115,7 +115,7 @@ export default function HomePage() {
               
               <div className="max-w-md lg:mx-0 mx-auto">
                 <button
-                  onClick={() => signIn("email")}
+                  onClick={() => signIn("nodemailer")}
                   className="w-full bg-gray-900 hover:bg-gray-800 text-white font-light py-4 px-8 rounded-lg transition-all tracking-wide uppercase text-sm"
                 >
                   Sign In with Email

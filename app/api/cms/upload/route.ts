@@ -109,14 +109,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 5. Upload to Vercel Blob
+    // 5. Upload to Vercel Blob (stream to avoid buffering a second copy)
     const originalName = (file as File).name || "upload";
     const safeName = sanitizeFilename(originalName);
     const pathname = `cms/${uploadType}/${safeName}`;
 
-    const blob = await put(pathname, file, {
+    const blob = await put(pathname, file.stream(), {
       access: "public",
       addRandomSuffix: false,
+      contentType: file.type,
     });
 
     log.info(`📁 Uploaded ${category}: ${blob.url} (${(file.size / 1024).toFixed(1)}KB) by ${admin.email}`);

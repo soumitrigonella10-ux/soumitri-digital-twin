@@ -13,10 +13,13 @@ try {
   if (process.env.POSTGRES_URL) {
     pool = new Pool({
       connectionString: process.env.POSTGRES_URL,
-      // Neon's free-tier database uses a shared TLS certificate that doesn't
-      // match the connection hostname, so strict verification fails.  This is
-      // acceptable for Neon Serverless; do NOT copy to other providers.
-      ssl: { rejectUnauthorized: false },
+      // Neon serverless requires SSL.  When POSTGRES_URL points at Neon the
+      // shared TLS certificate doesn't match the connection hostname, so
+      // strict verification fails.  Guard this with an explicit env flag so
+      // moving to another provider restores full certificate verification.
+      ssl: process.env.DB_SSL_REJECT_UNAUTHORIZED === 'false'
+        ? { rejectUnauthorized: false }
+        : true,
       max: 3,
       idleTimeoutMillis: 30000,
       connectionTimeoutMillis: 20000, // Increased to 20s to handle Neon cold starts reliably

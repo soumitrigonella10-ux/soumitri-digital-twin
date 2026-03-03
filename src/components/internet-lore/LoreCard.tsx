@@ -91,7 +91,7 @@ export function LoreCard({ item, index, chaosMode }: LoreCardProps) {
             <Quote className="absolute top-4 left-4 w-5 h-5 text-[#802626]/20" />
             <p
               className="text-center text-lg lg:text-xl text-[#3A2018] leading-relaxed italic"
-              style={{ fontFamily: "var(--font-instrument), 'Playfair Display', Georgia, serif" }}
+              style={{ fontFamily: "var(--font-playfair), 'Playfair Display', Georgia, serif" }}
             >
               &ldquo;{item.quoteText}&rdquo;
             </p>
@@ -175,7 +175,7 @@ export function LoreCard({ item, index, chaosMode }: LoreCardProps) {
           >
             <span
               className="text-sm text-[#802626]/70 leading-tight italic"
-              style={{ fontFamily: "var(--font-dancing), cursive" }}
+              style={{ fontFamily: "var(--font-script), 'Mrs Saint Delafield', cursive" }}
             >
               {item.note}
             </span>
@@ -186,7 +186,7 @@ export function LoreCard({ item, index, chaosMode }: LoreCardProps) {
         <div className="absolute bottom-0 left-0 right-0 p-4 z-10">
           <h3
             className="text-lg lg:text-xl text-[#3A2018] leading-snug mb-1"
-            style={{ fontFamily: "var(--font-instrument), 'Playfair Display', Georgia, serif" }}
+            style={{ fontFamily: "var(--font-playfair), 'Playfair Display', Georgia, serif" }}
           >
             {item.title}
           </h3>

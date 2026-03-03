@@ -80,7 +80,7 @@ export default function WishlistPage() {
 
   const fetchCmsItems = useCallback(async () => {
     try {
-      const items = await getContentByType("wishlist-item", { visibility: "published" });
+      const { items } = await getContentByType("wishlist-item", { visibility: "published" });
       setCmsItems(items.map(cmsToWishlistItem));
     } catch (err) {
       console.error("Failed to load CMS wishlist items:", err);

@@ -9,7 +9,7 @@
 // ─────────────────────────────────────────────────────────────
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
-import { eq } from "drizzle-orm";
+import { eq, desc, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { wardrobeItems } from "@/db/schema/wardrobe";
 import { requireAdmin } from "@/lib/admin-auth";
@@ -19,18 +19,49 @@ import { del } from "@vercel/blob";
 
 function generateId(category: string): string {
   const prefix = category.toLowerCase().replace(/\s+/g, "-");
-  return `${prefix}_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 6)}`;
+  return `${prefix}_${crypto.randomUUID()}`;
 }
 
-// ── GET — list all wardrobe items ────────────────────────────
+// ── Pagination helpers ───────────────────────────────────────
 
-export async function GET() {
+const DEFAULT_LIMIT = 50;
+const MAX_LIMIT = 200;
+
+function parsePagination(params: URLSearchParams) {
+  const rawLimit = Number(params.get("limit") ?? DEFAULT_LIMIT);
+  const rawOffset = Number(params.get("offset") ?? 0);
+  return {
+    limit: Math.min(Math.max(1, rawLimit || DEFAULT_LIMIT), MAX_LIMIT),
+    offset: Math.max(0, rawOffset || 0),
+  };
+}
+
+// ── GET — list wardrobe items (paginated) ────────────────────
+
+export async function GET(req: NextRequest) {
   try {
     await requireAdmin();
 
-    const rows = await db.select().from(wardrobeItems);
+    const { searchParams } = new URL(req.url);
+    const { limit, offset } = parsePagination(searchParams);
 
-    return NextResponse.json({ success: true, data: rows });
+    const [rows, [{ total }]] = await Promise.all([
+      db
+        .select()
+        .from(wardrobeItems)
+        .orderBy(desc(wardrobeItems.createdAt))
+        .limit(limit)
+        .offset(offset),
+      db
+        .select({ total: sql<number>`count(*)::int` })
+        .from(wardrobeItems),
+    ]);
+
+    return NextResponse.json({
+      success: true,
+      data: rows,
+      pagination: { limit, offset, total, hasMore: offset + rows.length < total },
+    });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Failed to fetch wardrobe items";
 

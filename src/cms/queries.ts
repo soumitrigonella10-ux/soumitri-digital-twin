@@ -40,7 +40,7 @@ export function cmsEssayToEssay(item: ContentItem): Essay {
  * Returns an array of Essay objects compatible with existing rendering.
  */
 export async function getPublishedEssays(): Promise<Essay[]> {
-  const items = await getContentByType("essay", { visibility: "published" });
+  const { items } = await getContentByType("essay", { visibility: "published" });
   return items.map(cmsEssayToEssay);
 }
 
@@ -79,7 +79,7 @@ export function cmsItemToSkill(item: ContentItem, index: number): SkillExperimen
  * Fetch all published skill quests from the CMS.
  */
 export async function getPublishedSkills(): Promise<SkillExperiment[]> {
-  const items = await getContentByType("skill", { visibility: "published" });
+  const { items } = await getContentByType("skill", { visibility: "published" });
   return items.map((item, i) => cmsItemToSkill(item, i));
 }
 
@@ -110,7 +110,7 @@ export function cmsItemToSidequest(item: ContentItem): Sidequest {
  * Fetch all published sidequests from the CMS.
  */
 export async function getPublishedSidequests(): Promise<Sidequest[]> {
-  const items = await getContentByType("sidequest", { visibility: "published" });
+  const { items } = await getContentByType("sidequest", { visibility: "published" });
   return items.map(cmsItemToSidequest);
 }
 
@@ -165,7 +165,7 @@ export function cmsItemToArtifact(item: ContentItem): Artifact {
  * Fetch all published artifacts from the CMS.
  */
 export async function getPublishedArtifacts(): Promise<Artifact[]> {
-  const items = await getContentByType("artifact", { visibility: "published" });
+  const { items } = await getContentByType("artifact", { visibility: "published" });
   return items.map(cmsItemToArtifact);
 }
 
@@ -217,7 +217,7 @@ export function cmsItemToConsumption(item: ContentItem): EditorialContentItem {
  * Fetch all published consumption items from the CMS.
  */
 export async function getPublishedConsumption(): Promise<EditorialContentItem[]> {
-  const items = await getContentByType("consumption", { visibility: "published" });
+  const { items } = await getContentByType("consumption", { visibility: "published" });
   return items.map(cmsItemToConsumption);
 }
 
@@ -250,7 +250,7 @@ export function cmsItemToInspiration(item: ContentItem): InspirationFragment {
  * Fetch all published inspirations from the CMS.
  */
 export async function getPublishedInspirations(): Promise<InspirationFragment[]> {
-  const items = await getContentByType("inspiration", { visibility: "published" });
+  const { items } = await getContentByType("inspiration", { visibility: "published" });
   return items.map(cmsItemToInspiration);
 }
 
@@ -290,7 +290,7 @@ export function cmsItemToWishlist(item: ContentItem): WishlistItem {
  * Fetch all published wishlist items from the CMS.
  */
 export async function getPublishedWishlistItems(): Promise<WishlistItem[]> {
-  const items = await getContentByType("wishlist-item", { visibility: "published" });
+  const { items } = await getContentByType("wishlist-item", { visibility: "published" });
   return items.map(cmsItemToWishlist);
 }
 
@@ -323,7 +323,7 @@ export function cmsItemToDesignThought(item: ContentItem): DesignThought {
  * Fetch all published design thoughts from the CMS.
  */
 export async function getPublishedDesignThoughts(): Promise<DesignThought[]> {
-  const items = await getContentByType("design-thought", { visibility: "published" });
+  const { items } = await getContentByType("design-thought", { visibility: "published" });
   return items.map(cmsItemToDesignThought);
 }
 
@@ -363,6 +363,6 @@ export function cmsItemToLoreItem(item: ContentItem, fallbackIndex: number): Lor
  * Fetch all published internet-lore items from the CMS.
  */
 export async function getPublishedLoreItems(): Promise<LoreItem[]> {
-  const items = await getContentByType("internet-lore", { visibility: "published" });
+  const { items } = await getContentByType("internet-lore", { visibility: "published" });
   return items.map((item, i) => cmsItemToLoreItem(item, i));
 }

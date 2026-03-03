@@ -1,13 +1,12 @@
 "use client";
 
-import { useState, useCallback, useEffect, useMemo } from "react";
-import { useSession } from "next-auth/react";
+import { useState, useCallback } from "react";
 import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
 import { EditorialNav } from "@/components/EditorialNav";
 import { LocationCard, TravelHeroSection, AddTravelModal, EditTravelModal } from "@/components/travel";
 import { ContentRenderer } from "@/components/content-renderer";
 import { locationToContentData } from "@/lib/content-adapters";
-import { getContentByType, deleteContent } from "@/cms/actions";
+import { useCmsPage } from "@/hooks/useCmsPage";
 import type { ContentItem } from "@/cms/types";
 import {
   travelLocations as staticLocations,
@@ -45,50 +44,24 @@ function cmsItemToLocation(item: ContentItem): TravelLocation {
 // ─────────────────────────────────────────────
 
 function TravelLogPageContent() {
-  const { data: session, status } = useSession();
+  const {
+    status, isAuthenticated, isAdmin,
+    items: allLocations, isLoadingCms,
+    fetchCmsItems: fetchCmsLocations,
+    isCmsItem: isCmsLocation,
+    deletingItem: deletingLocation,
+    setDeletingItem: setDeletingLocation,
+    isDeleting, handleDeleteConfirm,
+  } = useCmsPage({
+    contentType: "travel",
+    converter: cmsItemToLocation,
+    staticItems: staticLocations,
+    dedupeKey: (l) => l.name.toLowerCase(),
+  });
+
   const [selectedLocation, setSelectedLocation] = useState<TravelLocation | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingLocation, setEditingLocation] = useState<TravelLocation | null>(null);
-  const [deletingLocation, setDeletingLocation] = useState<TravelLocation | null>(null);
-  const [isDeleting, setIsDeleting] = useState(false);
-
-  // CMS data
-  const [cmsLocations, setCmsLocations] = useState<TravelLocation[]>([]);
-  const [isLoadingCms, setIsLoadingCms] = useState(true);
-
-  const isAuthenticated = !!session;
-  const isAdmin = (session?.user as { role?: string } | undefined)?.role === "admin";
-
-  // ── Fetch CMS travel locations ────────────────────────────
-  const fetchCmsLocations = useCallback(async () => {
-    try {
-      const items = await getContentByType("travel", { visibility: "published" });
-      setCmsLocations(items.map(cmsItemToLocation));
-    } catch (err) {
-      console.error("Failed to load CMS travel locations:", err);
-    } finally {
-      setIsLoadingCms(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchCmsLocations();
-  }, [fetchCmsLocations]);
-
-  // ── Merge static + CMS locations (CMS wins on name conflict) ─
-  const allLocations = useMemo(() => {
-    const cmsNames = new Set(cmsLocations.map((l) => l.name.toLowerCase()));
-    const dedupedStatic = staticLocations.filter(
-      (l) => !cmsNames.has(l.name.toLowerCase())
-    );
-    return [...cmsLocations, ...dedupedStatic];
-  }, [cmsLocations]);
-
-  // Check if a location came from the CMS (editable / deletable)
-  const isCmsLocation = useCallback(
-    (location: TravelLocation) => location.id.startsWith("ci_"),
-    []
-  );
 
   // ── Handlers ──────────────────────────────────────────────
   const handleOpenJournal = (location: TravelLocation) => {
@@ -98,24 +71,6 @@ function TravelLogPageContent() {
   const handleCloseJournal = () => {
     setSelectedLocation(null);
   };
-
-  const handleDeleteConfirm = useCallback(async () => {
-    if (!deletingLocation) return;
-    setIsDeleting(true);
-    try {
-      const result = await deleteContent(deletingLocation.id);
-      if (result.success) {
-        setDeletingLocation(null);
-        fetchCmsLocations();
-      } else {
-        alert(result.error || "Failed to delete location");
-      }
-    } catch {
-      alert("Failed to delete location");
-    } finally {
-      setIsDeleting(false);
-    }
-  }, [deletingLocation, fetchCmsLocations]);
 
   // Loading state
   if (status === "loading") {

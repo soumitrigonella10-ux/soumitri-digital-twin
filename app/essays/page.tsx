@@ -1,8 +1,8 @@
 "use client";
 
-import { Suspense, useState, useMemo, useCallback, useEffect } from "react";
-import { useSession } from "next-auth/react";
+import { Suspense, useState, useMemo, useCallback } from "react";
 import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
+import { useCmsPage } from "@/hooks/useCmsPage";
 import { EditorialNav } from "@/components/EditorialNav";
 import { ContentRenderer } from "@/components/content-renderer";
 import { essayToContentData } from "@/lib/content-adapters";
@@ -16,7 +16,6 @@ import {
 } from "@/components/essays";
 import { UploadEssayModal } from "@/components/essays/UploadEssayModal";
 import { EditEssayModal } from "@/components/essays/EditEssayModal";
-import { getContentByType, deleteContent } from "@/cms/actions";
 import type { ContentItem } from "@/cms/types";
 import { essays as staticEssays } from "@/data/essays";
 import type { Essay, EssayCategory } from "@/types/editorial";
@@ -51,49 +50,25 @@ function cmsItemToEssay(item: ContentItem): Essay {
 // ─────────────────────────────────────────────
 
 function EssaysPageContent() {
-  const { data: session, status } = useSession();
+  const {
+    status, isAuthenticated, isAdmin,
+    items: allEssays, isLoadingCms,
+    fetchCmsItems: fetchCmsEssays,
+    isCmsItem: isCmsEssay,
+    deletingItem: deletingEssay,
+    setDeletingItem: setDeletingEssay,
+    isDeleting, handleDeleteConfirm,
+  } = useCmsPage({
+    contentType: "essay",
+    converter: cmsItemToEssay,
+    staticItems: staticEssays,
+    dedupeKey: (e) => e.slug,
+  });
+
   const [activeCategory, setActiveCategory] = useState<EssayCategory>("All");
   const [selectedEssay, setSelectedEssay] = useState<Essay | null>(null);
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [editingEssay, setEditingEssay] = useState<Essay | null>(null);
-  const [deletingEssay, setDeletingEssay] = useState<Essay | null>(null);
-  const [isDeleting, setIsDeleting] = useState(false);
-
-  // CMS data
-  const [cmsEssays, setCmsEssays] = useState<Essay[]>([]);
-  const [isLoadingCms, setIsLoadingCms] = useState(true);
-
-  const isAuthenticated = !!session;
-  const isAdmin = (session?.user as { role?: string } | undefined)?.role === "admin";
-
-  // ── Fetch CMS essays ──────────────────────────────────────
-  const fetchCmsEssays = useCallback(async () => {
-    try {
-      const items = await getContentByType("essay", { visibility: "published" });
-      setCmsEssays(items.map(cmsItemToEssay));
-    } catch (err) {
-      console.error("Failed to load CMS essays:", err);
-    } finally {
-      setIsLoadingCms(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchCmsEssays();
-  }, [fetchCmsEssays]);
-
-  // ── Merge static + CMS essays (CMS wins on slug conflict) ─
-  const allEssays = useMemo(() => {
-    const cmsSlugs = new Set(cmsEssays.map((e) => e.slug));
-    const dedupedStatic = staticEssays.filter((e) => !cmsSlugs.has(e.slug));
-    return [...cmsEssays, ...dedupedStatic];
-  }, [cmsEssays]);
-
-  // Check if an essay came from the CMS (editable / deletable)
-  const isCmsEssay = useCallback(
-    (essay: Essay) => essay.id.startsWith("ci_"),
-    []
-  );
 
   // ── Derived data ──────────────────────────────────────────
   const featured = useMemo(
@@ -124,24 +99,6 @@ function EssaysPageContent() {
   const handleEdit = useCallback((essay: Essay) => {
     setEditingEssay(essay);
   }, []);
-
-  const handleDeleteConfirm = useCallback(async () => {
-    if (!deletingEssay) return;
-    setIsDeleting(true);
-    try {
-      const result = await deleteContent(deletingEssay.id);
-      if (result.success) {
-        setDeletingEssay(null);
-        fetchCmsEssays();
-      } else {
-        alert(result.error || "Failed to delete essay");
-      }
-    } catch {
-      alert("Failed to delete essay");
-    } finally {
-      setIsDeleting(false);
-    }
-  }, [deletingEssay, fetchCmsEssays]);
 
   // Loading
   if (status === "loading") {

@@ -3,8 +3,9 @@ import type { Pool } from "pg"
 import crypto from "crypto"
 
 /**
- * Custom PostgreSQL adapter for NextAuth v4, using pg Pool directly.
- * Replaces @auth/pg-adapter to avoid ESM-only import issues with Next.js 14.
+ * Custom PostgreSQL adapter for Auth.js v5, using pg Pool directly.
+ * The Adapter interface from next-auth/adapters is source-compatible
+ * between v4 and v5, so no method changes are needed.
  */
 export default function CustomPgAdapter(pool: Pool): Adapter {
   return {

@@ -15,7 +15,7 @@ export function useDebounce<T extends (...args: any[]) => void>(
   callback: T,
   delay: number
 ): T {
-  const timeoutRef = useRef<NodeJS.Timeout>();
+  const timeoutRef = useRef<NodeJS.Timeout>(undefined);
 
   // Clear pending timeout on unmount to prevent memory leaks
   useEffect(() => {
@@ -85,8 +85,8 @@ export function useDeepMemo<T>(
   factory: () => T,
   deps: React.DependencyList
 ): T {
-  const prevDeps = useRef<React.DependencyList>();
-  const value = useRef<T>();
+  const prevDeps = useRef<React.DependencyList>(undefined);
+  const value = useRef<T>(undefined);
 
   const depsChanged =
     !prevDeps.current ||

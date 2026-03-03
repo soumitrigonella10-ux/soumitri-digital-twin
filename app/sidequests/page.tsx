@@ -1,14 +1,13 @@
 'use client';
 
-import { useState, useMemo, useEffect, useCallback } from 'react';
-import { useSession } from 'next-auth/react';
+import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Trash2, Pencil } from 'lucide-react';
 import { EditorialNav } from '@/components/EditorialNav';
 import { AuthenticatedLayout } from '@/components/AuthenticatedLayout';
 import { LoreCard, UploadLoreModal, EditLoreModal } from '@/components/internet-lore';
 import { loreItems as staticLoreItems, type LoreCategory, type LoreItem } from '@/data/internetLore';
-import { getContentByType, deleteContent } from '@/cms/actions';
+import { useCmsPage } from '@/hooks/useCmsPage';
 import { cmsItemToLoreItem } from '@/cms/queries';
 
 // ─────────────────────────────────────────────
@@ -28,55 +27,29 @@ const EMPTY_MESSAGES: Record<LoreCategory, { title: string; subtitle: string }> 
 };
 
 function InternetLorePageContent() {
-  const { data: session, status } = useSession();
+  const {
+    status, isAuthenticated, isAdmin,
+    items: allLoreItems,
+    fetchCmsItems,
+    isCmsItem,
+    deletingItem, setDeletingItem,
+    isDeleting, handleDeleteConfirm,
+  } = useCmsPage({
+    contentType: 'internet-lore',
+    converter: cmsItemToLoreItem,
+    staticItems: staticLoreItems,
+  });
+
   const [activeTab, setActiveTab] = useState<LoreCategory>('pop-internet-core');
 
   // CMS state
-  const [cmsItems, setCmsItems] = useState<LoreItem[]>([]);
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [editingItem, setEditingItem] = useState<LoreItem | null>(null);
-  const [deletingId, setDeletingId] = useState<string | null>(null);
-  const [isDeleting, setIsDeleting] = useState(false);
 
-  const isAuthenticated = !!session;
-  const isAdmin = session?.user?.role === 'admin';
-
-  // Fetch CMS items
-  const fetchCmsItems = useCallback(async () => {
-    try {
-      const items = await getContentByType('internet-lore', { visibility: 'published' });
-      setCmsItems(items.map((item, i) => cmsItemToLoreItem(item, i)));
-    } catch {
-      // silently fail — static items still show
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchCmsItems();
-  }, [fetchCmsItems]);
-
-  // Merge static + CMS items, filter by active tab
+  // Filter by active tab
   const filteredItems = useMemo(() => {
-    const all = [...staticLoreItems, ...cmsItems];
-    return all.filter((item) => item.category === activeTab);
-  }, [activeTab, cmsItems]);
-
-  // Delete handler
-  const handleDelete = async () => {
-    if (!deletingId) return;
-    setIsDeleting(true);
-    try {
-      const result = await deleteContent(deletingId);
-      if (result.success) {
-        await fetchCmsItems();
-      }
-    } catch {
-      // silently fail
-    } finally {
-      setIsDeleting(false);
-      setDeletingId(null);
-    }
-  };
+    return allLoreItems.filter((item) => item.category === activeTab);
+  }, [allLoreItems, activeTab]);
 
   if (status === "loading") {
     return (
@@ -112,13 +85,13 @@ function InternetLorePageContent() {
           <div className="space-y-0 mb-5">
             <h1
               className="text-7xl lg:text-9xl font-normal text-[#3A2018] tracking-tight leading-[0.9]"
-              style={{ fontFamily: "var(--font-instrument), 'Playfair Display', Georgia, serif" }}
+              style={{ fontFamily: "var(--font-playfair), 'Playfair Display', Georgia, serif" }}
             >
               Internet
             </h1>
             <h1
               className="text-6xl lg:text-8xl italic text-[#8A2424] tracking-tight leading-[0.95] ml-4 lg:ml-8 -mt-1"
-              style={{ fontFamily: "var(--font-dancing), cursive" }}
+              style={{ fontFamily: "var(--font-script), 'Mrs Saint Delafield', cursive" }}
             >
               Lore
             </h1>
@@ -186,7 +159,7 @@ function InternetLorePageContent() {
             >
               <p
                 className="text-2xl text-[#4A2C2A]/25 mb-2"
-                style={{ fontFamily: "var(--font-instrument), 'Playfair Display', Georgia, serif" }}
+                style={{ fontFamily: "var(--font-playfair), 'Playfair Display', Georgia, serif" }}
               >
                 {EMPTY_MESSAGES[activeTab].title}
               </p>
@@ -211,7 +184,7 @@ function InternetLorePageContent() {
                     chaosMode={false}
                   />
                   {/* Admin edit/delete overlay for CMS items */}
-                  {isAdmin && item._cmsId && (
+                  {isAdmin && isCmsItem(item) && (
                     <div className="absolute top-3 left-3 z-20 flex gap-1.5 opacity-0 group-hover/card:opacity-100 transition-opacity duration-200">
                       <button
                         onClick={(e) => { e.stopPropagation(); setEditingItem(item); }}
@@ -221,7 +194,7 @@ function InternetLorePageContent() {
                         <Pencil className="w-3 h-3" />
                       </button>
                       <button
-                        onClick={(e) => { e.stopPropagation(); setDeletingId(item._cmsId!); }}
+                        onClick={(e) => { e.stopPropagation(); setDeletingItem(item); }}
                         className="p-1.5 bg-white/90 backdrop-blur-sm rounded-md shadow-sm border border-[#D4C4B0]/30 hover:bg-red-600 hover:text-white text-[#4A2C2A]/60 transition-colors"
                         title="Delete"
                       >
@@ -266,21 +239,21 @@ function InternetLorePageContent() {
       )}
 
       {/* Delete Confirmation */}
-      {deletingId && (
+      {deletingItem && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setDeletingId(null)} />
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setDeletingItem(null)} />
           <div className="relative bg-white rounded-xl shadow-2xl w-full max-w-sm mx-4 p-6 border border-gray-200">
             <h3 className="text-lg font-semibold text-gray-900 mb-2">Delete Lore Entry?</h3>
             <p className="text-sm text-gray-500 mb-5">This action cannot be undone. The entry will be permanently removed.</p>
             <div className="flex justify-end gap-3">
               <button
-                onClick={() => setDeletingId(null)}
+                onClick={() => setDeletingItem(null)}
                 className="px-4 py-2 text-sm rounded-lg border border-gray-200 hover:bg-gray-50 text-gray-600"
               >
                 Cancel
               </button>
               <button
-                onClick={handleDelete}
+                onClick={handleDeleteConfirm}
                 disabled={isDeleting}
                 className="px-4 py-2 text-sm rounded-lg bg-red-600 text-white hover:bg-red-700 disabled:opacity-50"
               >

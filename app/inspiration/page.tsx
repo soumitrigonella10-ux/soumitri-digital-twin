@@ -1,14 +1,13 @@
 'use client';
 
-import { useState, useMemo, useCallback, useEffect } from 'react';
-import { useSession } from 'next-auth/react';
+import { useState, useMemo, useCallback } from 'react';
 import type { InspirationFragment } from '@/data/artifacts';
 import { inspirations as staticInspirations } from '@/data/artifacts';
 import { EditorialNav } from '@/components/EditorialNav';
 import { AuthenticatedLayout } from '@/components/AuthenticatedLayout';
 import { AddInspirationModal } from '@/components/inspiration/AddInspirationModal';
 import { EditInspirationModal } from '@/components/inspiration/EditInspirationModal';
-import { getContentByType, deleteContent } from '@/cms/actions';
+import { useCmsPage } from '@/hooks/useCmsPage';
 import type { ContentItem as CmsContentItem } from '@/cms/types';
 import { Play, Pencil, Trash2 } from 'lucide-react';
 
@@ -32,46 +31,24 @@ function cmsToInspiration(item: CmsContentItem): InspirationFragment {
 }
 
 function InspirationPageContent() {
-  const { data: session, status } = useSession();
-  const isAuthenticated = !!session;
-  const isAdmin = (session?.user as { role?: string } | undefined)?.role === 'admin';
+  const {
+    status, isAuthenticated, isAdmin,
+    items: inspirations,
+    fetchCmsItems,
+    isCmsItem,
+    deletingItem: deletingItem,
+    setDeletingItem: setDeletingItem,
+    isDeleting, handleDeleteConfirm,
+  } = useCmsPage({
+    contentType: 'inspiration',
+    converter: cmsToInspiration,
+    staticItems: staticInspirations,
+    dedupeKey: (i) => i.content.toLowerCase(),
+  });
 
   // CMS CRUD state
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingItem, setEditingItem] = useState<InspirationFragment | null>(null);
-  const [deletingItem, setDeletingItem] = useState<InspirationFragment | null>(null);
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [cmsItems, setCmsItems] = useState<InspirationFragment[]>([]);
-
-  const isCmsItem = useCallback((item: InspirationFragment) => item.id.startsWith('ci_'), []);
-
-  const fetchCmsItems = useCallback(async () => {
-    try {
-      const items = await getContentByType('inspiration', { visibility: 'published' });
-      setCmsItems(items.map(cmsToInspiration));
-    } catch (err) {
-      console.error('Failed to load CMS inspiration items:', err);
-    }
-  }, []);
-
-  useEffect(() => { fetchCmsItems(); }, [fetchCmsItems]);
-
-  const handleDeleteConfirm = useCallback(async () => {
-    if (!deletingItem) return;
-    setIsDeleting(true);
-    try {
-      const result = await deleteContent(deletingItem.id);
-      if (result.success) { setDeletingItem(null); fetchCmsItems(); }
-      else { alert(result.error || 'Failed to delete'); }
-    } catch { alert('Failed to delete'); } finally { setIsDeleting(false); }
-  }, [deletingItem, fetchCmsItems]);
-
-  // Merge: CMS wins on matching content text
-  const inspirations = useMemo(() => {
-    const cmsContentSet = new Set(cmsItems.map(i => i.content.toLowerCase()));
-    const filtered = staticInspirations.filter(i => !cmsContentSet.has(i.content.toLowerCase()));
-    return [...cmsItems, ...filtered];
-  }, [cmsItems]);
 
   // Loading state
   if (status === "loading") {

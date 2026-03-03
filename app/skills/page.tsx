@@ -1,7 +1,6 @@
 "use client";
 
-import { useState, useMemo, useCallback, useEffect } from "react";
-import { useSession } from "next-auth/react";
+import { useState, useCallback } from "react";
 import { Pencil, Trash2 } from "lucide-react";
 import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
 import { EditorialNav } from "@/components/EditorialNav";
@@ -11,7 +10,7 @@ import { SkillCard } from "@/components/skills";
 import { QuestCard } from "@/components/sidequests";
 import { ContentRenderer } from "@/components/content-renderer";
 import { sidequestToContentData } from "@/lib/content-adapters";
-import { getContentByType, deleteContent } from "@/cms/actions";
+import { useCmsPage } from "@/hooks/useCmsPage";
 import type { ContentItem } from "@/cms/types";
 import type { SkillExperiment } from "@/types/editorial";
 import { UploadSkillModal } from "@/components/skills/UploadSkillModal";
@@ -118,78 +117,47 @@ function cmsItemToSidequest(item: ContentItem): Sidequest {
 }
 
 function SkillsPageContent() {
-  const { data: session, status } = useSession();
-  const isAuthenticated = !!session;
-  const isAdmin = (session?.user as { role?: string } | undefined)?.role === "admin";
+  const {
+    status, isAuthenticated, isAdmin,
+    items: allSkills,
+    fetchCmsItems: fetchCmsSkills,
+    isCmsItem: isCmsSkill,
+    deletingItem: deletingSkill,
+    setDeletingItem: setDeletingSkill,
+    isDeleting: isDeletingSkill,
+    handleDeleteConfirm: handleDeleteSkillConfirm,
+  } = useCmsPage({
+    contentType: "skill",
+    converter: cmsItemToSkill,
+    staticItems: skillExperiments,
+    dedupeKey: (s) => s.id,
+  });
+
+  const {
+    items: allSidequests,
+    fetchCmsItems: fetchCmsSidequests,
+    isCmsItem: isCmsSidequest,
+    deletingItem: deletingSidequest,
+    setDeletingItem: setDeletingSidequest,
+    isDeleting: isDeletingSidequest,
+    handleDeleteConfirm: handleDeleteSidequestConfirm,
+  } = useCmsPage({
+    contentType: "sidequest",
+    converter: cmsItemToSidequest,
+    staticItems: staticSidequests,
+    dedupeKey: (s) => s.id,
+  });
+
   const [activeTab, setActiveTab] = useState<QuestType>("sidequest");
   const [selectedQuest, setSelectedQuest] = useState<Sidequest | null>(null);
 
   // CMS state — Skills
-  const [cmsSkills, setCmsSkills] = useState<SkillExperiment[]>([]);
   const [showUploadSkill, setShowUploadSkill] = useState(false);
   const [editingSkill, setEditingSkill] = useState<SkillExperiment | null>(null);
-  const [deletingSkill, setDeletingSkill] = useState<SkillExperiment | null>(null);
-  const [isDeletingSkill, setIsDeletingSkill] = useState(false);
 
   // CMS state — Sidequests
-  const [cmsSidequests, setCmsSidequests] = useState<Sidequest[]>([]);
   const [showUploadSidequest, setShowUploadSidequest] = useState(false);
   const [editingSidequest, setEditingSidequest] = useState<Sidequest | null>(null);
-  const [deletingSidequest, setDeletingSidequest] = useState<Sidequest | null>(null);
-  const [isDeletingSidequest, setIsDeletingSidequest] = useState(false);
-
-  const fetchCmsSkills = useCallback(async () => {
-    try {
-      const items = await getContentByType("skill", { visibility: "published" });
-      setCmsSkills(items.map((item, i) => cmsItemToSkill(item, i)));
-    } catch (err) { console.error("Failed to load CMS skills:", err); }
-  }, []);
-
-  const fetchCmsSidequests = useCallback(async () => {
-    try {
-      const items = await getContentByType("sidequest", { visibility: "published" });
-      setCmsSidequests(items.map(cmsItemToSidequest));
-    } catch (err) { console.error("Failed to load CMS sidequests:", err); }
-  }, []);
-
-  useEffect(() => { fetchCmsSkills(); fetchCmsSidequests(); }, [fetchCmsSkills, fetchCmsSidequests]);
-
-  // Merge static + CMS data (CMS wins on id conflict)
-  const allSkills = useMemo(() => {
-    const cmsIds = new Set(cmsSkills.map((s) => s.id));
-    const dedupedStatic = skillExperiments.filter((s) => !cmsIds.has(s.id));
-    return [...cmsSkills, ...dedupedStatic];
-  }, [cmsSkills]);
-
-  const allSidequests = useMemo(() => {
-    const cmsIds = new Set(cmsSidequests.map((s) => s.id));
-    const dedupedStatic = staticSidequests.filter((s) => !cmsIds.has(s.id));
-    return [...cmsSidequests, ...dedupedStatic];
-  }, [cmsSidequests]);
-
-  const isCmsItem = useCallback((id: string) => id.startsWith("ci_"), []);
-
-  const handleDeleteSkillConfirm = useCallback(async () => {
-    if (!deletingSkill) return;
-    setIsDeletingSkill(true);
-    try {
-      const result = await deleteContent(deletingSkill.id);
-      if (result.success) { setDeletingSkill(null); fetchCmsSkills(); }
-      else alert(result.error || "Failed to delete skill");
-    } catch { alert("Failed to delete skill"); }
-    finally { setIsDeletingSkill(false); }
-  }, [deletingSkill, fetchCmsSkills]);
-
-  const handleDeleteSidequestConfirm = useCallback(async () => {
-    if (!deletingSidequest) return;
-    setIsDeletingSidequest(true);
-    try {
-      const result = await deleteContent(deletingSidequest.id);
-      if (result.success) { setDeletingSidequest(null); fetchCmsSidequests(); }
-      else alert(result.error || "Failed to delete sidequest");
-    } catch { alert("Failed to delete sidequest"); }
-    finally { setIsDeletingSidequest(false); }
-  }, [deletingSidequest, fetchCmsSidequests]);
 
   // Loading state
   if (status === "loading") {
@@ -255,7 +223,7 @@ function SkillsPageContent() {
                 {allSkills.map((skill) => (
                   <div key={skill.id} className="relative group">
                     <SkillCard skill={skill} />
-                    {isAdmin && isCmsItem(skill.id) && (
+                    {isAdmin && isCmsSkill(skill) && (
                       <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-10">
                         <button onClick={() => setEditingSkill(skill)} className="p-1.5 rounded-full bg-white/90 text-gray-700 hover:bg-white shadow-sm"><Pencil className="h-3.5 w-3.5" /></button>
                         <button onClick={() => setDeletingSkill(skill)} className="p-1.5 rounded-full bg-white/90 text-red-600 hover:bg-white shadow-sm"><Trash2 className="h-3.5 w-3.5" /></button>
@@ -287,7 +255,7 @@ function SkillsPageContent() {
                       index={index}
                       onClick={() => setSelectedQuest(quest)} 
                     />
-                    {isAdmin && isCmsItem(quest.id) && (
+                    {isAdmin && isCmsSidequest(quest) && (
                       <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-10">
                         <button onClick={() => setEditingSidequest(quest)} className="p-1.5 rounded-full bg-white/90 text-gray-700 hover:bg-white shadow-sm"><Pencil className="h-3.5 w-3.5" /></button>
                         <button onClick={() => setDeletingSidequest(quest)} className="p-1.5 rounded-full bg-white/90 text-red-600 hover:bg-white shadow-sm"><Trash2 className="h-3.5 w-3.5" /></button>

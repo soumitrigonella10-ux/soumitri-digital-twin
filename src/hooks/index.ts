@@ -5,6 +5,8 @@
 //   import { useWeekNavigation, useDebounce } from "@/hooks";
 // ========================================
 
+export { useCmsPage } from "./useCmsPage";
+export type { UseCmsPageOptions, UseCmsPageReturn } from "./useCmsPage";
 export { useRoutineProducts } from "./useRoutineProducts";
 export { useWeekNavigation } from "./useWeekNavigation";
 export { useWeekPlans } from "./useWeekPlans";
