@@ -7,13 +7,14 @@
 
 import type { ReactNode} from "react";
 import React, { Component, useEffect } from "react";
+import * as Sentry from "@sentry/nextjs";
 import { AlertTriangle, RefreshCw, Home } from "lucide-react";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 
 // ========================================
 // Error reporting — centralised handler for all caught errors
-// In production, replace with Sentry/Datadog/etc.
+// Sends to Sentry in production, logs to console in dev.
 // ========================================
 export function reportError(error: Error, context?: Record<string, unknown>) {
   const payload = {
@@ -29,8 +30,10 @@ export function reportError(error: Error, context?: Record<string, unknown>) {
     console.error("[ErrorReport]", payload);
   }
 
-  // Production: send to error tracking service
-  // e.g. Sentry.captureException(error, { extra: context });
+  // Send to Sentry in all environments where DSN is configured
+  Sentry.captureException(error, {
+    extra: { ...context, timestamp: payload.timestamp, url: payload.url },
+  });
 }
 
 // ========================================

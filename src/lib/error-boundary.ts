@@ -3,6 +3,8 @@
 // Centralized error handling and reporting logic
 // ========================================
 
+import * as Sentry from "@sentry/nextjs";
+
 export interface AppError extends Error {
   code?: string;
   statusCode?: number;
@@ -51,18 +53,19 @@ export async function safeAsync<T>(
 }
 
 /**
- * Error reporter for production monitoring
+ * Error reporter for production monitoring.
+ * Sends to Sentry and logs to console.
  */
 export function reportError(error: AppError, context?: Record<string, unknown>) {
-  // In production, send to monitoring service (Sentry, LogRocket, etc.)
-  if (process.env.NODE_ENV === 'production') {
-    console.error('[ERROR]', {
-      message: error.message,
-      code: error.code,
-      stack: error.stack,
-      context: { ...error.context, ...context }
-    });
-  } else {
+  const mergedContext = { ...error.context, ...context };
+
+  if (process.env.NODE_ENV === 'development') {
     console.error('[DEV ERROR]', error);
   }
+
+  // Always send to Sentry where DSN is configured
+  Sentry.captureException(error, {
+    extra: mergedContext,
+    tags: { errorCode: error.code },
+  });
 }

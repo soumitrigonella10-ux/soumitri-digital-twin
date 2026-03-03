@@ -18,17 +18,12 @@ import { wishlist }  from '../src/data/wishlist'
 import { meals, dressings, lunchBowlConfig, lunchDressings } from '../src/data/meals'
 import { workouts }  from '../src/data/workouts'
 import { jewelleryInventory } from '../src/data/jewellery'
-import { contentItems } from '../src/data/consumption'
-import { travelLocations } from '../src/data/travel'
-import { essays } from '../src/data/essays'
-import { sidequests } from '../src/data/sidequests'
-import { skillExperiments } from '../src/data/skills'
-import { designThoughts } from '../src/data/designThoughts'
-import { topics } from '../src/data/topics'
-import { artifacts } from '../src/data/artifacts'
-import { inspirations } from '../src/data/artifacts/inspirations'
 import { masterSetupCategories, weeklyCategories } from '../src/data/meals/grocery'
 import { SAMPLE_MAKEUP_PRODUCTS } from '../src/data/makeup'
+
+// NOTE: Editorial data imports (essays, sidequests, travel, skills, etc.)
+// removed March 2026. Those tables have been superseded by content_items.
+// Static data files still exist in @/data/* as build-time fallback for pages.
 
 // ── DB client ────────────────────────────────────────────────
 if (!process.env.POSTGRES_URL) {
@@ -279,148 +274,16 @@ async function seed() {
   )
   await seedTable('exercises', schema.exercises, allExercises)
 
-  // ── 8. Consumption Items ───────────────────────────────────
-  await seedTable('consumption_items', schema.consumptionItems, contentItems.map(c => ({
-    id:          c.id,
-    type:        c.type,
-    title:       c.title,
-    author:      c.author ?? null,
-    description: c.description ?? null,
-    metadata:    c.metadata ?? null,
-    status:      c.status,
-    imageUrl:    c.imageUrl ?? null,
-    aspectRatio: c.aspectRatio ?? null,
-    language:    c.language ?? null,
-    genre:       c.genre ?? null,
-    comment:     c.comment ?? null,
-    watchUrl:    c.watchUrl ?? null,
-  })))
-
-  // ── 9. Travel Locations ────────────────────────────────────
-  await seedTable('travel_locations', schema.travelLocations, travelLocations.map(t => ({
-    id:          t.id,
-    name:        t.name,
-    country:     t.country,
-    coordinates: t.coordinates ?? null,
-    dateVisited: t.dateVisited ?? null,
-    description: t.description ?? null,
-    imageUrl:    t.imageUrl ?? null,
-    isHeroTile:  t.isHeroTile ?? false,
-    climate:     t.climate ?? null,
-    duration:    t.duration ?? null,
-    inventory:   t.inventory ?? null,
-    notes:       t.notes ?? null,
-    pdfUrl:      t.pdfUrl ?? null,
-    media:       t.media ?? null,
-    contentMeta: t.contentMeta ?? null,
-  })))
-
-  // ── 10. Essays ─────────────────────────────────────────────
-  await seedTable('essays', schema.essays, essays.map(e => ({
-    id:          e.id,
-    slug:        e.slug,
-    title:       e.title,
-    excerpt:     e.excerpt ?? null,
-    category:    e.category,
-    tags:        e.tags ?? null,
-    date:        e.date,
-    readingTime: e.readingTime ?? null,
-    pdfUrl:      e.pdfUrl ?? null,
-    imageUrl:    e.imageUrl ?? null,
-    isFeatured:  e.isFeatured ?? false,
-    media:       e.media ?? null,
-    contentMeta: e.contentMeta ?? null,
-  })))
-
-  // ── 11. Sidequests ─────────────────────────────────────────
-  await seedTable('sidequests', schema.sidequests, sidequests.map(s => ({
-    id:          s.id,
-    entryId:     s.entryId,
-    title:       s.title,
-    description: s.description,
-    category:    s.category,
-    difficulty:  s.difficulty,
-    xp:          s.xp,
-    completed:   s.completed,
-    imageUrl:    s.imageUrl ?? null,
-    questLog:    s.questLog ?? null,
-    media:       s.media ?? null,
-    contentMeta: s.contentMeta ?? null,
-  })))
-
-  // ── 12. Skill Experiments ──────────────────────────────────
-  await seedTable('skill_experiments', schema.skillExperiments, skillExperiments.map(s => ({
-    id:               s.id,
-    experimentNumber: s.experimentNumber,
-    name:             s.name,
-    description:      s.description,
-    category:         s.category,
-    proficiency:      s.proficiency,
-    tools:            s.tools ?? null,
-    isInverted:       s.isInverted ?? false,
-    media:            s.media ?? null,
-    contentMeta:      s.contentMeta ?? null,
-  })))
-
-  // ── 13. Design Thoughts ────────────────────────────────────
-  await seedTable('design_thoughts', schema.designThoughts, designThoughts.map(d => ({
-    id:                  d.id,
-    title:               d.title,
-    subtitle:            d.subtitle ?? null,
-    category:            d.category,
-    date:                d.date,
-    cardType:            d.cardType,
-    annotationType:      d.annotationType,
-    hasTechnicalPattern: d.hasTechnicalPattern ?? false,
-    pdfUrl:              d.pdfUrl ?? null,
-    media:               d.media ?? null,
-    contentMeta:         d.contentMeta ?? null,
-  })))
-
-  // ── 14. Topics ─────────────────────────────────────────────
-  await seedTable('topics', schema.topics, topics.map(t => ({
-    id:           `topic-${t.slug}`,
-    slug:         t.slug,
-    title:        t.title,
-    description:  t.description ?? null,
-    icon:         t.icon ?? null,
-    iconColor:    t.iconColor ?? null,
-    iconBg:       t.iconBg ?? null,
-    isPublic:     t.isPublic,
-    displayOrder: t.displayOrder,
-    subTabs:      t.subTabs ?? null,
-  })))
-
-  // ── 15. Artifacts ──────────────────────────────────────────
-  await seedTable('artifacts', schema.artifacts, artifacts.map(a => ({
-    id:              a.id,
-    title:           a.title,
-    medium:          a.medium,
-    date:            a.date,
-    dimensions:      a.dimensions ?? null,
-    frameType:       a.frameType,
-    offsetType:      a.offsetType,
-    borderStyle:     a.borderStyle,
-    hasWashiTape:    a.hasWashiTape ?? false,
-    rotation:        a.rotation ?? null,
-    paperNote:       a.paperNote ?? null,
-    imagePath:       a.imagePath ?? null,
-    backgroundColor: a.backgroundColor ?? null,
-    description:     a.description ?? null,
-  })))
-
-  // ── 16. Inspirations ───────────────────────────────────────
-  await seedTable('inspirations', schema.inspirations, inspirations.map(ins => ({
-    id:              ins.id,
-    type:            ins.type,
-    content:         ins.content,
-    source:          ins.source ?? null,
-    subtitle:        ins.subtitle ?? null,
-    backgroundColor: ins.backgroundColor ?? null,
-    accentColor:     ins.accentColor ?? null,
-    imageUrl:        null,
-    sortOrder:       null,
-  })))
+  // ── Editorial tables REMOVED (March 2026) ─────────────────
+  // Legacy per-type tables (consumption_items, travel_locations,
+  // essays, sidequests, skill_experiments, design_thoughts, topics,
+  // artifacts, inspirations) have been dropped.
+  //
+  // All editorial content is now managed through the universal
+  // content_items table via the CMS admin UI.
+  // Static data remains in @/data/* as build-time fallback.
+  //
+  // To seed CMS content, use the admin panel at /admin.
 
   // ── Done ───────────────────────────────────────────────────
   const elapsed = ((Date.now() - start) / 1000).toFixed(1)

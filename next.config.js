@@ -1,4 +1,5 @@
 /** @type {import('next').NextConfig} */
+const { withSentryConfig } = require('@sentry/nextjs');
 
 // Security headers configuration
 const securityHeaders = [
@@ -69,4 +70,19 @@ const nextConfig = {
   poweredByHeader: false,
 };
 
-module.exports = nextConfig;
+module.exports = withSentryConfig(nextConfig, {
+  // ── Sentry Build Options ──────────────────────────────────
+  // Suppress noisy source-map upload logs
+  silent: !process.env.CI,
+
+  // Upload source maps so stack traces are readable in the dashboard
+  widenClientFileUpload: true,
+
+  // Tree-shake Sentry debug code in production
+  disableLogger: true,
+
+  // Automatically instrument server components, API routes, and middleware
+  autoInstrumentServerFunctions: true,
+  autoInstrumentMiddleware: true,
+  autoInstrumentAppDirectory: true,
+});

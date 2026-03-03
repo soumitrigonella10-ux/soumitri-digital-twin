@@ -1,6 +1,11 @@
 // ─────────────────────────────────────────────────────────────
-// Artifacts (studio pieces) and Inspirations (scrapboard)
-// Maps to: src/data/artifacts/types.ts
+// @deprecated — ARCHIVED  (March 2026)
+//
+// Legacy artifacts & inspirations tables. Superseded by the
+// universal `content_items` table (src/db/schema/content.ts).
+//
+// Dropped in migration 0004_drop-legacy-editorial.sql.
+// Kept here for historical reference only. Do NOT import.
 // ─────────────────────────────────────────────────────────────
 import { pgTable, text, boolean, integer, jsonb } from 'drizzle-orm/pg-core'
 

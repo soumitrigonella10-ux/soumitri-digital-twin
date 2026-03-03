@@ -2,7 +2,7 @@
 // Routines + Steps tables
 // Maps to: src/types/routines.ts → Routine, RoutineStep
 // ─────────────────────────────────────────────────────────────
-import { pgTable, text, integer, boolean, jsonb } from 'drizzle-orm/pg-core'
+import { pgTable, text, integer, boolean, jsonb, timestamp } from 'drizzle-orm/pg-core'
 import { relations } from 'drizzle-orm'
 
 // ── Routines ─────────────────────────────────────────────────
@@ -30,6 +30,10 @@ export const routines = pgTable('routines', {
 
   occasion:   jsonb('occasion').$type<string[]>(),         // ["casual", "formal"]
   productIds: jsonb('product_ids').$type<string[]>(),      // ["p-wash-salicylic", ...]
+
+  /** Audit timestamps */
+  createdAt:  timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  updatedAt:  timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 })
 
 // ── Routine Steps ────────────────────────────────────────────
@@ -44,6 +48,10 @@ export const routineSteps = pgTable('routine_steps', {
   bodyAreas:    jsonb('body_areas').$type<string[]>(),
   weekdaysOnly: jsonb('weekdays_only').$type<number[]>(),
   essential:    boolean('essential'),
+
+  /** Audit timestamps */
+  createdAt:    timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  updatedAt:    timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 })
 
 // ── Relations ────────────────────────────────────────────────

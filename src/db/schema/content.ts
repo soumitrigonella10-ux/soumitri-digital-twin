@@ -1,7 +1,11 @@
 // ─────────────────────────────────────────────────────────────
-// Content Items — Universal CMS table
+// Content Items — Universal CMS table (AUTHORITATIVE)
 //
-// A single polymorphic table for all managed content types.
+// The single polymorphic table for ALL managed editorial content.
+// Supersedes the legacy per-type tables (essays, sidequests,
+// artifacts, etc.) which were dropped in migration 0004.
+// See src/db/schema/_legacy/ for archived definitions.
+//
 // Each content type stores its specific data in the `payload` JSONB column,
 // validated at the application layer via Zod schemas.
 //

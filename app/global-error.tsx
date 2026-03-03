@@ -4,9 +4,11 @@
 // Next.js Global Error Page
 // Catches errors in the ROOT layout itself
 // Must define its own <html> and <body> tags
+// Sentry is imported directly — no dependency on the root layout.
 // ========================================
 
 import { useEffect } from "react";
+import * as Sentry from "@sentry/nextjs";
 import { AlertTriangle, RefreshCw } from "lucide-react";
 
 export default function GlobalError({
@@ -17,7 +19,10 @@ export default function GlobalError({
   reset: () => void;
 }) {
   useEffect(() => {
-    // Can't import reportError here since root layout may be broken
+    // Sentry is self-contained — safe even when the root layout is broken
+    Sentry.captureException(error, {
+      extra: { digest: error.digest, source: "global-error-page" },
+    });
     console.error("[GlobalError]", {
       message: error.message,
       stack: error.stack,

@@ -2,7 +2,7 @@
 // Workout Plans, Sections, Exercises tables
 // Maps to: src/types/fitness.ts → WorkoutPlan, WorkoutSection, Exercise
 // ─────────────────────────────────────────────────────────────
-import { pgTable, text, integer, boolean, jsonb } from 'drizzle-orm/pg-core'
+import { pgTable, text, integer, boolean, jsonb, timestamp } from 'drizzle-orm/pg-core'
 import { relations } from 'drizzle-orm'
 
 // ── Workout Plans ────────────────────────────────────────────
@@ -12,6 +12,10 @@ export const workoutPlans = pgTable('workout_plans', {
   weekday:     jsonb('weekday').$type<number[]>().notNull(), // [3] = Wednesday
   durationMin: integer('duration_min').notNull(),
   goal:        text('goal'),
+
+  /** Audit timestamps */
+  createdAt:   timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  updatedAt:   timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 })
 
 // ── Workout Sections ─────────────────────────────────────────
@@ -21,6 +25,10 @@ export const workoutSections = pgTable('workout_sections', {
   title:         text('title').notNull(),
   description:   text('description'),
   sortOrder:     integer('sort_order').notNull(),
+
+  /** Audit timestamps */
+  createdAt:     timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  updatedAt:     timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 })
 
 // ── Exercises ────────────────────────────────────────────────
@@ -35,6 +43,10 @@ export const exercises = pgTable('exercises', {
   isNew:            boolean('is_new').default(false),
   isEssential:      boolean('is_essential').default(false),
   sortOrder:        integer('sort_order').notNull(),
+
+  /** Audit timestamps */
+  createdAt:        timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  updatedAt:        timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 })
 
 // ── Relations ────────────────────────────────────────────────

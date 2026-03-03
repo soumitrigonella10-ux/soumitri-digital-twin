@@ -2,7 +2,6 @@ import { create } from "zustand";
 import { devtools, persist, subscribeWithSelector } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 import type { AppState } from "./types";
-import type { WishlistItem, WardrobeItem } from "@/types";
 import { createDataSlice } from "./slices/dataSlice";
 import { createFilterSlice } from "./slices/filterSlice";
 import { createCompletionSlice } from "./slices/completionSlice";
@@ -32,20 +31,17 @@ export const useAppStore = create<AppState>()(
           }),
           {
             name: "routines-wardrobe-app",
-            version: 3, // Bumped to include wardrobe in persisted state
+            version: 4, // Bumped: wardrobe/wishlist now persist to DB, not localStorage
 
-            // Only persist user-generated data, not seed data
+            // Only persist ephemeral tracking data (completions).
+            // All domain data (products, routines, wardrobe, etc.)
+            // is now sourced from PostgreSQL via /api/seed-data.
             partialize: (state) => ({
               completions: state.completions,
               productCompletions: state.productCompletions,
-              data: {
-                wishlist: state.data.wishlist,
-                wardrobe: state.data.wardrobe,
-              },
             }),
 
-            // Merge persisted data with fresh seed data on hydration
-            // Wrapped in try/catch to survive corrupted localStorage
+            // Merge persisted completions with fresh seed data on hydration
             merge: (persistedState, currentState) => {
               try {
                 const persisted = persistedState as Partial<AppState>;
@@ -56,38 +52,6 @@ export const useAppStore = create<AppState>()(
                   ...currentState,
                   completions: persisted.completions ?? {},
                   productCompletions: persisted.productCompletions ?? {},
-                  data: {
-                    ...currentState.data,
-                    // Always refresh seed wardrobe items with latest paths from code,
-                    // while preserving any user-added items (uploaded via Blob)
-                    wardrobe: (() => {
-                      const persistedWardrobe = Array.isArray((persisted.data as Partial<AppState["data"]>)?.wardrobe)
-                        ? (persisted.data as Partial<AppState["data"]>)!.wardrobe!
-                        : [];
-                      const seedIds = new Set(currentState.data.wardrobe.map((i) => i.id));
-                      const userAdded = persistedWardrobe.filter((i: WardrobeItem) => !seedIds.has(i.id));
-                      // Use fresh seed data (with correct paths) + any user-added items
-                      return [...currentState.data.wardrobe, ...userAdded];
-                    })(),
-                    // Always refresh seed wishlist items with latest paths from code,
-                    // while preserving any user-added items
-                    wishlist: (() => {
-                      const persistedWishlist = Array.isArray((persisted.data as Partial<AppState["data"]>)?.wishlist)
-                        ? (persisted.data as Partial<AppState["data"]>)!.wishlist!
-                        : [];
-                      const seedIds = new Set(currentState.data.wishlist.map((i) => i.id));
-                      const userAdded = persistedWishlist.filter((i) => !seedIds.has(i.id));
-                      // Use fresh seed data (with correct paths) + merge purchase status from persisted
-                      const refreshedSeed: WishlistItem[] = currentState.data.wishlist.map((seedItem) => {
-                        const persItem = persistedWishlist.find((p) => p.id === seedItem.id);
-                        if (persItem?.purchased) {
-                          return { ...seedItem, purchased: persItem.purchased } as WishlistItem;
-                        }
-                        return seedItem;
-                      });
-                      return [...refreshedSeed, ...userAdded];
-                    })(),
-                  },
                 };
               } catch (e) {
                 console.error("[Store] Failed to merge persisted state, resetting:", e);
@@ -106,12 +70,16 @@ export const useAppStore = create<AppState>()(
 );
 
 // ========================================
-// Auto-cleanup: Prune stale completions on hydration
+// Post-hydration: prune stale completions & load DB data
 // Runs once when the store finishes loading from localStorage
 // ========================================
 if (typeof window !== "undefined") {
   const unsubHydration = useAppStore.persist.onFinishHydration(() => {
     useAppStore.getState().cleanupStaleCompletions();
+
+    // Replace static seed data with live DB data (async, non-blocking)
+    useAppStore.getState().initFromDb();
+
     unsubHydration();
   });
 }

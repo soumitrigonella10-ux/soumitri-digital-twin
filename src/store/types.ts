@@ -38,6 +38,10 @@ export type ProductCompletionMap = Record<
 
 export interface DataSlice {
   data: AppData;
+  /** DB hydration status: 'idle' | 'loading' | 'ready' | 'error' */
+  dbStatus: 'idle' | 'loading' | 'ready' | 'error';
+  /** Fetch all domain data from /api/seed-data and replace store */
+  initFromDb: () => Promise<void>;
   upsertProduct: (p: Product) => void;
   upsertRoutine: (r: Routine) => void;
   upsertWardrobe: (w: WardrobeItem) => void;

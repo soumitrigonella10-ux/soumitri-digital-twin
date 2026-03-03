@@ -1,7 +1,16 @@
 // ─────────────────────────────────────────────────────────────
-// Editorial content tables — essays, consumption, sidequests,
-// skills, travel, design thoughts
-// Maps to: src/types/editorial.ts
+// @deprecated — ARCHIVED  (March 2026)
+//
+// Legacy per-type editorial tables. These have been superseded
+// by the universal `content_items` table (src/db/schema/content.ts)
+// which stores all editorial content as polymorphic JSONB rows.
+//
+// These tables were:
+//   - Seeded by scripts/seed.ts from static @/data/* files
+//   - Never queried at runtime (all reads go through @/cms/actions → content_items)
+//   - Dropped in migration 0004_drop-legacy-editorial.sql
+//
+// Kept here for historical reference only. Do NOT import.
 // ─────────────────────────────────────────────────────────────
 import { pgTable, text, integer, boolean, jsonb } from 'drizzle-orm/pg-core'
 

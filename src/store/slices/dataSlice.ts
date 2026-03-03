@@ -7,7 +7,7 @@ import {
   workouts as seedWorkouts,
   wishlist as seedWishlist,
 } from "@/data/index";
-import type { DataSlice, ImmerSliceCreator } from "../types";
+import type { AppData, DataSlice, ImmerSliceCreator } from "../types";
 
 // ========================================
 // Helper: Merge arrays by ID (upsert logic)
@@ -20,9 +20,10 @@ export function mergeById<T extends { id: string }>(base: T[], updates: T[]): T[
 
 // ========================================
 // Data slice — all domain data + CRUD + wishlist
-// Uses immer for clean nested mutations
+// On first load, static TS data is shown instantly.
+// initFromDb() then replaces it with DB data for cross-device sync.
 // ========================================
-export const createDataSlice: ImmerSliceCreator<DataSlice> = (set) => ({
+export const createDataSlice: ImmerSliceCreator<DataSlice> = (set, get) => ({
   data: {
     products: seedProducts,
     routines: seedRoutines,
@@ -31,6 +32,47 @@ export const createDataSlice: ImmerSliceCreator<DataSlice> = (set) => ({
     dressings: seedDressings,
     workoutPlans: seedWorkouts,
     wishlist: seedWishlist,
+  },
+
+  dbStatus: 'idle',
+
+  // Fetch all domain data from Postgres via /api/seed-data
+  // Falls back silently to static data if the request fails
+  initFromDb: async () => {
+    // Guard: only fetch once per session
+    const current = get().dbStatus;
+    if (current === 'loading' || current === 'ready') return;
+
+    set((state) => { state.dbStatus = 'loading'; });
+
+    try {
+      const res = await fetch('/api/seed-data');
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+      const json = await res.json();
+      if (!json.success || !json.data) throw new Error('Invalid response');
+
+      const db: AppData = json.data;
+
+      set((state) => {
+        // Only replace arrays that came back non-empty from DB.
+        // If the DB table is empty, keep the static fallback.
+        if (db.products?.length)      state.data.products      = db.products;
+        if (db.routines?.length)      state.data.routines      = db.routines;
+        if (db.wardrobe?.length)      state.data.wardrobe      = db.wardrobe;
+        if (db.mealTemplates?.length) state.data.mealTemplates = db.mealTemplates;
+        if (db.dressings?.length)     state.data.dressings     = db.dressings;
+        if (db.workoutPlans?.length)  state.data.workoutPlans  = db.workoutPlans;
+        if (db.wishlist?.length)      state.data.wishlist      = db.wishlist;
+        state.dbStatus = 'ready';
+      });
+    } catch (e) {
+      // Fail silently — static data remains as fallback
+      if (process.env.NODE_ENV === 'development') {
+        console.warn('[Store] DB hydration failed, using static data:', e);
+      }
+      set((state) => { state.dbStatus = 'error'; });
+    }
   },
 
   // --- CRUD operations (immer draft mutations) ---

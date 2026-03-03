@@ -15,11 +15,14 @@ async function main() {
     'routine_steps', 'routines',
     'products',
     'wardrobe_items', 'wishlist_items', 'jewellery_items',
+    'content_items', 'notes',
+    '__drizzle_migrations',
+    // Legacy editorial tables (dropped in migration 0004, but
+    // included here for idempotent resets of older environments)
     'consumption_items',
     'essays', 'sidequests', 'skill_experiments',
     'travel_locations', 'design_thoughts', 'topics',
     'artifacts', 'inspirations',
-    '__drizzle_migrations',
   ]
 
   console.log('\n🗑️  Dropping application tables...\n')

@@ -3,7 +3,7 @@
 // Tests the unified dataSlice which replaced the legacy per-domain slices
 // ========================================
 
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach, vi } from "vitest";
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 import type { DataSlice } from "@/store/types";
@@ -243,5 +243,84 @@ describe("DataSlice — Wishlist (standalone store)", () => {
     useStore.getState().markWishlistItemPurchased(existing.id);
     const found = useStore.getState().data.wishlist.find((i) => i.id === existing.id);
     expect(found!.purchased).toBe(true);
+  });
+});
+
+// ========================================
+// DataSlice — DB Hydration (initFromDb)
+// ========================================
+describe("DataSlice — DB Hydration (standalone store)", () => {
+  let useStore: ReturnType<typeof createImmerTestStore>;
+
+  beforeEach(() => {
+    useStore = createImmerTestStore();
+    vi.restoreAllMocks();
+  });
+
+  it("dbStatus starts as idle", () => {
+    expect(useStore.getState().dbStatus).toBe("idle");
+  });
+
+  it("initFromDb replaces store data on success", async () => {
+    const mockData = {
+      products: [{ id: "db-p-1", name: "DB Product", category: "test", actives: [], cautionTags: [] }],
+      routines: [{ id: "db-r-1", type: "skin", name: "DB Routine", schedule: { weekday: [1] }, timeOfDay: "AM", tags: {}, steps: [] }],
+      wardrobe: [],
+      wishlist: [],
+      mealTemplates: [],
+      dressings: [],
+      workoutPlans: [],
+    };
+
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve({ success: true, data: mockData }),
+    });
+
+    await useStore.getState().initFromDb();
+
+    expect(useStore.getState().dbStatus).toBe("ready");
+    expect(useStore.getState().data.products).toEqual(mockData.products);
+    expect(useStore.getState().data.routines).toEqual(mockData.routines);
+    // Empty arrays from DB should not replace seed data
+    expect(useStore.getState().data.wardrobe.length).toBeGreaterThan(0);
+  });
+
+  it("initFromDb falls back to static data on failure", async () => {
+    const seedProductCount = useStore.getState().data.products.length;
+
+    global.fetch = vi.fn().mockRejectedValue(new Error("Network error"));
+
+    await useStore.getState().initFromDb();
+
+    expect(useStore.getState().dbStatus).toBe("error");
+    // Static seed data should still be intact
+    expect(useStore.getState().data.products.length).toBe(seedProductCount);
+  });
+
+  it("initFromDb skips if already loading or ready", async () => {
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve({ success: true, data: { products: [], routines: [], wardrobe: [], wishlist: [], mealTemplates: [], dressings: [], workoutPlans: [] } }),
+    });
+
+    await useStore.getState().initFromDb();
+    expect(global.fetch).toHaveBeenCalledTimes(1);
+
+    // Second call should be no-op (status is 'ready')
+    await useStore.getState().initFromDb();
+    expect(global.fetch).toHaveBeenCalledTimes(1);
+  });
+
+  it("initFromDb handles non-OK HTTP response", async () => {
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: false,
+      status: 401,
+      json: () => Promise.resolve({ success: false, error: "Unauthorized" }),
+    });
+
+    await useStore.getState().initFromDb();
+
+    expect(useStore.getState().dbStatus).toBe("error");
   });
 });

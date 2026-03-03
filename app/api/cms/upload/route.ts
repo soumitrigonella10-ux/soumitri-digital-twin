@@ -3,52 +3,64 @@
 //
 // Accepts: multipart/form-data with a single "file" field
 // Supports: images (jpg, png, webp, avif), PDFs, videos (mp4, webm)
-// Stores to: public/uploads/{type}/{filename}
-// Returns: { url: "/uploads/..." }
+// Stores to: Vercel Blob under cms/{type}/{filename}
+// Returns: { url: "https://...blob.vercel-storage.com/..." }
 //
 // Security:
-//   - Session validation (admin only)
-//   - File type validation
-//   - File size limits
+//   - Admin session validation via requireAdmin()
+//   - File type validation (MIME-based)
+//   - File size limits per category
 //   - Sanitized filenames
+//   - Upload type allowlisted (defends against path traversal)
 // ─────────────────────────────────────────────────────────────
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { put } from "@vercel/blob";
+import { requireAdmin } from "@/lib/admin-auth";
 import { createLogger } from "@/lib/logger";
-import { writeFile, mkdir } from "fs/promises";
-import path from "path";
 
 const log = createLogger("cms-upload");
 
-// ── Allowed file types ───────────────────────────────────────
-const ALLOWED_TYPES: Record<string, { extensions: string[]; maxSize: number }> = {
+// ── Allowed upload directories (defends against path traversal) ──
+const ALLOWED_UPLOAD_TYPES = ["essays", "travel", "images", "general"] as const;
+type UploadType = (typeof ALLOWED_UPLOAD_TYPES)[number];
+
+function sanitizeUploadType(raw: string): UploadType {
+  const cleaned = raw.toLowerCase().replace(/[^a-z]/g, "");
+  if (ALLOWED_UPLOAD_TYPES.includes(cleaned as UploadType)) {
+    return cleaned as UploadType;
+  }
+  return "general";
+}
+
+// ── Allowed file types (validated by MIME type) ──────────────
+const ALLOWED_TYPES: Record<string, { mimes: string[]; maxSize: number }> = {
   image: {
-    extensions: [".jpg", ".jpeg", ".png", ".webp", ".avif"],
+    mimes: ["image/jpeg", "image/png", "image/webp", "image/avif"],
     maxSize: 10 * 1024 * 1024, // 10MB
   },
   pdf: {
-    extensions: [".pdf"],
+    mimes: ["application/pdf"],
     maxSize: 50 * 1024 * 1024, // 50MB
   },
   video: {
-    extensions: [".mp4", ".webm"],
+    mimes: ["video/mp4", "video/webm"],
     maxSize: 100 * 1024 * 1024, // 100MB
   },
 };
 
-function getFileCategory(filename: string): string | null {
-  const ext = path.extname(filename).toLowerCase();
+function getFileCategory(mimeType: string): string | null {
   for (const [category, config] of Object.entries(ALLOWED_TYPES)) {
-    if (config.extensions.includes(ext)) return category;
+    if (config.mimes.includes(mimeType)) return category;
   }
   return null;
 }
 
 function sanitizeFilename(filename: string): string {
-  const ext = path.extname(filename).toLowerCase();
-  const base = path.basename(filename, ext);
+  // Extract extension from the original name
+  const lastDot = filename.lastIndexOf(".");
+  const ext = lastDot > 0 ? filename.slice(lastDot).toLowerCase() : "";
+  const base = lastDot > 0 ? filename.slice(0, lastDot) : filename;
   const sanitized = base
     .toLowerCase()
     .replace(/[^a-z0-9_-]/g, "-")
@@ -62,31 +74,24 @@ function sanitizeFilename(filename: string): string {
 // ── POST handler ─────────────────────────────────────────────
 export async function POST(request: NextRequest) {
   try {
-    // 1. Auth check
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.email) {
-      return NextResponse.json({ error: "Authentication required" }, { status: 401 });
-    }
-    const role = (session.user as { role?: string }).role;
-    if (role !== "admin") {
-      log.warn(`⛔ Upload attempted by non-admin: ${session.user.email}`);
-      return NextResponse.json({ error: "Admin access required" }, { status: 403 });
-    }
+    // 1. Auth check — uses shared admin chokepoint
+    const admin = await requireAdmin();
 
     // 2. Parse multipart form
     const formData = await request.formData();
-    const file = formData.get("file") as File | null;
-    const uploadType = (formData.get("type") as string) || "general";
+    const file = formData.get("file");
+    const uploadType = sanitizeUploadType((formData.get("type") as string) || "general");
 
-    if (!file) {
+    if (!file || !(file instanceof Blob)) {
       return NextResponse.json({ error: "No file provided" }, { status: 400 });
     }
 
-    // 3. Validate file type
-    const category = getFileCategory(file.name);
+    // 3. Validate file type (MIME-based, not extension-based)
+    const category = getFileCategory(file.type);
     if (!category) {
+      const allMimes = Object.values(ALLOWED_TYPES).flatMap(t => t.mimes);
       return NextResponse.json(
-        { error: `Unsupported file type. Allowed: ${Object.values(ALLOWED_TYPES).flatMap(t => t.extensions).join(", ")}` },
+        { error: `Unsupported file type: ${file.type}. Allowed: ${allMimes.join(", ")}` },
         { status: 400 }
       );
     }
@@ -96,38 +101,39 @@ export async function POST(request: NextRequest) {
     if (!typeConfig) {
       return NextResponse.json({ error: "Unsupported file type" }, { status: 400 });
     }
-    const maxSize = typeConfig.maxSize;
-    if (file.size > maxSize) {
-      const maxMB = Math.round(maxSize / (1024 * 1024));
+    if (file.size > typeConfig.maxSize) {
+      const maxMB = Math.round(typeConfig.maxSize / (1024 * 1024));
       return NextResponse.json(
         { error: `File too large. Maximum size for ${category} files: ${maxMB}MB` },
         { status: 400 }
       );
     }
 
-    // 5. Save file
-    const safeName = sanitizeFilename(file.name);
-    const uploadDir = path.join(process.cwd(), "public", "uploads", uploadType || "general");
+    // 5. Upload to Vercel Blob
+    const originalName = (file as File).name || "upload";
+    const safeName = sanitizeFilename(originalName);
+    const pathname = `cms/${uploadType}/${safeName}`;
 
-    await mkdir(uploadDir, { recursive: true });
+    const blob = await put(pathname, file, {
+      access: "public",
+      addRandomSuffix: false,
+    });
 
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-    const filePath = path.join(uploadDir, safeName);
-
-    await writeFile(filePath, buffer);
-
-    const publicUrl = `/uploads/${uploadType}/${safeName}`;
-
-    log.info(`📁 Uploaded ${category}: ${publicUrl} (${(file.size / 1024).toFixed(1)}KB) by ${session.user.email}`);
+    log.info(`📁 Uploaded ${category}: ${blob.url} (${(file.size / 1024).toFixed(1)}KB) by ${admin.email}`);
 
     return NextResponse.json({
-      url: publicUrl,
+      url: blob.url,
       filename: safeName,
       category,
       size: file.size,
     });
   } catch (error) {
+    const message = error instanceof Error ? error.message : "Upload failed";
+
+    if (message === "Authentication required" || message === "Admin access required") {
+      return NextResponse.json({ error: message }, { status: 401 });
+    }
+
     log.error("❌ Upload failed:", error);
     return NextResponse.json({ error: "Upload failed" }, { status: 500 });
   }
