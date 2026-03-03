@@ -45,7 +45,7 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const { limit, offset } = parsePagination(searchParams);
 
-    const [rows, [{ total }]] = await Promise.all([
+    const [rows, countResult] = await Promise.all([
       db
         .select()
         .from(wardrobeItems)
@@ -56,6 +56,8 @@ export async function GET(req: NextRequest) {
         .select({ total: sql<number>`count(*)::int` })
         .from(wardrobeItems),
     ]);
+
+    const total = countResult[0]?.total ?? 0;
 
     return NextResponse.json({
       success: true,

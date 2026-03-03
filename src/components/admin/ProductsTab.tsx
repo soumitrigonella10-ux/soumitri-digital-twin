@@ -39,20 +39,28 @@ const HAIR_PHASES = ["oiling", "washing", "postWash", "daily"];
 // ── Helpers ──────────────────────────────────────────────────
 
 function formToProduct(values: ProductForm): Product {
-  return {
+  const product: Product = {
     id: values.id.trim(),
     name: values.name.trim(),
     category: values.category.trim(),
-    brand: values.brand?.trim() || undefined,
     actives: values.actives?.split(",").map((s) => s.trim()).filter(Boolean) ?? [],
     cautionTags: values.cautionTags?.split(",").map((s) => s.trim()).filter(Boolean) ?? [],
-    routineType: (values.routineType as Product["routineType"]) || undefined,
-    hairPhase: (values.hairPhase as Product["hairPhase"]) || undefined,
-    timeOfDay: (values.timeOfDay as Product["timeOfDay"]) || undefined,
-    weekdays: values.weekdays?.split(",").map(Number).filter((n) => !isNaN(n)) ?? undefined,
-    displayOrder: values.displayOrder ? Number(values.displayOrder) : undefined,
-    notes: values.notes?.trim() || undefined,
   };
+  const brand = values.brand?.trim();
+  if (brand) product.brand = brand;
+  const routineType = values.routineType as Product["routineType"];
+  if (routineType) product.routineType = routineType;
+  const hairPhase = values.hairPhase as Product["hairPhase"];
+  if (hairPhase) product.hairPhase = hairPhase;
+  const timeOfDay = values.timeOfDay as Product["timeOfDay"];
+  if (timeOfDay) product.timeOfDay = timeOfDay;
+  const weekdays = values.weekdays?.split(",").map(Number).filter((n) => !isNaN(n));
+  if (weekdays?.length) product.weekdays = weekdays;
+  const displayOrder = values.displayOrder ? Number(values.displayOrder) : null;
+  if (displayOrder != null) product.displayOrder = displayOrder;
+  const notes = values.notes?.trim();
+  if (notes) product.notes = notes;
+  return product;
 }
 
 function productToForm(p: Product): ProductForm {
@@ -126,7 +134,7 @@ export function ProductsTab() {
       toast({
         title: "Failed to save product",
         description: err instanceof Error ? err.message : "Unknown error",
-        variant: "destructive",
+        variant: "error",
       });
     } finally {
       setSaving(false);
@@ -153,7 +161,7 @@ export function ProductsTab() {
       toast({
         title: "Failed to delete",
         description: err instanceof Error ? err.message : "Unknown error",
-        variant: "destructive",
+        variant: "error",
       });
     } finally {
       setDeletingId(null);

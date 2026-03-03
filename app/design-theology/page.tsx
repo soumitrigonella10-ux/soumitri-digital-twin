@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import type { DesignThought } from '@/data/designThoughts';
 import { EditorialNav } from '@/components/EditorialNav';

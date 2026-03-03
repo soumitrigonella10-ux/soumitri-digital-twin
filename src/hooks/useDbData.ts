@@ -16,8 +16,12 @@ export function useDbData<T>(url: string, fallback: T) {
     let cancelled = false;
 
     fetch(url)
-      .then((res) => {
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      .then(async (res) => {
+        if (!res.ok) {
+          const body = await res.json().catch(() => ({}));
+          const detail = body?.error || `HTTP ${res.status}`;
+          throw new Error(detail);
+        }
         return res.json();
       })
       .then((json) => {

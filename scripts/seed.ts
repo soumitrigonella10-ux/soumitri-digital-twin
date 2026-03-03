@@ -70,6 +70,37 @@ async function seed() {
   console.log('\n🌱 Starting database seed...\n')
   const start = Date.now()
 
+  // ── 0. Clear all tables (reverse dependency order) ─────────
+  console.log('  🧹 Clearing existing data...')
+  const tablesToClear = [
+    schema.exercises,
+    schema.workoutSections,
+    schema.workoutPlans,
+    schema.mealIngredients,
+    schema.mealTemplates,
+    schema.dressings,
+    schema.groceryCategories,
+    schema.lunchBowlConfig,
+    schema.routineSteps,
+    schema.routines,
+    schema.products,
+    schema.wardrobeItems,
+    schema.wishlistItems,
+    schema.jewelleryItems,
+    schema.affirmationsTable,
+    schema.dayThemes,
+    schema.contentItems,
+    schema.notes,
+  ]
+  for (const table of tablesToClear) {
+    try {
+      await db.delete(table)
+    } catch {
+      // Table might not exist yet, skip
+    }
+  }
+  console.log('  ✅ Tables cleared\n')
+
   // ── 1. Products (beauty + makeup) ──────────────────────────
   // Combine beauty products and makeup products
   // Tag makeup products with routineType: "makeup" so they can be queried
@@ -298,7 +329,7 @@ async function seed() {
   })))
 
   // ── 9. Internet Lore → content_items ───────────────────────
-  const loreContentItems = loreItems.map((item, i) => ({
+  const loreContentItems = loreItems.map((item) => ({
     id:         item.id,
     type:       'internet-lore',
     slug:       item.id,

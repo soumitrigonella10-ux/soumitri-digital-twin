@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo } from 'react';
 import type { InspirationFragment } from '@/data/artifacts';
 import { inspirations as staticInspirations } from '@/data/artifacts';
 import { EditorialNav } from '@/components/EditorialNav';

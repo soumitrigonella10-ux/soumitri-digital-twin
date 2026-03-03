@@ -309,7 +309,7 @@ export async function getContentByType(
         conditions.push(eq(contentItems.visibility, options.visibility));
       }
 
-      const [rows, [{ total }]] = await Promise.all([
+      const [rows, countResult] = await Promise.all([
         db
           .select()
           .from(contentItems)
@@ -323,6 +323,7 @@ export async function getContentByType(
           .where(and(...conditions)),
       ]);
 
+      const total = countResult[0]?.total ?? 0;
       return { items: rows.map(rowToContentItem), total };
     },
     type,
@@ -387,7 +388,7 @@ export async function listAllContent(
       const conditions = options?.type ? [eq(contentItems.type, options.type)] : [];
       const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
-      const [rows, [{ total }]] = await Promise.all([
+      const [rows, countResult] = await Promise.all([
         db
           .select()
           .from(contentItems)
@@ -401,6 +402,7 @@ export async function listAllContent(
           .where(whereClause),
       ]);
 
+      const total = countResult[0]?.total ?? 0;
       return { items: rows.map(rowToContentItem), total };
     },
     ["list", options?.type ?? "all", String(limit), String(offset)]

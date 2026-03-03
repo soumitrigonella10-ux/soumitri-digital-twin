@@ -6,7 +6,7 @@
 // ========================================
 
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { render, screen, fireEvent, act, cleanup } from "@testing-library/react";
+import { render, act, cleanup } from "@testing-library/react";
 import React from "react";
 
 // vi.hoisted ensures the variable exists before the hoisted vi.mock runs
@@ -41,11 +41,6 @@ import { reportError, GlobalErrorListener } from "@/components/ErrorBoundary";
 // Let's use a wrapper that catches render errors
 
 // ── Helpers ──────────────────────────────────────────────────
-
-function ThrowingComponent({ shouldThrow = true }: { shouldThrow?: boolean }) {
-  if (shouldThrow) throw new Error("Test render error");
-  return <div>No error</div>;
-}
 
 // ========================================
 // reportError utility

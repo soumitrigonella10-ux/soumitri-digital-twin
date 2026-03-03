@@ -5,6 +5,7 @@ import "./globals.css";
 import { ToastProvider } from "@/components/ToastProvider";
 import { SessionProvider } from "@/components/SessionProvider";
 import { GlobalErrorListener } from "@/components/ErrorBoundary";
+import { StoreInitializer } from "@/components/StoreInitializer";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -48,6 +49,7 @@ export default async function RootLayout({
       <body className="bg-telugu-sandstone min-h-screen" suppressHydrationWarning>
         <SessionProvider>
           <ToastProvider>
+            <StoreInitializer />
             <GlobalErrorListener />
             <main className="min-h-screen">
               {children}

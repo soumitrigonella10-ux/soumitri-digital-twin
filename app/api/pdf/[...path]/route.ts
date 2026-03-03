@@ -53,8 +53,9 @@ export async function GET(
 
     const readable = new ReadableStream({
       start(controller) {
-        nodeStream.on("data", (chunk: Buffer) => {
-          controller.enqueue(new Uint8Array(chunk));
+        nodeStream.on("data", (chunk: Buffer | string) => {
+          const buf = typeof chunk === "string" ? Buffer.from(chunk) : chunk;
+          controller.enqueue(new Uint8Array(buf));
         });
         nodeStream.on("end", () => controller.close());
         nodeStream.on("error", (err) => controller.error(err));

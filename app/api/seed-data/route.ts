@@ -4,12 +4,12 @@
 // GET /api/seed-data → { products, routines, wardrobe, ... }
 //
 // This is the single entry-point for the client store to hydrate
-// from the database. Requires admin auth.
+// from the database. Read-only — auth is handled by middleware
+// (all non-public paths require a session).
 //
 // Returns the same shape as AppData so the store can use it directly.
 // ─────────────────────────────────────────────────────────────
 import { NextResponse } from "next/server";
-import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import {
   products,
@@ -18,11 +18,11 @@ import {
   mealTemplates, mealIngredients, dressings,
   workoutPlans, workoutSections, exercises,
 } from "@/db/schema";
-import { requireAdmin } from "@/lib/admin-auth";
 
 export async function GET() {
   try {
-    await requireAdmin();
+    // Auth is enforced by middleware — no additional admin check needed
+    // for this read-only endpoint.
 
     // Fetch all domain tables in parallel
     const [
@@ -94,11 +94,7 @@ export async function GET() {
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Failed to fetch seed data";
-
-    if (message === "Authentication required" || message === "Admin access required") {
-      return NextResponse.json({ success: false, error: message }, { status: 401 });
-    }
-
+    console.error("[API] seed-data GET error:", message);
     return NextResponse.json({ success: false, error: message }, { status: 500 });
   }
 }

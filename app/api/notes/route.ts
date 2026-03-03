@@ -47,7 +47,7 @@ export async function GET(req: NextRequest) {
 
     const conditions = type ? eq(notes.type, type) : undefined;
 
-    const [rows, [{ total }]] = await Promise.all([
+    const [rows, countResult] = await Promise.all([
       db
         .select()
         .from(notes)
@@ -60,6 +60,8 @@ export async function GET(req: NextRequest) {
         .from(notes)
         .where(conditions),
     ]);
+
+    const total = countResult[0]?.total ?? 0;
 
     return NextResponse.json({
       success: true,

@@ -17,15 +17,12 @@ vi.mock("@/lib/admin-auth", () => ({
 }));
 
 // Mock Drizzle db with chainable query builder
-const mockReturning = vi.fn();
-const mockWhere = vi.fn();
 const mockOrderBy = vi.fn();
-const mockSet = vi.fn();
 
 const mockDb = {
   select: vi.fn(() => ({
     from: vi.fn(() => ({
-      where: vi.fn((condition) => ({
+      where: vi.fn((_condition) => ({
         orderBy: vi.fn(() => {
           mockOrderBy();
           return Promise.resolve([]);

@@ -71,15 +71,21 @@ export const useAppStore = create<AppState>()(
 
 // ========================================
 // Post-hydration: prune stale completions & load DB data
-// Runs once when the store finishes loading from localStorage
+// This is a supplementary trigger. The primary trigger is <StoreInitializer />
+// mounted in the root layout, which calls initFromDb() via useEffect.
 // ========================================
 if (typeof window !== "undefined") {
-  const unsubHydration = useAppStore.persist.onFinishHydration(() => {
+  const runPostHydration = () => {
     useAppStore.getState().cleanupStaleCompletions();
-
-    // Replace static seed data with live DB data (async, non-blocking)
     useAppStore.getState().initFromDb();
+  };
 
-    unsubHydration();
-  });
+  if (useAppStore.persist.hasHydrated()) {
+    runPostHydration();
+  } else {
+    const unsubHydration = useAppStore.persist.onFinishHydration(() => {
+      runPostHydration();
+      unsubHydration();
+    });
+  }
 }
