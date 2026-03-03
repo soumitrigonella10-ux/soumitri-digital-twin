@@ -1,5 +1,6 @@
 import { useState, useMemo, useCallback, useRef, useEffect } from "react";
 import { useAppStore } from "@/store/useAppStore";
+import { routineService } from "@/lib/services";
 import type { Product, TimeOfDay, RoutineType } from "@/types";
 import type { EditFormState } from "@/components/routines/EditProductModal";
 
@@ -38,8 +39,7 @@ export function useRoutineProducts({ routineType }: UseRoutineProductsOptions) {
       if (!data?.products || !Array.isArray(data.products)) {
         return [];
       }
-      return data.products
-        .filter((p) => p.routineType === routineType)
+      return routineService.getProductsByType(data.products, routineType)
         .sort((a, b) => (a.displayOrder || 999) - (b.displayOrder || 999));
     } catch (e) {
       filterErrorRef.current = e instanceof Error ? e : new Error("Failed to filter products");
@@ -63,9 +63,7 @@ export function useRoutineProducts({ routineType }: UseRoutineProductsOptions) {
       );
 
       if (activeDayFilter !== "ALL") {
-        filtered = filtered.filter(
-          (p) => !p.weekdays || p.weekdays.includes(activeDayFilter)
-        );
+        filtered = routineService.getProductsForDay(filtered, activeDayFilter);
       }
 
       return filtered;
@@ -73,7 +71,6 @@ export function useRoutineProducts({ routineType }: UseRoutineProductsOptions) {
     [activeDayFilter]
   );
 
-  // AM/PM column products
   const morningProducts = useMemo(
     () => filterByTimeAndDay(filteredProducts, "AM"),
     [filteredProducts, filterByTimeAndDay]

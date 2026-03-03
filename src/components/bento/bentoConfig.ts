@@ -57,7 +57,7 @@ export const BENTO_TILES: BentoTileConfig[] = [
   },
   {
     id: "skillup",
-    title: "Skill Up",
+    title: "Skill/SideQuests",
     subtitle: "Wish me luck",
     description: "Master of all trades, jack of none.",
     icon: "GraduationCap",
@@ -118,6 +118,6 @@ export const BENTO_TILES: BentoTileConfig[] = [
     description: "Fragments from the deep web, screenshots nobody asked for, and the kind of posts you send to exactly one person at 2 a.m.",
     icon: "Globe",
     iconColor: ICON_COLORS.emerald,
-    href: "/sidequests",
+    href: "/internetlore",
   },
 ];

@@ -13,18 +13,29 @@ import type { NextRequest } from "next/server";
 const mockRequireAdmin = vi.fn();
 vi.mock("@/lib/admin-auth", () => ({
   requireAdmin: (...args: unknown[]) => mockRequireAdmin(...args),
+  AUTH_ERRORS: {
+    UNAUTHENTICATED: "Authentication required",
+    FORBIDDEN: "Admin access required",
+  },
 }));
 
+/** Creates a fully-chainable mock that is also `await`-able (thenable). */
+function mockChain(resolveWith: unknown[] = []) {
+  const chain: Record<string, unknown> = {};
+  for (const m of ["from", "where", "orderBy", "limit", "offset"]) {
+    chain[m] = vi.fn(() => chain);
+  }
+  chain.then = (resolve: (v: unknown) => void, reject?: (e: unknown) => void) =>
+    Promise.resolve(resolveWith).then(resolve, reject);
+  return chain;
+}
+
+const DEFAULT_WARDROBE_ROWS = [
+  { id: "top_1", name: "White Tee", category: "Top", imageUrl: "https://blob.vercel-storage.com/img.jpg" },
+];
+
 const mockDb = {
-  select: vi.fn(() => ({
-    from: vi.fn(() => ({
-      where: vi.fn(() =>
-        Promise.resolve([
-          { id: "top_1", name: "White Tee", category: "Top", imageUrl: "https://blob.vercel-storage.com/img.jpg" },
-        ])
-      ),
-    })),
-  })),
+  select: vi.fn(() => mockChain(DEFAULT_WARDROBE_ROWS)),
   insert: vi.fn(() => ({
     values: vi.fn(() => ({
       returning: vi.fn(() =>
@@ -55,6 +66,11 @@ vi.mock("@/db/schema/wardrobe", () => ({
 
 vi.mock("drizzle-orm", () => ({
   eq: vi.fn((a, b) => ({ field: a, value: b })),
+  desc: vi.fn((a) => ({ type: "desc", field: a })),
+  sql: Object.assign(vi.fn(), {
+    [Symbol.for("drizzle:tagged-template")]: true,
+    raw: vi.fn((s: string) => s),
+  }),
 }));
 
 const mockDel = vi.fn().mockResolvedValue(undefined);
@@ -92,7 +108,7 @@ function createFormDataRequest(file: File): NextRequest {
 
 // ── Dynamic imports ──────────────────────────────────────────
 
-let crudGET: () => Promise<Response>;
+let crudGET: (req: NextRequest) => Promise<Response>;
 let crudPOST: (req: NextRequest) => Promise<Response>;
 let crudDELETE: (req: NextRequest) => Promise<Response>;
 let uploadPOST: (req: NextRequest) => Promise<Response>;
@@ -116,7 +132,8 @@ beforeEach(async () => {
 describe("Wardrobe API — Auth", () => {
   it("GET returns 401 when unauthenticated", async () => {
     mockRequireAdmin.mockRejectedValue(new Error("Authentication required"));
-    const res = await crudGET();
+    const req = createJsonRequest("GET", "http://localhost/api/wardrobe");
+    const res = await crudGET(req);
     expect(res.status).toBe(401);
   });
 
@@ -129,11 +146,11 @@ describe("Wardrobe API — Auth", () => {
     expect(res.status).toBe(401);
   });
 
-  it("DELETE returns 401 when unauthenticated", async () => {
+  it("DELETE returns 403 when forbidden", async () => {
     mockRequireAdmin.mockRejectedValue(new Error("Admin access required"));
     const req = createJsonRequest("DELETE", "http://localhost/api/wardrobe?id=top_1");
     const res = await crudDELETE(req);
-    expect(res.status).toBe(401);
+    expect(res.status).toBe(403);
   });
 
   it("Upload returns 401 when unauthenticated", async () => {
@@ -149,14 +166,11 @@ describe("Wardrobe API — Auth", () => {
 // GET /api/wardrobe
 // ========================================
 describe("Wardrobe API — GET", () => {
-  it("returns success with data array", async () => {
-    // Override to return rows directly (no .where chain for GET all)
-    mockDb.select.mockReturnValueOnce({
-      from: vi.fn(() => Promise.resolve([
-        { id: "top_1", name: "White Tee", category: "Top", imageUrl: "/img.jpg" },
-      ])),
-    });
-    const res = await crudGET();
+  it("returns success with data array", async () => {    // GET handler calls select() twice: rows + count
+    mockDb.select
+      .mockReturnValueOnce(mockChain(DEFAULT_WARDROBE_ROWS))
+      .mockReturnValueOnce(mockChain([{ total: 1 }]));    const req = createJsonRequest("GET", "http://localhost/api/wardrobe");
+    const res = await crudGET(req);
     expect(res.status).toBe(200);
     const data = await res.json();
     expect(data.success).toBe(true);
@@ -189,7 +203,8 @@ describe("Wardrobe API — POST", () => {
     const res = await crudPOST(req);
     expect(res.status).toBe(400);
     const data = await res.json();
-    expect(data.error).toMatch(/name.*category.*imageUrl.*required/i);
+    expect(data.error).toBe("Validation failed");
+    expect(data.details.name).toBeDefined();
   });
 
   it("returns 400 when category is missing", async () => {
@@ -224,11 +239,7 @@ describe("Wardrobe API — DELETE", () => {
   });
 
   it("returns 404 when item not found", async () => {
-    mockDb.select.mockReturnValueOnce({
-      from: vi.fn(() => ({
-        where: vi.fn(() => Promise.resolve([])),
-      })),
-    });
+    mockDb.select.mockReturnValueOnce(mockChain([]));
     const req = createJsonRequest("DELETE", "http://localhost/api/wardrobe?id=gone");
     const res = await crudDELETE(req);
     expect(res.status).toBe(404);

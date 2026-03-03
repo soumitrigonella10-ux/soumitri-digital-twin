@@ -22,7 +22,8 @@ export interface RoutineColumnProps {
   products: Product[];
   completedProducts: Set<string>;
   onToggleComplete: (productId: string) => void;
-  onEdit?: (product: Product) => void;
+  onEdit?: ((product: Product) => void) | undefined;
+  onDelete?: ((product: Product) => void) | undefined;
   theme: ProductCardTheme;
   emptyIcon: LucideIcon;
   emptyMessage: string;
@@ -46,6 +47,7 @@ export function RoutineColumn({
   completedProducts,
   onToggleComplete,
   onEdit,
+  onDelete,
   theme,
   emptyIcon: EmptyIcon,
   emptyMessage,
@@ -84,6 +86,7 @@ export function RoutineColumn({
               isCompleted={completedProducts.has(product.id)}
               onToggleComplete={() => onToggleComplete(product.id)}
               {...(onEdit ? { onEdit: () => onEdit(product) } : {})}
+              {...(onDelete ? { onDelete: () => onDelete(product) } : {})}
               index={index}
               theme={theme}
               variant={variant}

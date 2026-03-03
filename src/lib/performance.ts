@@ -1,13 +1,9 @@
 // ========================================
 // Performance Utilities (pure functions — no React dependency)
 //
-// React performance hooks have been moved to src/hooks/usePerformance.ts
+// React performance hooks live in src/hooks/usePerformance.ts
 // to enforce the architectural boundary: hooks → src/hooks/, utils → src/lib/.
-// Re-exports below maintain backward compatibility.
 // ========================================
-
-// Re-export React hooks for backward compatibility
-export { useDebounce, useStableCallback, useDeepMemo } from "@/hooks/usePerformance";
 
 // ========================================
 // Memoized Selectors (pure utility)
@@ -28,16 +24,6 @@ export const createMemoizedSelector = <T, R>(
     return lastResult;
   };
 };
-
-// ========================================
-// Constants for Performance
-// ========================================
-export const PERFORMANCE_CONFIG = {
-  DEBOUNCE_DELAY: 300,
-  ANIMATION_DURATION: 200,
-  LAZY_LOAD_THRESHOLD: 50,
-  CACHE_TTL: 5 * 60 * 1000, // 5 minutes
-} as const;
 
 // ========================================
 // Memory-efficient array operations (pure utility)

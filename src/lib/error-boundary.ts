@@ -36,23 +36,6 @@ export class DatabaseError extends Error implements AppError {
 }
 
 /**
- * Safe error handler for async operations
- */
-export async function safeAsync<T>(
-  operation: () => Promise<T>
-): Promise<[T | null, AppError | null]> {
-  try {
-    const result = await operation();
-    return [result, null];
-  } catch (error) {
-    const appError = error instanceof Error
-      ? error as AppError
-      : new Error('Unknown error') as AppError;
-    return [null, appError];
-  }
-}
-
-/**
  * Error reporter for production monitoring.
  * Sends to Sentry and logs to console.
  */

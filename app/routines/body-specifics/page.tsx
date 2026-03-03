@@ -3,16 +3,47 @@
 import { useState, useMemo, useCallback } from "react";
 import { Target, Sun, Moon } from "lucide-react";
 import { useRoutineProducts } from "@/hooks/useRoutineProducts";
+import { useAdmin } from "@/hooks/useAdmin";
+import { useAppStore } from "@/store/useAppStore";
 import { cn } from "@/lib/utils";
 import type { Product, BodyArea } from "@/types";
 import { PRODUCT_CARD_THEMES } from "@/components/ProductCard";
+import { AdminAddButton, DeleteConfirmModal } from "@/components/AdminCrudModal";
 import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
-import { DayOfWeekFilter, RoutineColumn, EditProductModal } from "@/components/routines";
+import { DayOfWeekFilter, RoutineColumn, EditProductModal, AddProductModal } from "@/components/routines";
 import { BODY_AREAS, getProductArea } from "@/data/bodyAreas";
+
+const BODY_SPECIFICS_CATEGORIES = ["Cleanser", "Lip Care", "Hair Removal", "Intimate Care", "Deodorant", "Face Treatment", "Body Treatment", "Treatment", "Moisturizer", "Occlusive", "Retinoid", "Chemical Exfoliant", "Serum"];
+
+const BODY_AREA_OPTIONS = Object.entries(BODY_AREAS).map(([code, config]) => ({
+  code,
+  label: config.name,
+}));
 
 function BodySpecificsPageContent() {
   const routine = useRoutineProducts({ routineType: "bodySpecific" });
+  const { isAdmin } = useAdmin();
+  const { refreshFromDb } = useAppStore();
   const [activeAreaFilter, setActiveAreaFilter] = useState<keyof typeof BODY_AREAS | "ALL">("ALL");
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [deletingProduct, setDeletingProduct] = useState<Product | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const handleDelete = useCallback(async () => {
+    if (!deletingProduct) return;
+    setIsDeleting(true);
+    try {
+      const res = await fetch(`/api/body-specifics?id=${deletingProduct.id}`, { method: "DELETE" });
+      const json = await res.json();
+      if (!json.success) throw new Error(json.error);
+      await refreshFromDb();
+      setDeletingProduct(null);
+    } catch (err) {
+      console.error("Delete failed:", err);
+    } finally {
+      setIsDeleting(false);
+    }
+  }, [deletingProduct, refreshFromDb]);
 
   // Apply area filter on top of time-filtered products
   const applyAreaFilter = useCallback(
@@ -121,10 +152,11 @@ function BodySpecificsPageContent() {
           <div className="w-12 h-12 rounded-2xl bg-category-bodySpecific flex items-center justify-center">
             <Target className="w-6 h-6 text-purple-500" />
           </div>
-          <div>
+          <div className="flex-1">
             <h1 className="text-2xl font-bold text-gray-900">Body Specific Products</h1>
             <p className="text-gray-500">Targeted care for sensitive areas</p>
           </div>
+          {isAdmin && <AdminAddButton onClick={() => setShowAddModal(true)} accentColor="bg-purple-500" />}
         </div>
       </header>
 
@@ -189,6 +221,7 @@ function BodySpecificsPageContent() {
             completedProducts={routine.completedProducts}
             onToggleComplete={routine.toggleProductCompletion}
             onEdit={routine.handleEditStart}
+            onDelete={isAdmin ? setDeletingProduct : undefined}
             theme={PRODUCT_CARD_THEMES.bodySpecifics}
             emptyIcon={Target}
             emptyMessage="No morning products"
@@ -205,6 +238,7 @@ function BodySpecificsPageContent() {
             completedProducts={routine.completedProducts}
             onToggleComplete={routine.toggleProductCompletion}
             onEdit={routine.handleEditStart}
+            onDelete={isAdmin ? setDeletingProduct : undefined}
             theme={PRODUCT_CARD_THEMES.bodySpecifics}
             emptyIcon={Target}
             emptyMessage="No evening products"
@@ -222,6 +256,30 @@ function BodySpecificsPageContent() {
           onSave={routine.handleEditSave}
           onCancel={routine.handleEditCancel}
           accentColorClass="bg-purple-500"
+        />
+      )}
+
+      {/* Add Modal */}
+      {showAddModal && (
+        <AddProductModal
+          routineType="bodySpecific"
+          apiUrl="/api/body-specifics"
+          accentColor="bg-purple-500"
+          categories={BODY_SPECIFICS_CATEGORIES}
+          onClose={() => setShowAddModal(false)}
+          onSaved={refreshFromDb}
+          showBodyAreas
+          bodyAreaOptions={BODY_AREA_OPTIONS}
+        />
+      )}
+
+      {/* Delete Confirmation */}
+      {deletingProduct && (
+        <DeleteConfirmModal
+          itemName={deletingProduct.name}
+          onConfirm={handleDelete}
+          onCancel={() => setDeletingProduct(null)}
+          isDeleting={isDeleting}
         />
       )}
     </div>

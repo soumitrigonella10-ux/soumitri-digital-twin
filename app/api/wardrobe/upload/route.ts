@@ -10,65 +10,53 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { put } from "@vercel/blob";
 import { requireAdmin } from "@/lib/admin-auth";
+import { withErrorHandling } from "@/lib/api-utils";
 
 const ALLOWED_TYPES = ["image/png", "image/jpeg", "image/webp", "image/avif"];
 const MAX_SIZE = 5 * 1024 * 1024; // 5 MB
 
-export async function POST(req: NextRequest) {
-  try {
-    await requireAdmin();
+export const POST = withErrorHandling(async (req: NextRequest) => {
+  await requireAdmin();
 
-    const formData = await req.formData();
-    const file = formData.get("file");
+  const formData = await req.formData();
+  const file = formData.get("file");
 
-    if (!file || !(file instanceof Blob)) {
-      return NextResponse.json(
-        { success: false, error: "No file provided" },
-        { status: 400 }
-      );
-    }
-
-    // Validate type
-    if (!ALLOWED_TYPES.includes(file.type)) {
-      return NextResponse.json(
-        { success: false, error: `Invalid file type: ${file.type}. Allowed: ${ALLOWED_TYPES.join(", ")}` },
-        { status: 400 }
-      );
-    }
-
-    // Validate size
-    if (file.size > MAX_SIZE) {
-      return NextResponse.json(
-        { success: false, error: `File too large (${(file.size / 1024 / 1024).toFixed(1)} MB). Max: 5 MB` },
-        { status: 400 }
-      );
-    }
-
-    // Sanitize filename
-    const originalName = (file as File).name || "image.png";
-    const sanitized = originalName
-      .replace(/[^a-zA-Z0-9._-]/g, "-")
-      .replace(/-+/g, "-")
-      .toLowerCase();
-
-    const pathname = `wardrobe/${Date.now()}-${sanitized}`;
-
-    const blob = await put(pathname, file, {
-      access: "public",
-      addRandomSuffix: false,
-    });
-
-    return NextResponse.json({ success: true, url: blob.url });
-  } catch (error) {
-    const message = error instanceof Error ? error.message : "Upload failed";
-
-    if (message === "Authentication required" || message === "Admin access required") {
-      return NextResponse.json({ success: false, error: message }, { status: 401 });
-    }
-
+  if (!file || !(file instanceof Blob)) {
     return NextResponse.json(
-      { success: false, error: message },
-      { status: 500 }
+      { success: false, error: "No file provided" },
+      { status: 400 }
     );
   }
-}
+
+  // Validate type
+  if (!ALLOWED_TYPES.includes(file.type)) {
+    return NextResponse.json(
+      { success: false, error: `Invalid file type: ${file.type}. Allowed: ${ALLOWED_TYPES.join(", ")}` },
+      { status: 400 }
+    );
+  }
+
+  // Validate size
+  if (file.size > MAX_SIZE) {
+    return NextResponse.json(
+      { success: false, error: `File too large (${(file.size / 1024 / 1024).toFixed(1)} MB). Max: 5 MB` },
+      { status: 400 }
+    );
+  }
+
+  // Sanitize filename
+  const originalName = (file as File).name || "image.png";
+  const sanitized = originalName
+    .replace(/[^a-zA-Z0-9._-]/g, "-")
+    .replace(/-+/g, "-")
+    .toLowerCase();
+
+  const pathname = `wardrobe/${Date.now()}-${sanitized}`;
+
+  const blob = await put(pathname, file, {
+    access: "public",
+    addRandomSuffix: false,
+  });
+
+  return NextResponse.json({ success: true, url: blob.url });
+}, "Upload failed");

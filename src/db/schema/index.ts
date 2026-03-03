@@ -25,15 +25,6 @@ export {
   workoutPlansRelations, workoutSectionsRelations, exercisesRelations,
 } from './fitness'
 
-// Editorial — REMOVED (March 2026)
-// Legacy per-type tables (essays, sidequests, etc.) have been superseded
-// by the universal content_items table. See _legacy/ for archived schemas.
-// All editorial content is now managed exclusively through content_items.
-
-// Artifacts & Inspirations — REMOVED (March 2026)
-// Superseded by content_items with type="artifact" and type="inspiration".
-// See _legacy/ for archived schemas.
-
 // Affirmations & Day Themes
 export { affirmationsTable, dayThemes } from './affirmations'
 

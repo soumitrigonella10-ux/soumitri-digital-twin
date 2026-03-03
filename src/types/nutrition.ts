@@ -36,5 +36,9 @@ export interface Dressing {
   id: string;
   name: string;
   shelfLifeDays: number;
-  ingredients: string[];
+  baseType?: string;
+  ingredients: Ingredient[];
+  instructions?: string[];
+  tips?: string[];
+  tags?: string[];
 }

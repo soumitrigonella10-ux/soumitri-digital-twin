@@ -1,12 +1,16 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import Image from "next/image";
-import { Gem, Heart, Loader2 } from "lucide-react";
+import { Gem, Heart, Loader2, Edit2, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
 import { useDbData } from "@/hooks/useDbData";
+import { useAdmin } from "@/hooks/useAdmin";
+import { AdminCrudModal, Field, inputClass, selectClass, AdminAddButton, DeleteConfirmModal } from "@/components/AdminCrudModal";
 import type { JewelleryItem } from "@/types";
+
+const JEWELLERY_CATEGORIES = ["Earrings", "Necklace", "Ring", "Bracelet", "Watch", "Other"] as const;
 
 // Derive subcategories from items
 function getSubcategories(items: JewelleryItem[], category: string): string[] {
@@ -17,12 +21,100 @@ function getSubcategories(items: JewelleryItem[], category: string): string[] {
   return Array.from(subs).sort();
 }
 
+/* ─── Add/Edit Modal ─── */
+function JewelleryFormModal({
+  item,
+  onClose,
+  onSaved,
+}: {
+  item?: JewelleryItem | null;
+  onClose: () => void;
+  onSaved: () => void;
+}) {
+  const isEdit = !!item;
+  const [name, setName] = useState(item?.name ?? "");
+  const [category, setCategory] = useState(item?.category ?? "Earrings");
+  const [subcategory, setSubcategory] = useState(item?.subcategory ?? "");
+  const [imageUrl, setImageUrl] = useState(item?.imageUrl ?? "");
+  const [favorite, setFavorite] = useState(item?.favorite ?? false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSubmit = useCallback(async () => {
+    if (!name.trim()) return;
+    setIsSubmitting(true);
+    setError(null);
+    try {
+      const payload: Record<string, unknown> = {
+        id: item?.id ?? `j-${name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "")}`,
+        name: name.trim(),
+        category,
+        subcategory: subcategory.trim() || null,
+        imageUrl: imageUrl.trim() || "",
+        favorite,
+      };
+      const res = await fetch("/api/jewellery", {
+        method: isEdit ? "PATCH" : "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const json = await res.json();
+      if (!json.success) throw new Error(json.error || "Failed");
+      setSuccess(true);
+      setTimeout(() => { onSaved(); onClose(); }, 600);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed");
+    } finally {
+      setIsSubmitting(false);
+    }
+  }, [name, category, subcategory, imageUrl, favorite, item?.id, isEdit, onSaved, onClose]);
+
+  return (
+    <AdminCrudModal
+      title={isEdit ? "Edit Jewellery" : "Add Jewellery"}
+      onClose={onClose}
+      onSubmit={handleSubmit}
+      isSubmitting={isSubmitting}
+      success={success}
+      error={error}
+      submitLabel={isEdit ? "Save" : "Add"}
+      accentColor="bg-cyan-600"
+    >
+      <Field label="Name *">
+        <input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Gold Hoop Earrings" className={inputClass} />
+      </Field>
+      <div className="grid grid-cols-2 gap-4">
+        <Field label="Category *">
+          <select value={category} onChange={(e) => setCategory(e.target.value as JewelleryItem["category"])} className={selectClass}>
+            {JEWELLERY_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+          </select>
+        </Field>
+        <Field label="Subcategory">
+          <input value={subcategory} onChange={(e) => setSubcategory(e.target.value)} placeholder="e.g. Hoops" className={inputClass} />
+        </Field>
+      </div>
+      <Field label="Image URL">
+        <input value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} placeholder="/uploads/jewellery/..." className={inputClass} />
+      </Field>
+      <label className="flex items-center gap-2 cursor-pointer">
+        <input type="checkbox" checked={favorite} onChange={(e) => setFavorite(e.target.checked)} className="w-4 h-4 rounded text-cyan-500" />
+        <span className="text-sm text-stone-700">Favorite</span>
+      </label>
+    </AdminCrudModal>
+  );
+}
+
 // Jewellery Page Content
 function JewelleryPageContent() {
-  const { data: items, loading } = useDbData<JewelleryItem[]>("/api/jewellery", []);
+  const { data: items, loading, refetch } = useDbData<JewelleryItem[]>("/api/jewellery", []);
+  const { isAdmin } = useAdmin();
   const [selectedCategory, setSelectedCategory] = useState<string>("Earrings");
   const [selectedSubcategory, setSelectedSubcategory] = useState<string | null>(null);
-
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [editingItem, setEditingItem] = useState<JewelleryItem | null>(null);
+  const [deletingItem, setDeletingItem] = useState<JewelleryItem | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const categories = ["Earrings", "Necklace", "Other"];
 
@@ -51,6 +143,22 @@ function JewelleryPageContent() {
     setSelectedSubcategory(null);
   };
 
+  const handleDelete = useCallback(async () => {
+    if (!deletingItem) return;
+    setIsDeleting(true);
+    try {
+      const res = await fetch(`/api/jewellery?id=${deletingItem.id}`, { method: "DELETE" });
+      const json = await res.json();
+      if (!json.success) throw new Error(json.error);
+      refetch();
+      setDeletingItem(null);
+    } catch (err) {
+      console.error("Delete failed:", err);
+    } finally {
+      setIsDeleting(false);
+    }
+  }, [deletingItem, refetch]);
+
   return (
     <div className="space-y-8">
       {/* Loading state */}
@@ -68,10 +176,11 @@ function JewelleryPageContent() {
           <div className="w-12 h-12 rounded-2xl bg-category-jewellery flex items-center justify-center">
             <Gem className="w-6 h-6 text-cyan-500" />
           </div>
-          <div>
+          <div className="flex-1">
             <h1 className="text-2xl font-bold text-gray-900">Jewellery</h1>
             <p className="text-gray-500">{items.length} pieces</p>
           </div>
+          {isAdmin && <AdminAddButton onClick={() => setShowAddModal(true)} accentColor="bg-cyan-600" />}
         </div>
       </header>
 
@@ -118,7 +227,7 @@ function JewelleryPageContent() {
         {filteredItems.map((item, index) => (
           <div
             key={item.id}
-            className="lifeos-card-interactive overflow-hidden animate-slide-in"
+            className="lifeos-card-interactive overflow-hidden animate-slide-in group relative"
             style={{ animationDelay: `${index * 50}ms` }}
           >
             {/* Image */}
@@ -141,6 +250,18 @@ function JewelleryPageContent() {
                   <Heart className="w-2.5 h-2.5 text-red-500 fill-current" />
                 </div>
               )}
+
+              {/* Admin Actions (hover) */}
+              {isAdmin && (
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100">
+                  <button onClick={() => setEditingItem(item)} className="p-1.5 rounded-full bg-white/90 text-gray-700 hover:bg-white">
+                    <Edit2 className="w-3.5 h-3.5" />
+                  </button>
+                  <button onClick={() => setDeletingItem(item)} className="p-1.5 rounded-full bg-white/90 text-red-500 hover:bg-white">
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         ))}
@@ -154,6 +275,25 @@ function JewelleryPageContent() {
       )}
 
         </> /* end !loading */
+      )}
+
+      {/* Add/Edit Modal */}
+      {(showAddModal || editingItem) && (
+        <JewelleryFormModal
+          item={editingItem}
+          onClose={() => { setShowAddModal(false); setEditingItem(null); }}
+          onSaved={refetch}
+        />
+      )}
+
+      {/* Delete Confirmation */}
+      {deletingItem && (
+        <DeleteConfirmModal
+          itemName={deletingItem.name}
+          onConfirm={handleDelete}
+          onCancel={() => setDeletingItem(null)}
+          isDeleting={isDeleting}
+        />
       )}
     </div>
   );

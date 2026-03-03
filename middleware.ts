@@ -28,6 +28,40 @@ const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
 const RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000; // 15 minutes
 const RATE_LIMIT_MAX_REQUESTS = 5;            // max 5 attempts per window
 
+// ========================================
+// General API rate limiting (#rate-limit-api)
+//
+// Same in-memory approach as auth rate limiting above.
+// More permissive: 60 requests per minute per IP.
+// Covers all /api/* routes except auth (which has its own stricter limit).
+// ========================================
+const apiRateLimitMap = new Map<string, { count: number; resetTime: number }>();
+const API_RATE_LIMIT_WINDOW_MS = 60 * 1000;   // 1 minute
+const API_RATE_LIMIT_MAX_REQUESTS = 60;       // max 60 requests per window
+
+function checkApiRateLimit(ip: string): { allowed: boolean; remaining: number } {
+  const now = Date.now();
+
+  if (apiRateLimitMap.size > 2000) {
+    for (const [key, val] of apiRateLimitMap) {
+      if (now > val.resetTime) apiRateLimitMap.delete(key);
+    }
+  }
+
+  const entry = apiRateLimitMap.get(ip);
+  if (!entry || now > entry.resetTime) {
+    apiRateLimitMap.set(ip, { count: 1, resetTime: now + API_RATE_LIMIT_WINDOW_MS });
+    return { allowed: true, remaining: API_RATE_LIMIT_MAX_REQUESTS - 1 };
+  }
+
+  if (entry.count >= API_RATE_LIMIT_MAX_REQUESTS) {
+    return { allowed: false, remaining: 0 };
+  }
+
+  entry.count++;
+  return { allowed: true, remaining: API_RATE_LIMIT_MAX_REQUESTS - entry.count };
+}
+
 function checkRateLimit(ip: string): { allowed: boolean; remaining: number } {
   const now = Date.now();
 
@@ -120,6 +154,33 @@ function isPublicPath(pathname: string): boolean {
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  // ── General API rate limiting ──
+  if (pathname.startsWith("/api/") && !pathname.startsWith("/api/auth/")) {
+    const ip =
+      request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+      request.headers.get("x-real-ip") ||
+      "unknown";
+    const { allowed, remaining } = checkApiRateLimit(ip);
+
+    if (!allowed) {
+      return NextResponse.json(
+        { error: "Too many requests. Please try again later." },
+        {
+          status: 429,
+          headers: {
+            "Retry-After": String(Math.ceil(API_RATE_LIMIT_WINDOW_MS / 1000)),
+            "X-RateLimit-Limit": String(API_RATE_LIMIT_MAX_REQUESTS),
+            "X-RateLimit-Remaining": "0",
+          },
+        }
+      );
+    }
+
+    // Attach rate-limit headers — they will be merged into the final
+    // response by the downstream auth/CSP logic below.
+    request.headers.set("x-api-rl-remaining", String(remaining));
+  }
+
   // ── Rate limiting for magic link sign-in ──
   if (pathname.startsWith("/api/auth/signin")) {
     if (request.method === "POST") {
@@ -152,8 +213,8 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // ── Generate CSP nonce ──
-  const nonce = Buffer.from(crypto.randomUUID()).toString("base64");
+  // ── Generate CSP nonce (skip crypto work in dev — CSP uses unsafe-inline) ──
+  const nonce = isDev ? "dev" : Buffer.from(crypto.randomUUID()).toString("base64");
   const cspHeader = buildCspHeader(nonce);
 
   // Pass nonce to server components via request header

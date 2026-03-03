@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { useAppStore } from "@/store/useAppStore";
+import { routineService } from "@/lib/services";
 import { useToast } from "@/components/ToastProvider";
 import type { Product } from "@/types";
 
@@ -184,7 +185,7 @@ export function ProductsTab() {
   // Filter products by routine type
   const filtered = filterType === "all"
     ? data.products
-    : data.products.filter((p) => p.routineType === filterType);
+    : routineService.getProductsByType(data.products, filterType as Product["routineType"] & string);
 
   return (
     <div className="space-y-4">

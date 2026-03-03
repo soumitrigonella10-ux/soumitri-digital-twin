@@ -17,7 +17,6 @@ export {
   selectMeals,
   selectDressings,
   selectWorkouts,
-  selectOutfits,
   selectWishlist,
   selectData,
   selectFilters,

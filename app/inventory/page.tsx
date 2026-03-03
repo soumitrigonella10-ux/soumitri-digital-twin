@@ -48,18 +48,11 @@ const inventoryItems = [
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Card>
           <CardContent className="p-4">
             <div className="text-2xl font-bold">{appData.wardrobe.length}</div>
             <div className="text-sm text-muted-foreground">Wardrobe Items</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-            <div className="text-2xl font-bold">{(appData as any).outfits?.length ?? 0}</div>
-            <div className="text-sm text-muted-foreground">Saved Outfits</div>
           </CardContent>
         </Card>
         <Card>

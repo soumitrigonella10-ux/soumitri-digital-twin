@@ -13,171 +13,122 @@ import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { routines, routineSteps } from "@/db/schema/routines";
 import { requireAdmin } from "@/lib/admin-auth";
-
-// ── Helpers ──────────────────────────────────────────────────
-
-function errorResponse(error: unknown, fallback: string) {
-  const message = error instanceof Error ? error.message : fallback;
-  const isAuth = message === "Authentication required" || message === "Admin access required";
-  return NextResponse.json(
-    { success: false, error: message },
-    { status: isAuth ? 401 : 500 },
-  );
-}
+import { routineSchema } from "@/lib/validation";
+import { withErrorHandling } from "@/lib/api-utils";
 
 // ── GET — list all routines with steps ───────────────────────
 
-export async function GET() {
-  try {
-    await requireAdmin();
+export const GET = withErrorHandling(async () => {
+  await requireAdmin();
 
-    const [routineRows, stepRows] = await Promise.all([
-      db.select().from(routines),
-      db.select().from(routineSteps),
-    ]);
+  const data = await db.query.routines.findMany({
+    with: { steps: { orderBy: (s, { asc }) => [asc(s.order)] } },
+  });
 
-    const data = routineRows.map((r) => ({
-      ...r,
-      steps: stepRows
-        .filter((s) => s.routineId === r.id)
-        .sort((a, b) => a.order - b.order),
-    }));
-
-    return NextResponse.json({ success: true, data });
-  } catch (error) {
-    return errorResponse(error, "Failed to fetch routines");
-  }
-}
+  return NextResponse.json({ success: true, data });
+}, "Failed to fetch routines");
 
 // ── POST — upsert a routine (with steps) ────────────────────
 
-export async function POST(req: NextRequest) {
-  try {
-    await requireAdmin();
+export const POST = withErrorHandling(async (req: NextRequest) => {
+  await requireAdmin();
 
-    const body = await req.json();
-    const { id, type, name, timeOfDay, schedule, tags } = body;
+  const body = await req.json();
+  const parsed = routineSchema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json(
+      { success: false, error: "Validation failed", details: parsed.error.flatten().fieldErrors },
+      { status: 400 },
+    );
+  }
+  const data = parsed.data;
+  // Cast Zod optional outputs to match DB JSONB column types (exactOptionalPropertyTypes)
+  const schedule = data.schedule as { weekday?: number[]; cycleDay?: number[]; frequencyPerWeek?: number };
+  const tags = data.tags as { office?: boolean; wfh?: boolean; travel?: boolean; goingOut?: boolean };
 
-    if (!id || !type || !name || !timeOfDay || !schedule || !tags) {
-      return NextResponse.json(
-        { success: false, error: "id, type, name, timeOfDay, schedule, and tags are required" },
-        { status: 400 },
-      );
-    }
-
-    // Check if routine already exists → update; otherwise insert
-    const [existing] = await db.select().from(routines).where(eq(routines.id, id));
-
-    if (existing) {
-      const [updated] = await db
-        .update(routines)
-        .set({
-          type,
-          name,
-          timeOfDay,
-          schedule,
-          tags,
-          occasion: body.occasion ?? null,
-          productIds: body.productIds ?? null,
-          notes: body.notes ?? null,
-          updatedAt: new Date(),
-        })
-        .where(eq(routines.id, id))
-        .returning();
-
-      // Replace steps: delete old ones, insert new ones
-      await db.delete(routineSteps).where(eq(routineSteps.routineId, id));
-
-      if (body.steps?.length) {
-        await db.insert(routineSteps).values(
-          body.steps.map((step: Record<string, unknown>, idx: number) => ({
-            id: `${id}-step-${idx + 1}`,
-            routineId: id,
-            order: (step.order as number) ?? idx + 1,
-            title: step.title as string,
-            description: (step.description as string) ?? null,
-            durationMin: (step.durationMin as number) ?? null,
-            productIds: (step.productIds as string[]) ?? null,
-            bodyAreas: (step.bodyAreas as string[]) ?? null,
-            weekdaysOnly: (step.weekdaysOnly as number[]) ?? null,
-            essential: (step.essential as boolean) ?? null,
-          })),
-        );
-      }
-
-      return NextResponse.json({ success: true, data: updated });
-    }
-
-    // Insert new routine
-    const [inserted] = await db
+  const upserted = await db.transaction(async (tx) => {
+    // Atomic upsert of the routine parent
+    const [row] = await tx
       .insert(routines)
       .values({
-        id,
-        type,
-        name,
-        timeOfDay,
+        id: data.id,
+        type: data.type,
+        name: data.name,
+        timeOfDay: data.timeOfDay,
         schedule,
         tags,
-        occasion: body.occasion ?? null,
-        productIds: body.productIds ?? null,
-        notes: body.notes ?? null,
+        occasion: data.occasion ?? null,
+        productIds: data.productIds ?? null,
+        notes: data.notes ?? null,
+      })
+      .onConflictDoUpdate({
+        target: routines.id,
+        set: {
+          type: data.type,
+          name: data.name,
+          timeOfDay: data.timeOfDay,
+          schedule,
+          tags,
+          occasion: data.occasion ?? null,
+          productIds: data.productIds ?? null,
+          notes: data.notes ?? null,
+          updatedAt: new Date(),
+        },
       })
       .returning();
 
-    // Insert steps
-    if (body.steps?.length) {
-      await db.insert(routineSteps).values(
-        body.steps.map((step: Record<string, unknown>, idx: number) => ({
-          id: `${id}-step-${idx + 1}`,
-          routineId: id,
-          order: (step.order as number) ?? idx + 1,
-          title: step.title as string,
-          description: (step.description as string) ?? null,
-          durationMin: (step.durationMin as number) ?? null,
-          productIds: (step.productIds as string[]) ?? null,
-          bodyAreas: (step.bodyAreas as string[]) ?? null,
-          weekdaysOnly: (step.weekdaysOnly as number[]) ?? null,
-          essential: (step.essential as boolean) ?? null,
+    // Replace steps atomically within the same transaction
+    await tx.delete(routineSteps).where(eq(routineSteps.routineId, data.id));
+
+    if (data.steps.length) {
+      await tx.insert(routineSteps).values(
+        data.steps.map((step, idx) => ({
+          id: `${data.id}-step-${idx + 1}`,
+          routineId: data.id,
+          order: step.order ?? idx + 1,
+          title: step.title,
+          description: step.description ?? null,
+          durationMin: step.durationMin ?? null,
+          productIds: step.productIds ?? null,
+          bodyAreas: step.bodyAreas ?? null,
+          weekdaysOnly: step.weekdaysOnly ?? null,
+          essential: step.essential ?? null,
         })),
       );
     }
 
-    return NextResponse.json({ success: true, data: inserted }, { status: 201 });
-  } catch (error) {
-    return errorResponse(error, "Failed to save routine");
-  }
-}
+    return row;
+  });
+
+  return NextResponse.json({ success: true, data: upserted });
+}, "Failed to save routine");
 
 // ── DELETE — remove a routine (steps cascade via FK) ─────────
 
-export async function DELETE(req: NextRequest) {
-  try {
-    await requireAdmin();
+export const DELETE = withErrorHandling(async (req: NextRequest) => {
+  await requireAdmin();
 
-    const { searchParams } = new URL(req.url);
-    const id = searchParams.get("id");
+  const { searchParams } = new URL(req.url);
+  const id = searchParams.get("id");
 
-    if (!id) {
-      return NextResponse.json(
-        { success: false, error: "id query parameter is required" },
-        { status: 400 },
-      );
-    }
-
-    const [deleted] = await db
-      .delete(routines)
-      .where(eq(routines.id, id))
-      .returning();
-
-    if (!deleted) {
-      return NextResponse.json(
-        { success: false, error: "Routine not found" },
-        { status: 404 },
-      );
-    }
-
-    return NextResponse.json({ success: true, data: { id } });
-  } catch (error) {
-    return errorResponse(error, "Failed to delete routine");
+  if (!id) {
+    return NextResponse.json(
+      { success: false, error: "id query parameter is required" },
+      { status: 400 },
+    );
   }
-}
+
+  const [deleted] = await db
+    .delete(routines)
+    .where(eq(routines.id, id))
+    .returning();
+
+  if (!deleted) {
+    return NextResponse.json(
+      { success: false, error: "Routine not found" },
+      { status: 404 },
+    );
+  }
+
+  return NextResponse.json({ success: true, data: { id } });
+}, "Failed to delete routine");

@@ -1,22 +1,207 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { getDay } from "date-fns";
-import { Dumbbell, Clock, Zap } from "lucide-react";
+import { Dumbbell, Clock, Zap, Edit2, Trash2, Plus } from "lucide-react";
 import { useAppStore } from "@/store/useAppStore";
 import { cn } from "@/lib/utils";
 import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
+import { useAdmin } from "@/hooks/useAdmin";
+import { AdminCrudModal, Field, inputClass, AdminAddButton, DeleteConfirmModal } from "@/components/AdminCrudModal";
+import type { WorkoutPlan, WorkoutSection } from "@/types";
 
 const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const dayNamesFull = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
+/* ─── Workout Plan Form Modal ─── */
+function WorkoutPlanFormModal({
+  plan,
+  onClose,
+  onSaved,
+}: {
+  plan?: WorkoutPlan | null;
+  onClose: () => void;
+  onSaved: () => void;
+}) {
+  const isEdit = !!plan;
+  const [name, setName] = useState(plan?.name ?? "");
+  const [durationMin, setDurationMin] = useState(plan?.durationMin ?? 30);
+  const [goal, setGoal] = useState(plan?.goal ?? "");
+  const [weekday, setWeekday] = useState<number[]>(plan?.weekday ?? []);
+  const [sections, setSections] = useState<(WorkoutSection & { _key: number })[]>(
+    plan?.sections.map((s, i) => ({ ...s, _key: i })) ?? [{ _key: 0, title: "", exercises: [{ name: "" }] }]
+  );
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [nextKey, setNextKey] = useState(plan?.sections.length ?? 1);
+
+  const toggleDay = (d: number) => setWeekday((prev) => prev.includes(d) ? prev.filter((x) => x !== d) : [...prev, d].sort());
+
+  const addSection = () => {
+    setSections([...sections, { _key: nextKey, title: "", exercises: [{ name: "" }] }]);
+    setNextKey(nextKey + 1);
+  };
+  const removeSection = (idx: number) => setSections(sections.filter((_, i) => i !== idx));
+
+  const updateSection = (idx: number, field: string, value: string) => {
+    setSections(sections.map((s, i) => i === idx ? { ...s, [field]: value } : s));
+  };
+
+  const addExercise = (sIdx: number) => {
+    setSections(sections.map((s, i) => i === sIdx ? { ...s, exercises: [...s.exercises, { name: "" }] } : s));
+  };
+  const removeExercise = (sIdx: number, eIdx: number) => {
+    setSections(sections.map((s, i) => i === sIdx ? { ...s, exercises: s.exercises.filter((_, j) => j !== eIdx) } : s));
+  };
+  const updateExercise = (sIdx: number, eIdx: number, field: string, value: string | boolean) => {
+    setSections(sections.map((s, i) => i === sIdx ? {
+      ...s,
+      exercises: s.exercises.map((e, j) => j === eIdx ? { ...e, [field]: value } : e),
+    } : s));
+  };
+
+  const handleSubmit = useCallback(async () => {
+    if (!name.trim() || weekday.length === 0) return;
+    setIsSubmitting(true);
+    setError(null);
+    try {
+      const payload = {
+        id: plan?.id ?? `wp-${name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`,
+        name: name.trim(),
+        durationMin,
+        goal: goal.trim() || null,
+        weekday,
+        sections: sections.map((s, si) => ({
+          title: s.title.trim(),
+          description: s.description?.trim() || null,
+          sortOrder: si + 1,
+          exercises: s.exercises.filter((e) => e.name.trim()).map((e, ei) => ({
+            name: e.name.trim(),
+            sets: e.sets?.trim() || null,
+            reps: e.reps?.trim() || null,
+            notes: e.notes?.trim() || null,
+            isNew: e.isNew ?? false,
+            isEssential: e.isEssential ?? false,
+            sortOrder: ei + 1,
+          })),
+        })),
+      };
+      const res = await fetch("/api/fitness", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const json = await res.json();
+      if (!json.success) throw new Error(json.error || "Failed");
+      setSuccess(true);
+      setTimeout(() => { onSaved(); onClose(); }, 600);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed");
+    } finally {
+      setIsSubmitting(false);
+    }
+  }, [name, durationMin, goal, weekday, sections, plan?.id, onSaved, onClose]);
+
+  return (
+    <AdminCrudModal
+      title={isEdit ? "Edit Workout Plan" : "Add Workout Plan"}
+      onClose={onClose}
+      onSubmit={handleSubmit}
+      isSubmitting={isSubmitting}
+      success={success}
+      error={error}
+      submitLabel={isEdit ? "Save" : "Add"}
+      accentColor="bg-red-500"
+    >
+      <Field label="Name *">
+        <input value={name} onChange={(e) => setName(e.target.value)} className={inputClass} placeholder="e.g. Upper Body Strength" />
+      </Field>
+      <div className="grid grid-cols-2 gap-3">
+        <Field label="Duration (min)">
+          <input type="number" value={durationMin} onChange={(e) => setDurationMin(+e.target.value)} className={inputClass} />
+        </Field>
+        <Field label="Goal">
+          <input value={goal} onChange={(e) => setGoal(e.target.value)} className={inputClass} placeholder="Focus area" />
+        </Field>
+      </div>
+      <Field label="Days *">
+        <div className="flex gap-1 flex-wrap">
+          {dayNames.map((d, i) => (
+            <button key={i} type="button" onClick={() => toggleDay(i)} className={cn(
+              "px-3 py-1.5 rounded-lg text-xs font-medium transition-colors border",
+              weekday.includes(i)
+                ? "bg-red-500 text-white border-red-500"
+                : "bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100"
+            )}>{d}</button>
+          ))}
+        </div>
+      </Field>
+
+      {/* Sections */}
+      <div className="space-y-4 mt-2">
+        <div className="flex items-center justify-between">
+          <span className="text-xs font-medium text-gray-500 uppercase">Sections</span>
+          <button type="button" onClick={addSection} className="text-xs text-red-500 hover:text-red-600 flex items-center gap-1"><Plus className="w-3 h-3" /> Section</button>
+        </div>
+        <div className="space-y-4 max-h-60 overflow-y-auto">
+          {sections.map((section, sIdx) => (
+            <div key={section._key} className="border border-gray-200 rounded-lg p-3 space-y-3 bg-gray-50/50">
+              <div className="flex items-center gap-2">
+                <input value={section.title} onChange={(e) => updateSection(sIdx, "title", e.target.value)} placeholder="Section title" className={cn(inputClass, "flex-1 text-sm font-medium")} />
+                <button type="button" onClick={() => removeSection(sIdx)} className="p-1 text-gray-400 hover:text-red-500"><Trash2 className="w-3.5 h-3.5" /></button>
+              </div>
+              <input value={section.description ?? ""} onChange={(e) => updateSection(sIdx, "description", e.target.value)} placeholder="Description (optional)" className={cn(inputClass, "text-xs")} />
+
+              {/* Exercises */}
+              <div className="space-y-2 ml-2">
+                {section.exercises.map((ex, eIdx) => (
+                  <div key={eIdx} className="grid grid-cols-[1fr_60px_60px_auto] gap-1 items-center">
+                    <input value={ex.name} onChange={(e) => updateExercise(sIdx, eIdx, "name", e.target.value)} placeholder="Exercise" className={cn(inputClass, "text-xs")} />
+                    <input value={ex.sets ?? ""} onChange={(e) => updateExercise(sIdx, eIdx, "sets", e.target.value)} placeholder="Sets" className={cn(inputClass, "text-xs")} />
+                    <input value={ex.reps ?? ""} onChange={(e) => updateExercise(sIdx, eIdx, "reps", e.target.value)} placeholder="Reps" className={cn(inputClass, "text-xs")} />
+                    <button type="button" onClick={() => removeExercise(sIdx, eIdx)} className="p-1 text-gray-400 hover:text-red-500"><Trash2 className="w-3 h-3" /></button>
+                  </div>
+                ))}
+                <button type="button" onClick={() => addExercise(sIdx)} className="text-xs text-red-400 hover:text-red-500 flex items-center gap-1 ml-1"><Plus className="w-3 h-3" /> Exercise</button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </AdminCrudModal>
+  );
+}
+
 // Fitness Page Content
 function FitnessPageContent() {
-  const { data } = useAppStore();
+  const { data, refreshFromDb } = useAppStore();
   const [selectedDay, setSelectedDay] = useState<number>(getDay(new Date()));
+  const { isAdmin } = useAdmin();
+
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [editingPlan, setEditingPlan] = useState<WorkoutPlan | null>(null);
+  const [deletingPlan, setDeletingPlan] = useState<WorkoutPlan | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const today = new Date();
   const dayOfWeek = getDay(today);
+
+  const handleDelete = useCallback(async () => {
+    if (!deletingPlan) return;
+    setIsDeleting(true);
+    try {
+      const res = await fetch(`/api/fitness?id=${deletingPlan.id}`, { method: "DELETE" });
+      const json = await res.json();
+      if (!json.success) throw new Error(json.error);
+      await refreshFromDb();
+    } catch (err) {
+      console.error("Delete failed:", err);
+    } finally {
+      setIsDeleting(false);
+      setDeletingPlan(null);
+    }
+  }, [deletingPlan, refreshFromDb]);
 
   // Filter workouts by selected day
   const filteredWorkouts = data.workoutPlans.filter((w) =>
@@ -49,6 +234,9 @@ function FitnessPageContent() {
             <h1 className="text-2xl font-bold text-gray-900">Fitness</h1>
             <p className="text-gray-500">Your workout library</p>
           </div>
+          {isAdmin && (
+            <AdminAddButton onClick={() => setShowAddModal(true)} label="Add Workout" accentColor="bg-red-500" />
+          )}
         </div>
 
         {/* Day Tabs */}
@@ -116,7 +304,12 @@ function FitnessPageContent() {
                     </span>
                   </div>
                 </div>
-
+                {isAdmin && (
+                  <div className="flex items-center gap-1">
+                    <button onClick={() => setEditingPlan(workout)} className="p-2 text-gray-400 hover:text-red-500 transition-colors"><Edit2 className="w-4 h-4" /></button>
+                    <button onClick={() => setDeletingPlan(workout)} className="p-2 text-gray-400 hover:text-red-500 transition-colors"><Trash2 className="w-4 h-4" /></button>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -197,6 +390,22 @@ function FitnessPageContent() {
           </div>
         )}
       </div>
+
+      {/* CRUD Modals */}
+      {showAddModal && (
+        <WorkoutPlanFormModal onClose={() => setShowAddModal(false)} onSaved={refreshFromDb} />
+      )}
+      {editingPlan && (
+        <WorkoutPlanFormModal plan={editingPlan} onClose={() => setEditingPlan(null)} onSaved={refreshFromDb} />
+      )}
+      {deletingPlan && (
+        <DeleteConfirmModal
+          itemName={deletingPlan.name}
+          onCancel={() => setDeletingPlan(null)}
+          onConfirm={handleDelete}
+          isDeleting={isDeleting}
+        />
+      )}
     </div>
   );
 }

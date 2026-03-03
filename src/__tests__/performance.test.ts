@@ -7,8 +7,8 @@ import { describe, it, expect } from "vitest";
 import {
   optimizedArrayOperations,
   createMemoizedSelector,
-  PERFORMANCE_CONFIG,
 } from "@/lib/performance";
+import { config } from "@/lib/config";
 
 // ========================================
 // optimizedArrayOperations.chunk
@@ -142,13 +142,13 @@ describe("createMemoizedSelector", () => {
 });
 
 // ========================================
-// PERFORMANCE_CONFIG constants
+// config.performance constants
 // ========================================
-describe("PERFORMANCE_CONFIG", () => {
+describe("config.performance", () => {
   it("has expected keys", () => {
-    expect(PERFORMANCE_CONFIG.DEBOUNCE_DELAY).toBe(300);
-    expect(PERFORMANCE_CONFIG.ANIMATION_DURATION).toBe(200);
-    expect(PERFORMANCE_CONFIG.LAZY_LOAD_THRESHOLD).toBe(50);
-    expect(PERFORMANCE_CONFIG.CACHE_TTL).toBe(5 * 60 * 1000);
+    expect(config.performance.debounceDelay).toBe(300);
+    expect(config.performance.animationDuration).toBe(200);
+    expect(config.performance.lazyLoadThreshold).toBe(50);
+    expect(config.performance.cacheTTL).toBe(5 * 60 * 1000);
   });
 });

@@ -1,5 +1,6 @@
 import { Pool } from 'pg'
 import { createLogger } from '@/lib/logger'
+import { config } from '@/lib/config'
 
 const log = createLogger('db')
 
@@ -20,9 +21,9 @@ try {
       ssl: process.env.DB_SSL_REJECT_UNAUTHORIZED === 'false'
         ? { rejectUnauthorized: false }
         : true,
-      max: 3,
-      idleTimeoutMillis: 30000,
-      connectionTimeoutMillis: 20000, // Increased to 20s to handle Neon cold starts reliably
+      max: config.db.maxPoolSize,
+      idleTimeoutMillis: config.db.idleTimeoutMs,
+      connectionTimeoutMillis: config.db.connectionTimeoutMs,
     })
     log.info('PostgreSQL pool initialized successfully')
   } else {
@@ -48,9 +49,9 @@ let tablesSetup = false;
 export async function setupAuthTables() {
   if (tablesSetup || !pool) return;
   
+  const client = await pool.connect()
   try {
     log.info('Attempting to setup auth tables...')
-    const client = await pool.connect()
     
     // Check if users table exists
     const result = await client.query(`
@@ -113,11 +114,12 @@ export async function setupAuthTables() {
     }
     
     tablesSetup = true;
-    client.release()
   } catch (error) {
     log.error('❌ Failed to setup auth tables:', error)
     // Don't throw - allow app to continue but log the error
     // Sign-in will fail with a more specific error when it tries to use the tables
+  } finally {
+    client.release()
   }
 }
 

@@ -1,13 +1,17 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { Wind, Sun, Droplet } from "lucide-react";
 import { useAppStore } from "@/store/useAppStore";
+import { useAdmin } from "@/hooks/useAdmin";
 import type { Product } from "@/types";
 import { PRODUCT_CARD_THEMES } from "@/components/ProductCard";
+import { AdminAddButton, DeleteConfirmModal } from "@/components/AdminCrudModal";
 import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
-import { RoutineColumn, EditProductModal } from "@/components/routines";
+import { RoutineColumn, EditProductModal, AddProductModal } from "@/components/routines";
 import type { EditFormState } from "@/components/routines";
+
+const HAIR_CATEGORIES = ["Hair Oil", "Shampoo", "Conditioner", "Hair Mask", "Serum", "Styling", "Treatment"];
 
 // Hair Phase configuration
 const HAIR_PHASES = {
@@ -26,10 +30,14 @@ function computeProgress(products: Product[], completedSet: Set<string>) {
 }
 
 function HairPageContent() {
-  const { data, upsertProduct } = useAppStore();
+  const { data, upsertProduct, refreshFromDb } = useAppStore();
+  const { isAdmin } = useAdmin();
   const [completedProducts, setCompletedProducts] = useState<Set<string>>(new Set());
   const [editingProduct, setEditingProduct] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<EditFormState>({});
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [deletingProduct, setDeletingProduct] = useState<Product | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const hairProducts = useMemo(() => {
     return data.products
@@ -77,6 +85,22 @@ function HairPageContent() {
     setEditForm({});
   };
 
+  const handleDelete = useCallback(async () => {
+    if (!deletingProduct) return;
+    setIsDeleting(true);
+    try {
+      const res = await fetch(`/api/haircare?id=${deletingProduct.id}`, { method: "DELETE" });
+      const json = await res.json();
+      if (!json.success) throw new Error(json.error);
+      await refreshFromDb();
+      setDeletingProduct(null);
+    } catch (err) {
+      console.error("Delete failed:", err);
+    } finally {
+      setIsDeleting(false);
+    }
+  }, [deletingProduct, refreshFromDb]);
+
   const editingProductData = editingProduct
     ? data.products.find((p) => p.id === editingProduct) ?? null
     : null;
@@ -89,10 +113,11 @@ function HairPageContent() {
           <div className="w-12 h-12 rounded-2xl bg-category-hair flex items-center justify-center">
             <Wind className="w-6 h-6 text-amber-500" />
           </div>
-          <div>
+          <div className="flex-1">
             <h1 className="text-2xl font-bold text-gray-900">Hair Care Products</h1>
             <p className="text-gray-500">Manage your hair care routine by phase</p>
           </div>
+          {isAdmin && <AdminAddButton onClick={() => setShowAddModal(true)} accentColor="bg-blue-500" />}
         </div>
       </header>
 
@@ -117,6 +142,7 @@ function HairPageContent() {
                 completedProducts={completedProducts}
                 onToggleComplete={toggleProductCompletion}
                 onEdit={handleEditStart}
+                onDelete={isAdmin ? setDeletingProduct : undefined}
                 theme={PRODUCT_CARD_THEMES.hair}
                 emptyIcon={config.icon}
                 emptyMessage={`No ${config.name.toLowerCase()} products`}
@@ -135,6 +161,29 @@ function HairPageContent() {
           onSave={handleEditSave}
           onCancel={handleEditCancel}
           accentColorClass="bg-blue-500"
+        />
+      )}
+
+      {/* Add Modal */}
+      {showAddModal && (
+        <AddProductModal
+          routineType="hair"
+          apiUrl="/api/haircare"
+          accentColor="bg-blue-500"
+          categories={HAIR_CATEGORIES}
+          onClose={() => setShowAddModal(false)}
+          onSaved={refreshFromDb}
+          showHairPhase
+        />
+      )}
+
+      {/* Delete Confirmation */}
+      {deletingProduct && (
+        <DeleteConfirmModal
+          itemName={deletingProduct.name}
+          onConfirm={handleDelete}
+          onCancel={() => setDeletingProduct(null)}
+          isDeleting={isDeleting}
         />
       )}
     </div>

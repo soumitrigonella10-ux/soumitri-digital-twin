@@ -24,6 +24,27 @@ interface PdfBookViewerProps {
   className?: string;
 }
 
+/** Minimal type surface for a PDF.js document (CDN-loaded, no @types available). */
+interface PdfDocument {
+  numPages: number;
+  getPage(pageNum: number): Promise<PdfPage>;
+}
+
+interface PdfPage {
+  getViewport(options: { scale: number }): PdfViewport;
+  render(options: { canvasContext: CanvasRenderingContext2D; viewport: PdfViewport }): { promise: Promise<void> };
+}
+
+interface PdfViewport {
+  width: number;
+  height: number;
+}
+
+/** Minimal type surface for the PDF.js library entry point. */
+interface PdfJsLib {
+  getDocument(url: string): { promise: Promise<PdfDocument> };
+}
+
 // ── Portrait / landscape detection ──────────
 
 function useIsPortrait(): boolean {
@@ -115,8 +136,7 @@ function loadPdfJs(): Promise<unknown> {
 
 /** Render a single PDF page onto a canvas, scaled to fit a given height. */
 async function renderPageToCanvas(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  pdfDoc: any,
+  pdfDoc: PdfDocument,
   pageNum: number,
   canvas: HTMLCanvasElement,
   maxHeight: number
@@ -148,8 +168,7 @@ async function renderPageToCanvas(
 
 /** Render a single PDF page onto a canvas, scaled to fit a given width. */
 async function renderPageToCanvasWidth(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  pdfDoc: any,
+  pdfDoc: PdfDocument,
   pageNum: number,
   canvas: HTMLCanvasElement,
   maxWidth: number
@@ -175,13 +194,11 @@ async function renderPageToCanvasWidth(
 // ─────────────────────────────────────────────
 
 function PortraitScrollView({
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   pdfDoc,
   numPages,
   pdfUrl,
 }: {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  pdfDoc: any;
+  pdfDoc: PdfDocument;
   numPages: number;
   pdfUrl: string;
 }) {
@@ -345,13 +362,11 @@ function PortraitScrollView({
 // ─────────────────────────────────────────────
 
 function LandscapeSpreadView({
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   pdfDoc,
   numPages,
   pdfUrl,
 }: {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  pdfDoc: any;
+  pdfDoc: PdfDocument;
   numPages: number;
   pdfUrl: string;
 }) {
@@ -475,8 +490,7 @@ export function PdfBookViewer({
   title = "PDF Document",
   className = "",
 }: PdfBookViewerProps) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [pdfDoc, setPdfDoc] = useState<any>(null);
+  const [pdfDoc, setPdfDoc] = useState<PdfDocument | null>(null);
   const [numPages, setNumPages] = useState(0);
   const [hasError, setHasError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -490,8 +504,7 @@ export function PdfBookViewer({
 
     async function load() {
       try {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const pdfjsLib = (await loadPdfJs()) as any;
+        const pdfjsLib = (await loadPdfJs()) as PdfJsLib;
         const doc = await pdfjsLib.getDocument(apiUrl).promise;
         if (!cancelled) {
           setPdfDoc(doc);
@@ -537,11 +550,13 @@ export function PdfBookViewer({
             Loading journal&hellip;
           </div>
         </div>
-      ) : isPortrait ? (
-        <PortraitScrollView pdfDoc={pdfDoc} numPages={numPages} pdfUrl={pdfUrl} />
-      ) : (
-        <LandscapeSpreadView pdfDoc={pdfDoc} numPages={numPages} pdfUrl={pdfUrl} />
-      )}
+      ) : pdfDoc ? (
+        isPortrait ? (
+          <PortraitScrollView pdfDoc={pdfDoc} numPages={numPages} pdfUrl={pdfUrl} />
+        ) : (
+          <LandscapeSpreadView pdfDoc={pdfDoc} numPages={numPages} pdfUrl={pdfUrl} />
+        )
+      ) : null}
     </div>
   );
 }

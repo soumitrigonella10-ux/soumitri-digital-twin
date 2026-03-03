@@ -194,7 +194,7 @@ describe("DataSlice upsert operations", () => {
       id: "d-test-new",
       name: "Test Dressing",
       shelfLifeDays: 7,
-      ingredients: ["oil", "vinegar"],
+      ingredients: [{ name: "oil", quantity: "1 tbsp" }, { name: "vinegar", quantity: "1 tsp" }],
     };
     useAppStore.getState().upsertDressing(dressing);
     const found = useAppStore.getState().data.dressings.find((d) => d.id === "d-test-new");

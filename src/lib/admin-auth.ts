@@ -9,6 +9,12 @@ import { createLogger } from "@/lib/logger";
 
 const log = createLogger("cms-auth");
 
+/** Canonical error messages thrown by requireAdmin() — import these instead of comparing raw strings. */
+export const AUTH_ERRORS = {
+  UNAUTHENTICATED: "Authentication required",
+  FORBIDDEN: "Admin access required",
+} as const;
+
 export interface AdminSession {
   email: string;
   role: "admin";
@@ -28,14 +34,14 @@ export async function requireAdmin(): Promise<AdminSession> {
 
   if (!session?.user?.email) {
     log.warn("⛔ CMS mutation attempted without authentication");
-    throw new Error("Authentication required");
+    throw new Error(AUTH_ERRORS.UNAUTHENTICATED);
   }
 
   const role = (session.user as { role?: string }).role;
 
   if (role !== "admin") {
     log.warn(`⛔ CMS mutation attempted by non-admin: ${session.user.email} (role: ${role})`);
-    throw new Error("Admin access required");
+    throw new Error(AUTH_ERRORS.FORBIDDEN);
   }
 
   log.info(`✅ Admin authenticated: ${session.user.email}`);

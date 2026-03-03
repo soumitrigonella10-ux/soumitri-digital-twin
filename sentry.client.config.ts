@@ -6,6 +6,10 @@
 
 import * as Sentry from "@sentry/nextjs";
 
+const isDev = process.env.NODE_ENV === "development";
+
+// Skip Sentry entirely in dev — it adds significant overhead
+if (!isDev) {
 Sentry.init({
   dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
 
@@ -14,7 +18,7 @@ Sentry.init({
   sampleRate: 1.0,
 
   // Performance: sample 20 % of transactions in production
-  tracesSampleRate: process.env.NODE_ENV === "production" ? 0.2 : 1.0,
+  tracesSampleRate: 0.2,
 
   // Session replay: capture 10 % of sessions,
   // 100 % of sessions with an error
@@ -44,3 +48,4 @@ Sentry.init({
   // ── Debug ─────────────────────────────────────────────────
   debug: false,
 });
+} // end if (!isDev)

@@ -12,7 +12,6 @@ import {
   selectMeals,
   selectDressings,
   selectWorkouts,
-  selectOutfits,
   selectWishlist,
   selectData,
   selectFilters,
@@ -57,11 +56,6 @@ describe("Data selectors", () => {
   it("selectWorkouts returns workoutPlans", () => {
     const state = useAppStore.getState();
     expect(Array.isArray(selectWorkouts(state))).toBe(true);
-  });
-
-  it("selectOutfits returns outfits", () => {
-    const state = useAppStore.getState();
-    expect(Array.isArray(selectOutfits(state))).toBe(true);
   });
 
   it("selectWishlist returns wishlist", () => {

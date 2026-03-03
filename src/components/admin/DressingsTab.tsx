@@ -35,7 +35,11 @@ export function DressingsTab() {
       id: values.id,
       name: values.name,
       shelfLifeDays: values.shelfLifeDays,
-      ingredients: values.ingredients.split(",").map((s) => s.trim()).filter(Boolean),
+      ingredients: values.ingredients
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean)
+        .map((name) => ({ name, quantity: "to taste" })),
     };
     upsertDressing(dressing);
     toast({ title: "Dressing saved", variant: "success" });

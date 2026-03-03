@@ -1,10 +1,12 @@
 "use client";
 
-import { useState } from "react";
-import { UtensilsCrossed, Clock, Leaf, Droplets, ChefHat, Info, Loader2 } from "lucide-react";
+import { useState, useCallback } from "react";
+import { UtensilsCrossed, Clock, Leaf, Droplets, ChefHat, Info, Loader2, Edit2, Trash2, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useDbData } from "@/hooks/useDbData";
+import { useAdmin } from "@/hooks/useAdmin";
 import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
+import { AdminCrudModal, Field, inputClass, selectClass, AdminAddButton, DeleteConfirmModal } from "@/components/AdminCrudModal";
 
 interface DressingRecipe {
   id: string;
@@ -27,16 +29,165 @@ interface LunchBowlConfig {
 
 type TabType = "bowl" | "dressings";
 
+/* ─── Dressing Form Modal ─── */
+function DressingFormModal({
+  dressing,
+  onClose,
+  onSaved,
+}: {
+  dressing?: DressingRecipe | null;
+  onClose: () => void;
+  onSaved: () => void;
+}) {
+  const isEdit = !!dressing;
+  const [name, setName] = useState(dressing?.name ?? "");
+  const [baseType, setBaseType] = useState(dressing?.baseType ?? "yogurt");
+  const [shelfLifeDays, setShelfLifeDays] = useState(dressing?.shelfLifeDays ?? 5);
+  const [ingredients, setIngredients] = useState<{ name: string; quantity: string; unit?: string }[]>(
+    dressing?.ingredients ?? [{ name: "", quantity: "", unit: "" }]
+  );
+  const [instructions, setInstructions] = useState<string[]>(dressing?.instructions ?? [""]);
+  const [tips] = useState<string[]>(dressing?.tips ?? []);
+  const [tags, setTags] = useState(dressing?.tags?.join(", ") ?? "");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const addIngredient = () => setIngredients([...ingredients, { name: "", quantity: "", unit: "" }]);
+  const removeIngredient = (idx: number) => setIngredients(ingredients.filter((_, i) => i !== idx));
+  const updateIngredient = (idx: number, field: string, value: string) => {
+    setIngredients(ingredients.map((ing, i) => i === idx ? { ...ing, [field]: value } : ing));
+  };
+
+  const addInstruction = () => setInstructions([...instructions, ""]);
+  const removeInstruction = (idx: number) => setInstructions(instructions.filter((_, i) => i !== idx));
+
+  const handleSubmit = useCallback(async () => {
+    if (!name.trim()) return;
+    setIsSubmitting(true);
+    setError(null);
+    try {
+      const payload = {
+        entity: "dressing",
+        id: dressing?.id ?? `dr-${name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`,
+        name: name.trim(),
+        baseType: baseType || null,
+        shelfLifeDays,
+        ingredients: ingredients.filter((i) => i.name.trim()).map((i) => ({
+          name: i.name.trim(), quantity: i.quantity.trim(), unit: i.unit?.trim() || undefined,
+        })),
+        instructions: instructions.filter((s) => s.trim()),
+        tips: tips.filter((t) => t.trim()),
+        tags: tags.split(",").map((t) => t.trim()).filter(Boolean),
+      };
+      const res = await fetch("/api/lunch-data", {
+        method: isEdit ? "PATCH" : "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const json = await res.json();
+      if (!json.success) throw new Error(json.error || "Failed");
+      setSuccess(true);
+      setTimeout(() => { onSaved(); onClose(); }, 600);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed");
+    } finally {
+      setIsSubmitting(false);
+    }
+  }, [name, baseType, shelfLifeDays, ingredients, instructions, tips, tags, dressing?.id, isEdit, onSaved, onClose]);
+
+  return (
+    <AdminCrudModal
+      title={isEdit ? "Edit Dressing" : "Add Dressing"}
+      onClose={onClose}
+      onSubmit={handleSubmit}
+      isSubmitting={isSubmitting}
+      success={success}
+      error={error}
+      submitLabel={isEdit ? "Save" : "Add"}
+      accentColor="bg-emerald-600"
+    >
+      <div className="grid grid-cols-[1fr_100px_80px] gap-3">
+        <Field label="Name *">
+          <input value={name} onChange={(e) => setName(e.target.value)} className={inputClass} placeholder="e.g. Tahini Lemon" />
+        </Field>
+        <Field label="Base Type">
+          <select value={baseType ?? ""} onChange={(e) => setBaseType(e.target.value)} className={selectClass}>
+            <option value="yogurt">Yogurt</option>
+            <option value="oil">Oil</option>
+            <option value="tahini">Tahini</option>
+            <option value="tomato">Tomato</option>
+            <option value="tamarind">Tamarind</option>
+          </select>
+        </Field>
+        <Field label="Shelf">
+          <input type="number" value={shelfLifeDays} onChange={(e) => setShelfLifeDays(+e.target.value)} className={inputClass} />
+        </Field>
+      </div>
+      <Field label="Ingredients">
+        <div className="space-y-2 max-h-40 overflow-y-auto">
+          {ingredients.map((ing, idx) => (
+            <div key={idx} className="flex items-center gap-2">
+              <input value={ing.name} onChange={(e) => updateIngredient(idx, "name", e.target.value)} placeholder="Name" className={cn(inputClass, "flex-1")} />
+              <input value={ing.quantity} onChange={(e) => updateIngredient(idx, "quantity", e.target.value)} placeholder="Qty" className={cn(inputClass, "w-20")} />
+              <input value={ing.unit ?? ""} onChange={(e) => updateIngredient(idx, "unit", e.target.value)} placeholder="Unit" className={cn(inputClass, "w-16")} />
+              <button onClick={() => removeIngredient(idx)} className="p-1 text-gray-400 hover:text-red-500"><Trash2 className="w-3 h-3" /></button>
+            </div>
+          ))}
+        </div>
+        <button onClick={addIngredient} className="mt-1 text-xs text-emerald-600 hover:text-emerald-700 flex items-center gap-1"><Plus className="w-3 h-3" /> Add ingredient</button>
+      </Field>
+      <Field label="Instructions">
+        <div className="space-y-2 max-h-32 overflow-y-auto">
+          {instructions.map((step, idx) => (
+            <div key={idx} className="flex items-center gap-2">
+              <span className="text-xs text-gray-400 w-5">{idx + 1}.</span>
+              <input value={step} onChange={(e) => { const n = [...instructions]; n[idx] = e.target.value; setInstructions(n); }} className={cn(inputClass, "flex-1")} />
+              <button onClick={() => removeInstruction(idx)} className="p-1 text-gray-400 hover:text-red-500"><Trash2 className="w-3 h-3" /></button>
+            </div>
+          ))}
+        </div>
+        <button onClick={addInstruction} className="mt-1 text-xs text-emerald-600 hover:text-emerald-700 flex items-center gap-1"><Plus className="w-3 h-3" /> Add step</button>
+      </Field>
+      <Field label="Tags (comma-separated)">
+        <input value={tags} onChange={(e) => setTags(e.target.value)} className={inputClass} placeholder="e.g. creamy, tangy" />
+      </Field>
+    </AdminCrudModal>
+  );
+}
+
 function LunchPageContent() {
   const [activeTab, setActiveTab] = useState<TabType>("bowl");
   const [expandedDressing, setExpandedDressing] = useState<string | null>(null);
+  const { isAdmin } = useAdmin();
 
-  const { data, loading } = useDbData<{ lunchBowlConfig: LunchBowlConfig | null; dressings: DressingRecipe[] }>(
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [editingDressing, setEditingDressing] = useState<DressingRecipe | null>(null);
+  const [deletingDressing, setDeletingDressing] = useState<DressingRecipe | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const { data, loading, refetch } = useDbData<{ lunchBowlConfig: LunchBowlConfig | null; dressings: DressingRecipe[] }>(
     "/api/lunch-data",
     { lunchBowlConfig: null, dressings: [] }
   );
   const lunchBowlConfig = data.lunchBowlConfig;
   const lunchDressings = data.dressings;
+
+  const handleDelete = useCallback(async () => {
+    if (!deletingDressing) return;
+    setIsDeleting(true);
+    try {
+      const res = await fetch(`/api/lunch-data?entity=dressing&id=${deletingDressing.id}`, { method: "DELETE" });
+      const json = await res.json();
+      if (!json.success) throw new Error(json.error);
+      refetch();
+    } catch (err) {
+      console.error("Delete failed:", err);
+    } finally {
+      setIsDeleting(false);
+      setDeletingDressing(null);
+    }
+  }, [deletingDressing, refetch]);
 
   const getDressingTypeColor = (type: DressingRecipe["baseType"]) => {
     switch (type) {
@@ -62,6 +213,9 @@ function LunchPageContent() {
             <p className="text-gray-500">Midday meal templates</p>
           </div>
         </div>
+        {isAdmin && activeTab === "dressings" && (
+          <AdminAddButton onClick={() => setShowAddModal(true)} label="Add Dressing" accentColor="bg-emerald-600" />
+        )}
       </header>
 
       {/* Tab Navigation */}
@@ -236,7 +390,15 @@ function LunchPageContent() {
                 >
                   <div className="flex items-center justify-between">
                     <div>
-                      <h3 className="font-semibold text-gray-900">{dressing.name}</h3>
+                      <div className="flex items-center gap-2">
+                        <h3 className="font-semibold text-gray-900">{dressing.name}</h3>
+                        {isAdmin && (
+                          <span className="flex items-center gap-1">
+                            <button onClick={(e) => { e.stopPropagation(); setEditingDressing(dressing); }} className="p-1 text-gray-400 hover:text-emerald-600 transition-colors"><Edit2 className="w-3.5 h-3.5" /></button>
+                            <button onClick={(e) => { e.stopPropagation(); setDeletingDressing(dressing); }} className="p-1 text-gray-400 hover:text-red-500 transition-colors"><Trash2 className="w-3.5 h-3.5" /></button>
+                          </span>
+                        )}
+                      </div>
                       <div className="flex items-center gap-2 mt-2 flex-wrap">
                         <span className={cn("px-2 py-0.5 rounded-full text-xs font-medium", getDressingTypeColor(dressing.baseType))}>
                           {dressing.baseType}
@@ -334,6 +496,22 @@ function LunchPageContent() {
             ))}
           </div>
         </div>
+      )}
+
+      {/* CRUD Modals */}
+      {showAddModal && (
+        <DressingFormModal onClose={() => setShowAddModal(false)} onSaved={refetch} />
+      )}
+      {editingDressing && (
+        <DressingFormModal dressing={editingDressing} onClose={() => setEditingDressing(null)} onSaved={refetch} />
+      )}
+      {deletingDressing && (
+        <DeleteConfirmModal
+          itemName={deletingDressing.name}
+          onCancel={() => setDeletingDressing(null)}
+          onConfirm={handleDelete}
+          isDeleting={isDeleting}
+        />
       )}
     </div>
   );

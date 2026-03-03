@@ -2,7 +2,7 @@
 // Routines + Steps tables
 // Maps to: src/types/routines.ts → Routine, RoutineStep
 // ─────────────────────────────────────────────────────────────
-import { pgTable, text, integer, boolean, jsonb, timestamp } from 'drizzle-orm/pg-core'
+import { pgTable, text, integer, boolean, jsonb, timestamp, index } from 'drizzle-orm/pg-core'
 import { relations } from 'drizzle-orm'
 
 // ── Routines ─────────────────────────────────────────────────
@@ -52,7 +52,10 @@ export const routineSteps = pgTable('routine_steps', {
   /** Audit timestamps */
   createdAt:    timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt:    timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
-})
+}, (table) => ({
+  /** Speed up cascade deletes + JOIN lookups from routines → steps */
+  routineIdIdx: index('idx_routine_steps_routine_id').on(table.routineId),
+}))
 
 // ── Relations ────────────────────────────────────────────────
 export const routinesRelations = relations(routines, ({ many }) => ({

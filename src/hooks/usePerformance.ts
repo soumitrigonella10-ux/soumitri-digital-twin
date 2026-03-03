@@ -10,8 +10,7 @@ import { useCallback, useEffect, useRef } from "react";
 // ========================================
 // Debounce Hook
 // ========================================
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function useDebounce<T extends (...args: any[]) => void>(
+export function useDebounce<T extends (...args: never[]) => void>(
   callback: T,
   delay: number
 ): T {
@@ -45,8 +44,7 @@ export function useDebounce<T extends (...args: any[]) => void>(
 // ========================================
 // Stable Callback Hook
 // ========================================
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function useStableCallback<T extends (...args: any[]) => any>(
+export function useStableCallback<T extends (...args: never[]) => unknown>(
   callback: T
 ): T {
   const callbackRef = useRef(callback);

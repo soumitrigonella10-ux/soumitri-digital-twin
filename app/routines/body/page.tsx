@@ -1,14 +1,41 @@
 "use client";
 
-import { useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { Droplets, Sun, Moon } from "lucide-react";
 import { useRoutineProducts } from "@/hooks/useRoutineProducts";
+import { useAdmin } from "@/hooks/useAdmin";
+import { useAppStore } from "@/store/useAppStore";
 import { PRODUCT_CARD_THEMES } from "@/components/ProductCard";
+import { AdminAddButton, DeleteConfirmModal } from "@/components/AdminCrudModal";
 import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
-import { DayOfWeekFilter, RoutineColumn, EditProductModal } from "@/components/routines";
+import { DayOfWeekFilter, RoutineColumn, EditProductModal, AddProductModal } from "@/components/routines";
+import type { Product } from "@/types";
+
+const BODY_CATEGORIES = ["Body Wash", "Body Lotion", "Body Oil", "Deodorant", "Scrub", "Hair Removal", "Treatment", "Shave", "Post Shave", "Healing"];
 
 function BodyPageContent() {
   const routine = useRoutineProducts({ routineType: "body" });
+  const { isAdmin } = useAdmin();
+  const { refreshFromDb } = useAppStore();
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [deletingProduct, setDeletingProduct] = useState<Product | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const handleDelete = useCallback(async () => {
+    if (!deletingProduct) return;
+    setIsDeleting(true);
+    try {
+      const res = await fetch(`/api/bodycare?id=${deletingProduct.id}`, { method: "DELETE" });
+      const json = await res.json();
+      if (!json.success) throw new Error(json.error);
+      await refreshFromDb();
+      setDeletingProduct(null);
+    } catch (err) {
+      console.error("Delete failed:", err);
+    } finally {
+      setIsDeleting(false);
+    }
+  }, [deletingProduct, refreshFromDb]);
 
   // Calculate shaving products progress
   const shavingProgress = useMemo(() => {
@@ -34,10 +61,11 @@ function BodyPageContent() {
           <div className="w-12 h-12 rounded-2xl bg-category-body flex items-center justify-center">
             <Droplets className="w-6 h-6 text-blue-500" />
           </div>
-          <div>
+          <div className="flex-1">
             <h1 className="text-2xl font-bold text-gray-900">Body Products</h1>
             <p className="text-gray-500">Manage your body care routine products</p>
           </div>
+          {isAdmin && <AdminAddButton onClick={() => setShowAddModal(true)} accentColor="bg-blue-500" />}
         </div>
       </header>
 
@@ -64,6 +92,7 @@ function BodyPageContent() {
             completedProducts={routine.completedProducts}
             onToggleComplete={routine.toggleProductCompletion}
             onEdit={routine.handleEditStart}
+            onDelete={isAdmin ? setDeletingProduct : undefined}
             theme={PRODUCT_CARD_THEMES.body}
             emptyIcon={Droplets}
             emptyMessage="No morning products"
@@ -80,6 +109,7 @@ function BodyPageContent() {
             completedProducts={routine.completedProducts}
             onToggleComplete={routine.toggleProductCompletion}
             onEdit={routine.handleEditStart}
+            onDelete={isAdmin ? setDeletingProduct : undefined}
             theme={PRODUCT_CARD_THEMES.body}
             emptyIcon={Droplets}
             emptyMessage="No evening products"
@@ -98,6 +128,7 @@ function BodyPageContent() {
             completedProducts={routine.completedProducts}
             onToggleComplete={routine.toggleProductCompletion}
             onEdit={routine.handleEditStart}
+            onDelete={isAdmin ? setDeletingProduct : undefined}
             theme={PRODUCT_CARD_THEMES.body}
             emptyIcon={Droplets}
             emptyMessage="No shaving products"
@@ -115,6 +146,28 @@ function BodyPageContent() {
           onSave={routine.handleEditSave}
           onCancel={routine.handleEditCancel}
           accentColorClass="bg-blue-500"
+        />
+      )}
+
+      {/* Add Modal */}
+      {showAddModal && (
+        <AddProductModal
+          routineType="body"
+          apiUrl="/api/bodycare"
+          accentColor="bg-blue-500"
+          categories={BODY_CATEGORIES}
+          onClose={() => setShowAddModal(false)}
+          onSaved={refreshFromDb}
+        />
+      )}
+
+      {/* Delete Confirmation */}
+      {deletingProduct && (
+        <DeleteConfirmModal
+          itemName={deletingProduct.name}
+          onConfirm={handleDelete}
+          onCancel={() => setDeletingProduct(null)}
+          isDeleting={isDeleting}
         />
       )}
     </div>

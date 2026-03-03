@@ -17,6 +17,7 @@ import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { put } from "@vercel/blob";
 import { requireAdmin } from "@/lib/admin-auth";
+import { withErrorHandling } from "@/lib/api-utils";
 import { createLogger } from "@/lib/logger";
 
 const log = createLogger("cms-upload");
@@ -72,10 +73,9 @@ function sanitizeFilename(filename: string): string {
 }
 
 // ── POST handler ─────────────────────────────────────────────
-export async function POST(request: NextRequest) {
-  try {
-    // 1. Auth check — uses shared admin chokepoint
-    const admin = await requireAdmin();
+export const POST = withErrorHandling(async (request: NextRequest) => {
+  // 1. Auth check — uses shared admin chokepoint
+  const admin = await requireAdmin();
 
     // 2. Parse multipart form
     const formData = await request.formData();
@@ -123,22 +123,15 @@ export async function POST(request: NextRequest) {
     log.info(`📁 Uploaded ${category}: ${blob.url} (${(file.size / 1024).toFixed(1)}KB) by ${admin.email}`);
 
     return NextResponse.json({
-      url: blob.url,
-      filename: safeName,
-      category,
-      size: file.size,
+      success: true,
+      data: {
+        url: blob.url,
+        filename: safeName,
+        category,
+        size: file.size,
+      },
     });
-  } catch (error) {
-    const message = error instanceof Error ? error.message : "Upload failed";
-
-    if (message === "Authentication required" || message === "Admin access required") {
-      return NextResponse.json({ error: message }, { status: 401 });
-    }
-
-    log.error("❌ Upload failed:", error);
-    return NextResponse.json({ error: "Upload failed" }, { status: 500 });
-  }
-}
+}, "Upload failed");
 
 // Block all other methods
 export async function GET() {

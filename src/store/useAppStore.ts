@@ -31,7 +31,12 @@ export const useAppStore = create<AppState>()(
           }),
           {
             name: "routines-wardrobe-app",
-            version: 4, // Bumped: wardrobe/wishlist now persist to DB, not localStorage
+            // ── Persist version history ──────────────────────
+            // v1 — Initial: full data persisted in localStorage
+            // v2 — Moved products/routines to PostgreSQL; only completions persisted
+            // v3 — Added productCompletions map for per-product tracking
+            // v4 — Wardrobe/wishlist migrated to DB; partialize trimmed to completions only
+            version: 4,
 
             // Only persist ephemeral tracking data (completions).
             // All domain data (products, routines, wardrobe, etc.)
@@ -70,14 +75,13 @@ export const useAppStore = create<AppState>()(
 );
 
 // ========================================
-// Post-hydration: prune stale completions & load DB data
-// This is a supplementary trigger. The primary trigger is <StoreInitializer />
-// mounted in the root layout, which calls initFromDb() via useEffect.
+// Post-hydration: prune stale completions
+// DB data loading is handled solely by <StoreInitializer />
+// mounted in the root layout (avoids duplicate initFromDb calls).
 // ========================================
 if (typeof window !== "undefined") {
   const runPostHydration = () => {
     useAppStore.getState().cleanupStaleCompletions();
-    useAppStore.getState().initFromDb();
   };
 
   if (useAppStore.persist.hasHydrated()) {

@@ -45,7 +45,6 @@ export type {
 // Performance utilities (pure functions only — hooks are in @/hooks)
 export {
   createMemoizedSelector,
-  PERFORMANCE_CONFIG,
   optimizedArrayOperations,
 } from "./performance";
 

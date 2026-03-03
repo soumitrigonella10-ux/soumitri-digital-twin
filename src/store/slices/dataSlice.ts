@@ -34,11 +34,8 @@ export const createDataSlice: ImmerSliceCreator<DataSlice> = (set, get) => ({
 
   dbStatus: 'idle',
 
-  // Fetch all domain data from Postgres via /api/seed-data (once per session)
-  initFromDb: async () => {
-    const current = get().dbStatus;
-    if (current === 'loading' || current === 'ready') return;
-
+  // Shared fetch+set logic for both init and refresh
+  _fetchAndSetData: async (label: string) => {
     set((state) => { state.dbStatus = 'loading'; });
 
     try {
@@ -62,41 +59,22 @@ export const createDataSlice: ImmerSliceCreator<DataSlice> = (set, get) => ({
       });
     } catch (e) {
       if (process.env.NODE_ENV === 'development') {
-        console.warn('[Store] DB hydration failed:', e);
+        console.warn(`[Store] DB ${label} failed:`, e);
       }
       set((state) => { state.dbStatus = 'error'; });
     }
   },
 
+  // Fetch all domain data from Postgres via /api/seed-data (once per session)
+  initFromDb: async () => {
+    const current = get().dbStatus;
+    if (current === 'loading' || current === 'ready') return;
+    await get()._fetchAndSetData('hydration');
+  },
+
   // Force re-fetch from DB after admin mutations (products/routines CRUD)
   refreshFromDb: async () => {
-    set((state) => { state.dbStatus = 'loading'; });
-
-    try {
-      const res = await fetch('/api/seed-data');
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
-      const json = await res.json();
-      if (!json.success || !json.data) throw new Error('Invalid response');
-
-      const db: AppData = json.data;
-
-      set((state) => {
-        state.data.products      = db.products      ?? [];
-        state.data.routines      = db.routines      ?? [];
-        state.data.wardrobe      = db.wardrobe      ?? [];
-        state.data.mealTemplates = db.mealTemplates ?? [];
-        state.data.dressings     = db.dressings     ?? [];
-        state.data.workoutPlans  = db.workoutPlans  ?? [];
-        state.data.wishlist      = db.wishlist      ?? [];
-        state.dbStatus = 'ready';
-      });
-    } catch (e) {
-      if (process.env.NODE_ENV === 'development') {
-        console.warn('[Store] DB refresh failed:', e);
-      }
-      set((state) => { state.dbStatus = 'error'; });
-    }
+    await get()._fetchAndSetData('refresh');
   },
 
   // --- CRUD operations (immer draft mutations) ---

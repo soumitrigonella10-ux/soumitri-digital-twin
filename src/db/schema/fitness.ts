@@ -2,7 +2,7 @@
 // Workout Plans, Sections, Exercises tables
 // Maps to: src/types/fitness.ts → WorkoutPlan, WorkoutSection, Exercise
 // ─────────────────────────────────────────────────────────────
-import { pgTable, text, integer, boolean, jsonb, timestamp } from 'drizzle-orm/pg-core'
+import { pgTable, text, integer, boolean, jsonb, timestamp, index } from 'drizzle-orm/pg-core'
 import { relations } from 'drizzle-orm'
 
 // ── Workout Plans ────────────────────────────────────────────
@@ -29,7 +29,10 @@ export const workoutSections = pgTable('workout_sections', {
   /** Audit timestamps */
   createdAt:     timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt:     timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
-})
+}, (table) => ({
+  /** Speed up cascade deletes + JOIN lookups from plans → sections */
+  workoutPlanIdIdx: index('idx_workout_sections_workout_plan_id').on(table.workoutPlanId),
+}))
 
 // ── Exercises ────────────────────────────────────────────────
 export const exercises = pgTable('exercises', {
@@ -47,7 +50,10 @@ export const exercises = pgTable('exercises', {
   /** Audit timestamps */
   createdAt:        timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt:        timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
-})
+}, (table) => ({
+  /** Speed up cascade deletes + JOIN lookups from sections → exercises */
+  workoutSectionIdIdx: index('idx_exercises_workout_section_id').on(table.workoutSectionId),
+}))
 
 // ── Relations ────────────────────────────────────────────────
 export const workoutPlansRelations = relations(workoutPlans, ({ many }) => ({

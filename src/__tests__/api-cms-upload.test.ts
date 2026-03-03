@@ -1,3 +1,4 @@
+// @vitest-environment node
 // ========================================
 // API Route Tests — /api/cms/upload
 //
@@ -13,6 +14,10 @@ import type { NextRequest } from "next/server";
 const mockRequireAdmin = vi.fn();
 vi.mock("@/lib/admin-auth", () => ({
   requireAdmin: (...args: unknown[]) => mockRequireAdmin(...args),
+  AUTH_ERRORS: {
+    UNAUTHENTICATED: "Authentication required",
+    FORBIDDEN: "Admin access required",
+  },
 }));
 
 const mockPut = vi.fn().mockResolvedValue({
@@ -79,12 +84,12 @@ describe("CMS Upload — Auth", () => {
     expect(data.error).toBe("Authentication required");
   });
 
-  it("returns 401 when not admin", async () => {
+  it("returns 403 when not admin", async () => {
     mockRequireAdmin.mockRejectedValue(new Error("Admin access required"));
     const file = new File(["content"], "essay.pdf", { type: "application/pdf" });
     const req = createUploadRequest(file, "essays");
     const res = await POST(req);
-    expect(res.status).toBe(401);
+    expect(res.status).toBe(403);
   });
 });
 
@@ -126,9 +131,9 @@ describe("CMS Upload — File validation", () => {
     const req = createUploadRequest(file, "travel");
     const res = await POST(req);
     expect(res.status).toBe(200);
-    const data = await res.json();
-    expect(data.url).toBeDefined();
-    expect(data.category).toBe("image");
+    const body = await res.json();
+    expect(body.data.url).toBeDefined();
+    expect(body.data.category).toBe("image");
   });
 
   it("accepts application/pdf", async () => {
@@ -136,8 +141,8 @@ describe("CMS Upload — File validation", () => {
     const req = createUploadRequest(file, "essays");
     const res = await POST(req);
     expect(res.status).toBe(200);
-    const data = await res.json();
-    expect(data.category).toBe("pdf");
+    const body = await res.json();
+    expect(body.data.category).toBe("pdf");
   });
 
   it("accepts video/mp4", async () => {
@@ -145,8 +150,8 @@ describe("CMS Upload — File validation", () => {
     const req = createUploadRequest(file, "images");
     const res = await POST(req);
     expect(res.status).toBe(200);
-    const data = await res.json();
-    expect(data.category).toBe("video");
+    const body = await res.json();
+    expect(body.data.category).toBe("video");
   });
 
   it("rejects images over 10MB", async () => {
@@ -219,23 +224,23 @@ describe("CMS Upload — Response shape", () => {
     const req = createUploadRequest(file, "essays");
     const res = await POST(req);
     expect(res.status).toBe(200);
-    const data = await res.json();
-    expect(data).toHaveProperty("url");
-    expect(data).toHaveProperty("filename");
-    expect(data).toHaveProperty("category");
-    expect(data).toHaveProperty("size");
-    expect(typeof data.url).toBe("string");
-    expect(typeof data.filename).toBe("string");
-    expect(data.category).toBe("pdf");
-    expect(typeof data.size).toBe("number");
+    const body = await res.json();
+    expect(body.data).toHaveProperty("url");
+    expect(body.data).toHaveProperty("filename");
+    expect(body.data).toHaveProperty("category");
+    expect(body.data).toHaveProperty("size");
+    expect(typeof body.data.url).toBe("string");
+    expect(typeof body.data.filename).toBe("string");
+    expect(body.data.category).toBe("pdf");
+    expect(typeof body.data.size).toBe("number");
   });
 
   it("returns sanitized filename with timestamp", async () => {
     const file = new File(["px"], "My Photo (2).jpg", { type: "image/jpeg" });
     const req = createUploadRequest(file, "travel");
     const res = await POST(req);
-    const data = await res.json();
+    const body = await res.json();
     // Filename should be lowercased, with non-alnum replaced by dashes
-    expect(data.filename).toMatch(/^my-photo-2-[a-z0-9]+\.jpg$/);
+    expect(body.data.filename).toMatch(/^my-photo-2-[a-z0-9]+\.jpg$/);
   });
 });

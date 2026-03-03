@@ -70,21 +70,25 @@ const nextConfig = {
   poweredByHeader: false,
 };
 
-module.exports = withSentryConfig(nextConfig, {
-  // ── Sentry Build Options ──────────────────────────────────
-  // Suppress noisy source-map upload logs
-  silent: !process.env.CI,
+const isDev = process.env.NODE_ENV === 'development';
 
-  // Upload source maps so stack traces are readable in the dashboard
-  widenClientFileUpload: true,
+module.exports = isDev
+  ? nextConfig
+  : withSentryConfig(nextConfig, {
+      // ── Sentry Build Options ──────────────────────────────────
+      // Suppress noisy source-map upload logs
+      silent: !process.env.CI,
 
-  // Webpack-specific instrumentation and tree-shaking options
-  webpack: {
-    autoInstrumentServerFunctions: true,
-    autoInstrumentMiddleware: true,
-    autoInstrumentAppDirectory: true,
-    treeshake: {
-      removeDebugLogging: true,
-    },
-  },
-});
+      // Upload source maps so stack traces are readable in the dashboard
+      widenClientFileUpload: true,
+
+      // Webpack-specific instrumentation and tree-shaking options
+      webpack: {
+        autoInstrumentServerFunctions: true,
+        autoInstrumentMiddleware: true,
+        autoInstrumentAppDirectory: true,
+        treeshake: {
+          removeDebugLogging: true,
+        },
+      },
+    });

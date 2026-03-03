@@ -1,6 +1,6 @@
 "use client";
 
-import { Calendar, CheckCircle2, Edit2, Check } from "lucide-react";
+import { Calendar, CheckCircle2, Edit2, Check, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Product } from "@/types";
 
@@ -27,6 +27,7 @@ export interface ProductCardProps {
   isCompleted: boolean;
   onToggleComplete: () => void;
   onEdit?: () => void;
+  onDelete?: () => void;
   index: number;
   theme: ProductCardTheme;
   /** Optional highlight effect for special cases */
@@ -44,6 +45,7 @@ export function ProductCard({
   isCompleted, 
   onToggleComplete, 
   onEdit,
+  onDelete,
   index, 
   theme,
   highlighted = false,
@@ -107,15 +109,25 @@ export function ProductCard({
             
           </div>
 
-          {/* Edit Button */}
-          {onEdit && (
-            <button
-              onClick={onEdit}
-              className="p-1 text-gray-400 hover:text-gray-600 transition-colors flex-shrink-0"
-            >
-              <Edit2 className="w-4 h-4" />
-            </button>
-          )}
+          {/* Action Buttons */}
+          <div className="flex items-center gap-0.5">
+            {onEdit && (
+              <button
+                onClick={onEdit}
+                className="p-1 text-gray-400 hover:text-gray-600 transition-colors flex-shrink-0"
+              >
+                <Edit2 className="w-4 h-4" />
+              </button>
+            )}
+            {onDelete && (
+              <button
+                onClick={onDelete}
+                className="p-1 text-gray-400 hover:text-red-500 transition-colors flex-shrink-0"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
         </div>
       </div>
     );
@@ -233,15 +245,25 @@ export function ProductCard({
               {additionalMetadata}
             </div>
 
-            {/* Edit Button */}
-            {onEdit && (
-              <button
-                onClick={onEdit}
-                className="p-1 text-gray-400 hover:text-gray-600 transition-colors flex-shrink-0"
-              >
-                <Edit2 className="w-4 h-4" />
-              </button>
-            )}
+            {/* Action Buttons */}
+            <div className="flex items-center gap-0.5">
+              {onEdit && (
+                <button
+                  onClick={onEdit}
+                  className="p-1 text-gray-400 hover:text-gray-600 transition-colors flex-shrink-0"
+                >
+                  <Edit2 className="w-4 h-4" />
+                </button>
+              )}
+              {onDelete && (
+                <button
+                  onClick={onDelete}
+                  className="p-1 text-gray-400 hover:text-red-500 transition-colors flex-shrink-0"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </div>

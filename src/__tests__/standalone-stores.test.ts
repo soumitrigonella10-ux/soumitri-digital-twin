@@ -177,7 +177,7 @@ describe("DataSlice — Nutrition (standalone store)", () => {
       id: "test-d-1",
       name: "Test Dressing",
       shelfLifeDays: 5,
-      ingredients: ["oil"],
+      ingredients: [{ name: "oil", quantity: "1 tbsp" }],
     });
     const found = useStore.getState().data.dressings.find((d) => d.id === "test-d-1");
     expect(found).toBeDefined();

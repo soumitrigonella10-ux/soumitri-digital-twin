@@ -14,23 +14,28 @@ import type { NextRequest } from "next/server";
 const mockRequireAdmin = vi.fn();
 vi.mock("@/lib/admin-auth", () => ({
   requireAdmin: (...args: unknown[]) => mockRequireAdmin(...args),
+  AUTH_ERRORS: {
+    UNAUTHENTICATED: "Authentication required",
+    FORBIDDEN: "Admin access required",
+  },
 }));
 
 // Mock Drizzle db with chainable query builder
-const mockOrderBy = vi.fn();
+
+/** Creates a fully-chainable mock that is also `await`-able (thenable). */
+function mockChain(resolveWith: unknown[] = []) {
+  const chain: Record<string, unknown> = {};
+  for (const m of ["from", "where", "orderBy", "limit", "offset"]) {
+    chain[m] = vi.fn(() => chain);
+  }
+  // Make the chain thenable so `await db.select().from()...` works
+  chain.then = (resolve: (v: unknown) => void, reject?: (e: unknown) => void) =>
+    Promise.resolve(resolveWith).then(resolve, reject);
+  return chain;
+}
 
 const mockDb = {
-  select: vi.fn(() => ({
-    from: vi.fn(() => ({
-      where: vi.fn((_condition) => ({
-        orderBy: vi.fn(() => {
-          mockOrderBy();
-          return Promise.resolve([]);
-        }),
-      })),
-      orderBy: vi.fn(() => Promise.resolve([])),
-    })),
-  })),
+  select: vi.fn(() => mockChain([])),
   insert: vi.fn(() => ({
     values: vi.fn(() => ({
       returning: vi.fn(() => Promise.resolve([{ id: "note_test", type: "task", content: "Test" }])),
@@ -71,6 +76,11 @@ vi.mock("drizzle-orm", () => ({
   eq: vi.fn((a, b) => ({ field: a, value: b })),
   desc: vi.fn((a) => ({ type: "desc", field: a })),
   asc: vi.fn((a) => ({ type: "asc", field: a })),
+  sql: Object.assign(vi.fn(), {
+    [Symbol.for("drizzle:tagged-template")]: true,
+    // Allow sql`...` tagged template usage
+    raw: vi.fn((s: string) => s),
+  }),
 }));
 
 // ── Helpers ──────────────────────────────────────────────────
@@ -98,6 +108,12 @@ let DELETE: (req: NextRequest) => Promise<Response>;
 beforeEach(async () => {
   vi.clearAllMocks();
   mockRequireAdmin.mockResolvedValue({ email: "admin@test.com", role: "admin" });
+
+  // Re-wire the select mock — first call returns rows, second returns count
+  mockDb.select
+    .mockReturnValueOnce(mockChain([]))           // rows query
+    .mockReturnValueOnce(mockChain([{ total: 0 }])); // count query
+
   // Dynamic import to get fresh module after mocks are set
   const mod = await import("../../app/api/notes/route");
   GET = mod.GET;
@@ -129,21 +145,21 @@ describe("Notes API — Auth", () => {
     expect(res.status).toBe(401);
   });
 
-  it("PATCH returns 401 when not admin", async () => {
+  it("PATCH returns 403 when not admin", async () => {
     mockRequireAdmin.mockRejectedValue(new Error("Admin access required"));
     const req = createRequest("PATCH", "http://localhost/api/notes", {
       id: "note_1",
       content: "Updated",
     });
     const res = await PATCH(req);
-    expect(res.status).toBe(401);
+    expect(res.status).toBe(403);
   });
 
-  it("DELETE returns 401 when not admin", async () => {
+  it("DELETE returns 403 when not admin", async () => {
     mockRequireAdmin.mockRejectedValue(new Error("Admin access required"));
     const req = createRequest("DELETE", "http://localhost/api/notes?id=note_1");
     const res = await DELETE(req);
-    expect(res.status).toBe(401);
+    expect(res.status).toBe(403);
   });
 });
 
@@ -192,7 +208,8 @@ describe("Notes API — POST", () => {
     const res = await POST(req);
     expect(res.status).toBe(400);
     const data = await res.json();
-    expect(data.error).toMatch(/type.*content.*required/i);
+    expect(data.error).toBe("Validation failed");
+    expect(data.details.type).toBeDefined();
   });
 
   it("returns 400 when content is missing", async () => {
@@ -202,7 +219,8 @@ describe("Notes API — POST", () => {
     const res = await POST(req);
     expect(res.status).toBe(400);
     const data = await res.json();
-    expect(data.error).toMatch(/type.*content.*required/i);
+    expect(data.error).toBe("Validation failed");
+    expect(data.details.content).toBeDefined();
   });
 
   it("returns 400 for invalid type value", async () => {
@@ -213,7 +231,8 @@ describe("Notes API — POST", () => {
     const res = await POST(req);
     expect(res.status).toBe(400);
     const data = await res.json();
-    expect(data.error).toMatch(/task.*idea/i);
+    expect(data.error).toBe("Validation failed");
+    expect(data.details.type).toBeDefined();
   });
 
   it("calls db.insert with correct fields", async () => {

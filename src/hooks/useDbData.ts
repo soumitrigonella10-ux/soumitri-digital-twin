@@ -1,19 +1,26 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 
 /**
  * Generic hook to fetch data from an API route.
- * Returns { data, loading, error } — loads once on mount.
+ * Returns { data, loading, error, refetch } — loads once on mount.
  *
  * Usage:
- *   const { data, loading } = useDbData<MyType[]>("/api/my-endpoint", []);
+ *   const { data, loading, refetch } = useDbData<MyType[]>("/api/my-endpoint", []);
  */
 export function useDbData<T>(url: string, fallback: T) {
   const [data, setData] = useState<T>(fallback);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    let cancelled = false;
+  // Keep fallback in a ref so the fetch callback always sees the latest
+  // value without needing it as a useCallback dependency (avoids stale closures
+  // if the caller passes a new reference on every render).
+  const fallbackRef = useRef(fallback);
+  fallbackRef.current = fallback;
+
+  const fetchData = useCallback(() => {
+    setLoading(true);
+    setError(null);
 
     fetch(url)
       .then(async (res) => {
@@ -25,24 +32,19 @@ export function useDbData<T>(url: string, fallback: T) {
         return res.json();
       })
       .then((json) => {
-        if (!cancelled) {
-          setData(json.data ?? fallback);
-          setLoading(false);
-        }
+        setData(json.data ?? fallbackRef.current);
+        setLoading(false);
       })
       .catch((err) => {
-        if (!cancelled) {
-          console.error(`[useDbData] ${url}:`, err);
-          setError(err.message);
-          setLoading(false);
-        }
+        console.error(`[useDbData] ${url}:`, err);
+        setError(err.message);
+        setLoading(false);
       });
-
-    return () => {
-      cancelled = true;
-    };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [url]);
 
-  return { data, loading, error };
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  return { data, loading, error, refetch: fetchData };
 }

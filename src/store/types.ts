@@ -40,6 +40,8 @@ export interface DataSlice {
   data: AppData;
   /** DB hydration status: 'idle' | 'loading' | 'ready' | 'error' */
   dbStatus: 'idle' | 'loading' | 'ready' | 'error';
+  /** Internal: shared fetch+set logic for init & refresh */
+  _fetchAndSetData: (label: string) => Promise<void>;
   /** Fetch all domain data from /api/seed-data and replace store */
   initFromDb: () => Promise<void>;
   /** Force re-fetch from DB after admin mutations */

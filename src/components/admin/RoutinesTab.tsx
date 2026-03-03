@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { useAppStore } from "@/store/useAppStore";
+import { routineService } from "@/lib/services";
 import { useToast } from "@/components/ToastProvider";
 import type { Routine, RoutineStep } from "@/types";
 
@@ -240,7 +241,7 @@ export function RoutinesTab() {
 
   const filtered = filterType === "all"
     ? data.routines
-    : data.routines.filter((r) => r.type === filterType);
+    : routineService.getRoutinesByType(data.routines, filterType as Routine["type"]);
 
   return (
     <div className="space-y-4">

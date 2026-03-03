@@ -4,8 +4,7 @@
 // GET /api/seed-data → { products, routines, wardrobe, ... }
 //
 // This is the single entry-point for the client store to hydrate
-// from the database. Read-only — auth is handled by middleware
-// (all non-public paths require a session).
+// from the database. Read-only, admin-protected.
 //
 // Returns the same shape as AppData so the store can use it directly.
 // ─────────────────────────────────────────────────────────────
@@ -13,72 +12,48 @@ import { NextResponse } from "next/server";
 import { db } from "@/db";
 import {
   products,
-  routines, routineSteps,
   wardrobeItems, wishlistItems,
-  mealTemplates, mealIngredients, dressings,
-  workoutPlans, workoutSections, exercises,
+  dressings,
 } from "@/db/schema";
+import { requireAdmin } from "@/lib/admin-auth";
+import { withErrorHandling } from "@/lib/api-utils";
 
-export async function GET() {
-  try {
-    // Auth is enforced by middleware — no additional admin check needed
-    // for this read-only endpoint.
+export const GET = withErrorHandling(async () => {
+  await requireAdmin();
 
-    // Fetch all domain tables in parallel
+    // Flat tables + relational queries for nested data, all in parallel
     const [
       productRows,
-      routineRows,
-      stepRows,
+      routinesWithSteps,
       wardrobeRows,
       wishlistRows,
-      mealRows,
-      ingredientRows,
+      mealsWithIngredients,
       dressingRows,
-      workoutRows,
-      sectionRows,
-      exerciseRows,
+      workoutsWithSections,
     ] = await Promise.all([
       db.select().from(products),
-      db.select().from(routines),
-      db.select().from(routineSteps),
+      db.query.routines.findMany({
+        with: { steps: { orderBy: (s, { asc }) => [asc(s.order)] } },
+      }),
       db.select().from(wardrobeItems),
       db.select().from(wishlistItems),
-      db.select().from(mealTemplates),
-      db.select().from(mealIngredients),
+      db.query.mealTemplates.findMany({
+        with: { ingredients: true },
+      }),
       db.select().from(dressings),
-      db.select().from(workoutPlans),
-      db.select().from(workoutSections),
-      db.select().from(exercises),
+      db.query.workoutPlans.findMany({
+        with: {
+          sections: {
+            orderBy: (s, { asc }) => [asc(s.sortOrder)],
+            with: {
+              exercises: {
+                orderBy: (e, { asc }) => [asc(e.sortOrder)],
+              },
+            },
+          },
+        },
+      }),
     ]);
-
-    // ── Assemble routines with nested steps ──────────────────
-    const routinesWithSteps = routineRows.map((r) => ({
-      ...r,
-      steps: stepRows
-        .filter((s) => s.routineId === r.id)
-        .sort((a, b) => a.order - b.order),
-    }));
-
-    // ── Assemble meals with nested ingredients ───────────────
-    const mealsWithIngredients = mealRows.map((m) => ({
-      ...m,
-      ingredients: ingredientRows
-        .filter((i) => i.mealTemplateId === m.id),
-    }));
-
-    // ── Assemble workouts with nested sections + exercises ───
-    const workoutsWithSections = workoutRows.map((w) => ({
-      ...w,
-      sections: sectionRows
-        .filter((s) => s.workoutPlanId === w.id)
-        .sort((a, b) => a.sortOrder - b.sortOrder)
-        .map((s) => ({
-          ...s,
-          exercises: exerciseRows
-            .filter((e) => e.workoutSectionId === s.id)
-            .sort((a, b) => a.sortOrder - b.sortOrder),
-        })),
-    }));
 
     return NextResponse.json({
       success: true,
@@ -91,10 +66,10 @@ export async function GET() {
         dressings: dressingRows,
         workoutPlans: workoutsWithSections,
       },
+    }, {
+      headers: {
+        // Cache for 60s, serve stale up to 5 min while revalidating
+        'Cache-Control': 'private, s-maxage=60, stale-while-revalidate=300',
+      },
     });
-  } catch (error) {
-    const message = error instanceof Error ? error.message : "Failed to fetch seed data";
-    console.error("[API] seed-data GET error:", message);
-    return NextResponse.json({ success: false, error: message }, { status: 500 });
-  }
-}
+}, "Failed to fetch seed data");

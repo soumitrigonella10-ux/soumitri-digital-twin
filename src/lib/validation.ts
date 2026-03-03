@@ -78,10 +78,18 @@ export const mealTemplateSchema = z.object({
 // Dressing validation schema
 // ========================================
 export const dressingSchema = z.object({
-  id: stringRequired,
+  id: z.string().optional(),
   name: stringRequired,
   shelfLifeDays: z.number(),
-  ingredients: z.array(z.string()).default([]),
+  baseType: stringOptional,
+  ingredients: z.array(z.object({
+    name: z.string().min(1),
+    quantity: z.string().min(1),
+    unit: z.string().optional(),
+  })),
+  instructions: z.array(z.string()).optional(),
+  tips: z.array(z.string()).optional(),
+  tags: z.array(z.string()).optional(),
 });
 
 // ========================================
@@ -115,6 +123,111 @@ export const workoutPlanSchema = z.object({
   durationMin: z.number(),
   goal: stringOptional,
   sections: z.array(workoutSectionSchema).default([]),
+});
+
+// ========================================
+// Routine validation schema
+// ========================================
+const routineStepSchema = z.object({
+  order: numberOptional,
+  title: stringRequired,
+  description: stringOptional,
+  durationMin: numberOptional,
+  productIds: z.array(z.string()).optional(),
+  bodyAreas: z.array(z.string()).optional(),
+  weekdaysOnly: z.array(z.number().min(0).max(6)).optional(),
+  essential: booleanOptional,
+});
+
+export const routineSchema = z.object({
+  id: stringRequired,
+  type: stringRequired,
+  name: stringRequired,
+  timeOfDay: z.enum(["AM", "MIDDAY", "PM", "ANY"]),
+  schedule: z.object({
+    weekday: z.array(z.number().min(0).max(6)).optional(),
+    cycleDay: z.array(z.number()).optional(),
+    frequencyPerWeek: z.number().optional(),
+  }),
+  tags: z.object({
+    office: booleanOptional,
+    wfh: booleanOptional,
+    travel: booleanOptional,
+    goingOut: booleanOptional,
+  }),
+  occasion: z.array(z.string()).optional(),
+  productIds: z.array(z.string()).optional(),
+  notes: stringOptional,
+  steps: z.array(routineStepSchema).default([]),
+});
+
+// ========================================
+// Jewellery item validation schema
+// ========================================
+export const jewelleryItemSchema = z.object({
+  id: z.string().optional(),
+  name: stringRequired,
+  category: stringRequired,
+  subcategory: stringOptional,
+  imageUrl: stringRequired,
+  favorite: booleanOptional,
+});
+
+// ========================================
+// Grocery category validation schema
+// ========================================
+export const groceryCategorySchema = z.object({
+  id: z.string().optional(),
+  name: stringRequired,
+  emoji: stringRequired,
+  listType: z.enum(["master", "weekly"]),
+  items: z.array(z.object({ name: z.string().min(1), quantity: z.string().optional() })),
+});
+
+// ========================================
+// Affirmation validation schema
+// ========================================
+export const affirmationSchema = z.object({
+  id: stringRequired,
+  text: stringRequired,
+  type: z.enum(["affirmation", "action", "visualization"]),
+  timeOfDay: z.enum(["morning", "midday", "evening"]),
+  weekday: z.number().min(0).max(6),
+  displayOrder: numberOptional,
+});
+
+// ========================================
+// Day theme validation schema
+// ========================================
+export const dayThemeSchema = z.object({
+  weekday: z.number().min(0).max(6),
+  emoji: stringRequired,
+  title: stringRequired,
+  subtitle: stringRequired,
+});
+
+// ========================================
+// Note creation validation schema
+// ========================================
+export const noteSchema = z.object({
+  type: z.enum(["task", "idea"]),
+  content: stringRequired,
+  category: stringOptional,
+});
+
+// ========================================
+// Bowl config validation schema
+// ========================================
+export const bowlConfigSchema = z.object({
+  id: z.string().optional(),
+  config: z.object({
+    base: z.object({ item: z.string(), quantity: z.string() }),
+    salads: z.array(z.object({ name: z.string(), quantity: z.string() })),
+    proteinOptions: z.array(z.object({ name: z.string(), quantity: z.string() })),
+    proteinPortions: z.array(z.object({ days: z.string(), quantity: z.string() })),
+    quickProteinTopups: z.array(z.object({ combo: z.string(), note: z.string() })),
+  }),
+  isActive: booleanOptional,
 });
 
 // ========================================
@@ -192,3 +305,31 @@ export type WardrobeItemFormData = z.infer<typeof wardrobeItemSchema>;
 export type MealTemplateFormData = z.infer<typeof mealTemplateSchema>;
 export type DressingFormData = z.infer<typeof dressingSchema>;
 export type WorkoutPlanFormData = z.infer<typeof workoutPlanSchema>;
+export type RoutineFormData = z.infer<typeof routineSchema>;
+export type JewelleryItemFormData = z.infer<typeof jewelleryItemSchema>;
+export type GroceryCategoryFormData = z.infer<typeof groceryCategorySchema>;
+export type AffirmationFormData = z.infer<typeof affirmationSchema>;
+export type DayThemeFormData = z.infer<typeof dayThemeSchema>;
+export type NoteFormData = z.infer<typeof noteSchema>;
+export type BowlConfigFormData = z.infer<typeof bowlConfigSchema>;
+
+// ========================================
+// Patch schemas — .partial() versions for PATCH endpoints
+// These validate only the fields present in the request body.
+// ========================================
+export const productPatchSchema = productSchema.omit({ id: true }).partial();
+export const mealTemplatePatchSchema = mealTemplateSchema.omit({ id: true, ingredients: true }).partial();
+export const jewelleryItemPatchSchema = jewelleryItemSchema.omit({ id: true }).partial();
+export const groceryCategoryPatchSchema = groceryCategorySchema.omit({ id: true }).partial();
+export const dressingPatchSchema = dressingSchema.omit({ id: true }).partial();
+export const bowlConfigPatchSchema = bowlConfigSchema.pick({ config: true, isActive: true }).partial();
+export const affirmationPatchSchema = affirmationSchema.omit({ id: true }).partial();
+export const dayThemePatchSchema = dayThemeSchema.omit({ weekday: true }).partial();
+
+// Note patch includes fields not in the creation schema (completed, sortOrder)
+export const notePatchSchema = z.object({
+  content: z.string().min(1),
+  category: z.string(),
+  completed: z.boolean(),
+  sortOrder: z.number(),
+}).partial();

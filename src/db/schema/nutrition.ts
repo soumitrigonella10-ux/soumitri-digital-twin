@@ -3,7 +3,7 @@
 // Maps to: src/types/nutrition.ts → MealTemplate, Ingredient, Dressing
 // Also covers: grocery lists, lunch bowl configs
 // ─────────────────────────────────────────────────────────────
-import { pgTable, text, integer, jsonb, boolean, timestamp } from 'drizzle-orm/pg-core'
+import { pgTable, text, integer, jsonb, boolean, timestamp, index } from 'drizzle-orm/pg-core'
 import { relations } from 'drizzle-orm'
 
 // ── Meal Templates ───────────────────────────────────────────
@@ -37,7 +37,10 @@ export const mealIngredients = pgTable('meal_ingredients', {
   /** Audit timestamps */
   createdAt:      timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt:      timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
-})
+}, (table) => ({
+  /** Speed up cascade deletes + JOIN lookups from meals → ingredients */
+  mealTemplateIdIdx: index('idx_meal_ingredients_meal_template_id').on(table.mealTemplateId),
+}))
 
 // ── Dressings ────────────────────────────────────────────────
 export const dressings = pgTable('dressings', {

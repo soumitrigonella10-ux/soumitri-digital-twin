@@ -197,7 +197,10 @@ describe("dressingSchema", () => {
       id: "d-1",
       name: "Balsamic Vinaigrette",
       shelfLifeDays: 7,
-      ingredients: ["olive oil", "balsamic vinegar"],
+      ingredients: [
+        { name: "olive oil", quantity: "2 tbsp" },
+        { name: "balsamic vinegar", quantity: "1 tbsp" },
+      ],
     });
     expect(result.success).toBe(true);
   });
