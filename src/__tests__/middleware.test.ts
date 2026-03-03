@@ -63,7 +63,7 @@ describe("Topic helpers", () => {
 // ========================================
 const STATIC_PUBLIC_PATHS = [
   "/",
-  "/inventory/wishlist",
+  "/wishlist",
   "/api/auth",
   "/_next",
   "/favicon.ico",
@@ -101,8 +101,8 @@ describe("isPublicPath (middleware logic)", () => {
     expect(isPublicPath("/")).toBe(true);
   });
 
-  it("/inventory/wishlist is public", () => {
-    expect(isPublicPath("/inventory/wishlist")).toBe(true);
+  it("/wishlist is public", () => {
+    expect(isPublicPath("/wishlist")).toBe(true);
   });
 
   it("/api/auth routes are public", () => {

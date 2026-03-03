@@ -66,7 +66,7 @@ function InspirationPageContent() {
       {/* Inspiration Board Section */}
       <section className="inspiration-section relative">
         <div className="inspiration-header">
-          <h2 className="inspiration-title">Inspiration Board</h2>
+          <h2 className="inspiration-title">Inspo</h2>
           <p className="inspiration-subtitle">Small fragments of influence—tacked on, torn out, and treasured</p>
           <div className="inspiration-metadata">
             <span>{inspirations.length} Fragments</span>

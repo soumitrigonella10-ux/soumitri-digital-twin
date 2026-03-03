@@ -30,7 +30,7 @@ const inventoryItems = [
   {
     title: "Wishlist",
     description: "Save items you want to buy with photos, prices, and store links",
-    href: "/inventory/wishlist",
+    href: "/wishlist",
     icon: Heart,
     color: "bg-pink-100 text-pink-800",
     bgColor: "bg-pink-50",
@@ -106,7 +106,7 @@ const inventoryItems = [
                 Add Wardrobe Item
               </Button>
             </Link>
-            <Link href="/inventory/wishlist" passHref>
+            <Link href="/wishlist" passHref>
               <Button variant="outline" size="sm">
                 Add to Wishlist
               </Button>

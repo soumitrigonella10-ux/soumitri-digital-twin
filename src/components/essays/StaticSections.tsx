@@ -10,7 +10,7 @@ export function EssaysHeroSection() {
           Long-Form Thinking
         </p>
         <h1 className="font-serif italic text-3xl md:text-5xl lg:text-6xl font-bold text-telugu-kavi leading-[0.95] tracking-tight max-w-3xl">
-          Essays &amp;&nbsp;Reflections
+          Monologue
         </h1>
         <p className="mt-6 font-editorial text-base md:text-lg text-gray-600 leading-relaxed max-w-xl">
           I thought about something and now I have to inconvenience you by making you read it.

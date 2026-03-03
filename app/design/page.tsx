@@ -79,7 +79,7 @@ function DesignTheologyPageContent() {
       <section className="theology-hero relative">
         <div className="hero-content">
           <h1 className="theology-title">
-            Design <span className="theology-title-italic">Theology</span>
+            Design
           </h1>
           <p className="theology-subtitle">
             A working document of principles, beliefs, and process notes from the drafting table

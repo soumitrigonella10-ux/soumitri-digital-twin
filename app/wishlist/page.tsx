@@ -9,6 +9,7 @@ import { EditorialNav } from "@/components/EditorialNav";
 import { AddWishlistModal } from "@/components/wishlist/AddWishlistModal";
 import { EditWishlistModal } from "@/components/wishlist/EditWishlistModal";
 import { getContentByType, deleteContent } from "@/cms/actions";
+import { getPublicWishlistItems } from "@/cms/wishlist-public";
 import type { ContentItem as CmsContentItem } from "@/cms/types";
 import {
   CategoryFilter,
@@ -75,6 +76,7 @@ export default function WishlistPage() {
   const [deletingItem, setDeletingItem] = useState<WishlistItem | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [cmsItems, setCmsItems] = useState<WishlistItem[]>([]);
+  const [dbItems, setDbItems] = useState<WishlistItem[]>([]);
 
   const isCmsItem = useCallback((item: WishlistItem) => item.id.startsWith("ci_"), []);
 
@@ -87,7 +89,16 @@ export default function WishlistPage() {
     }
   }, []);
 
-  useEffect(() => { fetchCmsItems(); }, [fetchCmsItems]);
+  const fetchDbItems = useCallback(async () => {
+    try {
+      const items = await getPublicWishlistItems();
+      setDbItems(items);
+    } catch (err) {
+      console.error("Failed to load DB wishlist items:", err);
+    }
+  }, []);
+
+  useEffect(() => { fetchCmsItems(); fetchDbItems(); }, [fetchCmsItems, fetchDbItems]);
 
   const handleDeleteConfirm = useCallback(async () => {
     if (!deletingItem) return;
@@ -99,12 +110,14 @@ export default function WishlistPage() {
     } catch { alert("Failed to delete"); } finally { setIsDeleting(false); }
   }, [deletingItem, fetchCmsItems]);
 
-  // Merge store + CMS wishlist items
+  // Merge DB + CMS + store wishlist items (CMS wins on name conflict)
   const mergedWishlist = useMemo(() => {
     const cmsNames = new Set(cmsItems.map(i => i.name.toLowerCase()));
-    const storeFiltered = data.wishlist.filter(i => !cmsNames.has(i.name.toLowerCase()));
-    return [...cmsItems, ...storeFiltered];
-  }, [cmsItems, data.wishlist]);
+    const dbFiltered = dbItems.filter(i => !cmsNames.has(i.name.toLowerCase()));
+    const allNames = new Set([...cmsNames, ...dbFiltered.map(i => i.name.toLowerCase())]);
+    const storeFiltered = data.wishlist.filter(i => !allNames.has(i.name.toLowerCase()));
+    return [...cmsItems, ...dbFiltered, ...storeFiltered];
+  }, [cmsItems, dbItems, data.wishlist]);
 
   const { selectedCategory, setSelectedCategory, filteredItems, groupedItems } =
     useWishlistFilters(mergedWishlist);
@@ -165,7 +178,7 @@ export default function WishlistPage() {
               className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold leading-[0.95] mb-3"
               style={{ color: "#2D2424" }}
             >
-              Wishlist
+              Wi$hlist
             </h1>
             <p
               className="font-sans text-base leading-relaxed max-w-xl"
@@ -208,7 +221,7 @@ export default function WishlistPage() {
                 className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold leading-[0.95] mb-3"
                 style={{ color: "#2D2424" }}
               >
-                Wishlist
+                Wi$hlist
               </h1>
               <p
                 className="font-sans text-base leading-relaxed max-w-xl"

@@ -55,8 +55,8 @@ function HeroSection() {
         {/* Main Title */}
         <div className="flex-1">
           <h1 className="consumption-hero-title">
-            Content
-            <span className="accent">Consumption</span>
+            Media
+            <span className="accent">Diet</span>
           </h1>
         </div>
 

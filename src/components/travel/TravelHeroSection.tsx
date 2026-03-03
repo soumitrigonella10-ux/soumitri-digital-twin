@@ -12,7 +12,7 @@ export function TravelHeroSection() {
           className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold leading-[0.95] mb-3"
           style={{ color: "#2D2424" }}
         >
-          Travel Log
+          Atlas
         </h1>
         <p
           className="font-sans text-base leading-relaxed"

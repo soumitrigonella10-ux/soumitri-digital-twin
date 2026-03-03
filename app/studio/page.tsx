@@ -101,7 +101,7 @@ function ArtifactsPageContent() {
       {/* Hero Section + Admin Add Button */}
       <section className="artifacts-hero relative">
         <div className="hero-content">
-          <h1 className="hero-title">The Studio</h1>
+          <h1 className="hero-title">Studio</h1>
           <p className="hero-subtitle">A collection of creative experiments and visual studies</p>
           <div className="hero-metadata">
             <span>{allArtifacts.length} Pieces</span>

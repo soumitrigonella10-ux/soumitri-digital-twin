@@ -8,7 +8,7 @@ export type { Topic, SubTab };
 export const topics: Topic[] = [
   {
     slug: "essays",
-    title: "Essays",
+    title: "Monologue",
     description: "Long-form thinking.",
     isPublic: true,
     icon: "file-text",
@@ -18,7 +18,7 @@ export const topics: Topic[] = [
   },
   {
     slug: "internet-lore",
-    title: "Internet Lore",
+    title: "Online Lore",
     description: "Fragments from the deep web, screenshots nobody asked for, and the kind of posts you send to exactly one person at 2 a.m.",
     isPublic: true,
     icon: "globe",
@@ -28,7 +28,7 @@ export const topics: Topic[] = [
   },
   {
     slug: "travel-log",
-    title: "Travel Log",
+    title: "Atlas",
     description: "Places I want to understand, not just visit.",
     isPublic: true,
     icon: "map-pin",
@@ -38,7 +38,7 @@ export const topics: Topic[] = [
   },
   {
     slug: "content-consumption",
-    title: "Content Consumption",
+    title: "Media Diet",
     description: "An archive of cultural intake.",
     isPublic: true,
     icon: "monitor",
@@ -50,7 +50,7 @@ export const topics: Topic[] = [
   },
   {
     slug: "wishlist",
-    title: "Wishlist",
+    title: "Wi$hlist",
     description: "A running list of objects I'm considering.",
     isPublic: true,
     icon: "heart",
@@ -60,7 +60,7 @@ export const topics: Topic[] = [
   },
   {
     slug: "skilling",
-    title: "Skill / Side Quests",
+    title: "Skill/SideQuests",
     description: "Master of all trades, jack of none.",
     isPublic: true,
     icon: "graduation-cap",
@@ -70,7 +70,7 @@ export const topics: Topic[] = [
   },
   {
     slug: "art",
-    title: "Art",
+    title: "Studio",
     description: "A collection of creative experiments and visual studies.",
     isPublic: true,
     icon: "pen-tool",
@@ -84,7 +84,7 @@ export const topics: Topic[] = [
   },
   {
     slug: "inspiration",
-    title: "Inspiration",
+    title: "Inspo",
     description: "Small fragments of influence—tacked on, torn out, and treasured.",
     isPublic: true,
     icon: "palette",
@@ -99,7 +99,7 @@ export const topics: Topic[] = [
   },
   {
     slug: "design-thoughts",
-    title: "Design Thoughts",
+    title: "Design",
     description: "A working document of principles, beliefs, and process notes from the drafting table.",
     isPublic: true,
     icon: "lightbulb",
@@ -181,15 +181,15 @@ export function getTopicBySlug(slug: string): Topic | undefined {
 // Maps editorial slugs to their actual page routes
 export function getTopicHref(slug: string): string {
   const routeMap: Record<string, string> = {
-    essays: "/essays",
-    wishlist: "/inventory/wishlist",
-    "internet-lore": "/sidequests",
-    "content-consumption": "/consumption",
-    "travel-log": "/travel-log",
-    skilling: "/skills",
-    art: "/artifacts",
-    "design-thoughts": "/design-theology",
-    inspiration: "/inspiration",
+    essays: "/monologue",
+    wishlist: "/wishlist",
+    "internet-lore": "/onlinelore",
+    "content-consumption": "/mediadiet",
+    "travel-log": "/atlas",
+    skilling: "/sidequests",
+    art: "/studio",
+    "design-thoughts": "/design",
+    inspiration: "/inspo",
   };
   
   return routeMap[slug] ?? `/${slug}`;
