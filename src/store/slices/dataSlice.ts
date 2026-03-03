@@ -1,12 +1,3 @@
-import {
-  products as seedProducts,
-  routines as seedRoutines,
-  wardrobe as seedWardrobe,
-  meals as seedMeals,
-  dressings as seedDressings,
-  workouts as seedWorkouts,
-  wishlist as seedWishlist,
-} from "@/data/index";
 import type { AppData, DataSlice, ImmerSliceCreator } from "../types";
 
 // ========================================
@@ -19,27 +10,32 @@ export function mergeById<T extends { id: string }>(base: T[], updates: T[]): T[
 }
 
 // ========================================
+// Empty initial state — DB is the single source of truth.
+// The store starts empty and loads everything via initFromDb().
+// Static TS data files in @/data/* exist only for `scripts/seed.ts`.
+// ========================================
+const EMPTY_DATA: AppData = {
+  products: [],
+  routines: [],
+  wardrobe: [],
+  mealTemplates: [],
+  dressings: [],
+  workoutPlans: [],
+  wishlist: [],
+};
+
+// ========================================
 // Data slice — all domain data + CRUD + wishlist
-// On first load, static TS data is shown instantly.
-// initFromDb() then replaces it with DB data for cross-device sync.
+// initFromDb() runs once on hydration to populate from PostgreSQL.
+// refreshFromDb() is called after admin CRUD mutations.
 // ========================================
 export const createDataSlice: ImmerSliceCreator<DataSlice> = (set, get) => ({
-  data: {
-    products: seedProducts,
-    routines: seedRoutines,
-    wardrobe: seedWardrobe,
-    mealTemplates: seedMeals,
-    dressings: seedDressings,
-    workoutPlans: seedWorkouts,
-    wishlist: seedWishlist,
-  },
+  data: { ...EMPTY_DATA },
 
   dbStatus: 'idle',
 
-  // Fetch all domain data from Postgres via /api/seed-data
-  // Falls back silently to static data if the request fails
+  // Fetch all domain data from Postgres via /api/seed-data (once per session)
   initFromDb: async () => {
-    // Guard: only fetch once per session
     const current = get().dbStatus;
     if (current === 'loading' || current === 'ready') return;
 
@@ -55,21 +51,49 @@ export const createDataSlice: ImmerSliceCreator<DataSlice> = (set, get) => ({
       const db: AppData = json.data;
 
       set((state) => {
-        // Only replace arrays that came back non-empty from DB.
-        // If the DB table is empty, keep the static fallback.
-        if (db.products?.length)      state.data.products      = db.products;
-        if (db.routines?.length)      state.data.routines      = db.routines;
-        if (db.wardrobe?.length)      state.data.wardrobe      = db.wardrobe;
-        if (db.mealTemplates?.length) state.data.mealTemplates = db.mealTemplates;
-        if (db.dressings?.length)     state.data.dressings     = db.dressings;
-        if (db.workoutPlans?.length)  state.data.workoutPlans  = db.workoutPlans;
-        if (db.wishlist?.length)      state.data.wishlist      = db.wishlist;
+        state.data.products      = db.products      ?? [];
+        state.data.routines      = db.routines      ?? [];
+        state.data.wardrobe      = db.wardrobe      ?? [];
+        state.data.mealTemplates = db.mealTemplates ?? [];
+        state.data.dressings     = db.dressings     ?? [];
+        state.data.workoutPlans  = db.workoutPlans  ?? [];
+        state.data.wishlist      = db.wishlist      ?? [];
         state.dbStatus = 'ready';
       });
     } catch (e) {
-      // Fail silently — static data remains as fallback
       if (process.env.NODE_ENV === 'development') {
-        console.warn('[Store] DB hydration failed, using static data:', e);
+        console.warn('[Store] DB hydration failed:', e);
+      }
+      set((state) => { state.dbStatus = 'error'; });
+    }
+  },
+
+  // Force re-fetch from DB after admin mutations (products/routines CRUD)
+  refreshFromDb: async () => {
+    set((state) => { state.dbStatus = 'loading'; });
+
+    try {
+      const res = await fetch('/api/seed-data');
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+      const json = await res.json();
+      if (!json.success || !json.data) throw new Error('Invalid response');
+
+      const db: AppData = json.data;
+
+      set((state) => {
+        state.data.products      = db.products      ?? [];
+        state.data.routines      = db.routines      ?? [];
+        state.data.wardrobe      = db.wardrobe      ?? [];
+        state.data.mealTemplates = db.mealTemplates ?? [];
+        state.data.dressings     = db.dressings     ?? [];
+        state.data.workoutPlans  = db.workoutPlans  ?? [];
+        state.data.wishlist      = db.wishlist      ?? [];
+        state.dbStatus = 'ready';
+      });
+    } catch (e) {
+      if (process.env.NODE_ENV === 'development') {
+        console.warn('[Store] DB refresh failed:', e);
       }
       set((state) => { state.dbStatus = 'error'; });
     }
@@ -100,10 +124,10 @@ export const createDataSlice: ImmerSliceCreator<DataSlice> = (set, get) => ({
     set((state) => {
       state.data.workoutPlans = mergeById(state.data.workoutPlans, [w]);
     }),
-  refreshWorkoutData: () =>
-    set((state) => {
-      state.data.workoutPlans = seedWorkouts;
-    }),
+  refreshWorkoutData: () => {
+    // Re-fetch from DB — workouts are managed in PostgreSQL
+    get().refreshFromDb();
+  },
   deleteById: (type, id) =>
     set((state) => {
       const arr = state.data[type] as { id: string }[];

@@ -100,13 +100,13 @@ describe("FilterSlice presets", () => {
 // ========================================
 describe("DataSlice deleteById", () => {
   it("deletes a product by id", () => {
-    const state = useAppStore.getState();
-    const firstProduct = state.data.products[0];
-    if (!firstProduct) return;
+    // Insert a product first (store starts empty when DB is source of truth)
+    const testProduct = { id: "del-test-1", name: "To Delete", category: "Test", actives: [] as string[], cautionTags: [] as string[] };
+    useAppStore.getState().upsertProduct(testProduct);
 
-    state.deleteById("products", firstProduct.id);
+    useAppStore.getState().deleteById("products", testProduct.id);
     const after = useAppStore.getState();
-    expect(after.data.products.find((p) => p.id === firstProduct.id)).toBeUndefined();
+    expect(after.data.products.find((p) => p.id === testProduct.id)).toBeUndefined();
   });
 
   it("does nothing for missing id", () => {
@@ -214,7 +214,11 @@ describe("DataSlice upsert operations", () => {
     expect(found).toBeDefined();
   });
 
-  it("refreshWorkoutData resets to seed data", () => {
+  it("refreshWorkoutData triggers DB re-fetch", () => {
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve({ success: true, data: { products: [], routines: [], wardrobe: [], wishlist: [], mealTemplates: [], dressings: [], workoutPlans: [] } }),
+    });
     // Modify first
     useAppStore.getState().upsertWorkout({
       id: "custom-workout",
@@ -224,8 +228,8 @@ describe("DataSlice upsert operations", () => {
       sections: [],
     });
     useAppStore.getState().refreshWorkoutData();
-    const hasCustom = useAppStore.getState().data.workoutPlans.find((w) => w.id === "custom-workout");
-    expect(hasCustom).toBeUndefined();
+    // refreshWorkoutData delegates to refreshFromDb which calls fetch
+    expect(global.fetch).toHaveBeenCalled();
   });
 });
 

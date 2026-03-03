@@ -2,17 +2,31 @@
 
 import { useState, useMemo } from "react";
 import { getDay, format } from "date-fns";
-import { Sunrise, Sun, Moon, CheckCircle2, Flame } from "lucide-react";
+import { Sunrise, Sun, Moon, CheckCircle2, Flame, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAppStore } from "@/store/useAppStore";
 import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
 import { DayOfWeekFilter } from "@/components/routines";
-import {
-  affirmations,
-  DAY_THEMES,
-  type Affirmation,
-  type AffirmationTime,
-} from "@/data/routines/affirmations";
+import { useDbData } from "@/hooks/useDbData";
+
+// ── Types (previously in data file, now kept as local types) ──
+export type AffirmationType = "affirmation" | "action" | "visualization";
+export type AffirmationTime = "morning" | "midday" | "evening";
+
+export interface Affirmation {
+  id: string;
+  text: string;
+  type: AffirmationType;
+  timeOfDay: AffirmationTime;
+  weekday: number;
+}
+
+export interface DayTheme {
+  weekday: number;
+  emoji: string;
+  title: string;
+  subtitle: string;
+}
 
 // ── Type badge styling ──
 const TYPE_BADGE: Record<string, { label: string; className: string }> = {
@@ -126,11 +140,19 @@ function AffirmationsPageContent() {
 
   const { getProductCompletion, toggleProductCompletion } = useAppStore();
 
+  // Fetch from DB
+  const { data, loading } = useDbData<{ affirmations: Affirmation[]; dayThemes: DayTheme[] }>(
+    "/api/affirmations",
+    { affirmations: [], dayThemes: [] }
+  );
+  const allAffirmations = data.affirmations;
+  const allDayThemes = data.dayThemes;
+
   // Filter affirmations for chosen day(s)
   const filtered = useMemo(() => {
-    if (activeDayFilter === "ALL") return affirmations;
-    return affirmations.filter((a) => a.weekday === activeDayFilter);
-  }, [activeDayFilter]);
+    if (activeDayFilter === "ALL") return allAffirmations;
+    return allAffirmations.filter((a) => a.weekday === activeDayFilter);
+  }, [activeDayFilter, allAffirmations]);
 
   // Group per column
   const columns = useMemo(() => {
@@ -143,7 +165,7 @@ function AffirmationsPageContent() {
   // Day theme
   const dayTheme =
     activeDayFilter !== "ALL"
-      ? DAY_THEMES.find((d) => d.weekday === activeDayFilter)
+      ? allDayThemes.find((d) => d.weekday === activeDayFilter)
       : null;
 
   // Column-level progress
@@ -173,6 +195,13 @@ function AffirmationsPageContent() {
         onFilterChange={setActiveDayFilter}
         activeColorClass="bg-fuchsia-100 text-fuchsia-700"
       />
+
+      {/* Loading */}
+      {loading && (
+        <div className="flex items-center justify-center py-20">
+          <Loader2 className="w-8 h-8 animate-spin text-fuchsia-400" />
+        </div>
+      )}
 
       {/* Day Theme Banner (single-day mode) */}
       {dayTheme && (

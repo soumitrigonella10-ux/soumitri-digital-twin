@@ -42,6 +42,8 @@ export interface DataSlice {
   dbStatus: 'idle' | 'loading' | 'ready' | 'error';
   /** Fetch all domain data from /api/seed-data and replace store */
   initFromDb: () => Promise<void>;
+  /** Force re-fetch from DB after admin mutations */
+  refreshFromDb: () => Promise<void>;
   upsertProduct: (p: Product) => void;
   upsertRoutine: (r: Routine) => void;
   upsertWardrobe: (w: WardrobeItem) => void;

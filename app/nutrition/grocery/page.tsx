@@ -1,15 +1,44 @@
 "use client";
 
-import { useState } from "react";
-import { ShoppingCart, Package, RefreshCw } from "lucide-react";
+import { useState, useMemo } from "react";
+import { ShoppingCart, Package, RefreshCw, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
-import { masterSetupCategories, weeklyCategories, categoryColors } from "@/data/meals/grocery";
+import { useDbData } from "@/hooks/useDbData";
+
+interface GroceryCategory {
+  id: string;
+  name: string;
+  emoji: string;
+  listType: string;
+  items: { name: string; quantity?: string }[];
+}
+
+// Color mapping stays in code — pure presentational config
+const categoryColors: Record<string, { bg: string; border: string }> = {
+  "Grains & Flours": { bg: "bg-amber-50", border: "border-amber-200" },
+  "Dry Fruits & Seeds": { bg: "bg-orange-50", border: "border-orange-200" },
+  "Essentials & Condiments": { bg: "bg-yellow-50", border: "border-yellow-200" },
+  "Pulses & Lentils": { bg: "bg-lime-50", border: "border-lime-200" },
+  "Cooking Basics": { bg: "bg-stone-50", border: "border-stone-200" },
+  "Whole Spices": { bg: "bg-rose-50", border: "border-rose-200" },
+  "Spice Powders": { bg: "bg-red-50", border: "border-red-200" },
+  "Beverages": { bg: "bg-cyan-50", border: "border-cyan-200" },
+  "Vegetables": { bg: "bg-emerald-50", border: "border-emerald-200" },
+  "Fruits": { bg: "bg-green-50", border: "border-green-200" },
+  "Bread": { bg: "bg-amber-50", border: "border-amber-200" },
+  "Dairy & Eggs": { bg: "bg-blue-50", border: "border-blue-200" },
+  "Aromatics & Fresh Herbs": { bg: "bg-teal-50", border: "border-teal-200" },
+};
 
 function GroceryPageContent() {
   const [activeTab, setActiveTab] = useState<"master" | "weekly">("weekly");
+  const { data: allCategories, loading } = useDbData<GroceryCategory[]>("/api/grocery", []);
 
-  const categories = activeTab === "master" ? masterSetupCategories : weeklyCategories;
+  const categories = useMemo(
+    () => allCategories.filter((c) => c.listType === activeTab),
+    [allCategories, activeTab]
+  );
   const totalItems = categories.reduce((sum, cat) => sum + cat.items.length, 0);
 
   return (
@@ -58,6 +87,12 @@ function GroceryPageContent() {
       </div>
 
       {/* Description */}
+      {loading ? (
+        <div className="flex items-center justify-center py-20">
+          <Loader2 className="w-8 h-8 animate-spin text-slate-400" />
+        </div>
+      ) : (
+      <>
       <div className="lifeos-card p-4 bg-gradient-to-r from-slate-50 to-gray-50">
         {activeTab === "master" ? (
           <div>
@@ -137,6 +172,8 @@ function GroceryPageContent() {
           </div>
         </div>
       </div>
+      </> /* end loading guard */
+      )}
     </div>
   );
 }

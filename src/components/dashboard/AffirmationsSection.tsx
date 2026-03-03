@@ -1,13 +1,38 @@
 "use client";
 
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import {
-  affirmations,
-  DAY_THEMES,
-  dashboardTimeToAffirmationTime,
-} from "@/data/routines/affirmations";
+import { useDbData } from "@/hooks/useDbData";
 import type { TimeOfDay } from "@/types";
+
+// ── Local types (mirroring DB schema) ──
+type AffirmationType = "affirmation" | "action" | "visualization";
+type AffirmationTime = "morning" | "midday" | "evening";
+
+interface Affirmation {
+  id: string;
+  text: string;
+  type: AffirmationType;
+  timeOfDay: AffirmationTime;
+  weekday: number;
+}
+
+interface DayTheme {
+  weekday: number;
+  emoji: string;
+  title: string;
+  subtitle: string;
+}
+
+// Map dashboard TimeOfDay to affirmation time
+function dashboardTimeToAffirmationTime(time: string): AffirmationTime | null {
+  switch (time) {
+    case "AM": return "morning";
+    case "MIDDAY": return "midday";
+    case "PM": return "evening";
+    default: return null;
+  }
+}
 
 // ── Type badge styling ──
 const TYPE_BADGE: Record<string, { label: string; className: string }> = {
@@ -32,13 +57,20 @@ export function AffirmationsSection({
   toggleProductCompletion,
 }: AffirmationsSectionProps) {
   const affTime = dashboardTimeToAffirmationTime(timeOfDay);
-  if (!affTime) return null;
 
-  const items = affirmations.filter(
+  const { data, loading } = useDbData<{ affirmations: Affirmation[]; dayThemes: DayTheme[] }>(
+    "/api/affirmations",
+    { affirmations: [], dayThemes: [] }
+  );
+
+  if (!affTime) return null;
+  if (loading) return <div className="flex justify-center py-8"><Loader2 className="w-5 h-5 animate-spin text-fuchsia-400" /></div>;
+
+  const items = data.affirmations.filter(
     (a) => a.weekday === dayOfWeek && a.timeOfDay === affTime
   );
 
-  const dayTheme = DAY_THEMES.find((d) => d.weekday === dayOfWeek);
+  const dayTheme = data.dayThemes.find((d) => d.weekday === dayOfWeek);
   const completed = items.filter((a) => getProductCompletion(dateKey, a.id)).length;
 
   if (items.length === 0) {

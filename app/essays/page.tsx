@@ -17,7 +17,6 @@ import {
 import { UploadEssayModal } from "@/components/essays/UploadEssayModal";
 import { EditEssayModal } from "@/components/essays/EditEssayModal";
 import type { ContentItem } from "@/cms/types";
-import { essays as staticEssays } from "@/data/essays";
 import type { Essay, EssayCategory } from "@/types/editorial";
 
 // ─────────────────────────────────────────────
@@ -61,7 +60,7 @@ function EssaysPageContent() {
   } = useCmsPage({
     contentType: "essay",
     converter: cmsItemToEssay,
-    staticItems: staticEssays,
+    staticItems: [],
     dedupeKey: (e) => e.slug,
   });
 

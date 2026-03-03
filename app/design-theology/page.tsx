@@ -3,7 +3,6 @@
 import { useState, useCallback } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import type { DesignThought } from '@/data/designThoughts';
-import { designThoughts as staticDesignThoughts } from '@/data/designThoughts';
 import { EditorialNav } from '@/components/EditorialNav';
 import { AuthenticatedLayout } from '@/components/AuthenticatedLayout';
 import { ContentRenderer } from '@/components/content-renderer';
@@ -44,7 +43,7 @@ function DesignTheologyPageContent() {
   } = useCmsPage({
     contentType: 'design-thought',
     converter: cmsToDesignThought,
-    staticItems: staticDesignThoughts,
+    staticItems: [],
     dedupeKey: (i) => i.title.toLowerCase(),
   });
 

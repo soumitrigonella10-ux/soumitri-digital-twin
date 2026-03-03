@@ -9,11 +9,6 @@ import { EditConsumptionModal } from "@/components/consumption/EditConsumptionMo
 import { useCmsPage } from "@/hooks/useCmsPage";
 import type { ContentItem as CmsContentItem } from "@/cms/types";
 import {
-  getItemsBySubChip,
-  getItemsByType,
-  getCompletedItems,
-  getCompletedLanguages,
-  getCompletedGenres,
   CONTENT_TYPES,
   SUB_CHIPS,
   type ContentItem,
@@ -297,18 +292,38 @@ const STATUS_LABEL: Partial<Record<string, string>> = {
   "LISTENING": "Listening",
 };
 
-function LibraryListView({ activeFilter }: { activeFilter: ContentFilter }) {
+function LibraryListView({ activeFilter, cmsItems }: { activeFilter: ContentFilter; cmsItems: ContentItem[] }) {
   const [langFilter, setLangFilter] = useState<string | null>(null);
   const [genreFilter, setGenreFilter] = useState<string | null>(null);
 
-  const filterType = activeFilter === "Playlists" ? undefined : activeFilter;
+  const typeMap: Record<ContentFilter, string[]> = {
+    Books: ["book"], Essays: ["essay"], Movies: ["movie"], Series: ["series"], Videos: ["video"], Playlists: ["playlist"],
+  };
+  const libraryStatuses: ContentItem["status"][] = ["CURRENTLY READING", "CURRENTLY WATCHING", "LISTENING", "COMPLETED"];
 
-  const languages = useMemo(() => getCompletedLanguages(filterType), [filterType]);
-  const genres = useMemo(() => getCompletedGenres(filterType), [filterType]);
-  const items = useMemo(
-    () => getCompletedItems(filterType, langFilter ?? undefined, genreFilter ?? undefined),
-    [filterType, langFilter, genreFilter]
+  const targets = typeMap[activeFilter] || [];
+  const libraryItems = useMemo(
+    () => cmsItems.filter(i => targets.includes(i.type) && libraryStatuses.includes(i.status)),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [cmsItems, activeFilter]
   );
+
+  const languages = useMemo(() => {
+    const langs = new Set(libraryItems.filter(i => i.language).map(i => i.language!));
+    return Array.from(langs).sort();
+  }, [libraryItems]);
+
+  const genres = useMemo(() => {
+    const gs = new Set(libraryItems.filter(i => i.genre).map(i => i.genre!));
+    return Array.from(gs).sort();
+  }, [libraryItems]);
+
+  const items = useMemo(() => {
+    let filtered = libraryItems;
+    if (langFilter) filtered = filtered.filter(i => i.language === langFilter);
+    if (genreFilter) filtered = filtered.filter(i => i.genre === genreFilter);
+    return filtered;
+  }, [libraryItems, langFilter, genreFilter]);
 
   const showLangDropdown = activeFilter !== "Books" && activeFilter !== "Essays";
 
@@ -445,39 +460,27 @@ function ConsumptionPageContent() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingItem, setEditingItem] = useState<ContentItem | null>(null);
 
-  // Merge static + CMS items, CMS wins on title
+  // Filter CMS items by active content type
   const allItems = useMemo(() => {
-    const cmsTitles = new Set(cmsItems.map(i => i.title.toLowerCase()));
-    const staticFiltered = getItemsByType(activeFilter).filter(i => !cmsTitles.has(i.title.toLowerCase()));
     const typeMap: Record<ContentFilter, string[]> = {
       Books: ["book"], Essays: ["essay"], Movies: ["movie"], Series: ["series"], Videos: ["video"], Playlists: ["playlist"],
     };
     const targets = typeMap[activeFilter] || [];
-    const cmsFiltered = cmsItems.filter(i => targets.includes(i.type));
-    return [...cmsFiltered, ...staticFiltered];
+    return cmsItems.filter(i => targets.includes(i.type));
   }, [cmsItems, activeFilter]);
 
   const filteredItems = useMemo(
     () => {
       if (activeFilter === "Playlists") return allItems;
-      const staticItems = getItemsBySubChip(activeFilter, activeSubChip);
-      // also filter CMS items by sub-chip status
       const libraryStatuses: ContentItem["status"][] = ["CURRENTLY READING", "CURRENTLY WATCHING", "LISTENING", "COMPLETED"];
       const subChipStatuses: Record<ContentSubChip, ContentItem["status"][]> = {
         "Looking Forward": ["QUEUED"],
         "Library": libraryStatuses,
       };
       const allowed = subChipStatuses[activeSubChip];
-      const typeMap: Record<ContentFilter, string[]> = {
-        Books: ["book"], Essays: ["essay"], Movies: ["movie"], Series: ["series"], Videos: ["video"], Playlists: ["playlist"],
-      };
-      const targets = typeMap[activeFilter] || [];
-      const cmsFiltered = cmsItems.filter(i => targets.includes(i.type) && allowed.includes(i.status));
-      const cmsTitles = new Set(cmsFiltered.map(i => i.title.toLowerCase()));
-      const dedupedStatic = staticItems.filter(i => !cmsTitles.has(i.title.toLowerCase()));
-      return [...cmsFiltered, ...dedupedStatic];
+      return allItems.filter(i => allowed.includes(i.status));
     },
-    [activeFilter, activeSubChip, cmsItems, allItems]
+    [activeFilter, activeSubChip, allItems]
   );
 
   // Loading state
@@ -522,7 +525,7 @@ function ConsumptionPageContent() {
 
       {/* Content area */}
       {activeSubChip === "Library" && activeFilter !== "Playlists" ? (
-        <LibraryListView activeFilter={activeFilter} />
+        <LibraryListView activeFilter={activeFilter} cmsItems={cmsItems} />
       ) : (
         <div className="max-w-7xl mx-auto px-6 md:px-8 lg:px-12 pb-20">
           {filteredItems.length > 0 ? (

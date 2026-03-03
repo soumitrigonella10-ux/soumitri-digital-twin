@@ -78,11 +78,13 @@ module.exports = withSentryConfig(nextConfig, {
   // Upload source maps so stack traces are readable in the dashboard
   widenClientFileUpload: true,
 
-  // Tree-shake Sentry debug code in production
-  disableLogger: true,
-
-  // Automatically instrument server components, API routes, and middleware
-  autoInstrumentServerFunctions: true,
-  autoInstrumentMiddleware: true,
-  autoInstrumentAppDirectory: true,
+  // Webpack-specific instrumentation and tree-shaking options
+  webpack: {
+    autoInstrumentServerFunctions: true,
+    autoInstrumentMiddleware: true,
+    autoInstrumentAppDirectory: true,
+    treeshake: {
+      removeDebugLogging: true,
+    },
+  },
 });

@@ -1,9 +1,10 @@
 "use client";
 
 import { useMemo } from "react";
-import { Palette, Sparkles } from "lucide-react";
+import { Palette, Sparkles, Loader2 } from "lucide-react";
 import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
-import { SAMPLE_MAKEUP_PRODUCTS } from "@/data/makeup/index";
+import { useDbData } from "@/hooks/useDbData";
+import type { Product } from "@/types";
 
 // Categorize products into 4 main groups
 const categorizeMakeupProduct = (category: string): "Eyes" | "Skin" | "Lips" | "Body" => {
@@ -32,13 +33,16 @@ const categorizeMakeupProduct = (category: string): "Eyes" | "Skin" | "Lips" | "
 };
 
 function MakeupPageContent() {
+  // Fetch makeup products from the products table (routineType includes makeup categories)
+  const { data: allProducts, loading } = useDbData<Product[]>("/api/products?routineType=makeup", []);
+
   const makeupProducts = useMemo(() => {
-    return SAMPLE_MAKEUP_PRODUCTS.sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
-  }, []);
+    return allProducts.sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
+  }, [allProducts]);
 
   // Group products by category
   const productsByCategory = useMemo(() => {
-    const grouped: Record<"Eyes" | "Skin" | "Lips" | "Body", typeof SAMPLE_MAKEUP_PRODUCTS> = {
+    const grouped: Record<"Eyes" | "Skin" | "Lips" | "Body", Product[]> = {
       Eyes: [],
       Skin: [],
       Lips: [],
@@ -69,7 +73,11 @@ function MakeupPageContent() {
 
         {/* Content */}
         <div className="space-y-3">
-          {makeupProducts.length === 0 ? (
+          {loading ? (
+            <div className="flex items-center justify-center py-20">
+              <Loader2 className="w-8 h-8 animate-spin text-pink-400" />
+            </div>
+          ) : makeupProducts.length === 0 ? (
             <div className="text-center py-12">
               <Sparkles className="w-12 h-12 text-gray-400 mx-auto mb-4" />
               <h3 className="text-lg font-medium text-gray-900 mb-2">

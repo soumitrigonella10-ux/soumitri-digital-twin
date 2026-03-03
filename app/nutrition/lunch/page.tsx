@@ -1,18 +1,42 @@
 "use client";
 
 import { useState } from "react";
-import { UtensilsCrossed, Clock, Leaf, Droplets, ChefHat, Info } from "lucide-react";
+import { UtensilsCrossed, Clock, Leaf, Droplets, ChefHat, Info, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { lunchBowlConfig } from "@/data/meals/lunch";
-import type { DressingRecipe } from "@/data/meals/dressings";
-import { lunchDressings } from "@/data/meals/dressings";
+import { useDbData } from "@/hooks/useDbData";
 import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
+
+interface DressingRecipe {
+  id: string;
+  name: string;
+  shelfLifeDays: number;
+  baseType?: string | null;
+  ingredients: { name: string; quantity: string; unit?: string }[];
+  instructions?: string[] | null;
+  tips?: string[] | null;
+  tags?: string[] | null;
+}
+
+interface LunchBowlConfig {
+  base: { item: string; quantity: string };
+  salads: { name: string; quantity: string }[];
+  proteinOptions: { name: string; quantity: string }[];
+  proteinPortions: { days: string; quantity: string }[];
+  quickProteinTopups: { combo: string; note: string }[];
+}
 
 type TabType = "bowl" | "dressings";
 
 function LunchPageContent() {
   const [activeTab, setActiveTab] = useState<TabType>("bowl");
   const [expandedDressing, setExpandedDressing] = useState<string | null>(null);
+
+  const { data, loading } = useDbData<{ lunchBowlConfig: LunchBowlConfig | null; dressings: DressingRecipe[] }>(
+    "/api/lunch-data",
+    { lunchBowlConfig: null, dressings: [] }
+  );
+  const lunchBowlConfig = data.lunchBowlConfig;
+  const lunchDressings = data.dressings;
 
   const getDressingTypeColor = (type: DressingRecipe["baseType"]) => {
     switch (type) {
@@ -68,8 +92,15 @@ function LunchPageContent() {
         </button>
       </div>
 
+      {/* Loading */}
+      {loading && (
+        <div className="flex items-center justify-center py-20">
+          <Loader2 className="w-8 h-8 animate-spin text-emerald-400" />
+        </div>
+      )}
+
       {/* Bowl Tab Content */}
-      {activeTab === "bowl" && (
+      {!loading && activeTab === "bowl" && lunchBowlConfig && (
         <div className="space-y-6">
           {/* Quick Stats */}
           <div className="lifeos-card p-4 text-center">
@@ -171,7 +202,7 @@ function LunchPageContent() {
       )}
 
       {/* Dressings Tab Content */}
-      {activeTab === "dressings" && (
+      {!loading && activeTab === "dressings" && (
         <div className="space-y-6">
           {/* Dressing Storage Info */}
           <div className="lifeos-card p-4 bg-blue-50 border-blue-100">
@@ -256,7 +287,7 @@ function LunchPageContent() {
                         How to Make
                       </p>
                       <ol className="space-y-2">
-                        {dressing.instructions.map((step, i) => (
+                        {dressing.instructions?.map((step, i) => (
                           <li key={i} className="flex gap-3">
                             <span className="w-6 h-6 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-xs font-medium flex-shrink-0">
                               {i + 1}

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
-import { auth } from "@/lib/auth"
+import { middlewareAuth } from "@/lib/auth.config"
 import { getPublicTopicSlugs } from "@/data/topics"
 import { config as appConfig } from "@/lib/config"
 
@@ -168,8 +168,8 @@ export async function middleware(request: NextRequest) {
       return response;
     }
 
-    // Get the session using Auth.js v5
-    const session = await auth();
+    // Get the session using Auth.js v5 (edge-safe, no nodemailer)
+    const session = await middlewareAuth();
 
     // If no session (not authenticated), redirect to login with next param
     if (!session) {

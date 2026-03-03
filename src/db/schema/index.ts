@@ -34,6 +34,9 @@ export {
 // Superseded by content_items with type="artifact" and type="inspiration".
 // See _legacy/ for archived schemas.
 
+// Affirmations & Day Themes
+export { affirmationsTable, dayThemes } from './affirmations'
+
 // Notes — Admin task matrix & ideation scrapbook
 export { notes } from './notes'
 

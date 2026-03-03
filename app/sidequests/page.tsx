@@ -6,7 +6,7 @@ import { Plus, Trash2, Pencil } from 'lucide-react';
 import { EditorialNav } from '@/components/EditorialNav';
 import { AuthenticatedLayout } from '@/components/AuthenticatedLayout';
 import { LoreCard, UploadLoreModal, EditLoreModal } from '@/components/internet-lore';
-import { loreItems as staticLoreItems, type LoreCategory, type LoreItem } from '@/data/internetLore';
+import type { LoreCategory, LoreItem } from '@/data/internetLore';
 import { useCmsPage } from '@/hooks/useCmsPage';
 import { cmsItemToLoreItem } from '@/cms/queries';
 
@@ -37,7 +37,7 @@ function InternetLorePageContent() {
   } = useCmsPage({
     contentType: 'internet-lore',
     converter: cmsItemToLoreItem,
-    staticItems: staticLoreItems,
+    staticItems: [], // All lore now lives in content_items DB table
   });
 
   const [activeTab, setActiveTab] = useState<LoreCategory>('pop-internet-core');

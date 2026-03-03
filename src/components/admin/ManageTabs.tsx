@@ -2,11 +2,12 @@
 
 import { useState } from "react";
 import dynamic from "next/dynamic";
-import { Package, Shirt, Utensils, Salad, Dumbbell, PenSquare } from "lucide-react";
+import { Package, Shirt, Utensils, Salad, Dumbbell, PenSquare, RotateCcw } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ProductsTab } from "./ProductsTab";
+import { RoutinesTab } from "./RoutinesTab";
 import { WardrobeTab } from "./WardrobeTab";
 import { MealsTab } from "./MealsTab";
 import { DressingsTab } from "./DressingsTab";
@@ -28,10 +29,11 @@ const EssaysTab = dynamic(
   }
 );
 
-type TabKey = "products" | "wardrobe" | "meals" | "dressings" | "workouts" | "essays";
+type TabKey = "products" | "routines" | "wardrobe" | "meals" | "dressings" | "workouts" | "essays";
 
 const TABS: { key: TabKey; label: string; icon: React.ReactNode }[] = [
   { key: "products", label: "Products", icon: <Package className="h-4 w-4" /> },
+  { key: "routines", label: "Routines", icon: <RotateCcw className="h-4 w-4" /> },
   { key: "wardrobe", label: "Wardrobe", icon: <Shirt className="h-4 w-4" /> },
   { key: "meals", label: "Meals", icon: <Utensils className="h-4 w-4" /> },
   { key: "dressings", label: "Dressings", icon: <Salad className="h-4 w-4" /> },
@@ -41,6 +43,7 @@ const TABS: { key: TabKey; label: string; icon: React.ReactNode }[] = [
 
 const TAB_COMPONENTS: Record<TabKey, React.ComponentType> = {
   products: ProductsTab,
+  routines: RoutinesTab,
   wardrobe: WardrobeTab,
   meals: MealsTab,
   dressings: DressingsTab,

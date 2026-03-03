@@ -29,14 +29,14 @@ describe("DataSlice — Products (standalone store)", () => {
     useStore = createImmerTestStore();
   });
 
-  it("initializes with seed products", () => {
+  it("initializes with empty products (DB is source of truth)", () => {
     const state = useStore.getState();
-    expect(state.data.products.length).toBeGreaterThan(0);
+    expect(state.data.products.length).toBe(0);
   });
 
-  it("initializes with seed routines", () => {
+  it("initializes with empty routines (DB is source of truth)", () => {
     const state = useStore.getState();
-    expect(state.data.routines.length).toBeGreaterThan(0);
+    expect(state.data.routines.length).toBe(0);
   });
 
   it("upsertProduct adds new product", () => {
@@ -55,9 +55,11 @@ describe("DataSlice — Products (standalone store)", () => {
   });
 
   it("upsertProduct updates existing product", () => {
-    const existing = useStore.getState().data.products[0]!;
-    useStore.getState().upsertProduct({ ...existing, name: "Updated" });
-    const found = useStore.getState().data.products.find((p) => p.id === existing.id);
+    // First add a product (store starts empty)
+    const initial = { id: "test-upd-1", name: "Original", category: "Test", actives: [] as string[], cautionTags: [] as string[] };
+    useStore.getState().upsertProduct(initial);
+    useStore.getState().upsertProduct({ ...initial, name: "Updated" });
+    const found = useStore.getState().data.products.find((p) => p.id === initial.id);
     expect(found!.name).toBe("Updated");
   });
 
@@ -86,9 +88,9 @@ describe("DataSlice — Fitness (standalone store)", () => {
     useStore = createImmerTestStore();
   });
 
-  it("initializes with seed workout data", () => {
+  it("initializes with empty workout data (DB is source of truth)", () => {
     const state = useStore.getState();
-    expect(state.data.workoutPlans.length).toBeGreaterThan(0);
+    expect(state.data.workoutPlans.length).toBe(0);
   });
 
   it("upsertWorkout adds a new workout", () => {
@@ -105,13 +107,20 @@ describe("DataSlice — Fitness (standalone store)", () => {
   });
 
   it("upsertWorkout updates existing workout", () => {
-    const existing = useStore.getState().data.workoutPlans[0]!;
-    useStore.getState().upsertWorkout({ ...existing, name: "Updated Workout" });
-    const found = useStore.getState().data.workoutPlans.find((w) => w.id === existing.id);
+    // First add a workout (store starts empty)
+    const initial = { id: "test-w-upd", name: "Original Workout", weekday: [1], durationMin: 30, sections: [] as never[] };
+    useStore.getState().upsertWorkout(initial);
+    useStore.getState().upsertWorkout({ ...initial, name: "Updated Workout" });
+    const found = useStore.getState().data.workoutPlans.find((w) => w.id === initial.id);
     expect(found!.name).toBe("Updated Workout");
   });
 
-  it("refreshWorkoutData resets to seed", () => {
+  it("refreshWorkoutData triggers DB re-fetch", async () => {
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve({ success: true, data: { products: [], routines: [], wardrobe: [], wishlist: [], mealTemplates: [], dressings: [], workoutPlans: [] } }),
+    });
+
     useStore.getState().upsertWorkout({
       id: "custom-w",
       name: "Custom",
@@ -120,8 +129,8 @@ describe("DataSlice — Fitness (standalone store)", () => {
       sections: [],
     });
     useStore.getState().refreshWorkoutData();
-    const found = useStore.getState().data.workoutPlans.find((w) => w.id === "custom-w");
-    expect(found).toBeUndefined();
+    // refreshWorkoutData delegates to refreshFromDb which calls fetch
+    expect(global.fetch).toHaveBeenCalled();
   });
 });
 
@@ -135,12 +144,12 @@ describe("DataSlice — Nutrition (standalone store)", () => {
     useStore = createImmerTestStore();
   });
 
-  it("initializes with seed meals", () => {
-    expect(useStore.getState().data.mealTemplates.length).toBeGreaterThan(0);
+  it("initializes with empty meals (DB is source of truth)", () => {
+    expect(useStore.getState().data.mealTemplates.length).toBe(0);
   });
 
-  it("initializes with seed dressings", () => {
-    expect(useStore.getState().data.dressings.length).toBeGreaterThan(0);
+  it("initializes with empty dressings (DB is source of truth)", () => {
+    expect(useStore.getState().data.dressings.length).toBe(0);
   });
 
   it("upsertMeal adds new meal", () => {
@@ -156,9 +165,10 @@ describe("DataSlice — Nutrition (standalone store)", () => {
   });
 
   it("upsertMeal updates existing meal", () => {
-    const existing = useStore.getState().data.mealTemplates[0]!;
-    useStore.getState().upsertMeal({ ...existing, name: "Updated Meal" });
-    const found = useStore.getState().data.mealTemplates.find((m) => m.id === existing.id);
+    const initial = { id: "test-upd-meal", name: "Original", timeOfDay: "AM" as const, mealType: "breakfast" as const, items: ["oats"] };
+    useStore.getState().upsertMeal(initial);
+    useStore.getState().upsertMeal({ ...initial, name: "Updated Meal" });
+    const found = useStore.getState().data.mealTemplates.find((m) => m.id === initial.id);
     expect(found!.name).toBe("Updated Meal");
   });
 
@@ -184,8 +194,8 @@ describe("DataSlice — Wardrobe (standalone store)", () => {
     useStore = createImmerTestStore();
   });
 
-  it("initializes with seed wardrobe", () => {
-    expect(useStore.getState().data.wardrobe.length).toBeGreaterThan(0);
+  it("initializes with empty wardrobe (DB is source of truth)", () => {
+    expect(useStore.getState().data.wardrobe.length).toBe(0);
   });
 
   it("upsertWardrobe adds new item", () => {
@@ -210,8 +220,8 @@ describe("DataSlice — Wishlist (standalone store)", () => {
     useStore = createImmerTestStore();
   });
 
-  it("initializes with seed wishlist", () => {
-    expect(useStore.getState().data.wishlist.length).toBeGreaterThan(0);
+  it("initializes with empty wishlist (DB is source of truth)", () => {
+    expect(useStore.getState().data.wishlist.length).toBe(0);
   });
 
   it("addWishlistItem adds new item", () => {
@@ -225,23 +235,26 @@ describe("DataSlice — Wishlist (standalone store)", () => {
   });
 
   it("updateWishlistItem updates existing", () => {
-    const existing = useStore.getState().data.wishlist[0]!;
-    useStore.getState().updateWishlistItem({ ...existing, name: "Updated" });
-    const found = useStore.getState().data.wishlist.find((i) => i.id === existing.id);
+    const item = { id: "wl-upd-1", name: "Original", category: "Tops" as const };
+    useStore.getState().addWishlistItem(item);
+    useStore.getState().updateWishlistItem({ ...item, name: "Updated" });
+    const found = useStore.getState().data.wishlist.find((i) => i.id === item.id);
     expect(found!.name).toBe("Updated");
   });
 
   it("removeWishlistItem removes by id", () => {
-    const existing = useStore.getState().data.wishlist[0]!;
+    const item = { id: "wl-rm-1", name: "Remove Me", category: "Tops" as const };
+    useStore.getState().addWishlistItem(item);
     const before = useStore.getState().data.wishlist.length;
-    useStore.getState().removeWishlistItem(existing.id);
+    useStore.getState().removeWishlistItem(item.id);
     expect(useStore.getState().data.wishlist.length).toBe(before - 1);
   });
 
   it("markWishlistItemPurchased sets purchased flag", () => {
-    const existing = useStore.getState().data.wishlist[0]!;
-    useStore.getState().markWishlistItemPurchased(existing.id);
-    const found = useStore.getState().data.wishlist.find((i) => i.id === existing.id);
+    const item = { id: "wl-purch-1", name: "Buy Me", category: "Tops" as const };
+    useStore.getState().addWishlistItem(item);
+    useStore.getState().markWishlistItemPurchased(item.id);
+    const found = useStore.getState().data.wishlist.find((i) => i.id === item.id);
     expect(found!.purchased).toBe(true);
   });
 });
@@ -282,20 +295,18 @@ describe("DataSlice — DB Hydration (standalone store)", () => {
     expect(useStore.getState().dbStatus).toBe("ready");
     expect(useStore.getState().data.products).toEqual(mockData.products);
     expect(useStore.getState().data.routines).toEqual(mockData.routines);
-    // Empty arrays from DB should not replace seed data
-    expect(useStore.getState().data.wardrobe.length).toBeGreaterThan(0);
+    // Empty arrays from DB are now applied (DB is source of truth)
+    expect(useStore.getState().data.wardrobe).toEqual([]);
   });
 
-  it("initFromDb falls back to static data on failure", async () => {
-    const seedProductCount = useStore.getState().data.products.length;
-
+  it("initFromDb keeps empty arrays on failure", async () => {
     global.fetch = vi.fn().mockRejectedValue(new Error("Network error"));
 
     await useStore.getState().initFromDb();
 
     expect(useStore.getState().dbStatus).toBe("error");
-    // Static seed data should still be intact
-    expect(useStore.getState().data.products.length).toBe(seedProductCount);
+    // Store started empty, stays empty on failure
+    expect(useStore.getState().data.products.length).toBe(0);
   });
 
   it("initFromDb skips if already loading or ready", async () => {

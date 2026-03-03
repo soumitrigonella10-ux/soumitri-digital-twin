@@ -8,10 +8,7 @@ import { ContentRenderer } from "@/components/content-renderer";
 import { locationToContentData } from "@/lib/content-adapters";
 import { useCmsPage } from "@/hooks/useCmsPage";
 import type { ContentItem } from "@/cms/types";
-import {
-  travelLocations as staticLocations,
-  type TravelLocation,
-} from "@/data/travel";
+import type { TravelLocation } from "@/data/travel";
 
 // ─────────────────────────────────────────────
 // Convert a CMS ContentItem → TravelLocation
@@ -55,7 +52,7 @@ function TravelLogPageContent() {
   } = useCmsPage({
     contentType: "travel",
     converter: cmsItemToLocation,
-    staticItems: staticLocations,
+    staticItems: [],
     dedupeKey: (l) => l.name.toLowerCase(),
   });
 

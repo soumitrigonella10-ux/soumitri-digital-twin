@@ -16,6 +16,7 @@ import CustomPgAdapter from "@/lib/pg-adapter";
 import { JsonAdapter } from "@/lib/json-adapter";
 import { pool } from "@/lib/db";
 import { createLogger } from "@/lib/logger";
+import { authConfig } from "@/lib/auth.config";
 
 import type { NextAuthConfig } from "next-auth";
 import type { Provider } from "next-auth/providers";
@@ -37,19 +38,6 @@ const ALLOWED_EMAIL = (() => {
 
 function isAllowedEmail(email: string): boolean {
   return email.toLowerCase() === ALLOWED_EMAIL;
-}
-
-function getAdminEmails(): string[] {
-  const adminEmailsEnv = process.env.ADMIN_EMAILS;
-  if (!adminEmailsEnv) return [];
-  return adminEmailsEnv
-    .split(",")
-    .map((email) => email.trim().toLowerCase());
-}
-
-function isAdmin(email: string): boolean {
-  const adminEmails = getAdminEmails();
-  return adminEmails.includes(email.toLowerCase());
 }
 
 // ========================================
@@ -111,14 +99,17 @@ function getAdapter() {
 
 // ========================================
 // Auth.js v5 configuration
+// Spreads the edge-safe base config from auth.config.ts and adds
+// the Nodemailer provider + DB adapter (Node.js-only).
 // ========================================
-const authConfig: NextAuthConfig = {
+const fullAuthConfig: NextAuthConfig = {
+  ...authConfig,
   adapter: getAdapter(),
   providers: [
     Nodemailer({
       server:
         process.env.DEMO_MODE === "true"
-          ? ""
+          ? { host: "localhost", port: 25, auth: { user: "", pass: "" } }
           : {
               host: process.env.EMAIL_SERVER_HOST,
               port: parseInt(process.env.EMAIL_SERVER_PORT || "587"),
@@ -179,14 +170,6 @@ const authConfig: NextAuthConfig = {
             },
     }) as Provider,
   ],
-  session: {
-    strategy: "jwt",
-    maxAge: 7 * 24 * 60 * 60,
-  },
-  pages: {
-    signIn: "/auth/signin",
-    error: "/auth/signin",
-  },
   debug: process.env.NODE_ENV === "development",
   logger: {
     error(error: Error) {
@@ -200,6 +183,7 @@ const authConfig: NextAuthConfig = {
     },
   },
   callbacks: {
+    ...authConfig.callbacks,
     async signIn({ user }) {
       if (!user?.email || !isAllowedEmail(user.email)) {
         log.warn(
@@ -209,27 +193,7 @@ const authConfig: NextAuthConfig = {
       }
       return true;
     },
-    async jwt({ token, user }) {
-      if (user?.email) {
-        token.email = user.email;
-        token.role = isAdmin(user.email) ? "admin" : "user";
-      }
-      return token;
-    },
-    async session({ session, token }) {
-      if (token?.email) {
-        session.user = {
-          ...session.user,
-          email: token.email as string,
-          role: token.role as "admin" | "user",
-        };
-      }
-      return session;
-    },
-    async redirect({ url: _url, baseUrl }) {
-      return `${baseUrl}/`;
-    },
   },
 };
 
-export const { handlers, auth, signIn: serverSignIn, signOut: serverSignOut } = NextAuth(authConfig);
+export const { handlers, auth, signIn: serverSignIn, signOut: serverSignOut } = NextAuth(fullAuthConfig);

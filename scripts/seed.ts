@@ -20,6 +20,8 @@ import { workouts }  from '../src/data/workouts'
 import { jewelleryInventory } from '../src/data/jewellery'
 import { masterSetupCategories, weeklyCategories } from '../src/data/meals/grocery'
 import { SAMPLE_MAKEUP_PRODUCTS } from '../src/data/makeup'
+import { affirmations, DAY_THEMES } from '../src/data/routines/affirmations'
+import { loreItems } from '../src/data/internetLore'
 
 // NOTE: Editorial data imports (essays, sidequests, travel, skills, etc.)
 // removed March 2026. Those tables have been superseded by content_items.
@@ -70,7 +72,11 @@ async function seed() {
 
   // ── 1. Products (beauty + makeup) ──────────────────────────
   // Combine beauty products and makeup products
-  const allProducts = [...products, ...SAMPLE_MAKEUP_PRODUCTS]
+  // Tag makeup products with routineType: "makeup" so they can be queried
+  const allProducts = [
+    ...products,
+    ...SAMPLE_MAKEUP_PRODUCTS.map(p => ({ ...p, routineType: "makeup" as const })),
+  ]
   await seedTable('products', schema.products, allProducts.map(p => ({
     id:           p.id,
     name:         p.name,
@@ -274,16 +280,52 @@ async function seed() {
   )
   await seedTable('exercises', schema.exercises, allExercises)
 
-  // ── Editorial tables REMOVED (March 2026) ─────────────────
-  // Legacy per-type tables (consumption_items, travel_locations,
-  // essays, sidequests, skill_experiments, design_thoughts, topics,
-  // artifacts, inspirations) have been dropped.
-  //
-  // All editorial content is now managed through the universal
-  // content_items table via the CMS admin UI.
-  // Static data remains in @/data/* as build-time fallback.
-  //
-  // To seed CMS content, use the admin panel at /admin.
+  // ── 8. Affirmations ──────────────────────────────────────
+  await seedTable('day_themes', schema.dayThemes, DAY_THEMES.map(t => ({
+    weekday:  t.weekday,
+    emoji:    t.emoji,
+    title:    t.title,
+    subtitle: t.subtitle,
+  })))
+
+  await seedTable('affirmations', schema.affirmationsTable, affirmations.map((a, i) => ({
+    id:           a.id,
+    text:         a.text,
+    type:         a.type,
+    timeOfDay:    a.timeOfDay,
+    weekday:      a.weekday,
+    displayOrder: i,
+  })))
+
+  // ── 9. Internet Lore → content_items ───────────────────────
+  const loreContentItems = loreItems.map((item, i) => ({
+    id:         item.id,
+    type:       'internet-lore',
+    slug:       item.id,
+    title:      item.title,
+    visibility: 'published',
+    metadata:   {
+      ref:       item.ref,
+      era:       item.era,
+      category:  item.category,
+      mediaType: item.mediaType,
+      tags:      item.tags,
+      size:      item.size ?? 'md',
+    },
+    payload: {
+      imageUrl:  item.imageUrl ?? null,
+      videoUrl:  item.videoUrl ?? null,
+      quoteText: item.quoteText ?? null,
+      note:      item.note ?? null,
+    },
+    isFeatured: false,
+    publishedAt: new Date(),
+  }))
+  await seedTable('content_items (lore)', schema.contentItems, loreContentItems)
+
+  // ── Editorial tables note ─────────────────────────────
+  // Other editorial content (essays, sidequests, travel, skills,
+  // consumption, design thoughts) is managed through the CMS admin UI.
 
   // ── Done ───────────────────────────────────────────────────
   const elapsed = ((Date.now() - start) / 1000).toFixed(1)

@@ -4,8 +4,7 @@ import { useState, useCallback } from "react";
 import { Pencil, Trash2 } from "lucide-react";
 import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
 import { EditorialNav } from "@/components/EditorialNav";
-import { skillExperiments } from "@/data/skills";
-import { sidequests as staticSidequests, type Sidequest } from "@/data/sidequests";
+import type { Sidequest } from "@/data/sidequests";
 import { SkillCard } from "@/components/skills";
 import { QuestCard } from "@/components/sidequests";
 import { ContentRenderer } from "@/components/content-renderer";
@@ -129,7 +128,7 @@ function SkillsPageContent() {
   } = useCmsPage({
     contentType: "skill",
     converter: cmsItemToSkill,
-    staticItems: skillExperiments,
+    staticItems: [],
     dedupeKey: (s) => s.id,
   });
 
@@ -144,7 +143,7 @@ function SkillsPageContent() {
   } = useCmsPage({
     contentType: "sidequest",
     converter: cmsItemToSidequest,
-    staticItems: staticSidequests,
+    staticItems: [],
     dedupeKey: (s) => s.id,
   });
 

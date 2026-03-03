@@ -2,15 +2,24 @@
 
 import { useState, useMemo } from "react";
 import Image from "next/image";
-import { Gem, Heart } from "lucide-react";
+import { Gem, Heart, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
-import { jewelleryInventory, getSubcategories } from "@/data/jewellery";
+import { useDbData } from "@/hooks/useDbData";
 import type { JewelleryItem } from "@/types";
+
+// Derive subcategories from items
+function getSubcategories(items: JewelleryItem[], category: string): string[] {
+  const subs = new Set<string>();
+  items.forEach((i) => {
+    if (i.category === category && i.subcategory) subs.add(i.subcategory);
+  });
+  return Array.from(subs).sort();
+}
 
 // Jewellery Page Content
 function JewelleryPageContent() {
-  const [items] = useState<JewelleryItem[]>(jewelleryInventory);
+  const { data: items, loading } = useDbData<JewelleryItem[]>("/api/jewellery", []);
   const [selectedCategory, setSelectedCategory] = useState<string>("Earrings");
   const [selectedSubcategory, setSelectedSubcategory] = useState<string | null>(null);
 
@@ -19,8 +28,8 @@ function JewelleryPageContent() {
 
   // Get subcategories dynamically based on selected category
   const subcategories = useMemo(() => {
-    return getSubcategories(selectedCategory);
-  }, [selectedCategory]);
+    return getSubcategories(items, selectedCategory);
+  }, [items, selectedCategory]);
 
   // Auto-select first subcategory when subcategories change
   const activeSubcategory = selectedSubcategory && subcategories.includes(selectedSubcategory)
@@ -44,6 +53,15 @@ function JewelleryPageContent() {
 
   return (
     <div className="space-y-8">
+      {/* Loading state */}
+      {loading && (
+        <div className="flex items-center justify-center py-20">
+          <Loader2 className="w-8 h-8 animate-spin text-cyan-400" />
+        </div>
+      )}
+
+      {!loading && (
+        <>
       {/* Header */}
       <header className="animate-fade-scale">
         <div className="flex items-center gap-3">
@@ -128,14 +146,15 @@ function JewelleryPageContent() {
         ))}
       </div>
 
-      {filteredItems.length === 0 && (
+      {filteredItems.length === 0 && !loading && (
         <div className="text-center py-12 text-gray-500">
           <Gem className="w-12 h-12 mx-auto mb-4 text-gray-300" />
           <p>No jewellery in this category</p>
         </div>
       )}
 
-
+        </> /* end !loading */
+      )}
     </div>
   );
 }
