@@ -26,7 +26,7 @@ const log = createLogger("auth");
 // ========================================
 // Security: Email allowlisting
 // ========================================
-const ALLOWED_EMAIL = (() => {
+function getAllowedEmail(): string {
   const email = process.env.ALLOWED_EMAIL;
   if (!email) {
     throw new Error(
@@ -34,10 +34,10 @@ const ALLOWED_EMAIL = (() => {
     );
   }
   return email.toLowerCase();
-})();
+}
 
 function isAllowedEmail(email: string): boolean {
-  return email.toLowerCase() === ALLOWED_EMAIL;
+  return email.toLowerCase() === getAllowedEmail();
 }
 
 // ========================================
