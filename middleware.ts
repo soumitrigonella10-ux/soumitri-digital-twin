@@ -26,7 +26,7 @@ const PUBLIC_TOPIC_SLUGS = getPublicTopicSlugs()
 // ========================================
 const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
 const RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000; // 15 minutes
-const RATE_LIMIT_MAX_REQUESTS = 5;            // max 5 attempts per window
+const RATE_LIMIT_MAX_REQUESTS = 10;           // max 10 attempts per window
 
 // ========================================
 // General API rate limiting (#rate-limit-api)

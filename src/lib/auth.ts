@@ -26,18 +26,19 @@ const log = createLogger("auth");
 // ========================================
 // Security: Email allowlisting
 // ========================================
-function getAllowedEmail(): string {
+function getAllowedEmail(): string | null {
   const email = process.env.ALLOWED_EMAIL;
   if (!email) {
-    throw new Error(
-      "Missing environment variable ALLOWED_EMAIL — set it to the single email permitted to sign in."
-    );
+    log.error("❌ ALLOWED_EMAIL environment variable is not set! Sign-in will be blocked for everyone.");
+    return null;
   }
   return email.toLowerCase();
 }
 
 function isAllowedEmail(email: string): boolean {
-  return email.toLowerCase() === getAllowedEmail();
+  const allowed = getAllowedEmail();
+  if (!allowed) return false;
+  return email.toLowerCase() === allowed;
 }
 
 // ========================================
@@ -91,7 +92,21 @@ function getAdapter() {
       return JsonAdapter();
     }
     log.info("Using PostgreSQL adapter");
-    return CustomPgAdapter(pool);
+    // Wrap the adapter to surface connection failures clearly
+    const pgAdapter = CustomPgAdapter(pool);
+    return {
+      ...pgAdapter,
+      async createVerificationToken(
+        ...args: Parameters<NonNullable<typeof pgAdapter.createVerificationToken>>
+      ) {
+        try {
+          return await pgAdapter.createVerificationToken!(...args);
+        } catch (err) {
+          log.error("❌ createVerificationToken failed — is the DB reachable?", err);
+          throw err;
+        }
+      },
+    };
   }
   log.info("\u26a0\ufe0f No POSTGRES_URL \u2014 using local JSON adapter");
   return JsonAdapter();
@@ -148,6 +163,12 @@ const fullAuthConfig: NextAuthConfig = {
                 throw new Error("This email is not authorized to sign in");
               }
 
+              // Fail fast with a clear message if SMTP env vars are missing
+              if (!process.env.EMAIL_SERVER_HOST || !process.env.EMAIL_SERVER_USER || !process.env.EMAIL_SERVER_PASSWORD) {
+                log.error("⚠️ Cannot send magic link — missing SMTP env vars (EMAIL_SERVER_HOST / EMAIL_SERVER_USER / EMAIL_SERVER_PASSWORD)");
+                throw new Error("Email transport is not configured");
+              }
+
               try {
                 log.info(`Sending magic link to ${identifier}`);
                 const nodemailer = await import("nodemailer");
@@ -185,12 +206,23 @@ const fullAuthConfig: NextAuthConfig = {
   callbacks: {
     ...authConfig.callbacks,
     async signIn({ user }) {
-      if (!user?.email || !isAllowedEmail(user.email)) {
-        log.warn(
-          `\u26d4 Blocked sign-in attempt from: ${user?.email || "unknown"}`
-        );
+      const allowed = getAllowedEmail();
+      const incoming = user?.email?.toLowerCase() ?? null;
+
+      if (!incoming) {
+        log.warn(`⛔ signIn rejected — no email on user object`);
         return false;
       }
+      if (!allowed) {
+        log.error(`⛔ signIn rejected — ALLOWED_EMAIL env var is missing (incoming: ${incoming})`);
+        return false;
+      }
+      if (incoming !== allowed) {
+        log.warn(`⛔ signIn rejected — email mismatch: incoming="${incoming}" allowed="${allowed}"`);
+        return false;
+      }
+
+      log.info(`✅ signIn allowed for ${incoming}`);
       return true;
     },
   },

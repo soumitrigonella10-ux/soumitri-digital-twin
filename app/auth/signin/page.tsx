@@ -5,13 +5,34 @@ import { useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { Mail } from "lucide-react";
 
+// Map Auth.js error codes to user-friendly messages
+const AUTH_ERROR_MESSAGES: Record<string, string> = {
+  Configuration:
+    "The server is misconfigured (database or email transport). Please try again in a few minutes — if this persists, contact the admin.",
+  AccessDenied:
+    "This email is not authorized to sign in, or the ALLOWED_EMAIL environment variable is not configured on the server.",
+  Verification:
+    "The magic link has expired or was already used. Request a new one.",
+  Default: "An unexpected sign-in error occurred. Please try again.",
+};
+
+// Errors that won't resolve by retrying with the same email
+const NON_RETRYABLE_ERRORS = new Set(["Configuration", "AccessDenied"]);
+
 function SignInForm() {
   const searchParams = useSearchParams();
   const next = searchParams.get("next") || "/";
+  const urlError = searchParams.get("error");
   const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [errorCode, setErrorCode] = useState<string | null>(urlError);
+  const [error, setError] = useState<string | null>(
+    urlError
+      ? (AUTH_ERROR_MESSAGES[urlError] ?? AUTH_ERROR_MESSAGES.Default)
+      : null
+  );
   const isDemoMode = process.env.NODE_ENV === "development";
+  const isNonRetryable = NON_RETRYABLE_ERRORS.has(errorCode ?? "");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,7 +48,12 @@ function SignInForm() {
       });
 
       if (result?.error) {
-        setError("Sign-in failed. Please try again.");
+        const code = result.error;
+        setErrorCode(code);
+        setError(
+          AUTH_ERROR_MESSAGES[code] ??
+            `Sign-in failed (${code}). Please try again.`
+        );
       } else {
         setSubmitted(true);
       }
@@ -75,9 +101,10 @@ function SignInForm() {
             />
             <button
               type="submit"
-              className="w-full bg-gray-900 text-white text-sm font-medium py-3 rounded-xl hover:bg-gray-800 transition-colors"
+              disabled={isNonRetryable}
+              className="w-full bg-gray-900 text-white text-sm font-medium py-3 rounded-xl hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Continue with Email
+              {isNonRetryable ? "Temporarily Unavailable" : "Continue with Email"}
             </button>
           </div>
 
