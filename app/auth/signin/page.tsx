@@ -22,15 +22,14 @@ const NON_RETRYABLE_ERRORS = new Set(["Configuration", "AccessDenied"]);
 function SignInForm() {
   const searchParams = useSearchParams();
   const next = searchParams.get("next") || "/";
-  const urlError = (searchParams.get("error") ?? null) as string | null;
+  const urlError: string | null = searchParams.get("error") ?? null;
   const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [errorCode, setErrorCode] = useState<string | null>(urlError);
-  const [error, setError] = useState<string | null>(
-    urlError
-      ? (AUTH_ERROR_MESSAGES[urlError] ?? AUTH_ERROR_MESSAGES.Default)
-      : null
-  );
+  const initialError: string | null = urlError
+    ? (AUTH_ERROR_MESSAGES[urlError] ?? AUTH_ERROR_MESSAGES.Default ?? "An unexpected sign-in error occurred. Please try again.")
+    : null;
+  const [error, setError] = useState<string | null>(initialError);
   const isDemoMode = process.env.NODE_ENV === "development";
   const isNonRetryable = NON_RETRYABLE_ERRORS.has(errorCode ?? "");
 
