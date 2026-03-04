@@ -16,13 +16,9 @@ import NextAuth from "next-auth";
 import type { NextAuthConfig } from "next-auth";
 
 // ========================================
-// Security: Email allowlisting (edge-safe)
+// Security: Email allowlisting is handled in the full auth.ts.
+// Only admin-check helpers are needed here (for JWT callback).
 // ========================================
-const ALLOWED_EMAIL = (process.env.ALLOWED_EMAIL ?? "").trim().toLowerCase();
-
-function isAllowedEmail(email: string): boolean {
-  return email.trim().toLowerCase() === ALLOWED_EMAIL;
-}
 
 function getAdminEmails(): string[] {
   const adminEmailsEnv = process.env.ADMIN_EMAILS;

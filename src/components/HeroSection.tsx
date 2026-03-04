@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import Image from "next/image"
 
 export function HeroSection() {
   const [mounted, setMounted] = useState(false)
@@ -44,10 +45,13 @@ export function HeroSection() {
 
         {/* Right column - Portrait image */}
         <div className="relative overflow-hidden flex items-end justify-center" style={{ backgroundColor: '#f5e6d3' }}>
-          <img
+          <Image
             src="/soumitri.png"
             alt="Portrait"
+            width={400}
+            height={500}
             className="w-3/4 lg:w-4/5 max-h-[85%] object-contain grayscale"
+            priority
           />
         </div>
       </div>
