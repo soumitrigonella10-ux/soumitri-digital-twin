@@ -18,6 +18,7 @@ export function StoreInitializer() {
 
   useEffect(() => {
     if (dbStatus === "idle") {
+      // eslint-disable-next-line no-console
       console.log("[StoreInitializer] dbStatus is idle — calling initFromDb()");
       initFromDb();
     }

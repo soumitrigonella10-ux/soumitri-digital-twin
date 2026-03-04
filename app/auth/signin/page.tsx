@@ -22,7 +22,7 @@ const NON_RETRYABLE_ERRORS = new Set(["Configuration", "AccessDenied"]);
 function SignInForm() {
   const searchParams = useSearchParams();
   const next = searchParams.get("next") || "/";
-  const urlError = searchParams.get("error") ?? null;
+  const urlError = (searchParams.get("error") ?? null) as string | null;
   const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [errorCode, setErrorCode] = useState<string | null>(urlError);
