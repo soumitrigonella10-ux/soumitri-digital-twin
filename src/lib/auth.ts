@@ -238,11 +238,20 @@ const fullAuthConfig: NextAuthConfig = {
                   html: `<p>Click <a href="${url}">here</a> to sign in</p>`,
                 });
                 log.info(`\u2705 Magic link sent to ${identifier}`);
-              } catch (error) {
-                log.error(
-                  "\u274c Failed to send magic link email:",
-                  error
-                );
+              } catch (error: unknown) {
+                const err = error as { code?: string; responseCode?: number; response?: string; message?: string };
+                if (err.code === 'EAUTH' || err.responseCode === 535) {
+                  log.error(
+                    `\u274c SMTP authentication failed (code=${err.responseCode}). ` +
+                    `The EMAIL_SERVER_PASSWORD is likely invalid or expired. ` +
+                    `Response: ${err.response}`
+                  );
+                } else {
+                  log.error(
+                    "\u274c Failed to send magic link email:",
+                    error
+                  );
+                }
                 throw error;
               }
             },

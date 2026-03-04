@@ -30,15 +30,24 @@ let pool: Pool | null = null
 try {
   if (pgUrl) {
     log.info(`PostgreSQL URL resolved from env (length=${pgUrl.length})`)
+
+    // Determine SSL config:
+    // - Neon requires SSL but its shared TLS cert doesn't match the pooler hostname,
+    //   so strict verification fails. Auto-detect Neon URLs and relax verification.
+    // - DB_SSL_REJECT_UNAUTHORIZED=false explicitly opts out of cert verification.
+    // - Otherwise use strict SSL.
+    const isNeonUrl = pgUrl.includes('.neon.tech')
+    const sslConfig = (process.env.DB_SSL_REJECT_UNAUTHORIZED === 'false' || isNeonUrl)
+      ? { rejectUnauthorized: false }
+      : true
+
+    if (isNeonUrl) {
+      log.info('Detected Neon URL — using SSL with rejectUnauthorized=false')
+    }
+
     pool = new Pool({
       connectionString: pgUrl,
-      // Neon serverless requires SSL.  When POSTGRES_URL points at Neon the
-      // shared TLS certificate doesn't match the connection hostname, so
-      // strict verification fails.  Guard this with an explicit env flag so
-      // moving to another provider restores full certificate verification.
-      ssl: process.env.DB_SSL_REJECT_UNAUTHORIZED === 'false'
-        ? { rejectUnauthorized: false }
-        : true,
+      ssl: sslConfig,
       max: config.db.maxPoolSize,
       idleTimeoutMillis: config.db.idleTimeoutMs,
       connectionTimeoutMillis: config.db.connectionTimeoutMs,

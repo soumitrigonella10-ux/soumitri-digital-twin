@@ -8,16 +8,16 @@ import { Mail } from "lucide-react";
 // Map Auth.js error codes to user-friendly messages
 const AUTH_ERROR_MESSAGES: Record<string, string> = {
   Configuration:
-    "The server is misconfigured (database or email transport). Please try again in a few minutes — if this persists, contact the admin.",
+    "Something went wrong sending the magic link. This usually means the email service is temporarily unavailable — please try again in a minute.",
   AccessDenied:
-    "This email is not authorized to sign in, or the ALLOWED_EMAIL environment variable is not configured on the server.",
+    "This email is not authorized to sign in.",
   Verification:
     "The magic link has expired or was already used. Request a new one.",
   Default: "An unexpected sign-in error occurred. Please try again.",
 };
 
 // Errors that won't resolve by retrying with the same email
-const NON_RETRYABLE_ERRORS = new Set(["Configuration", "AccessDenied"]);
+const NON_RETRYABLE_ERRORS = new Set(["AccessDenied"]);
 
 function SignInForm() {
   const searchParams = useSearchParams();
