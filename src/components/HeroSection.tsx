@@ -43,34 +43,12 @@ export function HeroSection() {
         </div>
 
         {/* Right column - Portrait image */}
-        <div className="relative overflow-hidden" style={{ backgroundColor: '#f5e6d3' }}>
-          <div className="absolute inset-0 flex items-center justify-center">
-            {/* Placeholder for portrait - replace with actual image */}
-            <div className="w-full h-full flex items-center justify-center" style={{ background: 'linear-gradient(to bottom right, #f5e6d3, #e8d5b7, #dbc4a0)' }}>
-              <div className="text-center" style={{ color: '#8B2323' }}>
-                <svg
-                  className="w-32 h-32 mx-auto mb-4 opacity-20"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={0.5}
-                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                  />
-                </svg>
-                <p className="text-sm font-light tracking-wider uppercase opacity-40">Portrait Image</p>
-              </div>
-            </div>
-            {/* Replace above with actual image: */}
-            {/* <img
-              src="/images/portrait.jpg"
-              alt="Portrait"
-              className="w-full h-full object-cover grayscale"
-            /> */}
-          </div>
+        <div className="relative overflow-hidden flex items-end justify-center" style={{ backgroundColor: '#f5e6d3' }}>
+          <img
+            src="/soumitri.png"
+            alt="Portrait"
+            className="w-3/4 lg:w-4/5 max-h-[85%] object-contain grayscale"
+          />
         </div>
       </div>
 

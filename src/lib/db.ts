@@ -4,16 +4,34 @@ import { config } from '@/lib/config'
 
 const log = createLogger('db')
 
+// ========================================
+// Resolve the Postgres connection URL from env vars.
+// Neon’s Vercel integration creates vars with a configurable prefix.
+// We check the most common names so the code works regardless of
+// how the integration was set up.
+// ========================================
+export function resolvePostgresUrl(): string | undefined {
+  return (
+    process.env.POSTGRES_URL ||
+    process.env.DATABASE_URL ||
+    process.env.DATABASE_URL_POSTGRES_URL_NON_POOLING ||
+    process.env.POSTGRES_URL_NON_POOLING ||
+    undefined
+  )
+}
+
 // Create a connection pool for PostgreSQL (Neon requires SSL)
 // - Neon free tier databases suspend after inactivity; cold starts need up to 10s
 // - Serverless environments (Vercel) should use a small pool
-// - Only create pool when POSTGRES_URL is available
+// - Only create pool when a Postgres URL is available
+const pgUrl = resolvePostgresUrl()
 let pool: Pool | null = null
 
 try {
-  if (process.env.POSTGRES_URL) {
+  if (pgUrl) {
+    log.info(`PostgreSQL URL resolved from env (length=${pgUrl.length})`)
     pool = new Pool({
-      connectionString: process.env.POSTGRES_URL,
+      connectionString: pgUrl,
       // Neon serverless requires SSL.  When POSTGRES_URL points at Neon the
       // shared TLS certificate doesn't match the connection hostname, so
       // strict verification fails.  Guard this with an explicit env flag so
@@ -27,7 +45,7 @@ try {
     })
     log.info('PostgreSQL pool initialized successfully')
   } else {
-    log.info('No POSTGRES_URL found, pool will be null')
+    log.warn('No Postgres URL found in env (checked POSTGRES_URL, DATABASE_URL, DATABASE_URL_POSTGRES_URL_NON_POOLING). Pool will be null.')
   }
 } catch (error) {
   log.error('❌ Failed to create PostgreSQL pool:', error)

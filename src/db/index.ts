@@ -5,10 +5,20 @@ import * as schema from './schema'
 // Create a Neon HTTP client — uses fetch-based queries (no TCP, no cold-start)
 // Falls back gracefully if POSTGRES_URL is not set (local dev without DB)
 
+function resolvePostgresUrl(): string | undefined {
+  return (
+    process.env.POSTGRES_URL ||
+    process.env.DATABASE_URL ||
+    process.env.DATABASE_URL_POSTGRES_URL_NON_POOLING ||
+    process.env.POSTGRES_URL_NON_POOLING ||
+    undefined
+  )
+}
+
 function createDb() {
-  const url = process.env.POSTGRES_URL
+  const url = resolvePostgresUrl()
   if (!url) {
-    console.warn('[db] ⚠️ POSTGRES_URL is not set — database queries will fail. Using local JSON adapter for auth.')
+    console.warn('[db] ⚠️ No Postgres URL found (checked POSTGRES_URL, DATABASE_URL, DATABASE_URL_POSTGRES_URL_NON_POOLING). Database queries will fail.')
     return null
   }
   try {

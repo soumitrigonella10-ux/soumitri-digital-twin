@@ -18,10 +18,10 @@ import type { NextAuthConfig } from "next-auth";
 // ========================================
 // Security: Email allowlisting (edge-safe)
 // ========================================
-const ALLOWED_EMAIL = (process.env.ALLOWED_EMAIL ?? "").toLowerCase();
+const ALLOWED_EMAIL = (process.env.ALLOWED_EMAIL ?? "").trim().toLowerCase();
 
 function isAllowedEmail(email: string): boolean {
-  return email.toLowerCase() === ALLOWED_EMAIL;
+  return email.trim().toLowerCase() === ALLOWED_EMAIL;
 }
 
 function getAdminEmails(): string[] {
@@ -51,12 +51,9 @@ export const authConfig: NextAuthConfig = {
     error: "/auth/signin",
   },
   callbacks: {
-    async signIn({ user }) {
-      if (!user?.email || !isAllowedEmail(user.email)) {
-        return false;
-      }
-      return true;
-    },
+    // NOTE: signIn callback is intentionally NOT here.
+    // The full auth.ts overrides it with runtime ALLOWED_EMAIL checks.
+    // Keeping it here with a module-load-time value would be fragile.
     async jwt({ token, user }) {
       if (user?.email) {
         token.email = user.email;

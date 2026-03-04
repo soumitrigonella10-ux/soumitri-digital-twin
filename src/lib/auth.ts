@@ -14,7 +14,7 @@ import NextAuth from "next-auth";
 import Nodemailer from "next-auth/providers/nodemailer";
 import CustomPgAdapter from "@/lib/pg-adapter";
 import { JsonAdapter } from "@/lib/json-adapter";
-import { pool } from "@/lib/db";
+import { pool, resolvePostgresUrl } from "@/lib/db";
 import { createLogger } from "@/lib/logger";
 import { authConfig } from "@/lib/auth.config";
 
@@ -27,18 +27,18 @@ const log = createLogger("auth");
 // Security: Email allowlisting
 // ========================================
 function getAllowedEmail(): string | null {
-  const email = process.env.ALLOWED_EMAIL;
-  if (!email) {
+  const raw = process.env.ALLOWED_EMAIL;
+  if (!raw || !raw.trim()) {
     log.error("❌ ALLOWED_EMAIL environment variable is not set! Sign-in will be blocked for everyone.");
     return null;
   }
-  return email.toLowerCase();
+  return raw.trim().toLowerCase();
 }
 
 function isAllowedEmail(email: string): boolean {
   const allowed = getAllowedEmail();
   if (!allowed) return false;
-  return email.toLowerCase() === allowed;
+  return email.trim().toLowerCase() === allowed;
 }
 
 // ========================================
@@ -81,10 +81,46 @@ if (!envValid) {
 // Adapter selection
 // ========================================
 function getAdapter() {
-  if (process.env.POSTGRES_URL) {
+  const isProd = process.env.NODE_ENV === "production" || process.env.VERCEL === "1";
+
+  const pgUrl = resolvePostgresUrl();
+  if (pgUrl) {
     if (!pool) {
+      // In production, NEVER fall back to JsonAdapter — it uses fs which is
+      // read-only on Vercel. Throw a clear error so Auth.js returns
+      // Configuration to the client instead of crashing opaquely.
+      if (isProd) {
+        log.error(
+          "❌ Postgres URL found but pool failed to initialize. " +
+          "Cannot fall back to JSON adapter in production (read-only filesystem). " +
+          "Check DB connection string and SSL settings."
+        );
+        // Return an adapter whose methods all throw a clear error.
+        // Auth.js requires an adapter object — we can't return null.
+        const fail = (method: string) => {
+          const msg = `DB pool unavailable — ${method} cannot run. Check Postgres URL and DB_SSL_REJECT_UNAUTHORIZED env vars.`;
+          log.error(msg);
+          throw new Error(msg);
+        };
+        return {
+          createUser: () => fail("createUser"),
+          getUser: () => fail("getUser"),
+          getUserByEmail: () => fail("getUserByEmail"),
+          getUserByAccount: () => fail("getUserByAccount"),
+          updateUser: () => fail("updateUser"),
+          deleteUser: () => fail("deleteUser"),
+          linkAccount: () => fail("linkAccount"),
+          unlinkAccount: () => fail("unlinkAccount"),
+          createSession: () => fail("createSession"),
+          getSessionAndUser: () => fail("getSessionAndUser"),
+          updateSession: () => fail("updateSession"),
+          deleteSession: () => fail("deleteSession"),
+          createVerificationToken: () => fail("createVerificationToken"),
+          useVerificationToken: () => fail("useVerificationToken"),
+        } as ReturnType<typeof CustomPgAdapter>;
+      }
       log.error(
-        "\u26a0\ufe0f POSTGRES_URL is set but pool failed to initialize"
+        "\u26a0\ufe0f Postgres URL found but pool failed to initialize"
       );
       log.info(
         "Falling back to JSON adapter due to pool initialization failure"
@@ -96,6 +132,19 @@ function getAdapter() {
     const pgAdapter = CustomPgAdapter(pool);
     return {
       ...pgAdapter,
+      // getUserByEmail is called BEFORE the signIn callback in Auth.js.
+      // If it throws, Auth.js maps it to a generic "Configuration" error.
+      // Wrap it so we get a clear log line in production.
+      async getUserByEmail(
+        ...args: Parameters<NonNullable<typeof pgAdapter.getUserByEmail>>
+      ) {
+        try {
+          return await pgAdapter.getUserByEmail!(...args);
+        } catch (err) {
+          log.error("❌ getUserByEmail failed — is the DB reachable?", err);
+          throw err;
+        }
+      },
       async createVerificationToken(
         ...args: Parameters<NonNullable<typeof pgAdapter.createVerificationToken>>
       ) {
@@ -108,7 +157,15 @@ function getAdapter() {
       },
     };
   }
-  log.info("\u26a0\ufe0f No POSTGRES_URL \u2014 using local JSON adapter");
+
+  if (isProd) {
+    log.error(
+      "❌ No Postgres URL found in production. " +
+      "Email sign-in requires a database for verification tokens. " +
+      "Set POSTGRES_URL (or DATABASE_URL / DATABASE_URL_POSTGRES_URL_NON_POOLING) in your Vercel environment variables."
+    );
+  }
+  log.info("\u26a0\ufe0f No Postgres URL \u2014 using local JSON adapter");
   return JsonAdapter();
 }
 
@@ -194,10 +251,12 @@ const fullAuthConfig: NextAuthConfig = {
   debug: process.env.NODE_ENV === "development",
   logger: {
     error(error: Error) {
+      // Always log at error level so this appears in production
       log.error("[next-auth]", error.message, error.stack);
     },
     warn(code: string) {
-      log.warn("[next-auth]", code);
+      // Promote to error in production for visibility
+      log.error("[next-auth:warn]", code);
     },
     debug(message: string, metadata?: unknown) {
       log.info("[next-auth:debug]", message, metadata);
@@ -207,18 +266,18 @@ const fullAuthConfig: NextAuthConfig = {
     ...authConfig.callbacks,
     async signIn({ user }) {
       const allowed = getAllowedEmail();
-      const incoming = user?.email?.toLowerCase() ?? null;
+      const incoming = user?.email?.trim().toLowerCase() ?? null;
 
       if (!incoming) {
-        log.warn(`⛔ signIn rejected — no email on user object`);
+        log.error(`⛔ signIn rejected — no email on user object (raw: ${JSON.stringify(user?.email)})`);
         return false;
       }
       if (!allowed) {
-        log.error(`⛔ signIn rejected — ALLOWED_EMAIL env var is missing (incoming: ${incoming})`);
+        log.error(`⛔ signIn rejected — ALLOWED_EMAIL env var is missing or empty (raw: ${JSON.stringify(process.env.ALLOWED_EMAIL)}, incoming: ${incoming})`);
         return false;
       }
       if (incoming !== allowed) {
-        log.warn(`⛔ signIn rejected — email mismatch: incoming="${incoming}" allowed="${allowed}"`);
+        log.error(`⛔ signIn rejected — email mismatch: incoming="${incoming}" allowed="${allowed}" (raw env: ${JSON.stringify(process.env.ALLOWED_EMAIL)})`);
         return false;
       }
 

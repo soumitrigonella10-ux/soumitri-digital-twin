@@ -266,7 +266,7 @@ export const config = {
      * - favicon.ico (favicon file)
      * - public folder assets
      */
-    "/((?!api/auth|api/pdf|_next/static|_next/image|images|favicon.ico|public).*)",
+    "/((?!api/auth|api/pdf|_next/static|_next/image|images|favicon.ico|public|.*\\.(?:png|jpg|jpeg|gif|svg|webp|avif|ico)$).*)",
     // Rate-limit magic link sign-in endpoint
     "/api/auth/signin/:path*",
   ],
