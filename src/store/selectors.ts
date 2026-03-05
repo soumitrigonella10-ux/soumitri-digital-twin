@@ -1,5 +1,3 @@
-import { useShallow } from "zustand/react/shallow";
-import { useAppStore } from "./useAppStore";
 import type { AppState } from "./types";
 
 // ========================================
@@ -12,17 +10,7 @@ import type { AppState } from "./types";
 //
 // Usage:
 //   const products = useAppStore(selectProducts);
-//   const { setFilters, resetFilters } = useAppSelector(selectFilterActions);
 // ========================================
-
-/**
- * Shallow-equality selector hook — automatically memoizes
- * object/array returns so components only re-render when
- * the selected values actually change.
- */
-export function useAppSelector<T>(selector: (state: AppState) => T): T {
-  return useAppStore(useShallow(selector));
-}
 
 // ========================================
 // Data selectors (each subscribes to one array)

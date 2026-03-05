@@ -79,6 +79,68 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
     return NextResponse.json({ success: true, data: inserted }, { status: 201 });
 }, "Failed to create wardrobe item");
 
+// ── PUT — update an existing wardrobe item ───────────────────
+
+export const PUT = withErrorHandling(async (req: NextRequest) => {
+  await requireAdmin();
+
+  const body = await req.json();
+  const { id, ...rest } = body;
+
+  if (!id || typeof id !== "string") {
+    return NextResponse.json(
+      { success: false, error: "id is required" },
+      { status: 400 },
+    );
+  }
+
+  const parsed = wardrobeItemSchema.omit({ id: true }).partial().safeParse(rest);
+  if (!parsed.success) {
+    return NextResponse.json(
+      { success: false, error: "Validation failed", details: parsed.error.flatten().fieldErrors },
+      { status: 400 },
+    );
+  }
+
+  // Check item exists
+  const [existing] = await db
+    .select()
+    .from(wardrobeItems)
+    .where(eq(wardrobeItems.id, id));
+
+  if (!existing) {
+    return NextResponse.json(
+      { success: false, error: "Item not found" },
+      { status: 404 },
+    );
+  }
+
+  const updates: Record<string, unknown> = {};
+  if (parsed.data.name !== undefined)        updates.name        = parsed.data.name;
+  if (parsed.data.category !== undefined)    updates.category    = parsed.data.category;
+  if (parsed.data.subcategory !== undefined) updates.subcategory = parsed.data.subcategory || null;
+  if (parsed.data.occasion !== undefined)    updates.occasion    = parsed.data.occasion || null;
+  if (parsed.data.imageUrl !== undefined)    updates.imageUrl    = parsed.data.imageUrl;
+  if (parsed.data.subType !== undefined)     updates.subType     = parsed.data.subType || null;
+
+  if (Object.keys(updates).length === 0) {
+    return NextResponse.json(
+      { success: false, error: "No fields to update" },
+      { status: 400 },
+    );
+  }
+
+  updates.updatedAt = new Date();
+
+  const [updated] = await db
+    .update(wardrobeItems)
+    .set(updates)
+    .where(eq(wardrobeItems.id, id))
+    .returning();
+
+  return NextResponse.json({ success: true, data: updated });
+}, "Failed to update wardrobe item");
+
 // ── DELETE — remove a wardrobe item ──────────────────────────
 
 export const DELETE = withErrorHandling(async (req: NextRequest) => {

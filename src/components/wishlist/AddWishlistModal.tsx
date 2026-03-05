@@ -7,12 +7,13 @@ import { createContent } from "@/cms/actions";
 const CATEGORIES = [
   { value: "Tops", label: "Tops" },
   { value: "Bottoms", label: "Bottoms" },
-  { value: "Shoes", label: "Shoes" },
-  { value: "Bags", label: "Bags" },
+  { value: "Dresses", label: "Dresses" },
+  { value: "Outerwear", label: "Outerwear" },
   { value: "Suits", label: "Suits" },
-  { value: "Seasonals", label: "Seasonals" },
-  { value: "Accessories", label: "Accessories" },
-  { value: "Other", label: "Other" },
+  { value: "Bags", label: "Bags" },
+  { value: "Shoes", label: "Shoes" },
+  { value: "Jewellery", label: "Jewellery" },
+  { value: "Things", label: "Things" },
 ];
 
 const PRIORITIES = [

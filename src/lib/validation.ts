@@ -9,9 +9,9 @@ import { z } from "zod";
 // Base validation schemas
 // ========================================
 const stringRequired = z.string().min(1, "This field is required");
-const stringOptional = z.string().optional();
-const numberOptional = z.number().optional();
-const booleanOptional = z.boolean().optional();
+const stringOptional = z.string().nullish();
+const numberOptional = z.number().nullish();
+const booleanOptional = z.boolean().nullish();
 
 // ========================================
 // Product validation schema
@@ -297,21 +297,7 @@ export const fieldHelpers = {
   },
 };
 
-// ========================================
-// Export all schemas for type inference
-// ========================================
-export type ProductFormData = z.infer<typeof productSchema>;
-export type WardrobeItemFormData = z.infer<typeof wardrobeItemSchema>;
-export type MealTemplateFormData = z.infer<typeof mealTemplateSchema>;
-export type DressingFormData = z.infer<typeof dressingSchema>;
-export type WorkoutPlanFormData = z.infer<typeof workoutPlanSchema>;
-export type RoutineFormData = z.infer<typeof routineSchema>;
-export type JewelleryItemFormData = z.infer<typeof jewelleryItemSchema>;
-export type GroceryCategoryFormData = z.infer<typeof groceryCategorySchema>;
-export type AffirmationFormData = z.infer<typeof affirmationSchema>;
-export type DayThemeFormData = z.infer<typeof dayThemeSchema>;
-export type NoteFormData = z.infer<typeof noteSchema>;
-export type BowlConfigFormData = z.infer<typeof bowlConfigSchema>;
+
 
 // ========================================
 // Patch schemas — .partial() versions for PATCH endpoints

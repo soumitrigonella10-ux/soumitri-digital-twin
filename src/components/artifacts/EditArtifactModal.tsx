@@ -128,7 +128,7 @@ export function EditArtifactModal({ artifact, onClose, onSaved }: EditArtifactMo
       }
 
       const data = await response.json();
-      setImagePath(data.url);
+      setImagePath(data.data.url);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Upload failed");
       setImageFile(null);

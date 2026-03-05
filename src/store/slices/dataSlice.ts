@@ -40,6 +40,13 @@ export const createDataSlice: ImmerSliceCreator<DataSlice> = (set, get) => ({
 
     try {
       const res = await fetch('/api/seed-data');
+
+      // Guard against non-JSON responses (e.g. redirect to sign-in page)
+      const contentType = res.headers.get('content-type') || '';
+      if (!contentType.includes('application/json')) {
+        throw new Error(`Expected JSON but got ${contentType} (status ${res.status})`);
+      }
+
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
       const json = await res.json();

@@ -65,7 +65,7 @@ export function EditSidequestModal({ sidequest, onClose, onSuccess }: EditSidequ
         throw new Error(data.error || "Upload failed");
       }
 
-      const data = await response.json();
+      const { data } = await response.json();
       setImageUrl(data.url);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Upload failed");

@@ -1,138 +1,240 @@
+// ─────────────────────────────────────────────────────────────
+// EditProductModal — Full-featured edit modal for routine products
+// Mirrors AddProductModal so every field is editable.
+// ─────────────────────────────────────────────────────────────
 "use client";
 
-import { X } from "lucide-react";
-import { cn } from "@/lib/utils";
-import type { Product, TimeOfDay } from "@/types";
+import { useState, useCallback } from "react";
+import { AdminCrudModal, Field, inputClass, selectClass } from "@/components/AdminCrudModal";
+import type { Product } from "@/types";
 
+const TIME_OPTIONS = ["AM", "PM", "MIDDAY", "ANY"] as const;
 const DAYS_OF_WEEK = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
+/** @deprecated – kept for backward compat; new code should not rely on this */
 export interface EditFormState {
   displayOrder?: number | undefined;
-  timeOfDay?: TimeOfDay | undefined;
+  timeOfDay?: string | undefined;
   weekdays?: number[] | undefined;
 }
 
 export interface EditProductModalProps {
   product: Product;
-  editForm: EditFormState;
-  onEditFormChange: (form: EditFormState) => void;
-  onSave: (product: Product) => void;
-  onCancel: () => void;
-  accentColorClass: string;
+  apiUrl: string;
+  accentColor: string;          // tailwind bg class e.g. "bg-pink-500"
+  categories: string[];
+  onClose: () => void;
+  onSaved: () => void;
+  /** Hair-specific field */
+  showHairPhase?: boolean;
+  /** Body-specific field */
+  showBodyAreas?: boolean;
+  bodyAreaOptions?: { code: string; label: string }[];
 }
 
 export function EditProductModal({
   product,
-  editForm,
-  onEditFormChange,
-  onSave,
-  onCancel,
-  accentColorClass,
+  apiUrl,
+  accentColor,
+  categories,
+  onClose,
+  onSaved,
+  showHairPhase = false,
+  showBodyAreas = false,
+  bodyAreaOptions = [],
 }: EditProductModalProps) {
-  const toggleWeekday = (day: number) => {
-    const current = editForm.weekdays || [];
-    if (current.includes(day)) {
-      onEditFormChange({ ...editForm, weekdays: current.filter((d) => d !== day) });
-    } else {
-      onEditFormChange({ ...editForm, weekdays: [...current, day].sort() });
-    }
+  const [name, setName] = useState(product.name);
+  const [category, setCategory] = useState(product.category);
+  const [brand, setBrand] = useState(product.brand ?? "");
+  const [timeOfDay, setTimeOfDay] = useState<string>(product.timeOfDay ?? "AM");
+  const [hairPhase, setHairPhase] = useState(product.hairPhase ?? "daily");
+  const [weekdays, setWeekdays] = useState<number[]>(product.weekdays ?? [0, 1, 2, 3, 4, 5, 6]);
+  const [bodyAreas, setBodyAreas] = useState<string[]>((product.bodyAreas as string[]) ?? []);
+  const [notes, setNotes] = useState(product.notes ?? "");
+  const [displayOrder, setDisplayOrder] = useState(product.displayOrder ?? 99);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const toggleDay = (d: number) => {
+    setWeekdays((prev) => prev.includes(d) ? prev.filter((x) => x !== d) : [...prev, d].sort());
   };
 
+  const toggleArea = (code: string) => {
+    setBodyAreas((prev) => prev.includes(code) ? prev.filter((x) => x !== code) : [...prev, code]);
+  };
+
+  const handleSubmit = useCallback(async () => {
+    if (!name.trim() || !category) return;
+    setIsSubmitting(true);
+    setError(null);
+
+    try {
+      const payload: Record<string, unknown> = {
+        id: product.id,
+        name: name.trim(),
+        category,
+        brand: brand.trim() || null,
+        timeOfDay,
+        weekdays,
+        notes: notes.trim() || null,
+        displayOrder,
+      };
+      if (showHairPhase) payload.hairPhase = hairPhase;
+      if (showBodyAreas) payload.bodyAreas = bodyAreas.length > 0 ? bodyAreas : null;
+
+      const res = await fetch(apiUrl, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const json = await res.json();
+      if (!json.success) throw new Error(json.error || "Failed to update product");
+
+      setSuccess(true);
+      setTimeout(() => { onSaved(); onClose(); }, 800);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to save");
+    } finally {
+      setIsSubmitting(false);
+    }
+  }, [name, category, brand, timeOfDay, weekdays, notes, displayOrder, hairPhase, bodyAreas, showHairPhase, showBodyAreas, apiUrl, product.id, onSaved, onClose]);
+
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl p-6 max-w-lg w-full max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-xl font-bold text-gray-900">Edit {product.name}</h3>
-          <button
-            onClick={onCancel}
-            className="p-2 rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-600"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-
-        <div className="space-y-4">
-          {/* Display Order */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Display Order</label>
-            <input
-              type="number"
-              min="1"
-              value={editForm.displayOrder || ""}
-              onChange={(e) =>
-                onEditFormChange({ ...editForm, displayOrder: parseInt(e.target.value) || 1 })
-              }
-              className={cn(
-                "w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2",
-                `focus:ring-${accentColorClass}`
-              )}
-              style={{ outlineColor: undefined }}
-            />
-          </div>
-
-          {/* Time of Day */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Time of Day</label>
-            <div className="flex gap-2">
-              {(["AM", "PM", "ANY"] as TimeOfDay[]).map((time) => (
-                <button
-                  key={time}
-                  onClick={() => onEditFormChange({ ...editForm, timeOfDay: time })}
-                  className={cn(
-                    "px-4 py-2 rounded-lg text-sm font-medium transition-all",
-                    editForm.timeOfDay === time
-                      ? `${accentColorClass} text-white`
-                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                  )}
-                >
-                  {time}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Weekdays */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Active Days</label>
-            <div className="flex flex-wrap gap-2">
-              {DAYS_OF_WEEK.map((day, idx) => (
-                <button
-                  key={day}
-                  onClick={() => toggleWeekday(idx)}
-                  className={cn(
-                    "px-3 py-2 rounded-lg text-sm font-medium transition-all",
-                    editForm.weekdays?.includes(idx)
-                      ? `${accentColorClass} text-white`
-                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                  )}
-                >
-                  {day}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Actions */}
-          <div className="flex justify-end gap-3 pt-4">
-            <button
-              onClick={onCancel}
-              className="px-4 py-2 rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-200 transition-all"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={() => onSave(product)}
-              className={cn(
-                "px-4 py-2 rounded-lg text-white transition-all",
-                accentColorClass,
-                `hover:opacity-90`
-              )}
-            >
-              Save Changes
-            </button>
-          </div>
-        </div>
+    <AdminCrudModal
+      title={`Edit ${product.name}`}
+      onClose={onClose}
+      onSubmit={handleSubmit}
+      isSubmitting={isSubmitting}
+      success={success}
+      error={error}
+      submitLabel="Save Changes"
+      accentColor={accentColor}
+    >
+      {/* Name + Brand */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <Field label="Product Name *">
+          <input
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="e.g. Cetaphil Cleanser"
+            className={inputClass}
+          />
+        </Field>
+        <Field label="Brand">
+          <input
+            type="text"
+            value={brand}
+            onChange={(e) => setBrand(e.target.value)}
+            placeholder="e.g. Cetaphil"
+            className={inputClass}
+          />
+        </Field>
       </div>
-    </div>
+
+      {/* Category */}
+      <Field label="Category *">
+        <select value={category} onChange={(e) => setCategory(e.target.value)} className={selectClass}>
+          {categories.map((c) => <option key={c} value={c}>{c}</option>)}
+        </select>
+      </Field>
+
+      {/* Time of Day */}
+      <Field label="Time of Day">
+        <div className="flex gap-2">
+          {TIME_OPTIONS.map((t) => (
+            <button
+              key={t}
+              type="button"
+              onClick={() => setTimeOfDay(t)}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                timeOfDay === t
+                  ? `${accentColor} text-white`
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+              }`}
+            >
+              {t}
+            </button>
+          ))}
+        </div>
+      </Field>
+
+      {/* Hair Phase (hair only) */}
+      {showHairPhase && (
+        <Field label="Hair Phase">
+          <select value={hairPhase} onChange={(e) => setHairPhase(e.target.value as "oiling" | "washing" | "postWash" | "daily")} className={selectClass}>
+            <option value="oiling">Oiling</option>
+            <option value="washing">Washing</option>
+            <option value="postWash">Post-Wash</option>
+            <option value="daily">Daily</option>
+          </select>
+        </Field>
+      )}
+
+      {/* Body Areas (body-specifics only) */}
+      {showBodyAreas && bodyAreaOptions.length > 0 && (
+        <Field label="Body Areas">
+          <div className="flex flex-wrap gap-2">
+            {bodyAreaOptions.map((area) => (
+              <button
+                key={area.code}
+                type="button"
+                onClick={() => toggleArea(area.code)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                  bodyAreas.includes(area.code)
+                    ? `${accentColor} text-white`
+                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                }`}
+              >
+                {area.label}
+              </button>
+            ))}
+          </div>
+        </Field>
+      )}
+
+      {/* Weekdays */}
+      <Field label="Active Days">
+        <div className="flex flex-wrap gap-2">
+          {DAYS_OF_WEEK.map((day, idx) => (
+            <button
+              key={day}
+              type="button"
+              onClick={() => toggleDay(idx)}
+              className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                weekdays.includes(idx)
+                  ? `${accentColor} text-white`
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+              }`}
+            >
+              {day}
+            </button>
+          ))}
+        </div>
+      </Field>
+
+      {/* Display Order */}
+      <Field label="Display Order">
+        <input
+          type="number"
+          min="1"
+          value={displayOrder}
+          onChange={(e) => setDisplayOrder(parseInt(e.target.value) || 1)}
+          className={inputClass}
+        />
+      </Field>
+
+      {/* Notes */}
+      <Field label="Notes">
+        <textarea
+          value={notes}
+          onChange={(e) => setNotes(e.target.value)}
+          placeholder="Optional notes..."
+          rows={2}
+          className={inputClass}
+        />
+      </Field>
+    </AdminCrudModal>
   );
 }

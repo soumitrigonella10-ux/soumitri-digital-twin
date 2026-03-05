@@ -85,7 +85,7 @@ export function EditEssayModal({ essay, onClose, onSaved }: EditEssayModalProps)
         throw new Error(data.error || "Upload failed");
       }
 
-      const data = await response.json();
+      const { data } = await response.json();
       setPdfUrl(data.url);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Upload failed");

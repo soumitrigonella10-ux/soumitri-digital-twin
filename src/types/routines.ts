@@ -9,6 +9,7 @@ export type RoutineType =
   | "hair"
   | "body"
   | "bodySpecific"
+  | "makeup"
   | "wellness"
   | "workout"
   | "food";

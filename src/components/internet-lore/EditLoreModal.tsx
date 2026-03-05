@@ -61,7 +61,7 @@ export function EditLoreModal({ item, onClose, onSuccess }: EditLoreModalProps) 
       formData.append("type", "internet-lore");
       const response = await fetch("/api/cms/upload", { method: "POST", body: formData });
       if (!response.ok) { const data = await response.json(); throw new Error(data.error || "Upload failed"); }
-      const data = await response.json();
+      const { data } = await response.json();
       setMediaUrl(data.url);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Upload failed");
@@ -117,7 +117,7 @@ export function EditLoreModal({ item, onClose, onSuccess }: EditLoreModalProps) 
     }
   }, [title, category, mediaType, era, tagsInput, note, quoteText, videoUrl, mediaUrl, item.id, onClose, onSuccess]);
 
-  const showImageUpload = mediaType === "photo" || mediaType === "reel";
+  const showImageUpload = true; // All types can have an image
   const showVideoUrl = mediaType === "video" || mediaType === "reel";
   const showQuoteText = mediaType === "quote";
 
@@ -180,7 +180,9 @@ export function EditLoreModal({ item, onClose, onSuccess }: EditLoreModalProps) 
           {/* Image Upload */}
           {showImageUpload && (
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1.5">{mediaType === "reel" ? "Reel Preview Image" : "Photo"}</label>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1.5">{mediaType === "reel" ? "Reel Preview Image" : mediaType === "video" ? "Thumbnail Image" : mediaType === "quote" ? "Background Image" : "Photo"}
+                {mediaType !== "photo" && <span className="text-gray-400 normal-case"> (optional)</span>}
+              </label>
               <div onDragOver={(e) => { e.preventDefault(); setIsDragOver(true); }} onDragLeave={() => setIsDragOver(false)} onDrop={handleDrop} onClick={() => fileInputRef.current?.click()}
                 className={`border-2 border-dashed rounded-lg p-5 text-center cursor-pointer transition-colors ${isDragOver ? "border-[#802626] bg-[#802626]/5" : "border-gray-300 hover:border-gray-400"}`}>
                 {isUploading ? (
@@ -192,6 +194,17 @@ export function EditLoreModal({ item, onClose, onSuccess }: EditLoreModalProps) 
                 )}
               </div>
               <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
+              {/* Or paste a direct image URL */}
+              <div className="mt-2 flex items-center gap-2">
+                <span className="text-[10px] uppercase tracking-wider text-gray-400 whitespace-nowrap">or paste URL</span>
+                <input
+                  type="url"
+                  value={mediaUrl}
+                  onChange={(e) => { setMediaUrl(e.target.value); setImageFile(null); }}
+                  placeholder="https://example.com/image.jpg"
+                  className="flex-1 px-3 py-1.5 rounded-lg border border-gray-300 bg-white text-xs text-gray-800 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#802626]/40 focus:border-[#802626]"
+                />
+              </div>
             </div>
           )}
 

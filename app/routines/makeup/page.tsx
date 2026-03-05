@@ -1,201 +1,192 @@
 "use client";
 
-import { useMemo } from "react";
-import { Palette, Sparkles, Loader2 } from "lucide-react";
-import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
-import { useDbData } from "@/hooks/useDbData";
+import { useState, useMemo, useCallback } from "react";
+import { Palette, Sparkles, Eye, Heart } from "lucide-react";
+import { useAppStore } from "@/store/useAppStore";
+import { useAdmin } from "@/hooks/useAdmin";
 import type { Product } from "@/types";
+import { PRODUCT_CARD_THEMES } from "@/components/ProductCard";
+import { AdminAddButton, DeleteConfirmModal } from "@/components/AdminCrudModal";
+import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
+import { RoutineColumn, EditProductModal, AddProductModal } from "@/components/routines";
+
+const MAKEUP_CATEGORIES = [
+  "Foundation", "Concealer", "Primer", "Powder", "Blush", "Bronzer", "Highlighter",
+  "Eyeshadow", "Eyeliner", "Mascara", "Eyebrow", "Kajal",
+  "Lipstick", "Lip Gloss", "Lip Liner", "Lip Balm",
+  "Setting Spray", "Perfume", "Nail", "Body",
+];
 
 // Categorize products into 4 main groups
 const categorizeMakeupProduct = (category: string): "Eyes" | "Skin" | "Lips" | "Body" => {
   const lowerCategory = category.toLowerCase();
-  
-  // Eyes category
-  if (lowerCategory.includes("eye") || lowerCategory.includes("mascara") || 
+
+  if (lowerCategory.includes("eye") || lowerCategory.includes("mascara") ||
       lowerCategory.includes("liner") || lowerCategory.includes("shadow") ||
       lowerCategory.includes("brow") || lowerCategory.includes("kajal")) {
     return "Eyes";
   }
-  
-  // Lips category
   if (lowerCategory.includes("lip")) {
     return "Lips";
   }
-  
-  // Body category
-  if (lowerCategory.includes("body") || lowerCategory.includes("hand") || 
+  if (lowerCategory.includes("body") || lowerCategory.includes("hand") ||
       lowerCategory.includes("nail") || lowerCategory.includes("perfume")) {
     return "Body";
   }
-  
-  // Default to Skin (includes foundation, primer, concealer, powder, blush, etc.)
   return "Skin";
 };
 
+// Column configuration
+const MAKEUP_COLUMNS = {
+  Eyes:  { icon: Eye,      iconColor: "text-purple-500", ringColor: "text-purple-500", barColor: "bg-purple-500" },
+  Skin:  { icon: Sparkles, iconColor: "text-pink-500",   ringColor: "text-pink-500",   barColor: "bg-pink-500"   },
+  Lips:  { icon: Heart,    iconColor: "text-rose-500",   ringColor: "text-rose-500",   barColor: "bg-rose-500"   },
+  Body:  { icon: Palette,  iconColor: "text-amber-500",  ringColor: "text-amber-500",  barColor: "bg-amber-500"  },
+} as const;
+
+type ColumnKey = keyof typeof MAKEUP_COLUMNS;
+const COLUMN_KEYS: ColumnKey[] = ["Eyes", "Skin", "Lips", "Body"];
+
+function computeProgress(products: Product[], completedSet: Set<string>) {
+  const total = products.length;
+  const completed = products.filter((p) => completedSet.has(p.id)).length;
+  return { total, completed, percentage: total > 0 ? Math.round((completed / total) * 100) : 0 };
+}
+
 function MakeupPageContent() {
-  // Fetch makeup products from the products table (routineType includes makeup categories)
-  const { data: allProducts, loading } = useDbData<Product[]>("/api/products?routineType=makeup", []);
+  const { data, refreshFromDb } = useAppStore();
+  const { isAdmin } = useAdmin();
+  const [completedProducts, setCompletedProducts] = useState<Set<string>>(new Set());
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [deletingProduct, setDeletingProduct] = useState<Product | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const makeupProducts = useMemo(() => {
-    return allProducts.sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
-  }, [allProducts]);
+    return data.products
+      .filter((p) => p.routineType === "makeup")
+      .sort((a, b) => (a.displayOrder || 999) - (b.displayOrder || 999));
+  }, [data.products]);
 
-  // Group products by category
-  const productsByCategory = useMemo(() => {
-    const grouped: Record<"Eyes" | "Skin" | "Lips" | "Body", Product[]> = {
-      Eyes: [],
-      Skin: [],
-      Lips: [],
-      Body: []
-    };
-
-    makeupProducts.forEach(product => {
-      const mainCategory = categorizeMakeupProduct(product.category);
-      grouped[mainCategory].push(product);
+  // Group products by makeup category column
+  const columnProducts = useMemo(() => {
+    const result: Record<ColumnKey, Product[]> = { Eyes: [], Skin: [], Lips: [], Body: [] };
+    makeupProducts.forEach((p) => {
+      const col = categorizeMakeupProduct(p.category);
+      result[col].push(p);
     });
-
-    return grouped;
+    return result;
   }, [makeupProducts]);
 
+  const toggleProductCompletion = (productId: string) => {
+    setCompletedProducts((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(productId)) {
+        newSet.delete(productId);
+      } else {
+        newSet.add(productId);
+      }
+      return newSet;
+    });
+  };
+
+  const handleDelete = useCallback(async () => {
+    if (!deletingProduct) return;
+    setIsDeleting(true);
+    try {
+      const res = await fetch(`/api/makeup?id=${deletingProduct.id}`, { method: "DELETE" });
+      const json = await res.json();
+      if (!json.success) throw new Error(json.error);
+      await refreshFromDb();
+      setDeletingProduct(null);
+    } catch (err) {
+      console.error("Delete failed:", err);
+    } finally {
+      setIsDeleting(false);
+    }
+  }, [deletingProduct, refreshFromDb]);
+
   return (
-    <div className="space-y-6">
-      <div>
-        {/* Header */}
-        <div className="flex items-center gap-3 mb-8">
-          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center">
+    <div className="w-full space-y-6">
+      {/* Header */}
+      <header className="animate-fade-scale">
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center">
             <Palette className="w-6 h-6 text-white" />
           </div>
-          <div>
+          <div className="flex-1">
             <h1 className="text-2xl font-bold text-gray-900">Makeup Routine</h1>
-            <p className="text-gray-600">Your daily beauty ritual</p>
+            <p className="text-gray-500">Your daily beauty ritual</p>
           </div>
+          {isAdmin && <AdminAddButton onClick={() => setShowAddModal(true)} accentColor="bg-pink-500" />}
         </div>
+      </header>
 
-        {/* Content */}
-        <div className="space-y-3">
-          {loading ? (
-            <div className="flex items-center justify-center py-20">
-              <Loader2 className="w-8 h-8 animate-spin text-pink-400" />
-            </div>
-          ) : makeupProducts.length === 0 ? (
-            <div className="text-center py-12">
-              <Sparkles className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
-                No makeup products
-              </h3>
-              <p className="text-gray-500">
-                Add products to start building your makeup routine
-              </p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {/* Eyes Column */}
-              <div className="space-y-3">
-                <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2 pb-2 border-b-2 border-purple-300">
-                  <Palette className="w-5 h-5 text-purple-600" />
-                  Eyes
-                </h3>
-                {productsByCategory.Eyes.length === 0 ? (
-                  <p className="text-sm text-gray-400 italic">No products</p>
-                ) : (
-                  productsByCategory.Eyes.map((product, index) => (
-                    <div key={product.id} className="bg-white rounded-lg p-4 border border-gray-200 hover:border-purple-300 transition-colors">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1 min-w-0">
-                          <div className="text-xs font-medium text-purple-600 mb-1">{product.category}</div>
-                          <h4 className="text-sm font-semibold text-gray-900 mb-1 truncate">{product.name}</h4>
-                          {product.shade && (
-                            <p className="text-xs text-gray-500">{product.shade}</p>
-                          )}
-                        </div>
-                        <span className="text-xs font-medium text-gray-400 ml-2 flex-shrink-0">{index + 1}</span>
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
+      {/* Quad-Column Routine Board */}
+      <div className="pb-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-4 gap-6">
+          {COLUMN_KEYS.map((col) => {
+            const config = MAKEUP_COLUMNS[col];
+            const products = columnProducts[col];
+            const progress = computeProgress(products, completedProducts);
 
-              {/* Skin Column */}
-              <div className="space-y-3">
-                <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2 pb-2 border-b-2 border-pink-300">
-                  <Sparkles className="w-5 h-5 text-pink-600" />
-                  Skin
-                </h3>
-                {productsByCategory.Skin.length === 0 ? (
-                  <p className="text-sm text-gray-400 italic">No products</p>
-                ) : (
-                  productsByCategory.Skin.map((product, index) => (
-                    <div key={product.id} className="bg-white rounded-lg p-4 border border-gray-200 hover:border-pink-300 transition-colors">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1 min-w-0">
-                          <div className="text-xs font-medium text-pink-600 mb-1">{product.category}</div>
-                          <h4 className="text-sm font-semibold text-gray-900 mb-1 truncate">{product.name}</h4>
-                          {product.shade && (
-                            <p className="text-xs text-gray-500">{product.shade}</p>
-                          )}
-                        </div>
-                        <span className="text-xs font-medium text-gray-400 ml-2 flex-shrink-0">{index + 1}</span>
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-
-              {/* Lips Column */}
-              <div className="space-y-3">
-                <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2 pb-2 border-b-2 border-rose-300">
-                  <Palette className="w-5 h-5 text-rose-600" />
-                  Lips
-                </h3>
-                {productsByCategory.Lips.length === 0 ? (
-                  <p className="text-sm text-gray-400 italic">No products</p>
-                ) : (
-                  productsByCategory.Lips.map((product, index) => (
-                    <div key={product.id} className="bg-white rounded-lg p-4 border border-gray-200 hover:border-rose-300 transition-colors">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1 min-w-0">
-                          <div className="text-xs font-medium text-rose-600 mb-1">{product.category}</div>
-                          <h4 className="text-sm font-semibold text-gray-900 mb-1 truncate">{product.name}</h4>
-                          {product.shade && (
-                            <p className="text-xs text-gray-500">{product.shade}</p>
-                          )}
-                        </div>
-                        <span className="text-xs font-medium text-gray-400 ml-2 flex-shrink-0">{index + 1}</span>
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-
-              {/* Body Column */}
-              <div className="space-y-3">
-                <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2 pb-2 border-b-2 border-amber-300">
-                  <Sparkles className="w-5 h-5 text-amber-600" />
-                  Body
-                </h3>
-                {productsByCategory.Body.length === 0 ? (
-                  <p className="text-sm text-gray-400 italic">No products</p>
-                ) : (
-                  productsByCategory.Body.map((product, index) => (
-                    <div key={product.id} className="bg-white rounded-lg p-4 border border-gray-200 hover:border-amber-300 transition-colors">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1 min-w-0">
-                          <div className="text-xs font-medium text-amber-600 mb-1">{product.category}</div>
-                          <h4 className="text-sm font-semibold text-gray-900 mb-1 truncate">{product.name}</h4>
-                          {product.shade && (
-                            <p className="text-xs text-gray-500">{product.shade}</p>
-                          )}
-                        </div>
-                        <span className="text-xs font-medium text-gray-400 ml-2 flex-shrink-0">{index + 1}</span>
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-            </div>
-          )}
+            return (
+              <RoutineColumn
+                key={col}
+                title={col}
+                icon={config.icon}
+                iconColorClass={config.iconColor}
+                progressRingColorClass={config.ringColor}
+                progressBarColorClass={config.barColor}
+                progress={progress}
+                products={products}
+                completedProducts={completedProducts}
+                onToggleComplete={toggleProductCompletion}
+                onEdit={isAdmin ? setEditingProduct : undefined}
+                onDelete={isAdmin ? setDeletingProduct : undefined}
+                theme={PRODUCT_CARD_THEMES.makeup}
+                emptyIcon={config.icon}
+                emptyMessage={`No ${col.toLowerCase()} products`}
+                variant="makeup"
+              />
+            );
+          })}
         </div>
       </div>
+
+      {/* Edit Modal */}
+      {editingProduct && (
+        <EditProductModal
+          product={editingProduct}
+          apiUrl="/api/makeup"
+          accentColor="bg-pink-500"
+          categories={MAKEUP_CATEGORIES}
+          onClose={() => setEditingProduct(null)}
+          onSaved={refreshFromDb}
+        />
+      )}
+
+      {/* Add Modal */}
+      {showAddModal && (
+        <AddProductModal
+          routineType="makeup"
+          apiUrl="/api/makeup"
+          accentColor="bg-pink-500"
+          categories={MAKEUP_CATEGORIES}
+          onClose={() => setShowAddModal(false)}
+          onSaved={refreshFromDb}
+        />
+      )}
+
+      {/* Delete Confirmation */}
+      {deletingProduct && (
+        <DeleteConfirmModal
+          itemName={deletingProduct.name}
+          onConfirm={handleDelete}
+          onCancel={() => setDeletingProduct(null)}
+          isDeleting={isDeleting}
+        />
+      )}
     </div>
   );
 }

@@ -114,7 +114,7 @@ export function UploadArtifactModal({ onClose, onPublished }: UploadArtifactModa
       }
 
       const data = await response.json();
-      setImagePath(data.url);
+      setImagePath(data.data.url);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Upload failed");
       setImageFile(null);

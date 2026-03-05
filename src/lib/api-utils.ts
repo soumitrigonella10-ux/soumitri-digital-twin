@@ -22,7 +22,7 @@ const AUTH_STATUS: Record<string, number> = {
  * - Everything else → 500 with the `fallback` message (or the real
  *   Error.message when available).
  */
-export function errorResponse(error: unknown, fallback: string) {
+function errorResponse(error: unknown, fallback: string) {
   const message = error instanceof Error ? error.message : fallback;
   const status = AUTH_STATUS[message] ?? 500;
   return NextResponse.json(

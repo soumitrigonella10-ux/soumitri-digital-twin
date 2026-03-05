@@ -9,7 +9,7 @@ import { EditorialNav } from "@/components/EditorialNav";
 import { AddWishlistModal } from "@/components/wishlist/AddWishlistModal";
 import { EditWishlistModal } from "@/components/wishlist/EditWishlistModal";
 import { getContentByType, deleteContent } from "@/cms/actions";
-import { getPublicWishlistItems } from "@/cms/wishlist-public";
+import { getPublicWishlistItems, deleteDbWishlistItem } from "@/cms/wishlist-public";
 import type { ContentItem as CmsContentItem } from "@/cms/types";
 import {
   CategoryFilter,
@@ -22,7 +22,7 @@ function cmsToWishlistItem(item: CmsContentItem): WishlistItem {
   const result: WishlistItem = {
     id: item.id,
     name: item.title,
-    category: (meta.category as WishlistItem["category"]) || "Other",
+    category: (meta.category as WishlistItem["category"]) || "Things",
   };
   const brand = payload.brand as string;
   if (brand) result.brand = brand;
@@ -104,11 +104,17 @@ export default function WishlistPage() {
     if (!deletingItem) return;
     setIsDeleting(true);
     try {
-      const result = await deleteContent(deletingItem.id);
-      if (result.success) { setDeletingItem(null); fetchCmsItems(); }
+      const result = isCmsItem(deletingItem)
+        ? await deleteContent(deletingItem.id)
+        : await deleteDbWishlistItem(deletingItem.id);
+      if (result.success) {
+        setDeletingItem(null);
+        if (isCmsItem(deletingItem)) fetchCmsItems();
+        else fetchDbItems();
+      }
       else { alert(result.error || "Failed to delete"); }
     } catch { alert("Failed to delete"); } finally { setIsDeleting(false); }
-  }, [deletingItem, fetchCmsItems]);
+  }, [deletingItem, isCmsItem, fetchCmsItems, fetchDbItems]);
 
   // Merge DB + CMS + store wishlist items (CMS wins on name conflict)
   const mergedWishlist = useMemo(() => {
@@ -248,8 +254,9 @@ export default function WishlistPage() {
       {editingItem && (
         <EditWishlistModal
           item={editingItem}
+          isCmsItem={isCmsItem(editingItem)}
           onClose={() => setEditingItem(null)}
-          onSaved={() => { setEditingItem(null); fetchCmsItems(); }}
+          onSaved={() => { setEditingItem(null); fetchCmsItems(); fetchDbItems(); }}
         />
       )}
 

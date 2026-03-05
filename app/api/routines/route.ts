@@ -46,12 +46,23 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
   const schedule = data.schedule as { weekday?: number[]; cycleDay?: number[]; frequencyPerWeek?: number };
   const tags = data.tags as { office?: boolean; wfh?: boolean; travel?: boolean; goingOut?: boolean };
 
-  const upserted = await db.transaction(async (tx) => {
-    // Atomic upsert of the routine parent
-    const [row] = await tx
-      .insert(routines)
-      .values({
-        id: data.id,
+  // Upsert the routine parent
+  const [upserted] = await db
+    .insert(routines)
+    .values({
+      id: data.id,
+      type: data.type,
+      name: data.name,
+      timeOfDay: data.timeOfDay,
+      schedule,
+      tags,
+      occasion: data.occasion ?? null,
+      productIds: data.productIds ?? null,
+      notes: data.notes ?? null,
+    })
+    .onConflictDoUpdate({
+      target: routines.id,
+      set: {
         type: data.type,
         name: data.name,
         timeOfDay: data.timeOfDay,
@@ -60,45 +71,30 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
         occasion: data.occasion ?? null,
         productIds: data.productIds ?? null,
         notes: data.notes ?? null,
-      })
-      .onConflictDoUpdate({
-        target: routines.id,
-        set: {
-          type: data.type,
-          name: data.name,
-          timeOfDay: data.timeOfDay,
-          schedule,
-          tags,
-          occasion: data.occasion ?? null,
-          productIds: data.productIds ?? null,
-          notes: data.notes ?? null,
-          updatedAt: new Date(),
-        },
-      })
-      .returning();
+        updatedAt: new Date(),
+      },
+    })
+    .returning();
 
-    // Replace steps atomically within the same transaction
-    await tx.delete(routineSteps).where(eq(routineSteps.routineId, data.id));
+  // Replace steps (delete + re-insert)
+  await db.delete(routineSteps).where(eq(routineSteps.routineId, data.id));
 
-    if (data.steps.length) {
-      await tx.insert(routineSteps).values(
-        data.steps.map((step, idx) => ({
-          id: `${data.id}-step-${idx + 1}`,
-          routineId: data.id,
-          order: step.order ?? idx + 1,
-          title: step.title,
-          description: step.description ?? null,
-          durationMin: step.durationMin ?? null,
-          productIds: step.productIds ?? null,
-          bodyAreas: step.bodyAreas ?? null,
-          weekdaysOnly: step.weekdaysOnly ?? null,
-          essential: step.essential ?? null,
-        })),
-      );
-    }
-
-    return row;
-  });
+  if (data.steps.length) {
+    await db.insert(routineSteps).values(
+      data.steps.map((step, idx) => ({
+        id: `${data.id}-step-${idx + 1}`,
+        routineId: data.id,
+        order: step.order ?? idx + 1,
+        title: step.title,
+        description: step.description ?? null,
+        durationMin: step.durationMin ?? null,
+        productIds: step.productIds ?? null,
+        bodyAreas: step.bodyAreas ?? null,
+        weekdaysOnly: step.weekdaysOnly ?? null,
+        essential: step.essential ?? null,
+      })),
+    );
+  }
 
   return NextResponse.json({ success: true, data: upserted });
 }, "Failed to save routine");

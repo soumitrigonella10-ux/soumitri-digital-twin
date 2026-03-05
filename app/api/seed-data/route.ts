@@ -7,6 +7,12 @@
 // from the database. Read-only, admin-protected.
 //
 // Returns the same shape as AppData so the store can use it directly.
+//
+// FALLBACK: When the database is unreachable (e.g. Neon endpoint
+// suspended, DNS failure, network outage) the route automatically
+// serves the static TypeScript seed data from @/data/* so the UI
+// isn't blank. A `source: "fallback"` flag is included so callers
+// can tell the difference.
 // ─────────────────────────────────────────────────────────────
 import { NextResponse } from "next/server";
 import { db } from "@/db";
@@ -18,9 +24,41 @@ import {
 import { requireAdmin } from "@/lib/admin-auth";
 import { withErrorHandling } from "@/lib/api-utils";
 
+// ── Static fallback data (loaded only when needed) ───────────
+import { products as fallbackProducts } from "@/data/products";
+import { routines as fallbackRoutines } from "@/data/routines";
+import { wardrobe as fallbackWardrobe } from "@/data/wardrobe";
+import { wishlist as fallbackWishlist } from "@/data/wishlist";
+import { meals as fallbackMeals } from "@/data/meals";
+import { dressings as fallbackDressings } from "@/data/meals/dressings";
+import { workouts as fallbackWorkouts } from "@/data/workouts";
+
+function buildFallbackResponse() {
+  console.warn("[seed-data] ⚠️ Database unreachable — serving static fallback data");
+  return NextResponse.json({
+    success: true,
+    source: "fallback",
+    data: {
+      products: fallbackProducts,
+      routines: fallbackRoutines,
+      wardrobe: fallbackWardrobe,
+      wishlist: fallbackWishlist,
+      mealTemplates: fallbackMeals,
+      dressings: fallbackDressings,
+      workoutPlans: fallbackWorkouts,
+    },
+  }, {
+    headers: {
+      // Short cache — retry DB on next request
+      'Cache-Control': 'private, max-age=10',
+    },
+  });
+}
+
 export const GET = withErrorHandling(async () => {
   await requireAdmin();
 
+  try {
     // Flat tables + relational queries for nested data, all in parallel
     const [
       productRows,
@@ -57,6 +95,7 @@ export const GET = withErrorHandling(async () => {
 
     return NextResponse.json({
       success: true,
+      source: "database",
       data: {
         products: productRows,
         routines: routinesWithSteps,
@@ -72,4 +111,9 @@ export const GET = withErrorHandling(async () => {
         'Cache-Control': 'private, s-maxage=60, stale-while-revalidate=300',
       },
     });
+  } catch (dbError) {
+    // Database unreachable — serve static fallback so the UI isn't blank
+    console.error("[seed-data] Database query failed:", dbError);
+    return buildFallbackResponse();
+  }
 }, "Failed to fetch seed data");

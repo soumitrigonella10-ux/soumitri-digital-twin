@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { AnimatePresence } from 'framer-motion';
-import type { DesignThought } from '@/data/designThoughts';
+import type { DesignThought } from '@/types/editorial';
 import { EditorialNav } from '@/components/EditorialNav';
 import { AuthenticatedLayout } from '@/components/AuthenticatedLayout';
 import { ContentRenderer } from '@/components/content-renderer';

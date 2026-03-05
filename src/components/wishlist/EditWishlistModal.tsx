@@ -3,13 +3,15 @@
 import { useState, useCallback } from "react";
 import { X, Loader2, Check } from "lucide-react";
 import { updateContent } from "@/cms/actions";
+import { updateDbWishlistItem } from "@/cms/wishlist-public";
 import type { WishlistItem } from "@/types/wardrobe";
 
 const CATEGORIES = [
   { value: "Tops", label: "Tops" }, { value: "Bottoms", label: "Bottoms" },
-  { value: "Shoes", label: "Shoes" }, { value: "Bags", label: "Bags" },
-  { value: "Suits", label: "Suits" }, { value: "Seasonals", label: "Seasonals" },
-  { value: "Accessories", label: "Accessories" }, { value: "Other", label: "Other" },
+  { value: "Dresses", label: "Dresses" }, { value: "Outerwear", label: "Outerwear" },
+  { value: "Suits", label: "Suits" }, { value: "Bags", label: "Bags" },
+  { value: "Shoes", label: "Shoes" }, { value: "Jewellery", label: "Jewellery" },
+  { value: "Things", label: "Things" },
 ];
 
 const PRIORITIES = [
@@ -23,11 +25,12 @@ const CURRENCIES = [
 
 interface EditWishlistModalProps {
   item: WishlistItem;
+  isCmsItem?: boolean;
   onClose: () => void;
   onSaved?: () => void;
 }
 
-export function EditWishlistModal({ item, onClose, onSaved }: EditWishlistModalProps) {
+export function EditWishlistModal({ item, isCmsItem, onClose, onSaved }: EditWishlistModalProps) {
   const [name, setName] = useState(item.name);
   const [brand, setBrand] = useState(item.brand || "");
   const [category, setCategory] = useState(item.category);
@@ -52,18 +55,41 @@ export function EditWishlistModal({ item, onClose, onSaved }: EditWishlistModalP
     try {
       const parsedTags = tags.split(",").map(t => t.trim()).filter(Boolean);
       const parsedPrice = price ? parseFloat(price) : undefined;
-      const result = await updateContent({
-        id: item.id,
-        title: name.trim(),
-        slug: slugify(name),
-        coverImage: imageUrl || null,
-        metadata: { category, tags: parsedTags, priority, purchased },
-        payload: { brand: brand.trim(), imageUrl: imageUrl.trim(), websiteUrl: websiteUrl.trim(), price: parsedPrice, currency },
-      });
+
+      let result: { success: boolean; error?: string };
+
+      if (isCmsItem) {
+        // CMS item — update via CMS actions
+        result = await updateContent({
+          id: item.id,
+          title: name.trim(),
+          slug: slugify(name),
+          coverImage: imageUrl || null,
+          metadata: { category, tags: parsedTags, priority, purchased },
+          payload: { brand: brand.trim(), imageUrl: imageUrl.trim(), websiteUrl: websiteUrl.trim(), price: parsedPrice, currency },
+        });
+      } else {
+        // DB item — update via DB server action
+        const updatePayload: WishlistItem = {
+          id: item.id,
+          name: name.trim(),
+          category: category as WishlistItem["category"],
+          priority,
+          purchased,
+        };
+        if (brand.trim()) updatePayload.brand = brand.trim();
+        if (parsedTags.length) updatePayload.tags = parsedTags;
+        if (imageUrl.trim()) updatePayload.imageUrl = imageUrl.trim();
+        if (websiteUrl.trim()) updatePayload.websiteUrl = websiteUrl.trim();
+        if (parsedPrice !== undefined) updatePayload.price = parsedPrice;
+        if (currency) updatePayload.currency = currency;
+        result = await updateDbWishlistItem(updatePayload);
+      }
+
       if (result.success) { setSuccess(true); setTimeout(() => { onSaved?.(); onClose(); }, 1200); }
       else { setError(result.error || "Failed to update"); }
     } catch (err) { setError(err instanceof Error ? err.message : "Something went wrong"); } finally { setIsSubmitting(false); }
-  }, [name, brand, category, priority, tags, imageUrl, websiteUrl, price, currency, purchased, item.id, onClose, onSaved]);
+  }, [name, brand, category, priority, tags, imageUrl, websiteUrl, price, currency, purchased, item.id, isCmsItem, onClose, onSaved]);
 
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center pt-[3vh] sm:pt-[5vh]">

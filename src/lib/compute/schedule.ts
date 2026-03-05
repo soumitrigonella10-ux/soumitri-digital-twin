@@ -16,6 +16,7 @@ export function getRoutineSectionKey(type: Routine["type"]): string {
     hair: "Haircare",
     body: "Bodycare",
     bodySpecific: "Body Specifics",
+    makeup: "Makeup",
     wellness: "Wellness",
     workout: "Workout",
     food: "Food Plan",

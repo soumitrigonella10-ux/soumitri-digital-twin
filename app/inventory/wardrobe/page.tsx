@@ -2,10 +2,11 @@
 
 import { useState, useMemo } from "react";
 import Image from "next/image";
-import { Shirt, Plus } from "lucide-react";
+import { Shirt, Plus, Pencil } from "lucide-react";
 import { useAppStore } from "@/store/useAppStore";
 import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
 import { AddWardrobeItemPanel } from "@/components/AddWardrobeItemPanel";
+import { EditWardrobeItemPanel } from "@/components/EditWardrobeItemPanel";
 import type { WardrobeItem } from "@/types";
 import { cn } from "@/lib/utils";
 
@@ -22,6 +23,7 @@ function WardrobePageContent() {
   const { data } = useAppStore();
   const [selectedCategory, setSelectedCategory] = useState<string>("Top");
   const [showAddPanel, setShowAddPanel] = useState(false);
+  const [editingItem, setEditingItem] = useState<WardrobeItem | null>(null);
   const [selectedSubchip, setSelectedSubchip] = useState<string | null>(null);
 
   // Get level-1 sub-chips for the selected category
@@ -134,6 +136,13 @@ function WardrobePageContent() {
         onClose={() => setShowAddPanel(false)}
       />
 
+      {/* Edit Item Panel */}
+      <EditWardrobeItemPanel
+        open={!!editingItem}
+        item={editingItem}
+        onClose={() => setEditingItem(null)}
+      />
+
       {/* Category Chips */}
       <div className="flex flex-wrap gap-2">
         {categories.map((cat) => (
@@ -186,8 +195,9 @@ function WardrobePageContent() {
                 {items.map((item, index) => (
                   <div
                     key={item.id}
-                    className="lifeos-card-interactive overflow-hidden animate-slide-in"
+                    className="lifeos-card-interactive overflow-hidden animate-slide-in cursor-pointer group"
                     style={{ animationDelay: `${index * 50}ms` }}
+                    onClick={() => setEditingItem(item)}
                   >
                     <div className="aspect-square bg-[#FDF5E6] relative flex items-center justify-center">
                       {item.imageUrl ? (
@@ -201,6 +211,10 @@ function WardrobePageContent() {
                       ) : (
                         <Shirt className="w-8 h-8 text-gray-300" />
                       )}
+                      {/* Edit overlay */}
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+                        <Pencil className="w-5 h-5 text-white opacity-0 group-hover:opacity-100 transition-opacity drop-shadow-md" />
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -213,8 +227,9 @@ function WardrobePageContent() {
           {filteredItems.map((item, index) => (
             <div
               key={item.id}
-              className="lifeos-card-interactive overflow-hidden animate-slide-in"
+              className="lifeos-card-interactive overflow-hidden animate-slide-in cursor-pointer group"
               style={{ animationDelay: `${index * 50}ms` }}
+              onClick={() => setEditingItem(item)}
             >
               <div className="aspect-square bg-[#FDF5E6] relative flex items-center justify-center">
                 {item.imageUrl ? (
@@ -228,6 +243,10 @@ function WardrobePageContent() {
                 ) : (
                   <Shirt className="w-8 h-8 text-gray-300" />
                 )}
+                {/* Edit overlay */}
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+                  <Pencil className="w-5 h-5 text-white opacity-0 group-hover:opacity-100 transition-opacity drop-shadow-md" />
+                </div>
               </div>
             </div>
           ))}

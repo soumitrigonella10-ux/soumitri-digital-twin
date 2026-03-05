@@ -26,6 +26,7 @@ function BodySpecificsPageContent() {
   const { refreshFromDb } = useAppStore();
   const [activeAreaFilter, setActiveAreaFilter] = useState<keyof typeof BODY_AREAS | "ALL">("ALL");
   const [showAddModal, setShowAddModal] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [deletingProduct, setDeletingProduct] = useState<Product | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -220,7 +221,7 @@ function BodySpecificsPageContent() {
             products={morningProducts}
             completedProducts={routine.completedProducts}
             onToggleComplete={routine.toggleProductCompletion}
-            onEdit={routine.handleEditStart}
+            onEdit={isAdmin ? setEditingProduct : undefined}
             onDelete={isAdmin ? setDeletingProduct : undefined}
             theme={PRODUCT_CARD_THEMES.bodySpecifics}
             emptyIcon={Target}
@@ -237,7 +238,7 @@ function BodySpecificsPageContent() {
             products={eveningProducts}
             completedProducts={routine.completedProducts}
             onToggleComplete={routine.toggleProductCompletion}
-            onEdit={routine.handleEditStart}
+            onEdit={isAdmin ? setEditingProduct : undefined}
             onDelete={isAdmin ? setDeletingProduct : undefined}
             theme={PRODUCT_CARD_THEMES.bodySpecifics}
             emptyIcon={Target}
@@ -248,14 +249,16 @@ function BodySpecificsPageContent() {
       </div>
 
       {/* Edit Modal */}
-      {routine.editingProductData && (
+      {editingProduct && (
         <EditProductModal
-          product={routine.editingProductData}
-          editForm={routine.editForm}
-          onEditFormChange={routine.setEditForm}
-          onSave={routine.handleEditSave}
-          onCancel={routine.handleEditCancel}
-          accentColorClass="bg-purple-500"
+          product={editingProduct}
+          apiUrl="/api/body-specifics"
+          accentColor="bg-purple-500"
+          categories={BODY_SPECIFICS_CATEGORIES}
+          onClose={() => setEditingProduct(null)}
+          onSaved={refreshFromDb}
+          showBodyAreas
+          bodyAreaOptions={BODY_AREA_OPTIONS}
         />
       )}
 

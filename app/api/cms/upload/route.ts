@@ -23,11 +23,11 @@ import { createLogger } from "@/lib/logger";
 const log = createLogger("cms-upload");
 
 // ── Allowed upload directories (defends against path traversal) ──
-const ALLOWED_UPLOAD_TYPES = ["essays", "travel", "images", "general"] as const;
+const ALLOWED_UPLOAD_TYPES = ["essays", "travel", "images", "sidequests", "consumption", "internet-lore", "artifacts", "general"] as const;
 type UploadType = (typeof ALLOWED_UPLOAD_TYPES)[number];
 
 function sanitizeUploadType(raw: string): UploadType {
-  const cleaned = raw.toLowerCase().replace(/[^a-z]/g, "");
+  const cleaned = raw.toLowerCase().replace(/[^a-z-]/g, "");
   if (ALLOWED_UPLOAD_TYPES.includes(cleaned as UploadType)) {
     return cleaned as UploadType;
   }

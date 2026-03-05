@@ -31,7 +31,7 @@ function InternetLorePageContent() {
     status, isAuthenticated, isAdmin,
     items: allLoreItems,
     fetchCmsItems,
-    isCmsItem,
+    isCmsItem: _isCmsItem,
     deletingItem, setDeletingItem,
     isDeleting, handleDeleteConfirm,
   } = useCmsPage({
@@ -183,8 +183,8 @@ function InternetLorePageContent() {
                     index={index}
                     chaosMode={false}
                   />
-                  {/* Admin edit/delete overlay for CMS items */}
-                  {isAdmin && isCmsItem(item) && (
+                  {/* Admin edit/delete overlay */}
+                  {isAdmin && (
                     <div className="absolute top-3 left-3 z-20 flex gap-1.5 opacity-0 group-hover/card:opacity-100 transition-opacity duration-200">
                       <button
                         onClick={(e) => { e.stopPropagation(); setEditingItem(item); }}

@@ -72,7 +72,7 @@ export function UploadLoreModal({ defaultCategory = "pop-internet-core", onClose
         const data = await response.json();
         throw new Error(data.error || "Upload failed");
       }
-      const data = await response.json();
+      const { data } = await response.json();
       setMediaUrl(data.url);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Upload failed");
@@ -134,7 +134,7 @@ export function UploadLoreModal({ defaultCategory = "pop-internet-core", onClose
     }
   }, [title, category, mediaType, era, tagsInput, note, quoteText, videoUrl, mediaUrl, onClose, onSuccess]);
 
-  const showImageUpload = mediaType === "photo" || mediaType === "reel";
+  const showImageUpload = true; // All types can have an image
   const showVideoUrl = mediaType === "video" || mediaType === "reel";
   const showQuoteText = mediaType === "quote";
 
@@ -205,7 +205,8 @@ export function UploadLoreModal({ defaultCategory = "pop-internet-core", onClose
           {showImageUpload && (
             <div>
               <label className="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1.5">
-                {mediaType === "reel" ? "Reel Preview Image" : "Photo"}
+                {mediaType === "reel" ? "Reel Preview Image" : mediaType === "video" ? "Thumbnail Image" : mediaType === "quote" ? "Background Image" : "Photo"}
+                {mediaType !== "photo" && <span className="text-gray-400 normal-case"> (optional)</span>}
               </label>
               <div
                 onDragOver={(e) => { e.preventDefault(); setIsDragOver(true); }}
@@ -236,6 +237,17 @@ export function UploadLoreModal({ defaultCategory = "pop-internet-core", onClose
                 )}
               </div>
               <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
+              {/* Or paste a direct image URL */}
+              <div className="mt-2 flex items-center gap-2">
+                <span className="text-[10px] uppercase tracking-wider text-gray-400 whitespace-nowrap">or paste URL</span>
+                <input
+                  type="url"
+                  value={mediaUrl}
+                  onChange={(e) => { setMediaUrl(e.target.value); setImageFile(null); }}
+                  placeholder="https://example.com/image.jpg"
+                  className="flex-1 px-3 py-1.5 rounded-lg border border-gray-300 bg-white text-xs text-gray-800 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#802626]/40 focus:border-[#802626]"
+                />
+              </div>
             </div>
           )}
 

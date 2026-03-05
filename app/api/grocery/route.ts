@@ -1,6 +1,6 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import { db } from "@/db";
 import { groceryCategories } from "@/db/schema/nutrition";
 import { requireAdmin } from "@/lib/admin-auth";
@@ -26,8 +26,17 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
     );
   }
   const data = parsed.data;
-  const id = data.id || `gc-${data.name.toLowerCase().replace(/\s+/g, "-")}`;
+  const generatedId = data.id || `gc-${data.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/-+$/, "")}`;
   const items = data.items as { name: string; quantity?: string }[];
+
+  // Look up by name + listType so we find the row even if the ID format differs (e.g. seeded data)
+  const existing = await db
+    .select({ id: groceryCategories.id })
+    .from(groceryCategories)
+    .where(and(eq(groceryCategories.name, data.name), eq(groceryCategories.listType, data.listType)))
+    .limit(1);
+
+  const id = existing.length > 0 && existing[0] ? existing[0].id : generatedId;
 
   const [upserted] = await db
     .insert(groceryCategories)

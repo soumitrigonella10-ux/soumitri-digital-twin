@@ -63,7 +63,7 @@ export function UploadSidequestModal({ onClose, onSuccess }: UploadSidequestModa
         throw new Error(data.error || "Upload failed");
       }
 
-      const data = await response.json();
+      const { data } = await response.json();
       setImageUrl(data.url);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Upload failed");

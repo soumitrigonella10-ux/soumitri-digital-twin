@@ -45,12 +45,25 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
   }
   const data = parsed.data;
 
-  const upserted = await db.transaction(async (tx) => {
-    // Atomic upsert of the meal template parent
-    const [row] = await tx
-      .insert(mealTemplates)
-      .values({
-        id: data.id,
+  // Upsert the meal template parent
+  const [upserted] = await db
+    .insert(mealTemplates)
+    .values({
+      id: data.id,
+      name: data.name,
+      timeOfDay: data.timeOfDay,
+      mealType: data.mealType,
+      items: data.items,
+      instructions: data.instructions ?? null,
+      weekdays: data.weekdays ?? null,
+      prepTimeMin: data.prepTimeMin ?? null,
+      cookTimeMin: data.cookTimeMin ?? null,
+      servings: data.servings ?? null,
+      tags: data.tags ?? null,
+    })
+    .onConflictDoUpdate({
+      target: mealTemplates.id,
+      set: {
         name: data.name,
         timeOfDay: data.timeOfDay,
         mealType: data.mealType,
@@ -61,43 +74,26 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
         cookTimeMin: data.cookTimeMin ?? null,
         servings: data.servings ?? null,
         tags: data.tags ?? null,
-      })
-      .onConflictDoUpdate({
-        target: mealTemplates.id,
-        set: {
-          name: data.name,
-          timeOfDay: data.timeOfDay,
-          mealType: data.mealType,
-          items: data.items,
-          instructions: data.instructions ?? null,
-          weekdays: data.weekdays ?? null,
-          prepTimeMin: data.prepTimeMin ?? null,
-          cookTimeMin: data.cookTimeMin ?? null,
-          servings: data.servings ?? null,
-          tags: data.tags ?? null,
-          updatedAt: new Date(),
-        },
-      })
-      .returning();
+        updatedAt: new Date(),
+      },
+    })
+    .returning();
 
-    // Replace ingredients atomically within the same transaction
-    await tx.delete(mealIngredients).where(eq(mealIngredients.mealTemplateId, data.id));
+  // Replace ingredients (delete + re-insert)
+  await db.delete(mealIngredients).where(eq(mealIngredients.mealTemplateId, data.id));
 
-    if (data.ingredients?.length) {
-      await tx.insert(mealIngredients).values(
-        data.ingredients.map((ing, idx) => ({
-          id: `${data.id}-ing-${idx + 1}`,
-          mealTemplateId: data.id,
-          name: ing.name,
-          quantity: ing.quantity,
-          unit: ing.unit ?? null,
-          category: ing.category ?? null,
-        })),
-      );
-    }
-
-    return row;
-  });
+  if (data.ingredients?.length) {
+    await db.insert(mealIngredients).values(
+      data.ingredients.map((ing, idx) => ({
+        id: `${data.id}-ing-${idx + 1}`,
+        mealTemplateId: data.id,
+        name: ing.name,
+        quantity: ing.quantity,
+        unit: ing.unit ?? null,
+        category: ing.category ?? null,
+      })),
+    );
+  }
 
   return NextResponse.json({ success: true, data: upserted });
 }, "Failed to save meal template");

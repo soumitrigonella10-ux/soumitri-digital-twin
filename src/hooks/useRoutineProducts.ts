@@ -116,11 +116,11 @@ export function useRoutineProducts({ routineType }: UseRoutineProductsOptions) {
   const handleEditSave = useCallback(
     (product: Product) => {
       try {
-        const updates: Partial<Product> = {};
-        if (editForm.displayOrder !== undefined) updates.displayOrder = editForm.displayOrder;
-        if (editForm.timeOfDay !== undefined) updates.timeOfDay = editForm.timeOfDay;
-        if (editForm.weekdays !== undefined) updates.weekdays = editForm.weekdays;
-        upsertProduct({ ...product, ...updates });
+        const merged = { ...product };
+        if (editForm.displayOrder !== undefined) merged.displayOrder = editForm.displayOrder;
+        if (editForm.timeOfDay !== undefined) merged.timeOfDay = editForm.timeOfDay as TimeOfDay;
+        if (editForm.weekdays !== undefined) merged.weekdays = editForm.weekdays;
+        upsertProduct(merged);
         setEditingProduct(null);
         setEditForm({});
       } catch (e) {

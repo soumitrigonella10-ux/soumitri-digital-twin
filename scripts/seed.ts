@@ -244,16 +244,17 @@ async function seed() {
   })))
 
   // ── 6e. Grocery Categories ─────────────────────────────────
+  const toGroceryId = (name: string) => `gc-${name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-+$/, '')}`
   const groceryData = [
-    ...masterSetupCategories.map((c, i) => ({
-      id:       `gc-master-${i}`,
+    ...masterSetupCategories.map((c) => ({
+      id:       toGroceryId(c.name),
       name:     c.name,
       emoji:    c.emoji,
       listType: 'master',
       items:    c.items,
     })),
-    ...weeklyCategories.map((c, i) => ({
-      id:       `gc-weekly-${i}`,
+    ...weeklyCategories.map((c) => ({
+      id:       toGroceryId(c.name),
       name:     c.name,
       emoji:    c.emoji,
       listType: 'weekly',
@@ -344,7 +345,7 @@ async function seed() {
       size:      item.size ?? 'md',
     },
     payload: {
-      imageUrl:  item.imageUrl ?? null,
+      mediaUrl:  item.imageUrl ?? null,
       videoUrl:  item.videoUrl ?? null,
       quoteText: item.quoteText ?? null,
       note:      item.note ?? null,

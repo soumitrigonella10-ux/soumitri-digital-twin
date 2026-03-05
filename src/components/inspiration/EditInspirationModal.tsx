@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useCallback } from "react";
-import { X, Loader2, Check } from "lucide-react";
+import { useState, useCallback, useRef } from "react";
+import { X, Loader2, Check, Upload, Link } from "lucide-react";
 import { updateContent } from "@/cms/actions";
 import type { InspirationFragment } from "@/data/artifacts";
 
@@ -27,6 +27,10 @@ export function EditInspirationModal({ item, onClose, onSaved }: EditInspiration
   const [backgroundColor, setBackgroundColor] = useState(item.backgroundColor || "#F9F7F2");
   const [accentColor, setAccentColor] = useState(item.accentColor || "");
   const [imageUrl, setImageUrl] = useState("");
+  const [imageMode, setImageMode] = useState<"upload" | "url">("upload");
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadedFileName, setUploadedFileName] = useState("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -34,6 +38,25 @@ export function EditInspirationModal({ item, onClose, onSaved }: EditInspiration
 
   const slugify = (text: string) =>
     text.toLowerCase().trim().replace(/[^\w\s-]/g, "").replace(/[\s_]+/g, "-").replace(/--+/g, "-").replace(/^-+|-+$/g, "");
+
+  const handleImageUpload = useCallback(async (file: File) => {
+    setIsUploading(true);
+    setError(null);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("type", "images");
+      const res = await fetch("/api/cms/upload", { method: "POST", body: formData });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || "Upload failed");
+      setImageUrl(json.data.url);
+      setUploadedFileName(file.name);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Image upload failed");
+    } finally {
+      setIsUploading(false);
+    }
+  }, []);
 
   const handleSubmit = useCallback(async () => {
     if (!title.trim()) { setError("Title is required"); return; }
@@ -109,8 +132,24 @@ export function EditInspirationModal({ item, onClose, onSaved }: EditInspiration
           </div>
 
           <div>
-            <label className="block font-editorial text-[10px] font-semibold uppercase tracking-[0.15em] text-telugu-marigold mb-1.5">Image URL</label>
-            <input type="text" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} placeholder="https://..." className="w-full px-3 py-2 rounded-lg border border-stone-300 bg-white text-sm text-stone-800 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-telugu-marigold/40 focus:border-telugu-marigold font-editorial" />
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="block font-editorial text-[10px] font-semibold uppercase tracking-[0.15em] text-telugu-marigold">Image</label>
+              <div className="flex items-center gap-1 bg-stone-100 rounded-md p-0.5">
+                <button type="button" onClick={() => setImageMode("upload")} className={`flex items-center gap-1 px-2 py-1 rounded text-[10px] font-editorial font-semibold uppercase tracking-wider transition-colors ${imageMode === "upload" ? "bg-white text-telugu-kavi shadow-sm" : "text-stone-400 hover:text-stone-600"}`}><Upload className="h-3 w-3" />Upload</button>
+                <button type="button" onClick={() => setImageMode("url")} className={`flex items-center gap-1 px-2 py-1 rounded text-[10px] font-editorial font-semibold uppercase tracking-wider transition-colors ${imageMode === "url" ? "bg-white text-telugu-kavi shadow-sm" : "text-stone-400 hover:text-stone-600"}`}><Link className="h-3 w-3" />URL</button>
+              </div>
+            </div>
+            {imageMode === "upload" ? (
+              <div>
+                <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp,image/avif" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleImageUpload(f); }} className="hidden" />
+                <button type="button" onClick={() => fileInputRef.current?.click()} disabled={isUploading} className="w-full px-3 py-3 rounded-lg border-2 border-dashed border-stone-300 bg-white hover:border-telugu-marigold/50 hover:bg-stone-50 text-sm text-stone-500 transition-colors flex items-center justify-center gap-2 font-editorial">
+                  {isUploading ? <><Loader2 className="h-4 w-4 animate-spin" />Uploading...</> : uploadedFileName ? <><Check className="h-4 w-4 text-green-600" /><span className="text-stone-700 truncate max-w-[200px]">{uploadedFileName}</span></> : <><Upload className="h-4 w-4" />Choose image (JPG, PNG, WebP, AVIF)</>}
+                </button>
+                {imageUrl && uploadedFileName && <p className="mt-1 text-[10px] text-stone-400 font-editorial truncate">Uploaded: {imageUrl}</p>}
+              </div>
+            ) : (
+              <input type="text" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} placeholder="https://..." className="w-full px-3 py-2 rounded-lg border border-stone-300 bg-white text-sm text-stone-800 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-telugu-marigold/40 focus:border-telugu-marigold font-editorial" />
+            )}
           </div>
 
           {error && <p className="text-sm text-red-600 font-editorial">{error}</p>}

@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useRef } from "react";
 import Image from "next/image";
-import { Gem, Heart, Loader2, Edit2, Trash2 } from "lucide-react";
+import { Gem, Heart, Loader2, Edit2, Trash2, ImagePlus, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
 import { useDbData } from "@/hooks/useDbData";
@@ -41,17 +41,73 @@ function JewelleryFormModal({
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // File upload state
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(item?.imageUrl || null);
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate type
+    const allowedTypes = ["image/png", "image/jpeg", "image/webp", "image/avif"];
+    if (!allowedTypes.includes(file.type)) {
+      setError("Only PNG, JPEG, WebP, and AVIF images are allowed");
+      return;
+    }
+
+    // Validate size (5 MB)
+    if (file.size > 5 * 1024 * 1024) {
+      setError("File too large. Max 5 MB");
+      return;
+    }
+
+    setSelectedFile(file);
+    setPreviewUrl(URL.createObjectURL(file));
+    setImageUrl(""); // Clear URL input when file is selected
+    setError(null);
+  }, []);
+
+  const clearSelectedFile = useCallback(() => {
+    setSelectedFile(null);
+    setPreviewUrl(item?.imageUrl || null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  }, [item?.imageUrl]);
+
   const handleSubmit = useCallback(async () => {
     if (!name.trim()) return;
     setIsSubmitting(true);
     setError(null);
     try {
+      let finalImageUrl = imageUrl.trim();
+
+      // Upload file if selected
+      if (selectedFile) {
+        setIsUploading(true);
+        const formData = new FormData();
+        formData.append("file", selectedFile);
+
+        const uploadRes = await fetch("/api/jewellery/upload", {
+          method: "POST",
+          body: formData,
+        });
+        const uploadData = await uploadRes.json();
+
+        if (!uploadRes.ok || !uploadData.success) {
+          throw new Error(uploadData.error || "Image upload failed");
+        }
+        finalImageUrl = uploadData.url;
+        setIsUploading(false);
+      }
+
       const payload: Record<string, unknown> = {
         id: item?.id ?? `j-${name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "")}`,
         name: name.trim(),
         category,
         subcategory: subcategory.trim() || null,
-        imageUrl: imageUrl.trim() || "",
+        imageUrl: finalImageUrl,
         favorite,
       };
       const res = await fetch("/api/jewellery", {
@@ -65,10 +121,11 @@ function JewelleryFormModal({
       setTimeout(() => { onSaved(); onClose(); }, 600);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed");
+      setIsUploading(false);
     } finally {
       setIsSubmitting(false);
     }
-  }, [name, category, subcategory, imageUrl, favorite, item?.id, isEdit, onSaved, onClose]);
+  }, [name, category, subcategory, imageUrl, favorite, selectedFile, item?.id, isEdit, onSaved, onClose]);
 
   return (
     <AdminCrudModal
@@ -94,9 +151,85 @@ function JewelleryFormModal({
           <input value={subcategory} onChange={(e) => setSubcategory(e.target.value)} placeholder="e.g. Hoops" className={inputClass} />
         </Field>
       </div>
-      <Field label="Image URL">
-        <input value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} placeholder="/uploads/jewellery/..." className={inputClass} />
+
+      {/* Image Upload Section */}
+      <Field label="Image">
+        <div className="space-y-3">
+          {/* File Upload Area */}
+          <div
+            onClick={() => fileInputRef.current?.click()}
+            className={cn(
+              "relative w-full h-36 rounded-xl border-2 border-dashed cursor-pointer overflow-hidden",
+              "flex items-center justify-center transition-colors",
+              previewUrl
+                ? "border-cyan-300 bg-[#FDF5E6]"
+                : "border-gray-300 bg-gray-50 hover:border-cyan-400 hover:bg-cyan-50"
+            )}
+          >
+            {previewUrl ? (
+              <>
+                <Image
+                  src={previewUrl}
+                  alt="Preview"
+                  fill
+                  className="object-contain rounded-xl"
+                />
+                {selectedFile && (
+                  <button
+                    type="button"
+                    onClick={(e) => { e.stopPropagation(); clearSelectedFile(); }}
+                    className="absolute top-2 right-2 p-1 rounded-full bg-black/50 text-white hover:bg-black/70 z-10"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </>
+            ) : (
+              <div className="text-center">
+                <ImagePlus className="w-8 h-8 text-gray-400 mx-auto mb-1" />
+                <p className="text-xs text-gray-500">Tap to upload from gallery</p>
+                <p className="text-[10px] text-gray-400 mt-0.5">PNG, JPEG, WebP, AVIF · Max 5 MB</p>
+              </div>
+            )}
+            {isUploading && (
+              <div className="absolute inset-0 bg-white/70 flex items-center justify-center rounded-xl">
+                <Loader2 className="w-6 h-6 animate-spin text-cyan-500" />
+              </div>
+            )}
+          </div>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/png,image/jpeg,image/webp,image/avif"
+            onChange={handleFileSelect}
+            className="hidden"
+          />
+
+          {/* OR divider */}
+          <div className="flex items-center gap-3">
+            <div className="flex-1 h-px bg-gray-200" />
+            <span className="text-xs text-gray-400 font-medium">OR</span>
+            <div className="flex-1 h-px bg-gray-200" />
+          </div>
+
+          {/* URL Input */}
+          <input
+            value={imageUrl}
+            onChange={(e) => {
+              setImageUrl(e.target.value);
+              if (e.target.value.trim()) {
+                setSelectedFile(null);
+                setPreviewUrl(e.target.value.trim());
+                if (fileInputRef.current) fileInputRef.current.value = "";
+              }
+            }}
+            placeholder="Paste image URL instead..."
+            className={inputClass}
+            disabled={!!selectedFile}
+          />
+        </div>
       </Field>
+
       <label className="flex items-center gap-2 cursor-pointer">
         <input type="checkbox" checked={favorite} onChange={(e) => setFavorite(e.target.checked)} className="w-4 h-4 rounded text-cyan-500" />
         <span className="text-sm text-stone-700">Favorite</span>

@@ -73,7 +73,7 @@ export function EditConsumptionModal({ item, onClose, onSaved }: EditConsumption
       const formData = new FormData(); formData.append("file", file); formData.append("type", "consumption");
       const response = await fetch("/api/cms/upload", { method: "POST", body: formData });
       if (!response.ok) { const data = await response.json(); throw new Error(data.error || "Upload failed"); }
-      const data = await response.json(); setImageUrl(data.url);
+      const { data } = await response.json(); setImageUrl(data.url);
     } catch (err) { setError(err instanceof Error ? err.message : "Upload failed"); setImageFile(null); } finally { setIsUploading(false); }
   }, []);
 

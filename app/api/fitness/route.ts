@@ -50,66 +50,62 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
   }
   const data = parsed.data;
 
-  const upserted = await db.transaction(async (tx) => {
-    // Atomic upsert of the workout plan parent
-    const [row] = await tx
-      .insert(workoutPlans)
-      .values({
-        id: data.id,
+  // Upsert the workout plan parent
+  const [upserted] = await db
+    .insert(workoutPlans)
+    .values({
+      id: data.id,
+      name: data.name,
+      weekday: data.weekday,
+      durationMin: data.durationMin,
+      goal: data.goal ?? null,
+    })
+    .onConflictDoUpdate({
+      target: workoutPlans.id,
+      set: {
         name: data.name,
         weekday: data.weekday,
         durationMin: data.durationMin,
         goal: data.goal ?? null,
-      })
-      .onConflictDoUpdate({
-        target: workoutPlans.id,
-        set: {
-          name: data.name,
-          weekday: data.weekday,
-          durationMin: data.durationMin,
-          goal: data.goal ?? null,
-          updatedAt: new Date(),
-        },
-      })
-      .returning();
+        updatedAt: new Date(),
+      },
+    })
+    .returning();
 
-    // Replace sections + exercises atomically
-    await tx.delete(workoutSections).where(eq(workoutSections.workoutPlanId, data.id));
+  // Replace sections + exercises (delete + re-insert)
+  await db.delete(workoutSections).where(eq(workoutSections.workoutPlanId, data.id));
 
-    if (data.sections.length) {
-      // Batch insert all sections
-      await tx.insert(workoutSections).values(
-        data.sections.map((sec, si) => ({
-          id: `${data.id}-sec-${si + 1}`,
-          workoutPlanId: data.id,
-          title: sec.title,
-          description: sec.description ?? null,
-          sortOrder: si + 1,
-        })),
-      );
+  if (data.sections.length) {
+    // Batch insert all sections
+    await db.insert(workoutSections).values(
+      data.sections.map((sec, si) => ({
+        id: `${data.id}-sec-${si + 1}`,
+        workoutPlanId: data.id,
+        title: sec.title,
+        description: sec.description ?? null,
+        sortOrder: si + 1,
+      })),
+    );
 
-      // Batch insert all exercises across all sections
-      const allExercises = data.sections.flatMap((sec, si) =>
-        sec.exercises.map((ex, ei) => ({
-          id: `${data.id}-sec-${si + 1}-ex-${ei + 1}`,
-          workoutSectionId: `${data.id}-sec-${si + 1}`,
-          name: ex.name,
-          sets: ex.sets ?? null,
-          reps: ex.reps ?? null,
-          notes: ex.notes ?? null,
-          benefit: null as string | null,
-          isNew: ex.isNew ?? false,
-          isEssential: ex.isEssential ?? false,
-          sortOrder: ei + 1,
-        })),
-      );
-      if (allExercises.length) {
-        await tx.insert(exercises).values(allExercises);
-      }
+    // Batch insert all exercises across all sections
+    const allExercises = data.sections.flatMap((sec, si) =>
+      sec.exercises.map((ex, ei) => ({
+        id: `${data.id}-sec-${si + 1}-ex-${ei + 1}`,
+        workoutSectionId: `${data.id}-sec-${si + 1}`,
+        name: ex.name,
+        sets: ex.sets ?? null,
+        reps: ex.reps ?? null,
+        notes: ex.notes ?? null,
+        benefit: null as string | null,
+        isNew: ex.isNew ?? false,
+        isEssential: ex.isEssential ?? false,
+        sortOrder: ei + 1,
+      })),
+    );
+    if (allExercises.length) {
+      await db.insert(exercises).values(allExercises);
     }
-
-    return row;
-  });
+  }
 
   return NextResponse.json({ success: true, data: upserted });
 }, "Failed to save workout plan");

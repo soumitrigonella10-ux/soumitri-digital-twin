@@ -182,7 +182,7 @@ describe("CMS Upload — File validation", () => {
 // ========================================
 describe("CMS Upload — Upload type sanitization", () => {
   it("accepts known types (essays, travel, images, general)", async () => {
-    for (const type of ["essays", "travel", "images", "general"]) {
+    for (const type of ["essays", "travel", "images", "sidequests", "consumption", "internet-lore", "general"]) {
       mockPut.mockResolvedValueOnce({
         url: `https://blob.vercel-storage.com/cms/${type}/test.jpg`,
       });

@@ -69,7 +69,7 @@ export function EditTravelModal({ location, onClose, onSaved }: EditTravelModalP
       formData.append("type", "travel");
       const response = await fetch("/api/cms/upload", { method: "POST", body: formData });
       if (!response.ok) { const data = await response.json(); throw new Error(data.error || "Upload failed"); }
-      const data = await response.json();
+      const { data } = await response.json();
       setImageUrl(data.url);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Upload failed");
@@ -94,7 +94,7 @@ export function EditTravelModal({ location, onClose, onSaved }: EditTravelModalP
       formData.append("type", "travel");
       const response = await fetch("/api/cms/upload", { method: "POST", body: formData });
       if (!response.ok) { const data = await response.json(); throw new Error(data.error || "Upload failed"); }
-      const data = await response.json();
+      const { data } = await response.json();
       setPdfUrl(data.url);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Upload failed");

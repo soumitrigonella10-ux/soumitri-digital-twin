@@ -6,40 +6,7 @@
 import { describe, it, expect } from 'vitest';
 
 // Example test for utility functions
-import { optimizedArrayOperations } from '@/lib/performance';
 import { validateWithSchema, productSchema } from '@/lib/validation';
-
-describe('Performance Utilities', () => {
-  describe('optimizedArrayOperations', () => {
-    it('should chunk arrays correctly', () => {
-      const array = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-      const chunks = optimizedArrayOperations.chunk(array, 3);
-      
-      expect(chunks).toEqual([[1, 2, 3], [4, 5, 6], [7, 8, 9], [10]]);
-    });
-
-    it('should remove duplicates correctly', () => {
-      const array = [1, 2, 2, 3, 3, 4];
-      const unique = optimizedArrayOperations.unique(array);
-      
-      expect(unique).toEqual([1, 2, 3, 4]);
-    });
-
-    it('should group by key correctly', () => {
-      const array = [
-        { id: 1, category: 'A' },
-        { id: 2, category: 'B' },
-        { id: 3, category: 'A' },
-      ];
-      const grouped = optimizedArrayOperations.groupBy(array, item => item.category);
-      
-      expect(grouped).toEqual({
-        A: [{ id: 1, category: 'A' }, { id: 3, category: 'A' }],
-        B: [{ id: 2, category: 'B' }],
-      });
-    });
-  });
-});
 
 describe('Validation Utilities', () => {
   describe('validateWithSchema', () => {

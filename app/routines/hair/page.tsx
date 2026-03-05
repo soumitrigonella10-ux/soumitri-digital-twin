@@ -9,7 +9,6 @@ import { PRODUCT_CARD_THEMES } from "@/components/ProductCard";
 import { AdminAddButton, DeleteConfirmModal } from "@/components/AdminCrudModal";
 import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
 import { RoutineColumn, EditProductModal, AddProductModal } from "@/components/routines";
-import type { EditFormState } from "@/components/routines";
 
 const HAIR_CATEGORIES = ["Hair Oil", "Shampoo", "Conditioner", "Hair Mask", "Serum", "Styling", "Treatment"];
 
@@ -30,11 +29,10 @@ function computeProgress(products: Product[], completedSet: Set<string>) {
 }
 
 function HairPageContent() {
-  const { data, upsertProduct, refreshFromDb } = useAppStore();
+  const { data, refreshFromDb } = useAppStore();
   const { isAdmin } = useAdmin();
   const [completedProducts, setCompletedProducts] = useState<Set<string>>(new Set());
-  const [editingProduct, setEditingProduct] = useState<string | null>(null);
-  const [editForm, setEditForm] = useState<EditFormState>({});
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const [deletingProduct, setDeletingProduct] = useState<Product | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -67,24 +65,6 @@ function HairPageContent() {
     });
   };
 
-  const handleEditStart = (product: Product) => {
-    setEditingProduct(product.id);
-    setEditForm({ displayOrder: product.displayOrder });
-  };
-
-  const handleEditSave = (product: Product) => {
-    const updates: Partial<Product> = {};
-    if (editForm.displayOrder !== undefined) updates.displayOrder = editForm.displayOrder;
-    upsertProduct({ ...product, ...updates });
-    setEditingProduct(null);
-    setEditForm({});
-  };
-
-  const handleEditCancel = () => {
-    setEditingProduct(null);
-    setEditForm({});
-  };
-
   const handleDelete = useCallback(async () => {
     if (!deletingProduct) return;
     setIsDeleting(true);
@@ -100,10 +80,6 @@ function HairPageContent() {
       setIsDeleting(false);
     }
   }, [deletingProduct, refreshFromDb]);
-
-  const editingProductData = editingProduct
-    ? data.products.find((p) => p.id === editingProduct) ?? null
-    : null;
 
   return (
     <div className="w-full space-y-6">
@@ -141,7 +117,7 @@ function HairPageContent() {
                 products={products}
                 completedProducts={completedProducts}
                 onToggleComplete={toggleProductCompletion}
-                onEdit={handleEditStart}
+                onEdit={isAdmin ? setEditingProduct : undefined}
                 onDelete={isAdmin ? setDeletingProduct : undefined}
                 theme={PRODUCT_CARD_THEMES.hair}
                 emptyIcon={config.icon}
@@ -153,14 +129,15 @@ function HairPageContent() {
       </div>
 
       {/* Edit Modal */}
-      {editingProductData && (
+      {editingProduct && (
         <EditProductModal
-          product={editingProductData}
-          editForm={editForm}
-          onEditFormChange={setEditForm}
-          onSave={handleEditSave}
-          onCancel={handleEditCancel}
-          accentColorClass="bg-blue-500"
+          product={editingProduct}
+          apiUrl="/api/haircare"
+          accentColor="bg-blue-500"
+          categories={HAIR_CATEGORIES}
+          onClose={() => setEditingProduct(null)}
+          onSaved={refreshFromDb}
+          showHairPhase
         />
       )}
 
