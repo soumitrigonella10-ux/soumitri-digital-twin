@@ -5,6 +5,7 @@ import { UtensilsCrossed, Clock, Leaf, Droplets, ChefHat, Info, Loader2, Edit2, 
 import { cn } from "@/lib/utils";
 import { useDbData } from "@/hooks/useDbData";
 import { useAdmin } from "@/hooks/useAdmin";
+import { lunchBowlConfig as staticLunchBowlConfig } from "@/data/meals/lunch";
 import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
 import { AdminCrudModal, Field, inputClass, selectClass, AdminAddButton, DeleteConfirmModal } from "@/components/AdminCrudModal";
 
@@ -21,7 +22,7 @@ interface DressingRecipe {
 
 interface LunchBowlConfig {
   base: { item: string; quantity: string };
-  salads: { name: string; quantity: string }[];
+  salads: { name: string; quantity: string; options?: string[] }[];
   proteinOptions: { name: string; quantity: string }[];
   proteinPortions: { days: string; quantity: string }[];
   quickProteinTopups: { combo: string; note: string }[];
@@ -170,7 +171,7 @@ function LunchPageContent() {
     "/api/lunch-data",
     { lunchBowlConfig: null, dressings: [] }
   );
-  const lunchBowlConfig = data.lunchBowlConfig;
+  const lunchBowlConfig = data.lunchBowlConfig ?? (staticLunchBowlConfig as LunchBowlConfig);
   const lunchDressings = data.dressings;
 
   const handleDelete = useCallback(async () => {
@@ -254,7 +255,7 @@ function LunchPageContent() {
       )}
 
       {/* Bowl Tab Content */}
-      {!loading && activeTab === "bowl" && lunchBowlConfig && (
+      {!loading && activeTab === "bowl" && (
         <div className="space-y-6">
           {/* Quick Stats */}
           <div className="lifeos-card p-4 text-center">
@@ -283,12 +284,19 @@ function LunchPageContent() {
 
             {/* Salads */}
             <div className="mb-4">
-              <p className="text-xs font-medium text-gray-500 uppercase mb-2">Salads</p>
+              <p className="text-xs font-medium text-gray-500 uppercase mb-2">Salads <span className="text-green-500">(pick any)</span></p>
               <div className="space-y-2">
                 {lunchBowlConfig.salads.map((salad, i) => (
-                  <div key={i} className="flex items-center justify-between p-3 bg-green-50 rounded-xl">
-                    <span className="font-medium text-gray-800">{salad.name}</span>
-                    <span className="text-sm text-green-600 font-medium">{salad.quantity}</span>
+                  <div key={i} className="p-3 bg-green-50 rounded-xl">
+                    <div className="flex items-center justify-between">
+                      <span className="font-medium text-gray-800">{salad.name}</span>
+                      <span className="text-sm text-green-600 font-medium">{salad.quantity}</span>
+                    </div>
+                    {salad.options && salad.options.length > 0 && (
+                      <p className="text-xs text-gray-500 mt-1">
+                        {salad.options.join(" · ")}
+                      </p>
+                    )}
                   </div>
                 ))}
               </div>

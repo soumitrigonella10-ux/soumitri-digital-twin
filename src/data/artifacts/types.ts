@@ -2,13 +2,13 @@ export type FrameType = 'hero' | 'standard' | 'mini' | 'tiny' | 'wide';
 export type OffsetType = 'offset-up' | 'offset-down' | 'pull-left' | 'pull-right' | 'none';
 export type BorderStyle = 'polaroid' | 'thin' | 'shadow' | 'none';
 export type InspirationTemplateType = 'image' | 'music' | 'quote' | 'video';
+export type StudioCategory = 'paintings-sketches' | 'journals' | 'craft' | 'digital';
 
 export interface Artifact {
   id: string;
   title: string;
   medium: string;
-  date: string;
-  dimensions?: string;
+  category?: StudioCategory;
   frameType: FrameType;
   offsetType: OffsetType;
   borderStyle: BorderStyle;

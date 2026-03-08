@@ -11,3 +11,4 @@ import "./wishlist";
 import "./design-thought";
 import "./travel";
 import "./internet-lore";
+import "./journal";

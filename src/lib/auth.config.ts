@@ -67,8 +67,11 @@ export const authConfig: NextAuthConfig = {
       }
       return session;
     },
-    async redirect({ url: _url, baseUrl }) {
-      return `${baseUrl}/`;
+    async redirect({ url, baseUrl }) {
+      // Allow same-origin and relative redirects (e.g. /verify-request, /dashboard)
+      if (url.startsWith("/")) return `${baseUrl}${url}`;
+      if (new URL(url).origin === baseUrl) return url;
+      return baseUrl;
     },
 
     // authorized() is called by the middleware wrapper from NextAuth().

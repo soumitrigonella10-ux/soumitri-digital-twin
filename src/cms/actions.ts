@@ -140,8 +140,8 @@ export async function createContent(
     }
 
     // Check for unique constraint violation (duplicate slug)
-    if (message.includes("idx_content_items_type_slug")) {
-      return { success: false, error: "A content item with this slug already exists for this type" };
+    if (message.includes("idx_content_items_type_slug") || message.includes("unique") || message.includes("duplicate key")) {
+      return { success: false, error: "An item with this title/slug already exists. Please use a different title." };
     }
 
     return { success: false, error: "Failed to create content" };

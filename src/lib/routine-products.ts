@@ -103,7 +103,7 @@ export function createRoutineProductHandlers(routineType: string) {
 
   const DELETE = withErrorHandling(async (req: NextRequest) => {
     await requireAdmin();
-    const id = new URL(req.url).searchParams.get("id");
+    const id = new URL(req.url).searchParams.get("id")?.trim();
 
     if (!id) {
       return NextResponse.json(

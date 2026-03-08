@@ -10,6 +10,13 @@ import { useState, useRef, useCallback } from "react";
 import { X, Upload, Loader2, Image as ImageIcon, Check } from "lucide-react";
 import { updateContent } from "@/cms/actions";
 
+const STUDIO_CATEGORIES = [
+  { value: "", label: "Select category" },
+  { value: "paintings-sketches", label: "Paintings & Sketches" },
+  { value: "craft", label: "Craft" },
+  { value: "digital", label: "Digital" },
+];
+
 const FRAME_TYPES = [
   { value: "hero", label: "Hero (large)" },
   { value: "standard", label: "Standard" },
@@ -38,8 +45,7 @@ interface EditArtifactModalProps {
     id: string;
     title: string;
     medium: string;
-    date: string;
-    dimensions?: string;
+    category?: string;
     frameType: string;
     borderStyle: string;
     backgroundColor?: string;
@@ -60,8 +66,7 @@ export function EditArtifactModal({ artifact, onClose, onSaved }: EditArtifactMo
   // Base fields
   const [title, setTitle] = useState(artifact.title);
   const [medium, setMedium] = useState(artifact.medium);
-  const [date, setDate] = useState(artifact.date);
-  const [dimensions, setDimensions] = useState(artifact.dimensions || "");
+  const [category, setCategory] = useState(artifact.category || "");
   const [description, setDescription] = useState(artifact.description || "");
   const [isFeatured, setIsFeatured] = useState(artifact.isFeatured ?? false);
 
@@ -178,12 +183,11 @@ export function EditArtifactModal({ artifact, onClose, onSaved }: EditArtifactMo
         coverImage: imagePath || null,
         metadata: {
           medium: medium.trim(),
-          date: date || new Date().toLocaleDateString("en-US", { month: "long", year: "numeric" }),
           frameType,
           borderStyle,
+          category,
         },
         payload: {
-          dimensions: dimensions.trim(),
           description: description.trim(),
           backgroundColor,
           imagePath: imagePath || "",
@@ -208,7 +212,7 @@ export function EditArtifactModal({ artifact, onClose, onSaved }: EditArtifactMo
       setIsSubmitting(false);
     }
   }, [
-    title, medium, date, dimensions, description, frameType, borderStyle,
+    title, medium, category, description, frameType, borderStyle,
     backgroundColor, imagePath, hasWashiTape, paperNoteText, paperNotePosition,
     isFeatured, artifact.id, onClose, onSaved,
   ]);
@@ -266,32 +270,22 @@ export function EditArtifactModal({ artifact, onClose, onSaved }: EditArtifactMo
             </div>
           </div>
 
-          {/* Row: Date + Dimensions */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block font-editorial text-[10px] font-semibold uppercase tracking-[0.15em] text-telugu-marigold mb-1.5">
-                Date
-              </label>
-              <input
-                type="text"
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
-                placeholder="January 2026"
-                className="w-full px-3 py-2 rounded-lg border border-stone-300 bg-white text-sm text-stone-800 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-telugu-marigold/40 focus:border-telugu-marigold font-editorial"
-              />
-            </div>
-            <div>
-              <label className="block font-editorial text-[10px] font-semibold uppercase tracking-[0.15em] text-telugu-marigold mb-1.5">
-                Dimensions
-              </label>
-              <input
-                type="text"
-                value={dimensions}
-                onChange={(e) => setDimensions(e.target.value)}
-                placeholder='e.g. 3840 × 2160 or 12" × 12"'
-                className="w-full px-3 py-2 rounded-lg border border-stone-300 bg-white text-sm text-stone-800 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-telugu-marigold/40 focus:border-telugu-marigold font-editorial"
-              />
-            </div>
+          {/* Category */}
+          <div>
+            <label className="block font-editorial text-[10px] font-semibold uppercase tracking-[0.15em] text-telugu-marigold mb-1.5">
+              Category
+            </label>
+            <select
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              className="w-full px-3 py-2 rounded-lg border border-stone-300 bg-white text-sm text-stone-800 focus:outline-none focus:ring-2 focus:ring-telugu-marigold/40 focus:border-telugu-marigold font-editorial appearance-none cursor-pointer"
+            >
+              {STUDIO_CATEGORIES.map((c) => (
+                <option key={c.value} value={c.value}>
+                  {c.label}
+                </option>
+              ))}
+            </select>
           </div>
 
           {/* Row: Frame Type + Border Style */}

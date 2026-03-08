@@ -29,6 +29,10 @@ interface PdfViewerProps {
  * → "/api/pdf/uploads/essays/file.pdf".
  */
 function toApiUrl(pdfUrl: string): string {
+  // External URLs (e.g. Vercel Blob) are used directly
+  if (pdfUrl.startsWith("http://") || pdfUrl.startsWith("https://")) {
+    return pdfUrl;
+  }
   // /uploads/... paths keep their prefix (route handles both roots)
   // /pdfs/... paths strip the prefix (legacy behaviour)
   const stripped = pdfUrl.startsWith("/uploads/")

@@ -11,6 +11,7 @@ export interface LunchBowlConfig {
   salads: {
     name: string;
     quantity: string;
+    options?: string[];
   }[];
   proteinOptions: {
     name: string;
@@ -32,7 +33,31 @@ export const lunchBowlConfig: LunchBowlConfig = {
     quantity: "3/4–1 cup cooked",
   },
   salads: [
-    { name: "Everyday Salads", quantity: "1/2 cup" },
+    {
+      name: "Cucumber Salad",
+      quantity: "1/4 cup",
+      options: ["Diced cucumber", "Lemon juice", "Salt & chaat masala"],
+    },
+    {
+      name: "Onion-Tomato Kachumber",
+      quantity: "1/4 cup",
+      options: ["Sliced onion", "Diced tomato", "Green chilli", "Lime"],
+    },
+    {
+      name: "Carrot & Beetroot Slaw",
+      quantity: "1/4 cup",
+      options: ["Grated carrot", "Grated beetroot", "Lemon", "Salt"],
+    },
+    {
+      name: "Green Salad",
+      quantity: "1/4 cup",
+      options: ["Lettuce or spinach leaves", "Cucumber", "Sprouts", "Lemon dressing"],
+    },
+    {
+      name: "Moong Sprout Salad",
+      quantity: "1/4 cup",
+      options: ["Sprouted moong", "Onion", "Tomato", "Chaat masala", "Lime"],
+    },
   ],
   proteinOptions: [
     { name: "Chickpeas", quantity: "1/2 cup" },

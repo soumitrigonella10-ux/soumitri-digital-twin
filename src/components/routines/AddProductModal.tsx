@@ -22,6 +22,10 @@ interface AddProductModalProps {
   /** Body-specific field */
   showBodyAreas?: boolean;
   bodyAreaOptions?: { code: string; label: string }[];
+  /** Show shade field (makeup) */
+  showShade?: boolean;
+  /** Hide Time of Day and Active Days (makeup) */
+  hideSchedule?: boolean;
 }
 
 export function AddProductModal({
@@ -34,6 +38,8 @@ export function AddProductModal({
   showHairPhase = false,
   showBodyAreas = false,
   bodyAreaOptions = [],
+  showShade = false,
+  hideSchedule = false,
 }: AddProductModalProps) {
   const [name, setName] = useState("");
   const [category, setCategory] = useState(categories[0] || "");
@@ -42,6 +48,7 @@ export function AddProductModal({
   const [hairPhase, setHairPhase] = useState("daily");
   const [weekdays, setWeekdays] = useState<number[]>([0, 1, 2, 3, 4, 5, 6]);
   const [bodyAreas, setBodyAreas] = useState<string[]>([]);
+  const [shade, setShade] = useState("");
   const [notes, setNotes] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -68,11 +75,12 @@ export function AddProductModal({
         category,
         brand: brand.trim() || null,
         routineType,
-        timeOfDay,
-        weekdays,
+        timeOfDay: hideSchedule ? null : timeOfDay,
+        weekdays: hideSchedule ? null : weekdays,
         notes: notes.trim() || null,
         displayOrder: 99,
       };
+      if (showShade) payload.shade = shade.trim() || null;
       if (showHairPhase) payload.hairPhase = hairPhase;
       if (showBodyAreas) payload.bodyAreas = bodyAreas.length > 0 ? bodyAreas : null;
 
@@ -91,7 +99,7 @@ export function AddProductModal({
     } finally {
       setIsSubmitting(false);
     }
-  }, [name, category, brand, routineType, timeOfDay, weekdays, notes, hairPhase, bodyAreas, showHairPhase, showBodyAreas, apiUrl, onSaved, onClose]);
+  }, [name, category, brand, shade, routineType, timeOfDay, weekdays, notes, hairPhase, bodyAreas, showShade, showHairPhase, showBodyAreas, apiUrl, onSaved, onClose]);
 
   return (
     <AdminCrudModal
@@ -133,25 +141,40 @@ export function AddProductModal({
         </select>
       </Field>
 
+      {/* Shade (makeup only) */}
+      {showShade && (
+        <Field label="Shade">
+          <input
+            type="text"
+            value={shade}
+            onChange={(e) => setShade(e.target.value)}
+            placeholder="e.g. Warm Nude, Berry"
+            className={inputClass}
+          />
+        </Field>
+      )}
+
       {/* Time of Day */}
-      <Field label="Time of Day">
-        <div className="flex gap-2">
-          {TIME_OPTIONS.map((t) => (
-            <button
-              key={t}
-              type="button"
-              onClick={() => setTimeOfDay(t)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                timeOfDay === t
-                  ? `${accentColor} text-white`
-                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-              }`}
-            >
-              {t}
-            </button>
-          ))}
-        </div>
-      </Field>
+      {!hideSchedule && (
+        <Field label="Time of Day">
+          <div className="flex gap-2">
+            {TIME_OPTIONS.map((t) => (
+              <button
+                key={t}
+                type="button"
+                onClick={() => setTimeOfDay(t)}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                  timeOfDay === t
+                    ? `${accentColor} text-white`
+                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                }`}
+              >
+                {t}
+              </button>
+            ))}
+          </div>
+        </Field>
+      )}
 
       {/* Hair Phase (hair only) */}
       {showHairPhase && (
@@ -188,24 +211,26 @@ export function AddProductModal({
       )}
 
       {/* Weekdays */}
-      <Field label="Active Days">
-        <div className="flex flex-wrap gap-2">
-          {DAYS_OF_WEEK.map((day, idx) => (
-            <button
-              key={day}
-              type="button"
-              onClick={() => toggleDay(idx)}
-              className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
-                weekdays.includes(idx)
-                  ? `${accentColor} text-white`
-                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-              }`}
-            >
-              {day}
-            </button>
-          ))}
-        </div>
-      </Field>
+      {!hideSchedule && (
+        <Field label="Active Days">
+          <div className="flex flex-wrap gap-2">
+            {DAYS_OF_WEEK.map((day, idx) => (
+              <button
+                key={day}
+                type="button"
+                onClick={() => toggleDay(idx)}
+                className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                  weekdays.includes(idx)
+                    ? `${accentColor} text-white`
+                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                }`}
+              >
+                {day}
+              </button>
+            ))}
+          </div>
+        </Field>
+      )}
 
       {/* Notes */}
       <Field label="Notes">

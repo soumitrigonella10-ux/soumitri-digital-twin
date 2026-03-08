@@ -32,7 +32,7 @@ interface PdfDocument {
 
 interface PdfPage {
   getViewport(options: { scale: number }): PdfViewport;
-  render(options: { canvasContext: CanvasRenderingContext2D; viewport: PdfViewport }): { promise: Promise<void> };
+  render(options: { canvasContext: CanvasRenderingContext2D; viewport: PdfViewport }): { promise: Promise<void>; cancel(): void };
 }
 
 interface PdfViewport {
@@ -82,6 +82,10 @@ function useIsPortrait(): boolean {
  * Handles both /pdfs/... and /uploads/... paths.
  */
 function toApiUrl(pdfUrl: string): string {
+  // External URLs (e.g. Vercel Blob) are used directly
+  if (pdfUrl.startsWith("http://") || pdfUrl.startsWith("https://")) {
+    return pdfUrl;
+  }
   const stripped = pdfUrl.startsWith("/uploads/")
     ? pdfUrl.replace(/^\//, "")
     : pdfUrl.replace(/^\/pdfs\//, "");
@@ -134,6 +138,9 @@ function loadPdfJs(): Promise<unknown> {
   return pdfjsLoadPromise;
 }
 
+/** Track in-flight render tasks per canvas so we can cancel before re-rendering. */
+const activeRenderTasks = new WeakMap<HTMLCanvasElement, { cancel(): void }>();
+
 /** Render a single PDF page onto a canvas, scaled to fit a given height. */
 async function renderPageToCanvas(
   pdfDoc: PdfDocument,
@@ -141,6 +148,10 @@ async function renderPageToCanvas(
   canvas: HTMLCanvasElement,
   maxHeight: number
 ): Promise<void> {
+  // Cancel any in-flight render on this canvas
+  activeRenderTasks.get(canvas)?.cancel();
+  activeRenderTasks.delete(canvas);
+
   if (pageNum < 1 || pageNum > pdfDoc.numPages) {
     const ctx = canvas.getContext("2d");
     if (ctx) {
@@ -163,7 +174,15 @@ async function renderPageToCanvas(
   const ctx = canvas.getContext("2d");
   if (!ctx) return;
 
-  await page.render({ canvasContext: ctx, viewport: scaledViewport }).promise;
+  const task = page.render({ canvasContext: ctx, viewport: scaledViewport });
+  activeRenderTasks.set(canvas, task);
+  try {
+    await task.promise;
+  } catch {
+    // Render was cancelled — ignore
+  } finally {
+    activeRenderTasks.delete(canvas);
+  }
 }
 
 /** Render a single PDF page onto a canvas, scaled to fit a given width. */
@@ -173,6 +192,10 @@ async function renderPageToCanvasWidth(
   canvas: HTMLCanvasElement,
   maxWidth: number
 ): Promise<void> {
+  // Cancel any in-flight render on this canvas
+  activeRenderTasks.get(canvas)?.cancel();
+  activeRenderTasks.delete(canvas);
+
   if (pageNum < 1 || pageNum > pdfDoc.numPages) return;
 
   const page = await pdfDoc.getPage(pageNum);
@@ -186,7 +209,15 @@ async function renderPageToCanvasWidth(
   const ctx = canvas.getContext("2d");
   if (!ctx) return;
 
-  await page.render({ canvasContext: ctx, viewport: scaledViewport }).promise;
+  const task = page.render({ canvasContext: ctx, viewport: scaledViewport });
+  activeRenderTasks.set(canvas, task);
+  try {
+    await task.promise;
+  } catch {
+    // Render was cancelled — ignore
+  } finally {
+    activeRenderTasks.delete(canvas);
+  }
 }
 
 // ─────────────────────────────────────────────

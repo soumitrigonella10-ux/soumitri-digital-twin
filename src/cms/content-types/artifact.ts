@@ -7,8 +7,8 @@
 //   - Default values
 //
 // Frontend Artifact parameters mapped:
-//   metadata: medium, date, frameType, borderStyle
-//   payload:  dimensions, description, backgroundColor,
+//   metadata: medium, frameType, borderStyle
+//   payload:  description, backgroundColor,
 //             imagePath, paperNote, hasWashiTape
 // ─────────────────────────────────────────────────────────────
 import { registerContentType, slugify } from "../registry";
@@ -24,16 +24,6 @@ const metadataFields: MetadataField[] = [
     required: true,
     placeholder: "e.g. Digital Photography, Ink & Watercolor",
     description: "Art medium or technique used",
-    isMetadata: true,
-    defaultValue: "",
-  },
-  {
-    name: "date",
-    label: "Date",
-    type: "text",
-    placeholder: "January 2026",
-    description: "Display date (e.g. 'January 2026')",
-    required: true,
     isMetadata: true,
     defaultValue: "",
   },
@@ -70,13 +60,6 @@ const metadataFields: MetadataField[] = [
 
 // ── Payload fields (go in `payload` column) ──────────────────
 const payloadFields: FormField[] = [
-  {
-    name: "dimensions",
-    label: "Dimensions",
-    type: "text",
-    placeholder: "e.g. 3840 × 2160 or 12\" × 12\"",
-    description: "Physical or digital dimensions",
-  },
   {
     name: "description",
     label: "Description",
@@ -140,7 +123,6 @@ const artifactConfig: ContentTypeConfig = {
   payloadFields,
   metadataFields,
   defaultPayload: {
-    dimensions: "",
     description: "",
     backgroundColor: "#F9F7F2",
     imagePath: "",
@@ -150,8 +132,8 @@ const artifactConfig: ContentTypeConfig = {
   },
   defaultMetadata: {
     medium: "",
-    date: "",
     frameType: "standard",
+    category: "",
     borderStyle: "shadow",
   },
   generateSlug: slugify,

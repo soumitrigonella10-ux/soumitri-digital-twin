@@ -94,7 +94,7 @@ function MakeupPageContent() {
     if (!deletingProduct) return;
     setIsDeleting(true);
     try {
-      const res = await fetch(`/api/makeup?id=${deletingProduct.id}`, { method: "DELETE" });
+      const res = await fetch(`/api/makeup?id=${encodeURIComponent(deletingProduct.id)}`, { method: "DELETE" });
       const json = await res.json();
       if (!json.success) throw new Error(json.error);
       await refreshFromDb();
@@ -163,6 +163,8 @@ function MakeupPageContent() {
           categories={MAKEUP_CATEGORIES}
           onClose={() => setEditingProduct(null)}
           onSaved={refreshFromDb}
+          showShade
+          hideSchedule
         />
       )}
 
@@ -175,6 +177,8 @@ function MakeupPageContent() {
           categories={MAKEUP_CATEGORIES}
           onClose={() => setShowAddModal(false)}
           onSaved={refreshFromDb}
+          showShade
+          hideSchedule
         />
       )}
 

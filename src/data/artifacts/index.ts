@@ -6,6 +6,7 @@ export type {
   OffsetType,
   BorderStyle,
   InspirationTemplateType,
+  StudioCategory,
   Artifact,
   InspirationFragment,
 } from "./types";

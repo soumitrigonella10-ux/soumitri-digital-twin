@@ -69,7 +69,7 @@ function HairPageContent() {
     if (!deletingProduct) return;
     setIsDeleting(true);
     try {
-      const res = await fetch(`/api/haircare?id=${deletingProduct.id}`, { method: "DELETE" });
+      const res = await fetch(`/api/haircare?id=${encodeURIComponent(deletingProduct.id)}`, { method: "DELETE" });
       const json = await res.json();
       if (!json.success) throw new Error(json.error);
       await refreshFromDb();
@@ -138,6 +138,7 @@ function HairPageContent() {
           onClose={() => setEditingProduct(null)}
           onSaved={refreshFromDb}
           showHairPhase
+          hideSchedule
         />
       )}
 
@@ -151,6 +152,7 @@ function HairPageContent() {
           onClose={() => setShowAddModal(false)}
           onSaved={refreshFromDb}
           showHairPhase
+          hideSchedule
         />
       )}
 

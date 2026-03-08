@@ -139,6 +139,19 @@ function SubChipBar({
 function ContentCardVisual({ item }: { item: ContentItem }) {
   const aspectRatioStyle = { aspectRatio: item.aspectRatio };
 
+  // If an image was uploaded, render it instead of the placeholder
+  if (item.imageUrl) {
+    return (
+      <div className="consumption-card-image overflow-hidden" style={aspectRatioStyle}>
+        <img
+          src={item.imageUrl}
+          alt={item.title}
+          className="w-full h-full object-cover"
+        />
+      </div>
+    );
+  }
+
   // Book visual
   if (item.type === "book") {
     return (
@@ -299,11 +312,9 @@ function LibraryListView({ activeFilter, cmsItems }: { activeFilter: ContentFilt
   const typeMap: Record<ContentFilter, string[]> = {
     Books: ["book"], Essays: ["essay"], Movies: ["movie"], Series: ["series"], Videos: ["video"], Playlists: ["playlist"],
   };
-  const libraryStatuses: ContentItem["status"][] = ["CURRENTLY READING", "CURRENTLY WATCHING", "LISTENING", "COMPLETED"];
-
   const targets = typeMap[activeFilter] || [];
   const libraryItems = useMemo(
-    () => cmsItems.filter(i => targets.includes(i.type) && libraryStatuses.includes(i.status)),
+    () => cmsItems.filter(i => targets.includes(i.type) && i.status === "COMPLETED"),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [cmsItems, activeFilter]
   );
@@ -454,7 +465,7 @@ function ConsumptionPageContent() {
   });
 
   const [activeFilter, setActiveFilter] = useState<ContentFilter>("Books");
-  const [activeSubChip, setActiveSubChip] = useState<ContentSubChip>("Looking Forward");
+  const [activeSubChip, setActiveSubChip] = useState<ContentSubChip>("Currently Viewing");
 
   // CMS CRUD state
   const [showAddModal, setShowAddModal] = useState(false);
@@ -472,10 +483,9 @@ function ConsumptionPageContent() {
   const filteredItems = useMemo(
     () => {
       if (activeFilter === "Playlists") return allItems;
-      const libraryStatuses: ContentItem["status"][] = ["CURRENTLY READING", "CURRENTLY WATCHING", "LISTENING", "COMPLETED"];
       const subChipStatuses: Record<ContentSubChip, ContentItem["status"][]> = {
-        "Looking Forward": ["QUEUED"],
-        "Library": libraryStatuses,
+        "Currently Viewing": ["QUEUED", "CURRENTLY READING", "CURRENTLY WATCHING", "LISTENING"],
+        "Done": ["COMPLETED"],
       };
       const allowed = subChipStatuses[activeSubChip];
       return allItems.filter(i => allowed.includes(i.status));
@@ -524,7 +534,7 @@ function ConsumptionPageContent() {
       )}
 
       {/* Content area */}
-      {activeSubChip === "Library" && activeFilter !== "Playlists" ? (
+      {activeSubChip === "Done" && activeFilter !== "Playlists" ? (
         <LibraryListView activeFilter={activeFilter} cmsItems={cmsItems} />
       ) : (
         <div className="max-w-7xl mx-auto px-6 md:px-8 lg:px-12 pb-20">

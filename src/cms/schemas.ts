@@ -80,7 +80,6 @@ export type SidequestMetadata = z.infer<typeof sidequestMetadataSchema>;
 // ── Artifact ─────────────────────────────────────────────────
 
 export const artifactPayloadSchema = z.object({
-  dimensions: z.string().optional().default(""),
   description: z.string().max(500, "Description must be under 500 characters").optional().default(""),
   backgroundColor: z.string().optional().default("#F9F7F2"),
   imagePath: z.string().optional().default(""),
@@ -93,9 +92,9 @@ export type ArtifactPayload = z.infer<typeof artifactPayloadSchema>;
 
 export const artifactMetadataSchema = z.object({
   medium: z.string().min(1, "Medium is required"),
-  date: z.string().min(1, "Date is required"),
   frameType: z.enum(["hero", "standard", "mini", "tiny", "wide"]).default("standard"),
   borderStyle: z.enum(["polaroid", "thin", "shadow", "none"]).default("shadow"),
+  category: z.string().optional().default(""),
 });
 
 export type ArtifactMetadata = z.infer<typeof artifactMetadataSchema>;
@@ -205,6 +204,22 @@ export const travelMetadataSchema = z.object({
 });
 
 export type TravelMetadata = z.infer<typeof travelMetadataSchema>;
+
+// ── Journal (Studio) ─────────────────────────────────────────
+
+export const journalPayloadSchema = z.object({
+  description: z.string().max(300, "Description must be under 300 characters").optional().default(""),
+  pdfUrl: z.string().min(1, "A journal PDF is required"),
+  coverUrl: z.string().optional().default(""),
+});
+
+export type JournalPayload = z.infer<typeof journalPayloadSchema>;
+
+export const journalMetadataSchema = z.object({
+  date: z.string().optional().default(""),
+});
+
+export type JournalMetadata = z.infer<typeof journalMetadataSchema>;
 
 // ── Internet Lore ────────────────────────────────────────────
 

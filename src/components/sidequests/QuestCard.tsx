@@ -26,7 +26,15 @@ export function QuestCard({ quest, index, onClick }: QuestCardProps) {
     >
       {/* Media Container */}
       <div className="relative aspect-[3/2] bg-[#EBDCCB] rounded-sm overflow-hidden mb-2">
-        <div className="absolute inset-0 bg-gradient-to-br from-[#EBDCCB] via-[#D4C4B0] to-[#BFAF9B]" />
+        {quest.imageUrl ? (
+          <img
+            src={quest.imageUrl}
+            alt={quest.title}
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+        ) : (
+          <div className="absolute inset-0 bg-gradient-to-br from-[#EBDCCB] via-[#D4C4B0] to-[#BFAF9B]" />
+        )}
         
         <div 
           className="absolute inset-0 bg-[#4A2C2A] transition-opacity duration-300"

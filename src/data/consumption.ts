@@ -9,6 +9,6 @@ export type { ContentItem, ContentType, ContentStatus };
 export const CONTENT_TYPES = ["Books", "Essays", "Movies", "Series", "Videos", "Playlists"] as const;
 export type ContentFilter = typeof CONTENT_TYPES[number];
 
-export const SUB_CHIPS = ["Looking Forward", "Library"] as const;
+export const SUB_CHIPS = ["Currently Viewing", "Done"] as const;
 export type ContentSubChip = typeof SUB_CHIPS[number];
 

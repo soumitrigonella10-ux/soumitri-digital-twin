@@ -92,13 +92,18 @@ export function ProductCard({
 
           {/* Product Info */}
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               <h4 className={cn(
                 "font-medium text-sm truncate",
                 isCompleted ? "text-gray-500 line-through" : "text-gray-900"
               )}>
-                {product.name}
+                {product.brand || product.name}
               </h4>
+              {product.shade && (
+                <span className="px-2 py-0.5 rounded-full text-xs font-medium border flex-shrink-0 bg-rose-100 text-rose-700 border-rose-200">
+                  {product.shade}
+                </span>
+              )}
               <span className={cn(
                 "px-2 py-0.5 rounded-full text-xs font-medium border flex-shrink-0",
                 categoryColor
