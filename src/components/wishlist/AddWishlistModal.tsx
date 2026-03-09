@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useRef } from "react";
-import { X, Loader2, Check, ImagePlus, Upload } from "lucide-react";
+import { X, Loader2, Check, ImagePlus, Upload, Link2, Sparkles } from "lucide-react";
 import { createContent } from "@/cms/actions";
 
 const CATEGORIES = [
@@ -51,9 +51,46 @@ export function AddWishlistModal({ onClose, onPublished }: AddWishlistModalProps
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Auto-fill from URL state
+  const [fetchUrl, setFetchUrl] = useState("");
+  const [isFetching, setIsFetching] = useState(false);
+  const [fetchError, setFetchError] = useState<string | null>(null);
+  const [didAutoFill, setDidAutoFill] = useState(false);
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+
+  const handleFetchMeta = useCallback(async () => {
+    const trimmed = fetchUrl.trim();
+    if (!trimmed) return;
+    setFetchError(null);
+    setIsFetching(true);
+    try {
+      const res = await fetch("/api/wishlist/fetch-meta", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: trimmed }),
+      });
+      const json = await res.json();
+      if (!res.ok || !json.success) {
+        setFetchError(json.error || "Could not fetch metadata");
+        return;
+      }
+      const d = json.data;
+      if (d.title && !name) setName(d.title);
+      if (d.brand && !brand) setBrand(d.brand);
+      if (d.image && !imageUrl && !selectedFile) setImageUrl(d.image);
+      if (d.url && !websiteUrl) setWebsiteUrl(d.url);
+      if (d.price != null && !price) setPrice(String(d.price));
+      if (d.currency && currency === "INR") setCurrency(d.currency);
+      setDidAutoFill(true);
+    } catch {
+      setFetchError("Failed to fetch — check the URL and try again");
+    } finally {
+      setIsFetching(false);
+    }
+  }, [fetchUrl, name, brand, imageUrl, selectedFile, websiteUrl, price, currency]);
 
   const slugify = (text: string) =>
     text.toLowerCase().trim().replace(/[^\w\s-]/g, "").replace(/[\s_]+/g, "-").replace(/--+/g, "-").replace(/^-+|-+$/g, "");
@@ -146,6 +183,36 @@ export function AddWishlistModal({ onClose, onPublished }: AddWishlistModalProps
         </div>
 
         <div className="px-6 py-5 space-y-5">
+          {/* Quick Add — paste a product URL to auto-fill */}
+          <div className="rounded-lg border border-dashed border-telugu-marigold/50 bg-orange-50/60 p-4 space-y-2">
+            <label className="flex items-center gap-1.5 font-editorial text-[10px] font-semibold uppercase tracking-[0.15em] text-telugu-kavi">
+              <Sparkles className="h-3.5 w-3.5" />Quick Add — Paste a product link
+            </label>
+            <div className="flex gap-2">
+              <div className="relative flex-1">
+                <Link2 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400" />
+                <input
+                  type="text"
+                  value={fetchUrl}
+                  onChange={(e) => { setFetchUrl(e.target.value); setFetchError(null); setDidAutoFill(false); }}
+                  placeholder="https://www.zara.com/in/en/..."
+                  className="w-full pl-9 pr-3 py-2 rounded-lg border border-stone-300 bg-white text-sm text-stone-800 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-telugu-marigold/40 focus:border-telugu-marigold font-editorial"
+                />
+              </div>
+              <button
+                type="button"
+                onClick={handleFetchMeta}
+                disabled={isFetching || !fetchUrl.trim()}
+                className="font-editorial text-[11px] font-semibold uppercase tracking-[0.12em] text-white bg-telugu-kavi hover:bg-telugu-kavi/90 disabled:bg-stone-300 disabled:text-stone-500 px-4 py-2 rounded-lg transition-colors flex items-center gap-1.5 whitespace-nowrap"
+              >
+                {isFetching ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
+                Fetch
+              </button>
+            </div>
+            {fetchError && <p className="text-xs text-red-600 font-editorial">{fetchError}</p>}
+            {didAutoFill && <p className="text-xs text-green-700 font-editorial flex items-center gap-1"><Check className="h-3 w-3" />Fields auto-filled — review and edit below</p>}
+          </div>
+
           {/* Name + Brand */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>

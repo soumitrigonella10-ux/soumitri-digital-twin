@@ -6,6 +6,7 @@ import { ToastProvider } from "@/components/ToastProvider";
 import { SessionProvider } from "@/components/SessionProvider";
 import { GlobalErrorListener } from "@/components/ErrorBoundary";
 import { StoreInitializer } from "@/components/StoreInitializer";
+import { auth } from "@/lib/auth";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -44,10 +45,14 @@ export default async function RootLayout({
   // Content-Security-Policy response header to its inline scripts.
   await headers();
 
+  // Resolve session server-side so SessionProvider doesn't need a
+  // client-side fetch on mount (avoids cold-start race with Turbopack).
+  const session = await auth();
+
   return (
     <html lang="en" className={`${playfair.variable} ${inter.variable} ${scriptFont.variable}`} suppressHydrationWarning>
       <body className="bg-telugu-sandstone min-h-screen" suppressHydrationWarning>
-        <SessionProvider>
+        <SessionProvider session={session}>
           <ToastProvider>
             <StoreInitializer />
             <GlobalErrorListener />

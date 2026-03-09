@@ -264,8 +264,11 @@ const fullAuthConfig: NextAuthConfig = {
       log.error("[next-auth]", error.message, error.stack);
     },
     warn(code: string) {
-      // Promote to error in production for visibility
-      log.error("[next-auth:warn]", code);
+      if (process.env.NODE_ENV === "production") {
+        log.error("[next-auth:warn]", code);
+      } else {
+        log.info("[next-auth:warn]", code);
+      }
     },
     debug(message: string, metadata?: unknown) {
       log.info("[next-auth:debug]", message, metadata);
