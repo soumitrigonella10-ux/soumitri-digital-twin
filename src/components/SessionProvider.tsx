@@ -11,7 +11,7 @@ export function SessionProvider({
   session?: Session | null
 }) {
   return (
-    <AuthSessionProvider session={session ?? undefined}>
+    <AuthSessionProvider session={session ?? null}>
       {children}
     </AuthSessionProvider>
   )

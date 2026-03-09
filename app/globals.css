@@ -627,40 +627,35 @@ a.bento-tile {
   -webkit-backdrop-filter: blur(16px);
 }
 
-/* ─── Bento Recent Grid (dynamic bento for "Recent" tab) ─── */
-.bento-recent-bento {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  grid-auto-rows: minmax(120px, auto);
-  gap: 16px;
+/* ─── Recent Masonry Grid ─── */
+.recent-masonry-grid {
+  columns: 3;
+  column-gap: 16px;
+}
+.recent-masonry-grid > * {
+  break-inside: avoid;
+  margin-bottom: 16px;
 }
 
-/* Size variants — all vertical, varying heights */
-.bento-recent-tall { grid-row: span 2; }
-.bento-recent-wide { grid-row: span 2; } /* treat wide as tall too */
-.bento-recent-standard { /* 1 row */ }
-.bento-recent-small { /* 1 row, compact */ }
+/* Height variants */
+.masonry-lg { min-height: 380px; }
+.masonry-md { min-height: 240px; }
+.masonry-sm { min-height: 160px; }
 
-/* Tablet (768px–1023px): 2-col recent grid */
+/* Tablet */
 @media (max-width: 1023px) and (min-width: 768px) {
-  .bento-recent-bento {
-    grid-template-columns: repeat(3, 1fr);
-    grid-auto-rows: minmax(110px, auto);
-  }
-  .bento-recent-wide { grid-row: span 2; }
-  .bento-recent-tall { grid-row: span 2; }
-  .bento-recent-small { /* 1 row */ }
+  .recent-masonry-grid { columns: 2; }
+  .masonry-lg { min-height: 320px; }
+  .masonry-md { min-height: 200px; }
+  .masonry-sm { min-height: 140px; }
 }
 
-/* Mobile (<768px): single-column stream */
+/* Mobile */
 @media (max-width: 767px) {
-  .bento-recent-bento {
-    grid-template-columns: repeat(2, 1fr);
-    grid-auto-rows: minmax(100px, auto);
-  }
-  .bento-recent-wide { grid-row: span 2; }
-  .bento-recent-tall { grid-row: span 2; }
-  .bento-recent-small { /* 1 row */ }
+  .recent-masonry-grid { columns: 1; }
+  .masonry-lg { min-height: 280px; }
+  .masonry-md { min-height: 200px; }
+  .masonry-sm { min-height: 160px; }
 }
 
 /* Smooth text rendering for editorial typography */

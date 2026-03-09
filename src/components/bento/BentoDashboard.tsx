@@ -37,39 +37,19 @@ const ICON_MAP: Record<string, LucideIcon> = {
 };
 
 /* ─── CMS content type → section metadata ────────────────── */
-const CONTENT_TYPE_META: Record<string, { label: string; icon: string; iconColor: string; route: string }> = {
-  essay:                { label: "Monologue",       icon: "PenLine",       iconColor: ICON_COLORS.amber,   route: "/monologue" },
-  "content-consumption":{ label: "Media Diet",      icon: "BookOpen",      iconColor: ICON_COLORS.indigo,  route: "/mediadiet" },
-  skill:                { label: "SideQuests",      icon: "GraduationCap", iconColor: ICON_COLORS.violet,  route: "/sidequests" },
-  sidequest:            { label: "SideQuests",      icon: "GraduationCap", iconColor: ICON_COLORS.violet,  route: "/sidequests" },
-  travel:               { label: "Atlas",           icon: "MapPin",        iconColor: ICON_COLORS.rose,    route: "/atlas" },
-  artifact:             { label: "Studio",          icon: "Palette",       iconColor: ICON_COLORS.cyan,    route: "/studio" },
-  journal:              { label: "Studio",          icon: "Palette",       iconColor: ICON_COLORS.cyan,    route: "/studio" },
-  inspiration:          { label: "Inspo",           icon: "Sparkles",      iconColor: ICON_COLORS.orange,  route: "/inspo" },
-  "wishlist-item":      { label: "Wi$hlist",        icon: "Heart",         iconColor: ICON_COLORS.fuchsia, route: "/wishlist" },
-  "design-thought":     { label: "Design",          icon: "Layers",        iconColor: ICON_COLORS.sky,     route: "/design" },
-  "internet-lore":      { label: "Online Lore",     icon: "Globe",         iconColor: ICON_COLORS.emerald, route: "/onlinelore" },
+const CONTENT_TYPE_META: Record<string, { label: string; icon: string; iconColor: string; route: string; overlay: string }> = {
+  essay:                { label: "Monologue",       icon: "PenLine",       iconColor: ICON_COLORS.amber,   route: "/monologue",   overlay: "from-amber-900/70 to-amber-800/40" },
+  "content-consumption":{ label: "Media Diet",      icon: "BookOpen",      iconColor: ICON_COLORS.indigo,  route: "/mediadiet",   overlay: "from-indigo-900/70 to-indigo-800/40" },
+  skill:                { label: "SideQuests",      icon: "GraduationCap", iconColor: ICON_COLORS.violet,  route: "/sidequests",  overlay: "from-violet-900/70 to-violet-800/40" },
+  sidequest:            { label: "SideQuests",      icon: "GraduationCap", iconColor: ICON_COLORS.violet,  route: "/sidequests",  overlay: "from-violet-900/70 to-violet-800/40" },
+  travel:               { label: "Atlas",           icon: "MapPin",        iconColor: ICON_COLORS.rose,    route: "/atlas",       overlay: "from-rose-900/70 to-rose-800/40" },
+  artifact:             { label: "Studio",          icon: "Palette",       iconColor: ICON_COLORS.cyan,    route: "/studio",      overlay: "from-cyan-900/70 to-cyan-800/40" },
+  journal:              { label: "Studio",          icon: "Palette",       iconColor: ICON_COLORS.cyan,    route: "/studio",      overlay: "from-cyan-900/70 to-cyan-800/40" },
+  inspiration:          { label: "Inspo",           icon: "Sparkles",      iconColor: ICON_COLORS.orange,  route: "/inspo",       overlay: "from-orange-900/70 to-orange-800/40" },
+  "wishlist-item":      { label: "Wi$hlist",        icon: "Heart",         iconColor: ICON_COLORS.fuchsia, route: "/wishlist",    overlay: "from-fuchsia-900/70 to-fuchsia-800/40" },
+  "design-thought":     { label: "Design",          icon: "Layers",        iconColor: ICON_COLORS.sky,     route: "/design",      overlay: "from-sky-900/70 to-sky-800/40" },
+  "internet-lore":      { label: "Online Lore",     icon: "Globe",         iconColor: ICON_COLORS.emerald, route: "/onlinelore",  overlay: "from-emerald-900/70 to-emerald-800/40" },
 };
-
-/* ─── Bento tile sizes — assigned by content type ────────── */
-const CONTENT_SIZE_MAP: Record<string, "tall" | "wide" | "standard" | "small"> = {
-  // Biggest
-  essay:                "tall",
-  skill:                "tall",
-  sidequest:            "tall",
-  "design-thought":     "tall",
-  artifact:             "tall",
-  journal:              "tall",
-  // Medium
-  travel:               "standard",
-  "internet-lore":      "standard",
-  "content-consumption": "standard",
-  // Low
-  "wishlist-item":      "small",
-  inspiration:          "small",
-};
-
-const SMALL_TYPES = new Set(["wishlist-item", "inspiration"]);
 
 /* ─── Time-ago formatter ─────────────────────────────────── */
 function timeAgo(date: Date | string): string {
@@ -154,75 +134,82 @@ function ArchiveTile({ tile }: { tile: BentoTileConfig }) {
   return <div className={cls}>{children}</div>;
 }
 
-/* ─── Recent Content Tile ────────────────────────────────── */
-function RecentContentTile({ item, index }: { item: ContentItem; index: number }) {
+/* ─── Masonry size map — biggest types get 2× row span ──── */
+const MASONRY_SIZE: Record<string, "lg" | "md" | "sm"> = {
+  essay: "lg", skill: "lg", sidequest: "lg", "design-thought": "lg", artifact: "lg", journal: "lg",
+  travel: "md", "internet-lore": "md", "content-consumption": "md",
+  "wishlist-item": "sm", inspiration: "sm",
+};
+
+const MASONRY_HEIGHTS: Record<string, string> = {
+  lg: "masonry-lg",   // 2 rows
+  md: "masonry-md",   // ~1.5 rows
+  sm: "masonry-sm",   // 1 row
+};
+
+/* ─── Recent Masonry Card ─────────────────────────────────── */
+function RecentCard({ item, index }: { item: ContentItem; index: number }) {
   const meta = CONTENT_TYPE_META[item.type];
   if (!meta) return null;
 
   const IconComponent = ICON_MAP[meta.icon];
-  const sizeClass = CONTENT_SIZE_MAP[item.type] ?? "standard";
+  const size = MASONRY_SIZE[item.type] ?? "md";
   const coverUrl = item.coverImage ?? (item.payload?.imageUrl as string | undefined) ?? (item.payload?.imagePath as string | undefined);
   const timestamp = item.publishedAt ?? item.createdAt;
 
   return (
     <Link
       href={meta.route}
-      className={`bento-tile bento-recent-item bento-recent-${sizeClass} group relative flex flex-col overflow-hidden transition-all duration-300 hover:scale-[1.015] hover:shadow-xl`}
+      className={`recent-masonry-card ${MASONRY_HEIGHTS[size]} group relative flex flex-col justify-end overflow-hidden rounded-3xl transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl`}
       style={{ animation: `bento-fade-up 0.5s ${index * 0.06}s ease-out both` }}
     >
-      {/* Cover image — fills the tile */}
+      {/* Full-bleed background image */}
       {coverUrl ? (
-        <div className="relative w-full flex-1 min-h-0 overflow-hidden bg-gray-50">
-          <Image
-            src={coverUrl}
-            alt={item.title}
-            fill
-            className="object-cover group-hover:scale-105 transition-transform duration-500"
-            sizes="(max-width: 768px) 100vw, 33vw"
-          />
-          {/* Gradient overlay for text legibility */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
-
-          {/* Title + label overlaid on image */}
-          <div className="absolute bottom-0 left-0 right-0 p-3">
-            <h3 className={`font-serif italic tracking-tight text-white leading-snug drop-shadow-md ${
-              sizeClass === "tall" ? "text-xl sm:text-2xl" : sizeClass === "small" ? "text-sm" : "text-base sm:text-lg"
-            } ${sizeClass === "standard" || sizeClass === "small" ? "line-clamp-2" : ""}`}>
-              {item.title}
-            </h3>
-          </div>
-        </div>
+        <Image
+          src={coverUrl}
+          alt={item.title}
+          fill
+          className="object-cover transition-transform duration-500 group-hover:scale-105"
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+        />
       ) : (
-        /* No image — title takes most space */
-        <div className="flex-1 flex items-end p-3">
-          <h3 className={`font-serif italic tracking-tight text-[#2d2d2d] leading-snug ${
-            sizeClass === "tall" ? "text-xl sm:text-2xl" : sizeClass === "small" ? "text-sm" : "text-base sm:text-lg"
-          } ${sizeClass === "standard" || sizeClass === "small" ? "line-clamp-2" : ""}`}>
-            {item.title}
-          </h3>
-        </div>
+        /* Solid color fallback when no image */
+        <div className={`absolute inset-0 bg-gradient-to-br ${meta.overlay}`} />
       )}
 
-      {/* Compact footer — icon, label, timestamp */}
-      <div className="flex items-center gap-2 px-3 py-2">
-        <div className={`bento-icon-blob flex items-center justify-center w-6 h-6 ${meta.iconColor} shrink-0`}>
-          {IconComponent && <IconComponent className="w-3 h-3" />}
-        </div>
-        <span className="text-[9px] font-medium uppercase tracking-[0.12em] text-[#6b6b6b] truncate">
-          {meta.label}
-        </span>
-        <span className="ml-auto text-[9px] font-medium tabular-nums text-[#6b6b6b]/70 shrink-0">
-          {timeAgo(timestamp)}
-        </span>
-      </div>
+      {/* Category-tinted overlay — always shown */}
+      {coverUrl && (
+        <div className={`absolute inset-0 bg-gradient-to-t ${meta.overlay}`} />
+      )}
 
-      {/* Hover CTA — slides up */}
-      <div className="absolute bottom-0 left-0 right-0 flex items-center justify-between px-3 py-2 bg-white/90 backdrop-blur-sm translate-y-full group-hover:translate-y-0 transition-transform duration-300">
-        <span className="text-[10px] font-medium uppercase tracking-[0.12em] text-[#2d2d2d]/70">
-          Access Content
-        </span>
-        <div className="w-6 h-6 rounded-full bg-[#2d2d2d]/10 flex items-center justify-center">
-          <ArrowUpRight className="w-3 h-3 text-[#2d2d2d]/70" />
+      {/* Content layer */}
+      <div className="relative z-10 flex flex-col justify-between h-full p-4 sm:p-5">
+        {/* Top row: glassmorphism tag + timestamp */}
+        <div className="flex items-center justify-between">
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-medium uppercase tracking-[0.1em] text-white/90 bg-white/15 backdrop-blur-md border border-white/20">
+            {IconComponent && <IconComponent className="w-3 h-3" />}
+            {meta.label}
+          </span>
+          <span className="text-[10px] font-medium tabular-nums text-white/60">
+            {timeAgo(timestamp)}
+          </span>
+        </div>
+
+        {/* Bottom: title */}
+        <div className="mt-auto pt-4">
+          <h3 className={`font-serif italic tracking-tight text-white leading-snug drop-shadow-lg ${
+            size === "lg" ? "text-xl sm:text-2xl" : size === "sm" ? "text-sm line-clamp-2" : "text-base sm:text-lg"
+          }`}>
+            {item.title}
+          </h3>
+
+          {/* Hover arrow */}
+          <div className="flex items-center gap-1.5 mt-2 opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
+            <span className="text-[10px] font-medium uppercase tracking-[0.1em] text-white/70">
+              Read more
+            </span>
+            <ArrowUpRight className="w-3.5 h-3.5 text-white/70" />
+          </div>
         </div>
       </div>
     </Link>
@@ -313,15 +300,15 @@ export function BentoDashboard() {
         </div>
       )}
 
-      {/* ── Recent View (Dynamic Bento) ────────────────── */}
+      {/* ── Recent View (Masonry Grid) ──────────────────── */}
       {activeTab === "recent" && (
         <>
           {isLoadingRecent ? (
-            <div className="bento-recent-bento">
-              {["tall", "standard", "tall", "small", "standard", "tall", "small", "standard"].map((sz, i) => (
+            <div className="recent-masonry-grid">
+              {["lg", "md", "sm", "lg", "md", "sm", "md", "lg"].map((sz, i) => (
                 <div
                   key={i}
-                  className={`bento-tile bento-recent-item bento-recent-${sz} animate-pulse bg-white/40`}
+                  className={`masonry-${sz} rounded-3xl animate-pulse bg-white/30`}
                 />
               ))}
             </div>
@@ -335,10 +322,16 @@ export function BentoDashboard() {
               </p>
             </div>
           ) : (
-            <div className="bento-recent-bento">
-              {recentItems.map((item, i) => (
-                <RecentContentTile key={item.id} item={item} index={i} />
-              ))}
+            <div className="recent-masonry-grid">
+              {[...recentItems]
+                .sort((a, b) => {
+                  const aLow = a.type === "wishlist-item" ? 1 : 0;
+                  const bLow = b.type === "wishlist-item" ? 1 : 0;
+                  return aLow - bLow;
+                })
+                .map((item, i) => (
+                  <RecentCard key={item.id} item={item} index={i} />
+                ))}
             </div>
           )}
         </>
