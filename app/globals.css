@@ -2,6 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ─── Manifesto Hero — wavy underline ─── */
+.manifesto-wavy {
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 100%;
+  height: 8px;
+}
+
 :root {
   --background: #FDF5E6;  /* Sandstone background */
   --foreground: #111827;
