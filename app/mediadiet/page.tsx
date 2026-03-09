@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import Image from "next/image";
 import { Play, Film, BookOpen, ChevronDown, Star, Search, ArrowUpRight, Pencil, Trash2 } from "lucide-react";
 import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
 import { EditorialNav } from "@/components/EditorialNav";
@@ -142,10 +143,11 @@ function ContentCardVisual({ item }: { item: ContentItem }) {
   // If an image was uploaded, render it instead of the placeholder
   if (item.imageUrl) {
     return (
-      <div className="consumption-card-image overflow-hidden" style={aspectRatioStyle}>
-        <img
+      <div className="consumption-card-image overflow-hidden relative" style={aspectRatioStyle}>
+        <Image
           src={item.imageUrl}
           alt={item.title}
+          fill
           className="w-full h-full object-cover"
         />
       </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { ArrowUpRight, CheckCircle2 } from "lucide-react";
 import type { Sidequest } from "@/data/sidequests";
@@ -27,9 +28,10 @@ export function QuestCard({ quest, index, onClick }: QuestCardProps) {
       {/* Media Container */}
       <div className="relative aspect-[3/2] bg-[#EBDCCB] rounded-sm overflow-hidden mb-2">
         {quest.imageUrl ? (
-          <img
+          <Image
             src={quest.imageUrl}
             alt={quest.title}
+            fill
             className="absolute inset-0 w-full h-full object-cover"
           />
         ) : (

@@ -99,7 +99,7 @@ export function AddProductModal({
     } finally {
       setIsSubmitting(false);
     }
-  }, [name, category, brand, shade, routineType, timeOfDay, weekdays, notes, hairPhase, bodyAreas, showShade, showHairPhase, showBodyAreas, apiUrl, onSaved, onClose]);
+  }, [name, category, brand, shade, routineType, timeOfDay, weekdays, notes, hairPhase, bodyAreas, showShade, showHairPhase, showBodyAreas, apiUrl, onSaved, onClose, hideSchedule]);
 
   return (
     <AdminCrudModal

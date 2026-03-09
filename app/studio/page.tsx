@@ -48,7 +48,7 @@ function cmsItemToArtifact(item: ContentItem): Artifact {
   if (payload.hasWashiTape) artifact.hasWashiTape = true;
 
   const cat = (meta.category as string) || "";
-  if (cat) artifact.category = cat as Artifact["category"];
+  if (cat) artifact.category = cat as StudioCategory;
 
   if (paperNoteText && paperNotePosition) {
     artifact.paperNote = {

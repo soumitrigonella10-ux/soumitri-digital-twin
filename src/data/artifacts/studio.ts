@@ -13,6 +13,7 @@ export function getArtifactsByMedium(medium: string): Artifact[] {
   );
 }
 
-export function getArtifactsByYear(year: string): Artifact[] {
-  return artifacts.filter(artifact => artifact.date.includes(year));
+export function getArtifactsByYear(_year: string): Artifact[] {
+  // date field was removed from Artifact; CMS items use metadata.date instead
+  return [];
 }

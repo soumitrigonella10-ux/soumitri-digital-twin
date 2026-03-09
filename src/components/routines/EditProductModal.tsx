@@ -106,7 +106,7 @@ export function EditProductModal({
     } finally {
       setIsSubmitting(false);
     }
-  }, [name, category, brand, shade, timeOfDay, weekdays, notes, displayOrder, hairPhase, bodyAreas, showShade, showHairPhase, showBodyAreas, apiUrl, product.id, onSaved, onClose]);
+  }, [name, category, brand, shade, timeOfDay, weekdays, notes, displayOrder, hairPhase, bodyAreas, showShade, showHairPhase, showBodyAreas, apiUrl, product.id, onSaved, onClose, hideSchedule]);
 
   return (
     <AdminCrudModal

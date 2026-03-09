@@ -23,7 +23,7 @@ import type { PdfFlipbookProps } from "./types";
 
 export function PdfFlipbook({
   data,
-  layoutVariant = "default",
+  layoutVariant: _layoutVariant = "default",
   onClose,
   className,
 }: PdfFlipbookProps) {
