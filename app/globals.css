@@ -512,12 +512,12 @@ body {
 .bento-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  grid-template-rows: 240px 240px 240px 240px;
+  grid-template-rows: 280px 220px 240px 200px;
   grid-template-areas:
-    "essays    consumption  skillup"
-    "essays    travellog    studio"
-    "inspiration  wishlist  studio"
-    "design    design       internetlore";
+    "essays    skillup       studio"
+    "essays    consumption   studio"
+    "design    design        travellog"
+    "internetlore wishlist   inspiration";
   gap: 16px;
 }
 
@@ -561,14 +561,14 @@ a.bento-tile {
 @media (max-width: 1023px) and (min-width: 768px) {
   .bento-grid {
     grid-template-columns: repeat(2, 1fr);
-    grid-template-rows: 220px 220px 220px 220px 220px 220px;
+    grid-template-rows: 240px 200px 240px 200px 200px 180px;
     grid-template-areas:
-      "essays    consumption"
-      "essays    skillup"
-      "travellog studio"
-      "inspiration studio"
-      "wishlist  design"
-      "internetlore design";
+      "essays     skillup"
+      "essays     consumption"
+      "studio     design"
+      "studio     design"
+      "travellog  internetlore"
+      "wishlist   inspiration";
     gap: 14px;
   }
 }
@@ -625,6 +625,42 @@ a.bento-tile {
 .editorial-backdrop {
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
+}
+
+/* ─── Bento Recent Grid (dynamic bento for "Recent" tab) ─── */
+.bento-recent-bento {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-auto-rows: minmax(120px, auto);
+  gap: 16px;
+}
+
+/* Size variants — all vertical, varying heights */
+.bento-recent-tall { grid-row: span 2; }
+.bento-recent-wide { grid-row: span 2; } /* treat wide as tall too */
+.bento-recent-standard { /* 1 row */ }
+.bento-recent-small { /* 1 row, compact */ }
+
+/* Tablet (768px–1023px): 2-col recent grid */
+@media (max-width: 1023px) and (min-width: 768px) {
+  .bento-recent-bento {
+    grid-template-columns: repeat(3, 1fr);
+    grid-auto-rows: minmax(110px, auto);
+  }
+  .bento-recent-wide { grid-row: span 2; }
+  .bento-recent-tall { grid-row: span 2; }
+  .bento-recent-small { /* 1 row */ }
+}
+
+/* Mobile (<768px): single-column stream */
+@media (max-width: 767px) {
+  .bento-recent-bento {
+    grid-template-columns: repeat(2, 1fr);
+    grid-auto-rows: minmax(100px, auto);
+  }
+  .bento-recent-wide { grid-row: span 2; }
+  .bento-recent-tall { grid-row: span 2; }
+  .bento-recent-small { /* 1 row */ }
 }
 
 /* Smooth text rendering for editorial typography */

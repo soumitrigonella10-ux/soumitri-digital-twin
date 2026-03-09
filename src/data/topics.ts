@@ -19,7 +19,7 @@ export const topics: Topic[] = [
   {
     slug: "internet-lore",
     title: "Online Lore",
-    description: "Fragments from the deep web, screenshots nobody asked for, and the kind of posts you send to exactly one person at 2 a.m.",
+    description: "Proof I am perennially online.",
     isPublic: true,
     icon: "globe",
     iconColor: "text-teal-600",
@@ -29,7 +29,7 @@ export const topics: Topic[] = [
   {
     slug: "travel-log",
     title: "Atlas",
-    description: "Places I want to understand, not just visit.",
+    description: "I went there to see what it would do to me.",
     isPublic: true,
     icon: "map-pin",
     iconColor: "text-emerald-600",
@@ -85,7 +85,7 @@ export const topics: Topic[] = [
   {
     slug: "inspiration",
     title: "Inspo",
-    description: "Small fragments of influence—tacked on, torn out, and treasured.",
+    description: "It made me ffeel something.",
     isPublic: true,
     icon: "palette",
     iconColor: "text-teal-500",
@@ -100,7 +100,7 @@ export const topics: Topic[] = [
   {
     slug: "design-thoughts",
     title: "Design",
-    description: "A working document of principles, beliefs, and process notes from the drafting table.",
+    description: "I have a product design degree and it changed my life.",
     isPublic: true,
     icon: "lightbulb",
     iconColor: "text-amber-500",

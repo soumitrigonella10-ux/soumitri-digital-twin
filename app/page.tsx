@@ -39,16 +39,8 @@ export default function HomePage() {
       <HeroSection />
 
       {/* 2. Archive Section */}
-      <section id="archive" className="min-h-screen py-16 px-4 sm:px-6 lg:px-8" style={{ backgroundColor: '#fdfaf3' }}>
-        <div className="max-w-7xl mx-auto mb-12">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl sm:text-5xl font-extralight text-gray-900 mb-4 tracking-tight">
-              The Archive
-            </h2>
-            <p className="text-gray-600 font-light text-lg">
-              Curated collection of projects, writings, and explorations
-            </p>
-          </div>
+      <section id="archive" className="min-h-screen py-16 px-4 sm:px-6 lg:px-10" style={{ backgroundColor: '#fdfaf3' }}>
+        <div className="max-w-[1200px] mx-auto">
           <BentoDashboard />
         </div>
       </section>

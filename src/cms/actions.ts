@@ -333,6 +333,30 @@ export async function getContentByType(
   return fetch();
 }
 
+export async function getRecentPublishedContent(
+  limit = 12
+): Promise<ContentItem[]> {
+  const safeLim = Math.min(Math.max(limit, 1), 50);
+
+  const fetch = cachedContentByType(
+    async () => {
+      const rows = await db
+        .select()
+        .from(contentItems)
+        .where(eq(contentItems.visibility, "published"))
+        .orderBy(desc(contentItems.publishedAt), desc(contentItems.createdAt))
+        .limit(safeLim);
+
+      return { items: rows.map(rowToContentItem), total: rows.length };
+    },
+    "__recent__",
+    ["published", String(safeLim)]
+  );
+
+  const { items } = await fetch();
+  return items;
+}
+
 export async function getContentBySlug(
   type: string,
   slug: string
