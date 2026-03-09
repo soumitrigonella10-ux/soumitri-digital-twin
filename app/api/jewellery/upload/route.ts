@@ -11,6 +11,7 @@ import { type NextRequest, NextResponse } from "next/server";
 import { put } from "@vercel/blob";
 import { requireAdmin } from "@/lib/admin-auth";
 import { withErrorHandling } from "@/lib/api-utils";
+import { removeBackground } from "@/lib/remove-bg";
 
 const ALLOWED_TYPES = ["image/png", "image/jpeg", "image/webp", "image/avif"];
 const MAX_SIZE = 5 * 1024 * 1024; // 5 MB
@@ -51,11 +52,18 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
     .replace(/-+/g, "-")
     .toLowerCase();
 
-  const pathname = `jewellery/${Date.now()}-${sanitized}`;
+  // Remove background via remove.bg
+  const arrayBuffer = await file.arrayBuffer();
+  const processedImage = await removeBackground(arrayBuffer, sanitized);
 
-  const blob = await put(pathname, file, {
+  // Upload as PNG (remove.bg always returns PNG)
+  const pngName = sanitized.replace(/\.[^.]+$/, ".png");
+  const pathname = `jewellery/${Date.now()}-${pngName}`;
+
+  const blob = await put(pathname, processedImage, {
     access: "public",
     addRandomSuffix: false,
+    contentType: "image/png",
   });
 
   return NextResponse.json({ success: true, url: blob.url });

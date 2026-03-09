@@ -21,7 +21,7 @@ const CATEGORIES: WardrobeCategory[] = [
 const SUBCATEGORY_MAP: Partial<Record<WardrobeCategory, string[]>> = {
   Top: ["Basics", "Elevated tops", "Seasonals"],
   Bottom: [],
-  Ethnic: ["Casual", "Work", "Formal", "Festive"],
+  Ethnic: ["Tops", "Bottoms", "Sets", "Duppattas", "Sarees", "Blouse"],
   Shoes: ["Casual", "Formal", "Heels", "Boots", "Flats", "Sneakers"],
   Outerwear: [],
   Dress: [],
